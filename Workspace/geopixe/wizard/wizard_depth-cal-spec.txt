@@ -1,0 +1,25 @@
+This page is used to form separate SPEC files for use to provide both energy 
+calibration and also to enable "Outer" or "Inner" detector channels when 
+using image sorting later in "Sort EVT". These images will be used to 
+construct RGB images with depth contrast on page 3.
+
+Cal SPEC files for Outer and Inner detectors:
+
+If you need to build separate E Cal SPEC files for the "Outer" and "Inner"
+detectors, then use the top panel, starting with a Cal SPEC file for all
+detector channels. 
+
+Select .select.csv files for the "Outer" and "Inner" detectors, if these are 
+not already set from the previous page, or click on "Set" to define these 
+select files.
+
+Click on "Form Outer, Inner Cals" to build E Cal files for just Outer and 
+Inner channels. These will be saved to files, as shown in the bottom panel.
+
+Load existing Cal SPEC files for Outer and Inner:
+
+If you already have these SPEC files, then fill in the bottom panel only to 
+progress the procedure to the "RGB" page, else fill in the top panel, and 
+then click "Form Outer,Inner Cals" to create them.
+
+

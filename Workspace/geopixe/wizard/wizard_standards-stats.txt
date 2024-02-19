@@ -1,0 +1,29 @@
+
+     Image Statistics Table
+
+Table of basic image statistics for each data-set. These 
+are calculated after normalization to determine "conv". 
+These include:
+
+Mean: Average region concentration (ppm), which should 
+     now equal the nominal value for the standard.
+
+Error: The 1-sigma error estimate for "Mean" over region.
+
+Std.Dev: The standard deviation (ppm) of the per pixel 
+     concentration values over the region.
+
+SD/Error: The ratio of the per pixel standard deviation to
+     that expected from Poisson statistics.
+
+A value of "SD/Error" that departs significantly from unity
+indicates unwanted structure in the image beyond simple
+counting statistics. This may indicate damage, a hole,
+contamination or misalignment of the scan (e.g. so it hits 
+the sample frame).
+
+     Results File
+
+The results and statistics are exported to a file
+called "wizard-standards-results.csv" in the designated
+output directory, in comma-separated format.

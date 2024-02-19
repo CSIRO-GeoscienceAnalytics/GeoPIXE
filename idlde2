@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#Assumes IDL is installed and command "idlde" launches the Eclipse IDE.
+
+idlde -data "/src/GeoPIXE-open-source/Workspace" -pref="/src/GeoPIXE-open-source/Workspace/idl.pref"
+
+

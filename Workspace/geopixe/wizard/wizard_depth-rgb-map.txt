@@ -1,0 +1,49 @@
+This page is used to sort out separate maps as seen from the perspectives of 
+the "Outer" and "Inner" detector elements, and then display them in RGB to 
+provide a depth colour contrast. It uses the cal spectra from page 2.
+
+The "Inner" detectors experience less self absorption and "see" particles 
+more easily with depth and to greater depth.
+
+The X-rays heading towards the "Outer" detectors at greater angles to the 
+normal are more easily absorbed in the sample and become attenuated for 
+deep particles.
+
+Hence, if we use the "Inner" detectors to drive "Red" in a composite RGB 
+image, and the "Outer" detectors to drive "Green", we will observe deep 
+particles as "Red" and shallow ones as "Yellow".
+
+Making "Outer" and "Inner" perspective image files:
+
+First we need to form the separate images for the "Outer" and "Inner" 
+detectors, making use of the Cal Spec files for each from the previous page.
+If you have these image files already, enter the file-names into the 
+bottom panel, and skip to displaying the results as RGB images.
+
+Firstly, make sure that "Sort EVT" is open, and use "From DAI" to load into 
+it the normal image DAI file (uses all detectors) for the area of interest. 
+Make sure all "File" and "DA" paths are valid.
+
+This could be the whole image area, or you can also (i) collect small 
+scans over the smaller regions of interest with particles and use these 
+DAI files, or (ii) re-sort a large image area, but selecting a smaller 
+'Window' on the "Scan" tab of "Sort EVT". This makes the images much 
+smaller, and easier to use in this depth work.
+
+Click on "Sort Outer, Inner Images" to process the data specified in the 
+"Sort EVT" window. When finished, the sort will save images and fill in 
+the output filenames of the outer and inner images to use for generating 
+RGB images below.
+
+NOTE: You will need to fill in the Cal Spectra files on page 2 first.
+
+Displaying depth in RGB images:
+
+Firstly, make sure that the "RGB Image" window is open.
+Click on "Display RGB Depth Images" to take the outer and inner images and
+display them in RGB. Shallow particles appear YELLOW, deep ones RED.
+
+Adjust the display maximum for the element of interest (as % of max) to 
+see the particles clearly. Set this level EQUALLY for the RED and GREEN
+maps to preserve the depth contrast. After adjusting the RGB display, 
+remember to save any images that you like.

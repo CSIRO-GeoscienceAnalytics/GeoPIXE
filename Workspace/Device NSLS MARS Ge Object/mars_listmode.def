@@ -1,0 +1,11 @@
+
+; Bit patterns used to decode MARS Ge listmode data
+
+tag_mask4 =		'80000000'xul		; event_1 (was ET4)		Maia 384
+adr_mask4 =		'7FC00000'xul
+t_mask4 =		'003FF000'xul
+e_mask4 =		'00000FFF'xul
+tag_offset4 = 		-31
+adr_offset4 = 		-22
+t_offset4 =		-12
+e_offset4 =		0

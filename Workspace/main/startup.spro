@@ -1,0 +1,9 @@
+
+COMPILE_OPT STRICTARR
+if !version.os_family eq 'Windows' then device, decomposed=0
+if !version.os_family eq 'unix' then device, true_color=24, decomposed=0
+if !version.os_family eq 'MacOS' then device, decomposed=0
+
+common c_errors_1, catch_errors_on
+catch_errors_on = 0
+

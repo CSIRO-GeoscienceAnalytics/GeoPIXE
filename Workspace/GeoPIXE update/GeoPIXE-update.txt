@@ -1,0 +1,64 @@
+
+               GeoPIXE FTP UPdate Notes
+
+   A new program with GUI "geopixe_update.sav" can now manage update
+   of GeoPIXE code and support files from the CSIRO FTP server into a
+   designated local geopixe directory. By default, it transfers files that
+   are more recent on the server than on the local system.
+
+   It has fields for the FTP server access and the local
+   GeoPIXE directory to update into. It allows certain files to be
+   ignored, such as "Maia.conf" and "geopixe.conf", which will most
+   likely be modified to suit the local system, PVs and paths. 
+
+   Files defined as "ignored" will still get transferred if they are newer
+   on the server, but into a new file name with a ".new" suffix. This
+   enables you to check for new features in the conf files, for example.
+
+1. Double click "geopixe_update.sav" to start the update.
+
+2. Check that the FTP server details are correct (top panel). Use the username
+   and password provided to you originally.
+
+   In future you may need to change the update path to a new version of
+   GeoPIXE. Click on "?" to see all current versions on the FTP site.
+
+3. Select the local dir for the target GeoPIXE system to update. Select
+   the main geopixe directory. 
+
+   Initially, you should probably start with a new directory area, and then move
+   your specific files across from your current set-up (e.g. local
+   .filter and .detector files, etc.).
+
+4. Optionally, select files (and groups of files using single character "?" and
+   multiple character "*" wildcards) to ignore. This means that if files matching
+   these specifications are found on the server and are more recent than in the
+   local system, then they are still transferred, but with a suffix ".new"
+   appended to their file names. The protected (ignored) files are not modified.
+
+   Note that when you "Save" this ignore file list, it is copied into a file 
+   "ftp-update.ignore" in your home .geopixe directory for use next time.
+
+5. Note that from GeoPIXE 6.3z onwards, your config file "geopixe.conf" will be
+   expected to be read from your home .geopixe directory. If none exists, a
+   copy of "geopixe.conf" will be copied from the geopixe directory.
+
+6. Code is updated from FTP server path /update. There is also a /Demo path, which
+   contains Demo data to be used with the Worked Examples tutorials.
+   
+8. Click on "Start Update" to begin. Connection to the server, directory
+   scanning and file updates are logged to the bottom panel.
+
+   "Exit" only exits the program. Use "Cancel" to interrupt the transfer
+   process (after a delay).
+
+9. On exit (and after a completed transfer) all settings are saved to the file
+   "geopixe-update.conf" in your home .geopixe directory. These are loaded next
+   time geopixe_update is run.
+
+   In future when you run "geopixe_update", your settings will be restored
+   and you'll only need to click "Start" to retrieve new files.
+
+10. NOTE: A departure from past convention, the Linux scripts for running
+   various GeoPIXE programs now reside in the "bin" directory. Make sure you
+   add the geopixe/bin path to your PATH on Linux systems.

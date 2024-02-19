@@ -1,0 +1,86 @@
+#! /bin/bash
+#
+# Template script to run "geopixe", "maia_control", "maia_update" and "idlquery"
+#
+# Assumes that the GeoPIXE working directory uses the same location as
+# this script, but can be overridden by environment variable $GEOPIXE_BASE
+#
+# The IDL interpreter to use is searched on $PATH as "idl", but can be
+# overridden by environment variable $GEOPIXE_IDL
+#
+#-------------------------------------------------------------------------
+# 
+# get the name this script was invoked as
+this=$0
+base=`dirname $this`
+script=`basename $this`
+
+# elide trailing /bin
+if [ xx`basename $base` = "xxbin" ]; then
+    base=`dirname $base`
+fi
+
+# change to GeoPIXE working directory, assumed to be same location as
+# this script, but can be overridden by environment variable $GEOPIXE_BASE
+base=${GEOPIXE_BASE:-$base}
+cd $base
+
+# select the IDL interpreter to use; assumed to be in $PATH, but can be
+# overridden by environment variable $GEOPIXE_IDL
+idl=${GEOPIXE_IDL:-`which idl`}
+if [ xx$idl = "xx" ]; then
+    echo "$script: Can't find IDL environment"
+    exit 1
+fi
+
+# select the sav file to execute, then only one copy of this script is
+# needed, hard linked (or copied) to the appropriate names
+case $script in
+    geopixe)
+        sav=GeoPIXE.sav
+        ;;
+    maia_control)
+        sav=maia_control.sav
+        ;;
+    maia_update)
+        sav=maia_update.sav
+        ;;
+    geopixe_update)
+        sav=geopixe_update.sav
+        ;;
+    test_environment)
+        sav=test_environment.sav
+        ;;
+    test_libs)
+        sav=test_libs.sav
+        ;;
+    scanning)
+        sav=scanning.sav
+        ;;
+    memtest)
+        sav=memtest.sav
+        ;;
+    blogbrowse)
+        sav=blog_browser.sav
+        ;;
+    wizard_standards)
+        sav=wizard/wizard_standards.sav
+        ;;
+    wizard_depth)
+        sav=wizard/wizard_depth.sav
+        ;;
+    midasbrowse)
+        sav=midas_browser.sav
+        ;;
+esac
+
+# debug -- can be commented out
+echo base=$base
+echo script=$script
+echo idl=$idl
+echo sav=$sav
+
+# run it
+exec $idl -rt=$sav
+
+exit 0

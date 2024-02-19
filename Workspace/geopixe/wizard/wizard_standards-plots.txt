@@ -1,0 +1,34 @@
+
+     Calibration Results Plots
+
+Results for "conv" plotted against blog run number
+or major line energy. Each beam energy is plotted 
+as a separate curve in a different colour.
+
+     Run # order tab
+
+Plots "conv" againt run number.
+
+     Line energy tab
+
+Plots "conv" againt major line energy for element.
+
+     Detector comparisons
+
+To test the effect of changing detector, use the 
+droplists to select the old (or existing) detector, 
+as used in all yield calculations and DA matrices, 
+and a new detector file. 
+
+The plots show the effect of the new detector, but
+the table does not. To actually use this new detector 
+calibration, you will need to redo the yield 
+calculations and DA matrices.
+
+     Results File
+
+The results and statistics are exported to a file
+called "wizard-standards-results.csv" in the 
+designated output directory, in comma-separated format.
+
+

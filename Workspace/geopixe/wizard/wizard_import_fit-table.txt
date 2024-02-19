@@ -1,0 +1,34 @@
+
+     Work and Results Table
+
+Table is populated using metadata where available. Missing
+entries will need to be added. Click in a cell to edit it, 
+or use "Fill" to duplicate it down the selected column.
+
+The processing will apply an energy calibration, if supplied
+and then fit each spectrum using the current fit setup.
+Before processing, load a suitable fit-setup. See the
+"Fit Results" window for results. 
+
+See the table for a value for "Chi Squared" and "RMS error"
+to gauge the quality of the fit (values of RMS Error better
+than 10% are typical of good fits).
+
+     Controls
+
+Enable: Toggle the enable state of selected rows.
+
+Fill: Duplicate down selected columns. 
+
+Delete: Delete selected row(s).
+
+Clear: Clear entires table.
+
+Process: Start the processing.
+
+     Selection of cells
+
+Click in a cell to select it. Click and drag to select
+multiple rows and/or columns. Selecting the "pileup" and
+"throttle" cells will bring up the file requester. All
+other cells using the same file-name will be updated too.

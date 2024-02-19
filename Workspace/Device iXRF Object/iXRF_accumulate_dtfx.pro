@@ -1,0 +1,70 @@
+pro iXRF_accumulate_dtfx, x,y,ste,veto,fx,n,n_fx, flux_scale, xrange,yrange,n_flux, $
+			flux=flux, xcompress=xcompress, ycompress=ycompress, dwell=dwell, $
+			spectrum=spectrum, image=image, pseudo=pseudo, nominal_dwell=dwell_nominal, $
+			dead_fraction=dead_fraction, weight=weight, error=err
+;
+;  This assumes x,y,veto,pseudo	uintarr(n) (pseudo only used for /image)
+;				fx			fltarr(n_fx,n)
+;				flux_scale	units for flux scaling
+;				flux		flux array
+;				dead_fraction DT array (weighted), image or detector vector
+;				weight		weight array, image or detector vector
+;	xrange,yrange,n_flux	dimensions for image mode flux array
+;				xrange,1	dimensions for dead_fraction spectrum mode
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'iXRF_accumulate_dtfx',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!Error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		err = 1
+		return
+	endif
+endif
+if n_elements(spectrum) lt 1 then spectrum=0L
+if n_elements(image) lt 1 then image=0L
+if n_elements(xcompress) lt 1 then xcompress=1L
+if n_elements(ycompress) lt 1 then ycompress=1L
+if n_elements(flux) lt 1 then flux=0.0
+if n_elements(pseudo) lt 1 then pseudo=0US
+if spectrum eq 0 then image=1L
+
+value = bytarr(20)
+value[*] = 0					; pass all by reference
+err = 0L
+
+if size(x,/tname) ne 'UINT' then begin sb='x' & goto, bad & endif
+if size(y,/tname) ne 'UINT' then begin sb='y' & goto, bad & endif
+if size(ste,/tname) ne 'UINT' then begin sb='ste' & goto, bad & endif
+if size(veto,/tname) ne 'UINT' then begin sb='veto' & goto, bad & endif
+if size(pseudo,/tname) ne 'UINT' then begin sb='pseudo' & goto, bad & endif
+if size(fx,/tname) ne 'FLOAT' then begin sb='fx' & goto, bad & endif
+if size(flux_scale,/tname) ne 'FLOAT' then begin sb='flux_scale' & goto, bad & endif
+if size(flux,/tname) ne 'FLOAT' then begin sb='flux' & goto, bad & endif
+if size(dead_fraction,/tname) ne 'FLOAT' then begin sb='dead_fraction' & goto, bad & endif
+if size(dwell,/tname) ne 'FLOAT' then begin sb='dwell' & goto, bad & endif
+if size(weight,/tname) ne 'FLOAT' then begin sb='weight' & goto, bad & endif
+
+err = call_external( geopixe_library(), geolib_name( 'ixrf_accumulate_dtfx'), cdecl=geolib_cdecl(), $
+		image, x,y,ste,veto,pseudo,fx,long(n),long(n_fx), flux_scale, $
+		long(xcompress),long(ycompress), long(xrange),long(yrange),long(n_flux), $
+		flux, dwell, float(dwell_nominal), dead_fraction, weight, value=value )
+if err then gprint,' iXRF_accumulate_dtfx: Error in Fortran - bad number of arguments'
+return
+
+bad:
+	gprint,' iXRF_accumulate_dtfx: Error - bad type for argument: '+sb
+	err = 1L
+	return
+end

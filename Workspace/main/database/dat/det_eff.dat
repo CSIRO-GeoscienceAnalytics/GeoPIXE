@@ -1,0 +1,1167 @@
+|
+|	Detector parameters file
+|	------------------------
+|
+|	See "HELP DETECTOR DETECTOR-FILE" for more details.
+|
+|	If Aeff, Beff parameters are set to 0.0 then the standard absorption
+|	for that detector material is used from ABSCO. This is recommended.
+|	Adjust the detector thickness to fit the efficiency curve at high E.
+|
+|	If tail parameters are not known for a detector, they can be left
+|	zero to veto tail calculation.
+|
+|	Up to 8 absorber layers can be specified, using the format common
+|	to the PIXE_FIT .PCM files. That is:
+|
+|	    Thick, pin-hole, density
+|
+|	where thick is the thickness in mg/cm2, if density=0.0, else microns
+|	if a valid density is specified. Pin-hole is the ratio of total
+|	detector solid-angle to hole solid-angle for a pin-hole "funny filter"
+|	absorber.
+|
+| N.B.	Remember to use UN_DET_EFF to create the necessary direct access file
+|	from this file.
+|	The UPDATE_LOCAL procedure does this, as well as updating help files.
+|
+|-----------------------------------------------------------------------------
+|
+#1
+|	AAEC detector
+|
+ AAEC Si(Li) detector
+Si				| detector material
+4.26,	2.322			| detector thickness (mm), density (g/cm3)
+97.0 ,	10.0  			| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+1.0   				| source size (mm)
+15020.,   3.22     		| Aeff, Beff (use 0.0, 0.0 to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead layer
+Si				| Dead layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|------------------------------------------------------------------------------
+#2
+|	PGT old, Eff=1
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+28.0 ,	10.0  			| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+1.E+6,   0.0      		| Aeff, Beff (use 0.0, 0.0 to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead layer
+Si				| Dead layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|------------------------------------------------------------------------------
+#3
+|	PGT old
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+30.7 ,	10.0  			| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+65638.,   3.81     		| Aeff, Beff (use 0.0, 0.0 to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead layer
+Si				| Dead layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|------------------------------------------------------------------------------
+#4
+|	PGT old, B fix
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+30.6 ,	10.0  			| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+10436.,  3.22     		| Aeff, Beff (use 0.0, 0.0 to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead layer
+Si				| Dead layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#5
+|	PGT 20/1/87
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+24.9,	10.0  			| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+313712.,  4.137    		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#6
+|	PGT , B fix
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+24.9,	10.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+16399.,   3.22     		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#7
+|	PGT 4/3/87
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+24.872,	10.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+14064.3,  3.17634  		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#8
+|	PGT , B fix
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+24.878,	10.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+16200.2,  3.22     		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#9
+|	Absco*1.2
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+24.090,	10.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+1955.9,   2.5937   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#10
+|	Tracor, Eff=1
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.0,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+1.E+6,    0.0      		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#11
+|	Tracor 16/6/87
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+23.72,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+15989.4,  3.17634  		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#12
+|	Tracor test
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+23.72,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+14064.3,  3.17634  		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#13
+|	Tracor, to Te
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.03,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#14
+|	Tracor, to Te
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.03,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#15
+|	Tracor, to Te
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.03,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#16
+|	Tracor, to Te
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.03,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#17
+|	Tracor, to Te
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.03,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#18
+|	HPGe ?
+|
+ High purity Ge detector
+Ge				| detector material
+10.0,	5.338			| detector thickness (mm), density (g/cm3)
+30.0,	177.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.0,	0.0	   		| Aeff, Beff (use 0.,0. to select defaults)
+0., 0., 0.			| tail amplitude parameters
+0., 0.				| tail length parameters
+ Be window
+Be				| Be window
+32.0  ,	0.0,	1.803
+ Detector dead-layer
+Ge				| Detector dead-layer
+0.3  ,	0.0,	5.338
+ Gold contact
+Au				| Gold contact
+0.02 ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#20
+|	PGT , Geogas1
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+45.0,	10.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+16200.2,  3.22     		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#21
+|	PGT , Geogas2
+|
+ PGT Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+22.0,	10.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+16200.2,  3.22     		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#22
+|	Tracor calibration adjustment after secondary e-suppressor was
+|	installed (sep-93). The SOV115 data with BaL and BaK constrained
+|	a modification of the thickness to 2.7 mm. This and other standards
+|	dictated the change of distance.
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+2.7,	2.322			| detector thickness (mm), density (g/cm3)
+22.247,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.9  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#23
+|	Tracor calibration adjustment to det#22.
+|	Tweeked distance by 2%.
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+2.7,	2.322			| detector thickness (mm), density (g/cm3)
+22.71,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.9  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#24
+|	PGT  (EVA 06/12/94)
+|
+ PGT Si(Li) detector
+Si				| detector material
+2.0,	2.322			| detector thickness (mm), density (g/cm3)
+21.7,	13.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0., 0.,		     		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Tail losses
+Si				| Detector tail losses
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#25
+|	Link calibration (24-1-95)
+|
+ Link Si(Li) detector
+Si				| detector material
+2.7,	2.322			| detector thickness (mm), density (g/cm3)
+20.0,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.9  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3                                                          
+|-----------------------------------------------------------------------------
+#26
+|	Link calibration (21-7-95)
+|
+ Link Si(Li) detector
+Si				| detector material
+2.7,	2.322			| detector thickness (mm), density (g/cm3)
+20.7,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.9  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#27
+|	Link calibration (16-7-96)
+|
+ Link Si(Li) detector
+Si				| detector material
+2.5,	2.322			| detector thickness (mm), density (g/cm3)
+21.3,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.2  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.15  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#28
+|	Link calibration (16-7-96)
+|
+ Link Si(Li) detector
+Si				| detector material
+2.5,	2.322			| detector thickness (mm), density (g/cm3)
+20.6,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.2  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.15  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#29
+|	Tracor calibration, after refurbishment in Jan-97.
+|	CGR 2/4/97.
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+4.5,	2.322			| detector thickness (mm), density (g/cm3)
+21.9,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,0.,		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.2  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.15  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#30
+|	Tracor calibration, including corrections for the notch in the
+|		efficiency around 8 keV, using the special options $2.
+|		Detector has abnormally high losses at low E too.
+|	CGR 14/5/97.
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+2.0,	2.322			| detector thickness (mm), density (g/cm3)
+18.0,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,0.,		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+2.5  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.15  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+$2
+9.2, 3.5, 0.55, 4.0, 10.0, 0.4	| Bragg scattering notch
+|-----------------------------------------------------------------------------
+#31
+|	Link calibration (7-7-97)
+|
+ Link Si(Li) detector
+Si				| detector material
+2.5,	2.322			| detector thickness (mm), density (g/cm3)
+21.1,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.15 ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.15 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.0001,	0.0,	19.3
+|
+|-----------------------------------------------------------------------------
+#32
+|	Tracor Northern detector calibration (19-1-98)
+|	(after the major refurbushment)
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+2.6,	2.322			| detector thickness (mm), density (g/cm3)
+22.2,	30.0	 		| detector distance (mm), area (mm2)
+180.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.0,0.0		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.15 ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.15 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02,	0.0,	19.3
+|
+|-----------------------------------------------------------------------------
+#33
+|	Canberra Ge calibration (2-8-99)
+|
+ Canberra Ultra LEGe Ge detector
+Ge				| detector material
+10.0,	5.338			| detector thickness (mm), density (g/cm3)
+17.8,	95.0	 		| detector distance (mm), area (mm2)
+140.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,0.		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+32.0 ,	0.0,	1.803
+ Collimator
+Al				| Pinhole collimation
+710.0 ,	1.5,	2.7
+ Detector dead-layer
+Ge				| Detector dead-layer
+0.03 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.0001,	0.0,	19.3
+|
+|-----------------------------------------------------------------------------
+#34
+|	Canberra Ge calibration (17-12-99)
+|		added a little Ge dead-layer to correct 2-3 keV
+|
+ Canberra Ultra LEGe Ge detector
+Ge				| detector material
+10.0,	5.338			| detector thickness (mm), density (g/cm3)
+17.8,	95.0	 		| detector distance (mm), area (mm2)
+140.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,0.		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+32.0 ,	0.0,	1.803
+ Collimator
+Al				| Pinhole collimation
+710.0 ,	1.5,	2.7
+ Detector dead-layer
+Ge				| Detector dead-layer
+0.96 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.0001,	0.0,	19.3
+|
+|-----------------------------------------------------------------------------
+#35
+|	Canberra Ge calibration (17-11-00)
+|		adjusted tail parameters for As
+|
+ Canberra Ultra LEGe Ge detector
+Ge				| detector material
+10.0,	5.338			| detector thickness (mm), density (g/cm3)
+17.8,	95.0	 		| detector distance (mm), area (mm2)
+140.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,0.		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.15, 12., 2880.		| tail amplitude parameters
+0.55, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+32.0 ,	0.0,	1.803
+ Collimator
+Al				| Pinhole collimation
+710.0 ,	1.5,	2.7
+ Detector dead-layer
+Ge				| Detector dead-layer
+0.96 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.0001,	0.0,	19.3
+|
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|---------------Dummy Detector Calibration Codes------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+#90
+|	Tracor calibration, including corrections for the notch in the
+|		efficiency around 8 keV, using the special options $2.
+|		This version is a fiddle to aid fitting this detector's
+|		artefacts.				|	CGR 14/5/97.
+|
+ Tracor Northern Si(Li) detector (fitting ONLY)
+Si				| detector material
+2.0,	2.322			| detector thickness (mm), density (g/cm3)
+18.0,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,0.,		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.2  ,	0.0,	2.322
+ Tail losses
+Si				| Tail losses
+0.15  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+$2
+8.5, 4.3, 0.85, 5.8, 7.50, 0.01	| Bragg scattering notch, for fitting ONLY
+|
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|---------------Demo Detector Calibration Code--------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+#99
+|	Tracor Northern
+|
+ Tracor Northern Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.03,	30.0	 		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|---------------------------Other Laboratories--------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+#101
+|	Melb Si(Li)
+|
+ MARC Ortec Si(Li) detector?
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+22.3,	10.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#102
+|	Melb MP1 Si(Li)
+|
+ MARC Ortec Si(Li) detector	(6/2/95)
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+40.0,	9.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+19426.,   3.2003   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+7.6   ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#103
+|	Melbourne MP2 Kevex
+|
+ Melb/CSIRO Kevex Si(Li) detector (48 msr)
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.0,	30.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,	0.	   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+14.0 ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.075 ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#106
+|	6 NAC Si(Li), includes the Kevlar window, plus ice layer
+|		adjusted distance to suit glass and geostandards
+|
+ NAC Canberra Si(Li) detector
+Si				| detector material
+3.5,	2.322			| detector thickness (mm), density (g/cm3)
+36.0,	30.0	  		| detector distance (mm), area (mm2)
+199.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.0,	0.0     		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Tail loss and Ice layer
+H2O				| Tail losses and Ice build-up
+15.0 ,	0.0,	1.000
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+ Kevlar window
+C14H10N2O2			| Kevlar window
+75.0,	0.0,	1.44
+|-----------------------------------------------------------------------------
+#107
+|	Schonland Centre Ortec Si(Li) detector
+|
+ Schonland Ortec Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+25.0,	30.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,	0.	   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+14.0 ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.075 ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#108
+|	Melbourne MP2 Kevex
+|
+ Melb/CSIRO Kevex Si(Li) detector (33 msr)
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+30.0,	30.0	  		| detector distance (mm), area (mm2)
+160.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,	0.	   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+14.0 ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.075 ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#109
+|	IAEA Si(Li)
+|
+IAEA Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+50.0,	30.0	  		| detector distance (mm), area (mm2)
+165.				| detector resolution (eV) at Mn K-alpha
+0.5  				| source size (mm)
+0.,	0.	   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+25.0 ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.075 ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#110
+|	IAEA Si(Li), modified
+|
+IAEA Si(Li) detector (modified)
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+50.0,	30.0	  		| detector distance (mm), area (mm2)
+165.				| detector resolution (eV) at Mn K-alpha
+0.5  				| source size (mm)
+0.,	0.	   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+25.0 ,	0.0,	1.803
+ Detector dead-layer
+Si				| Detector dead-layer
+0.01 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.0001 , 0.0,	19.3
+|-----------------------------------------------------------------------------
+#114
+|	14 NAC Link Si(Li) No 25073-1180-01, uncollimated, Mylar window, outside
+|
+ New NAC Link Si(Li) detector
+Si				| detector material
+3.0,	2.322			| detector thickness (mm), density (g/cm3)
+40.2,	80.0	 		| detector distance (mm), area (mm2)
+150.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,    0.       		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Tail loss and Ice layer
+H2O				| Tail losses and Ice build-up
+15.0  ,	0.0,	1.000
+ Detector dead-layer
+Si				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+ Mylar exit window
+C10H8O4				| Mylar
+25.0  , 0.0,    1.387
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|---------------Test Detector Calibration Codes-------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+|-----------------------------------------------------------------------------
+#200
+|	Testing ...
+|
+ GaAs detector
+GaAs				| detector material
+0.2,	5.0			| detector thickness (mm), density (g/cm3)
+20.0,	4.0	  		| detector distance (mm), area (mm2)
+200.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.0,	0.0     		| Aeff, Beff (use 0.,0. to select defaults)
+0., 0., 0.			| tail amplitude parameters
+0., 0.				| tail length parameters
+ Detector dead-layer
+GaAs				| Detector dead-layer
+0.3  ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.02  ,	0.0,	19.3
+|-----------------------------------------------------------------------------
+#201
+|	Test Ge calibration (7-7-97)
+|
+ Intrinsic Ge detector
+Ge				| detector material
+10.0,	5.338			| detector thickness (mm), density (g/cm3)
+22.0,	95.0	 		| detector distance (mm), area (mm2)
+140.				| detector resolution (eV) at Mn K-alpha
+0.01  				| source size (mm)
+0.,0.		   		| Aeff, Beff (use 0.,0. to select defaults)
+0.045, 12., 2880.		| tail amplitude parameters
+0.9, 0.064			| tail length parameters
+ Be window
+Be				| Be window
+8.0   ,	0.0,	1.803
+ Detector dead-layer
+Ge				| Detector dead-layer
+0.03 ,	0.0,	2.322
+ Gold contact
+Au				| Gold contact
+0.0001,	0.0,	19.3
+|
+|-----------------------------------------------------------------------------

@@ -1,0 +1,26 @@
+;
+;	For z > Ka_s split K_alpha lines
+;	For z > Kb_s split k_beta lines
+;	For z > La_s split L_alpha lines
+;
+;	N.B. The identity of the major line is NOT written into the
+;	PIXE_FIT .BAT file. Hence, TRACE has no way of telling if the split
+;	definition doesn't match the yield .TAT file. Hence, do not change
+;	these definitions unless you plan to invalidate all current fitted
+;	data and yields.
+;
+	Ka_s = 27
+	Kb_s = 19
+	La_s = 52
+;
+;	**_lo points to lines to use below split limit
+;	**_hi points to the first line above the split limit
+;
+	Ka_lo = 9
+	Ka_hi = 1
+	Kb_lo = 10
+	Kb_hi = 4
+	La_lo = 29
+	La_hi = 15
+	Ma_lo = 32
+;

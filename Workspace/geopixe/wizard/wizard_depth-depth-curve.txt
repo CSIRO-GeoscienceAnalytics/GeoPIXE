@@ -1,0 +1,50 @@
+The Particle Depth Wizard makes use of the variation in the self absorption 
+of characteristic X-rays in the sample as a function of take-off angle, and 
+the wide range of angles captured by the detectors across the Maia array. 
+
+By contrasting a group of "Outer" detectors (at large angles from the sample 
+normal) with a group of "Inner" detectors (at small angles to the normal), 
+which suffer less absorption, we can construct a "Depth Curve" that relates 
+this ratio to depth.
+
+On this first page, we construct this "Depth Curve", a function of "Outer"/
+"Inner" detectors versus depth (or select an existing "Depth Curve" file). 
+The curve will be needed on page 4 to find particle depths.
+
+The key is the yield calculation. Click on "New" adjacent to "Yields" to 
+bring up the X-ray Yield Calculation dialogue. You can use the "Set-up: Load"
+button to load a previous Yield calculation set-up as a starting point.
+
+Set-up 2 layers as follows (see the figure):
+
+1. The over-layer - the phase hosting the particles of interest. 
+Use "Define Layer: 1" to set this layer. Use the droplist next to "Thick:" 
+to select the "+1D" option, which allows a range of thicknesses to be selected.
+Set the thickness next to "+1D" to some minimum, such as 1 micron, and set
+the density of the phase. On the next row, set the Thickness minimum, maximum
+and step size. This is your depth range and step size. 
+
+2. The particle - this layer represents the particle of interest.
+
+Click "calculate Yields" to perform the calculation, which will take a few 
+seconds per step. About 10 steps or so is sufficient for moderate thickness 
+samples. Typical step-size is around 20 microns, and depths can range up to 
+a few 100's microns.
+
+Getting the composition of the "over layer" phase correct has a strong bearing
+on the accuracy of the depth estimation, as the self-absorption in this phase 
+provides our measure of depth. 
+
+Set-up "Inner" and "Outer" detector selections:
+
+Use the "Set" button to bring up the "Array Detector Channel Selection"
+window to select the "inner" and "outer" detectors, as shown in Figure 1. 
+Save these to "inner" and "outer" .select.csv selection files.
+Click on the "Outer" or "Inner" buttons if these files have already been 
+defined.
+
+Calculate a Depth Curve:
+
+Click "Calculate Depth Curve" to start the modelling of a depth curve, and
+select an output file-name. If the curve has been previously calculated, load
+it using the "Curve" button; it will be needed in later processing steps/tabs.

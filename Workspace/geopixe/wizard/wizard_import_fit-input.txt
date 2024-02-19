@@ -1,0 +1,18 @@
+
+     Import Spectra and Fit Wizard
+
+The Wizard will search for all spectra data files of the
+type selected in the selected 'data' directory. 
+
+Each will be imported and then fitted using the current
+fit set-up details. A new energy calibration will be
+applied if a file is selected.
+
+Results are stored in the Table on tab two, which includes
+Chi-Squared and RMS error estimates for the fit.
+
+     Controls
+
+Scan Data Dir: Scan raw data dir for data files and populate
+     the table based on metadata.
+

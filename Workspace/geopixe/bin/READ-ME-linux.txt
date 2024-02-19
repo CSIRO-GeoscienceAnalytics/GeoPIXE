@@ -1,0 +1,36 @@
+
+Some notes on Linux
+
+1. Once geopixe is installed on your Linux system, add the path to 
+   geopixe/bin to your session PATH. All scripts for running GeoPIXE
+   programs are located here. Do not use soft links to the scripts
+   in this directory.
+
+2. GeoPIXE now recognizes the following file-names for libraries:
+
+	image_lib.32bit.so		32 bit library
+	image_lib.64bit.so		64 bit library
+
+   These library file are supplied and can be found on the FTP site too.
+   GeoPIXE will select the library appropriate for your system.
+
+3. GeoPIXE now uses the directory ".geopixe" in your Home directory for
+   the following
+
+   geopixe.conf          config file, e.g. set-up default initial paths
+                         will default to reading this file from geopixe dir.
+
+   file-requester.paths  path bookmarks file
+                         will default to reading this file from geopixe dir.
+
+   geopixe-update.conf   config file for FTP update client.
+   ftp-update.ignore     file specifications (w/ wildcards ?,*) to 
+                         protect during FTP update.
+
+   *__log.txt   parallel processing log files
+
+   * Templates for the .conf files are located in the geopixe directory and
+     copied to users .geopixe directory when first used.
+
+
+

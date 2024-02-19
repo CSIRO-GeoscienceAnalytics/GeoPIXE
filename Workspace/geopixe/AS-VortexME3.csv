@@ -1,0 +1,16 @@
+# This file produced by program: "write_detector_layout.pro"
+title,AS Vortex ME3
+N,       3,Number of detectors
+Start,       1,Start at this # (default: detector numbers start at 0)
+Shape,       0,Shape of detectors (0=circular, 1=square)
+Symmetry,       4,Detector array symmetry steps for 360 degree (default is 4)
+Reorient,       0,Re-orient or rotate by "reorient*360/symmetry" degrees
+MirrorX,       0,Mirror the layout in X
+MirrorY,       0,Mirror the layout in Y
+Veto,       0,Veto channels with excessive FWHM
+Threshold,      135.000,FWHM threshold (eV)
+# ID, X,Y offsets from centre (mm), Z offset from planar (mm), Width, Height (mm), Tilt (degrees), bad (0=good 1=poor 2=dead), FWHM (eV), Hermes, Quadrant, Radial, Column, Row
+Data, X, Y, Z, width, height, tilt, bad, FWHM, Hermes, Quadrant, Radial, Column, Row
+   1,   0.000,   0.000,   0.000,  10.084,  10.084,   0.000,  0,   0.000,    0,    0,    0,    0,    0
+   2,   0.000,  11.938,   0.000,   8.001,   8.001,   0.000,  0,   0.000,    0,    0,    0,    0,    0
+   3,   0.000, -11.938,   0.000,   8.001,   8.001,   0.000,  0,   0.000,    0,    0,    0,    0,    0

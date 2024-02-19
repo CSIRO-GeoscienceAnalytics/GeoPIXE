@@ -1,0 +1,45 @@
+This page is used to determine the depth of selected particles seen in 
+images. The results will appear on the next page.
+
+Load the original image DAI image file for an area containing a particle 
+into the "Image" window. 
+
+NOTE: Use the DAI image file for ALL detectors.
+
+Extracting Data from Particle Hot-spots in Images:
+
+Select the pixels in the middle of each particle, and click the "sigma"
+button to form a Region definition for these pixels. Regions are added
+to the regions table. Open the Regions Window to see these. Remember
+to "Save" the region(s) to a regions file.
+
+It may help to zoom into the image ("+" button on Image window) and 
+disable image interpolation (checkbox below element droplist).
+
+Refer to the RGB Image display to check whether there are very close
+particles of different depths. If so, treat these separately by 
+selecting their pixels as distinct Regions.
+
+With "Outer" and "Inner" detector channel ".select.csv" files provided,
+select one Region in the table (click on row title), and then
+click on "Extract Spectra" to extract "Outer" and "Inner" Sum spectra 
+for this region (accept spec file-name, which should match your region
+file-name). These appear in the "Spectrum Display" window, and
+are saved to files (shown in bottom panel) for later reference.
+
+NOTE: Remember to open the Image Regions window.
+
+Fitting Sum Spectra for "Outer" and "Inner" detectors:
+
+Open the "X-ray Spectrum Fit" window and load a suitable fit set-up
+for this sample. Try fitting the first spectrum corresponding to the 
+"Outer" detectors. Make refinements to the fitting as usual.
+
+Enter the element of interest, and click on "Fit Sum Spectra" to fit both 
+spectra and extract the signal for the selected element and form the 
+ratio of "Outer"/"Inner" detectors. This ratio is then compared to the 
+"Depth Curve" (using the file specified on page 1) and an estimate of 
+particle depth (and uncertainty estimate) is added to the results table.
+
+Note: You need to have the "Depth Curve" completed on the page 1
+in order to determine depths here.

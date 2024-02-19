@@ -1,0 +1,27 @@
+####################################################################
+#
+# This file is used to retain preference values that differ
+# from IDL's built in default values. IDL reads it every
+# time it starts, so changes made here persist between IDL
+# sessions.
+#
+# You can edit this file using any standard text editor.
+# The preferences and their allowed values are described
+# in the IDL documentation which is included with IDL.
+# Please note that IDL has a user level API for managing
+# user preferences (HELP,/PREFERENCES, PREF_SET, PREF_GET).
+# Although you are allowed to edit the file directly, it is
+# not necessary that you do so.
+#
+# Before editing this file, you must first ensure that
+# there are no running instances of IDL that can access it.
+# Altering this file outside of IDL's control while an
+# IDL session is running can cause your changes to be ignored
+# or lost.
+#
+####################################################################
+
+IDL_PATH : <IDL_DEFAULT>
+IDL_STARTUP : /src/GeoPIXE-open-source/Workspace/GeoPIXE/startup.spro
+IDL_START_DIR : /src/GeoPIXE-open-source/Workspace/GeoPIXE
+IDL_PROMPT : "IDL open>"

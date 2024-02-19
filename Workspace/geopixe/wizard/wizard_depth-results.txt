@@ -1,0 +1,20 @@
+This page shows the results table, with depths determined from the 
+page 4.
+
+The table shows the total peak area for all detectors in "Outer"
+detectors as "O Area" and its simple statistical uncertainty as
+"O error". Similarly, "Inner" area is "I area". The ratio of "Outer/
+Inner" and its uncertainty are shown as "Ratio" and "eRatio".
+
+Depth is determined from a spline interpolation on the Ratio versus
+Depth curve from the "Depth Curve" file on page 1. 
+
+For now, the uncertainty in depth only includes the effect of statistical
+error in the areas, and does not include the effect of errors in the
+composition of the first layer in the yield model, which may be much
+larger. Try making small changes to composition in the yield calculation
+and re-do the depth determination to see the effects of these changes
+on depth.
+
+Use the "Export Results" button to save the results to a CSV file.
+

@@ -1,0 +1,16 @@
+;
+;	Maia 'scratch' index assignments for Maia-Control
+;
+	scratch_cal = 11
+	scratch_DA = 12
+	scratch_ROI = 13
+	scratch_gaintrim = 14
+	scratch_group = 15
+	scratch_linearise = 16
+	scratch_pileup = 17
+	scratch_throttle = 18
+	scratch_deadtime = 19
+	scratch_scan = 20
+	scratch_main = 21
+	scratch_ROI_rate = 22
+;

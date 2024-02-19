@@ -1,0 +1,236 @@
+
+; Bit patterns and offsets for FalconX list-mode data fields (Version 0.9.0).
+; See "read_falconx.pro" and "fx_browse.pro".
+;
+; Known FalconX list-mode data types ...
+;													Hex	Length (including first word)
+;	8	Sync		Sync data type					8	1
+;	0	Pulse1		Pulse data type					0	1
+;	1	Pulse2		optional 2nd word of pulse		1	1
+;	13	Gate		Gate state						D	1
+;	10	Gstats		Gate statistics					A	11
+;	12	Position	Spatial position				C	7
+;	11	Spatial 	Spatial statistics				B	12
+;	14	Periodic	Periodic stats					E	10
+;	15	Error		Analogue/Overflow status		F	1
+
+if n_elements(version) eq 0 then version = 9999999L
+
+as_version = version / 1000			; AS version part (truncate off SI part)
+si_version = version - 1000*as_version		; SI version part
+
+data_type_mask = 'F0000000'xl
+data_type_offset = -28
+
+clock1_data_type = 8
+clock1_length = 1
+clock1_mask =		'00FFFFFF'xl			; Sync
+
+pulse1_data_type = 0
+pulse1_length = 1
+pulse1_valid_mask =	'08000000'xl			; Pulse 1
+pulse1_valid_offset = -27
+pulse1_energy_mask =	'00FFF800'xl
+pulse1_energy_offset = -11
+pulse1_adr_offset = 0
+pulse1_adr_mask = 0
+
+pulse2_data_type = 1					; Pulse 2
+pulse2_length = 1
+pulse2_toa_mask =	'000FFFFF'xl
+
+gate1_data_type = 13					; Gate state
+gate1_length = 1
+gate1_state_mask =	'01000000'xl
+gate1_state_offset = -24
+
+gstats1_data_type = 10
+gstats1_type_mask =	'0F000000'xl			; Gate Stats
+gstats1_type_offset = -24
+gstats1_data_mask =	'00FFFFFF'xl
+gstats1_sample_msb_mask = '000000FF'xl
+gstats1_sample_msb_offset = 24
+
+if si_version ge 807 then begin
+	gstats1_length = 12
+	gstats1_sample_countl_type = 0
+	gstats1_sample_countm_type = 1
+	gstats1_erasure_count_type = 2
+	gstats1_est_icr_type = 4
+	gstats1_raw_icr_type = 5
+	gstats1_generic_count1_type = 6
+	gstats1_generic_count2_type = 7
+	gstats1_generic_count3_type = 8
+	gstats1_generic_count4_type = 9
+	gstats1_time_stamp_type = 15
+endif else if si_version ge 801 then begin
+	gstats1_length = 11
+	gstats1_sample_countl_type = 0
+	gstats1_sample_countm_type = 1
+	gstats1_erasure_count_type = 2
+	gstats1_est_icr_type = 4
+	gstats1_raw_icr_type = 5
+	gstats1_generic_count1_type = 6
+	gstats1_generic_count2_type = 7
+	gstats1_generic_count3_type = 8
+	gstats1_generic_count4_type = 9
+	gstats1_time_stamp_type = 15
+endif else begin
+	gstats1_length = 9
+	gstats1_sample_countl_type = 0
+	gstats1_sample_countm_type = 1
+	gstats1_erasure_count_type = 2
+	gstats1_est_icr_type = 3
+	gstats1_raw_icr_type = 14
+	gstats1_generic_count1_type = 4
+	gstats1_generic_count2_type = 5
+	gstats1_generic_count3_type = 6
+	gstats1_generic_count4_type = 7
+	gstats1_time_stamp_type = 15
+endelse
+
+position_data_type = 12					; position
+position_length = 7
+position_type_mask =	'0F000000'xl
+position_type_offset = -24
+position_data_mask =	'00FFFFFF'xl
+position_axis0_type = 0
+position_axis1_type = 1 
+position_axis2_type = 2 
+position_axis3_type = 3 
+position_axis4_type = 4 
+position_axis5_type = 5
+position_time_stamp_type = 15 
+
+pa_sign_bit_mask4 = '00800000'xl
+pa_sign_extend = 'FF000000'xl
+
+spatial1_data_type = 11
+spatial1_type_mask =	'0F000000'xl			; Spatial stats
+spatial1_type_offset = -24
+spatial1_data_mask =	'00FFFFFF'xl
+spatial1_sample_msb_offset = 24
+spatial1_rate_mask = '00FFFFFF'xl
+spatial1_rate_bit = 0
+spatial1_rate_offset = 0
+
+if si_version ge 807 then begin
+	spatial1_sample_msb_mask = '00FFFFFF'xl
+	spatial1_length = 12
+	spatial1_sample_countl_type = 0
+	spatial1_sample_countm_type = 1
+	spatial1_erasure_count_type = 2
+	spatial1_saturate_count_type = 3
+	spatial1_est_icr_type = 4
+	spatial1_raw_icr_type = 5
+	spatial1_generic_count1_type = 6
+	spatial1_generic_count2_type = 7
+	spatial1_generic_count3_type = 8
+	spatial1_generic_count4_type = 9
+	spatial1_veto_count_type = 10
+	spatial1_time_stamp_type = 15
+endif else if si_version ge 801 then begin
+	spatial1_sample_msb_mask = '000000FF'xl
+	spatial1_length = 11
+	spatial1_sample_countl_type = 0
+	spatial1_sample_countm_type = 1
+	spatial1_erasure_count_type = 2
+	spatial1_est_icr_type = 4
+	spatial1_raw_icr_type = 5
+	spatial1_generic_count1_type = 6
+	spatial1_generic_count2_type = 7
+	spatial1_generic_count3_type = 8
+	spatial1_generic_count4_type = 9
+	spatial1_time_stamp_type = 15
+endif else begin
+	spatial1_sample_msb_mask = '000000FF'xl
+	spatial1_length = 9
+	spatial1_sample_countl_type = 0
+	spatial1_sample_countm_type = 1
+	spatial1_erasure_count_type = 2
+	spatial1_est_icr_type = 3
+	spatial1_raw_icr_type = 14
+	spatial1_generic_count1_type = 4
+	spatial1_generic_count2_type = 5
+	spatial1_generic_count3_type = 6
+	spatial1_generic_count4_type = 7
+	spatial1_time_stamp_type = 15
+endelse
+
+periodic_data_type = 14
+periodic_type_mask =	'0F000000'xl			; Periodic stats
+periodic_type_offset = -24
+periodic_data_mask =	'00FFFFFF'xl
+
+if si_version ge 807 then begin
+	periodic_length = 11
+	periodic_sample_count_type = 0
+	periodic_erasure_count_type= 2
+	periodic_est_icr_type = 4
+	periodic_raw_icr_type = 5
+	periodic_generic_count1_type = 6
+	periodic_generic_count2_type = 7
+	periodic_generic_count3_type = 8
+	periodic_generic_count4_type = 9
+	periodic_time_stamp_type = 15
+endif else if si_version ge 801 then begin
+	periodic_length = 10
+	periodic_sample_count_type = 0
+	periodic_erasure_count_type= 2
+	periodic_est_icr_type = 4
+	periodic_raw_icr_type = 5
+	periodic_generic_count1_type = 6
+	periodic_generic_count2_type = 7
+	periodic_generic_count3_type = 8
+	periodic_generic_count4_type = 9
+	periodic_time_stamp_type = 15
+endif else begin
+	periodic_length = 8
+	periodic_sample_count_type = 0
+	periodic_erasure_count_type = 2
+	periodic_est_icr_type = 3
+	periodic_raw_icr_type = 14
+	periodic_generic_count1_type = 4
+	periodic_generic_count2_type = 5
+	periodic_generic_count3_type = 6
+	periodic_generic_count4_type = 7
+	periodic_time_stamp_type = 15
+endelse
+
+;	For later as_version upgrade, if erased, saturated, veto are handled per detector
+;	with for 2-word (MSB,LSB), will need at least 167 for length ...
+;
+; 	spatial1_length = 170				; 167 min with 2-word (MSB,LSB) for erased, saturated, veto per detector as well
+
+if as_version ge 100 then begin
+	spatial1_length = 74
+	pulse1_energy_mask =	'000FFF80'xl
+	pulse1_energy_offset = -7
+	pulse1_adr_offset = -20
+	pulse1_adr_mask = '00F00000'xl
+	spatial1_rate_mask = '0007FFFF'xl
+	spatial1_rate_bit = '00080000'xl
+	spatial1_rate_offset = 19
+endif
+
+error_data_type = 15					; Error
+error_length = 1
+error_type_mask =	'0F000000'xl	
+error_type_offset = -24
+error_analogue_status_type = 0				; only in old pre 0.8.1 data
+error_saturate_mask =	'000C0000'xl
+error_saturate_offset =	-18
+error_overflow_type = 1					; only error type now (0.9.0)
+error_time_stamp_mask =	'00FFFFFF'xl
+
+syncpatt_data_type = 7					; sync pattern
+syncpatt_length = 2
+
+; tag index:   0       1        2       3       4         5         6          7         8	  9
+
+data_tags = ['Sync','Pulse1','Pulse2','Gate','GStats','Position','Spatial','Periodic','Error','SyncPatt']
+normal_accept = [1,2,5,6]
+ylut_accept = [5]
+data_type = [clock1_data_type, pulse1_data_type, pulse2_data_type, gate1_data_type, gstats1_data_type, position_data_type, spatial1_data_type, periodic_data_type, error_data_type, syncpatt_data_type ]
+data_length = [clock1_length, pulse1_length, pulse2_length, gate1_length, gstats1_length, position_length, spatial1_length, periodic_length, error_length, syncpatt_length ]
+n_data_tags = n_elements(data_tags )

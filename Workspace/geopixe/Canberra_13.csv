@@ -1,0 +1,26 @@
+# This file produced by program: "detector_layout_save.pro"
+title,Canberra 13 Ge array
+N,      13,Number of detectors
+Start,       1,Start at this # (default: detector numbers start at 0)
+Shape,       0,Shape of detectors (0=circular, 1=square)
+Symmetry,       4,Detector array symmetry steps for 360 degree (default is 4)
+Reorient,       0,Re-orient or rotate by "reorient*360/symmetry" degrees
+MirrorX,       0,Mirror the layout in X
+MirrorY,       0,Mirror the layout in Y
+Veto,       1,Veto channels with excessive FWHM
+Threshold,      254.800,FWHM threshold (eV)
+# Data: X,Y offsets from centre (mm), Z offset from planar (mm), Width, Height (mm), Tilt (degrees), bad (0=good, 1=poor, 2=dead), FWHM (eV)
+Data, X, Y, Z, width, height, tilt, bad, FWHM
+   1,   0.000,  24.250,   0.000,  11.300,  11.300,   0.000,  2,   0.000
+   2, -21.000,  12.120,   0.000,  11.300,  11.300,   0.000,  0, 233.314
+   3,  -7.000,  12.120,   0.000,  11.300,  11.300,   0.000,  2,   0.000
+   4,   7.000,  12.120,   0.000,  11.300,  11.300,   0.000,  2,   0.000
+   5,  21.000,  12.120,   0.000,  11.300,  11.300,   0.000,  0, 225.975
+   6, -14.000,   0.000,   0.000,  11.300,  11.300,   0.000,  0, 248.539
+   7,   0.000,   0.000,   0.000,  11.300,  11.300,   0.000,  0, 202.311
+   8,  14.000,   0.000,   0.000,  11.300,  11.300,   0.000,  0, 193.601
+   9, -21.000, -12.120,   0.000,  11.300,  11.300,   0.000,  2,   0.000
+  10,  -7.000, -12.120,   0.000,  11.300,  11.300,   0.000,  2,   0.000
+  11,   7.000, -12.120,   0.000,  11.300,  11.300,   0.000,  2,   0.000
+  12,  21.000, -12.120,   0.000,  11.300,  11.300,   0.000,  0, 220.299
+  13,   0.000, -24.250,   0.000,  11.300,  11.300,   0.000,  2,   0.000

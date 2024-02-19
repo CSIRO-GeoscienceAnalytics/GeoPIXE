@@ -1,0 +1,90 @@
+
+; Bit patterns and offsets for MDAQ2 list-mode data fields (Version 0?).
+; See "read_mdaq2.pro" and "mdaq2_browse.pro".
+;
+; Known MDAQ2 list-mode data types ...
+;								Hex	Length (including first word)
+;	0	Pulse1		Pulse data type			0	1
+;	2	Busy LSB	Busy data type1 (per det)	2	1
+;	3	Busy MSB	Busy data type2 (per det)	3	1
+;	6	Busy3		Busy, raw count (per det)	6	4
+;	12	Position	Spatial position		C	6
+;	11	Spatial 	Spatial statistics		B	6
+;	15	Error		Analogue/Overflow status	F	1
+
+data_type_mask = 'F0000000'x
+data_type_offset = -28
+
+pulse1_data_type = 0					; Pulse 1
+pulse1_length = 1
+pulse1_energy_mask =	'0000FFFF'x
+pulse1_channel_mask = 	'0F000000'x
+pulse1_channel_offset = -24
+
+busy_data_type = 2					; busy1 LSB (low 24 bits) (one record per det)
+busy_length = 1
+busy_busy_mask =	'00FFFFFF'x
+busy_channel_mask = 	'0F000000'x
+busy_channel_offset = -24
+
+busy2_data_type = 3					; busy2 MSB (top 8 bits) (one record per det)
+busy2_length = 1
+busy2_busy_mask =	'000000FF'x
+busy2_channel_mask = 	'0F000000'x
+busy2_channel_offset = -24
+
+busy3_data_type = 6					; busy3 and raw counts (one record per det)
+busy3_length = 4
+busy3_type_mask =	'0F000000'x
+busy3_type_offset = -24
+busy3_channel_mask = 	'00F00000'x
+busy3_channel_offset = -20
+busy3_data_mask =	'000FFFFF'x
+busy3_busy_lsb_type = 0
+busy3_busy_msb_type = 1
+busy3_raw_lsb_type = 2
+busy3_raw_msb_type = 3
+
+position_data_type = 12					; position
+position_length = 6
+position_type_mask =	'0F000000'x
+position_type_offset = -24
+position_data_mask =	'00FFFFFF'x
+position_axis0_type = 0
+position_axis1_type = 1 
+position_axis2_type = 2 
+position_axis3_type = 3 
+position_axis4_type = 4 
+position_axis5_type = 5
+
+spatial1_data_type = 11
+spatial1_length = 6
+spatial1_type_mask =	'0F000000'x			; Spatial stats
+spatial1_type_offset = -24
+spatial1_data_mask =	'00FFFFFF'x
+spatial1_sample_msb_mask = '000000FF'x
+spatial1_sample_msb_offset = 24
+spatial1_sample_countl_type = 0
+spatial1_sample_countm_type = 1
+spatial1_generic_count1_type = 2
+spatial1_generic_count2_type = 3
+spatial1_generic_count3_type = 4
+spatial1_generic_count4_type = 5
+
+error_data_type = 15					; Error
+error_length = 1
+error_type_mask =	'0F000000'x	
+error_type_offset = -24
+error_analogue_status_type = 0
+error_overflow_type = 1
+error_saturate_mask =	'000C0000'x
+error_saturate_offset =	-18
+error_time_stamp_mask =	'00FFFFFF'x
+
+; tag index:	0	1	2	 3	  4	   5        6	     7        8        9
+
+data_tags = ['Pulse1','Position','Spatial','Error','Busy','Busy2','Busy3']
+data_type = [pulse1_data_type, position_data_type, spatial1_data_type, error_data_type, busy_data_type, busy2_data_type, busy3_data_type ]
+data_length = [pulse1_length, position_length, spatial1_length, error_length, busy_length, busy2_length, busy3_length ]
+n_data_tags = n_elements(data_tags )
+

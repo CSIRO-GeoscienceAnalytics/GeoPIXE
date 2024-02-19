@@ -1,0 +1,27 @@
+;
+; Database commons
+
+; Remember to add any database commons here ...
+; Not in MAKE_DATABASE, STARTUPG_LAST, RESTORE_DATABASE anymore.
+
+common c_splash24, got_24, pic_24, bit24, order_24
+common c_splash8, got_8, pic_8, r,g,b
+common c_xsort_1, n_xsort, xsort_lines
+common c_xray, energy, relint, xray_OK
+common c_xsect_k1, z2_k, index_k, e_k, sig_k, xsect_K_OK
+common c_xsect_L1, z2_L, index_L, e_L, sig_L, xsect_L_OK
+common c_xsect_m1, z2_m, index_m, e_m, sig_m, xsect_m_OK
+common c_dedx, proton, alpha, proton_ok, alpha_ok
+common c_edge, edge, edge_OK
+common c_excess, ze, n_e, ae, ex, excess_OK
+common c_mass, mass2, valence, mass_OK
+common c_density, mass, density, density_OK
+common c_abundance, isotope_el, isotope_m, amount, element_start, abundance_OK
+common c_xsect_F19, e_F19, sig_F19, xsect_F19_OK, xsect_pige_done
+common c_xsect_Na23, e_Na23, sig_Na23, xsect_Na23_OK
+common c_hubbell_1, hubbell_ok, hubbell
+common c_hubbell_2, hubbell_raw_ok, hubbell_data
+common c_xrf, xenergy, xrelint, old_xrf_e, xrf_OK
+common c_ebel, ebel, xrf_ebel_OK
+common c_elam, elam
+
