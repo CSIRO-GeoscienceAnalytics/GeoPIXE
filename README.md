@@ -1,4 +1,4 @@
-# GeoPIXE-org
+# GeoPIXE
 
 ### Repository to host an open-source release of GeoPIXE.
 
