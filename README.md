@@ -26,6 +26,16 @@ Once IDL is installed, you can run GeoPIXE simply by double clicking on "GeoPIXE
 'geopixe' folder within the 'workspace' tree. It will note the absence of a 'geopixe.conf' file,
 but will then create one for you in your <home>/.geopixe directory.
 
+It helps to have a working understanding of the Fundamental Parameter approach as used for 
+quantitative analysis in the workflow through GeoPIXE, and some experience with the Demo data. 
+See the GeoPIXE Users Guide and the **GeoPIXE Worked Examples PDF** for worked examples with 
+step-by-step tips. Both provide examples of the main tasks of fitting spectra to generate the 
+Dynamic Analysis (DA) image projection matrix; using this DA matrix to process full-spectral data 
+to deconvolute elemental components and project separated elemental images; and exploration and 
+processing of the images to first verify their accuracy, including extracting spectra from 
+observed features (region shapes or element-element Associations), and make corrections and then 
+to explore their content.
+
 ### Opening GeoPIXE using the Eclipse IDLDE environment
 
 On Windows, the script "**Example Windows IDLDE 88 Python38 GeoPIXE.bat**" can be adapted to launch 
