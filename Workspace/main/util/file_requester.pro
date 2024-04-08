@@ -1,3 +1,74 @@
+;
+; Alternative to 'dialog_pickfile' with more uniform behaviour across platforms
+; Most options like in "dialog_pickfile", plus a few more (see below).
+; 
+; If 'file' is passed with a path included, and it is found, then that path will be used.
+; Else, the 'path' will be used with the 'file' stripped of any path. If 'path' is blank,
+; then the current working directory will be assumed.
+;
+; The order of file and path testing is as follows:
+; 	file			test input file assumed to also have a remote path
+; 	path			test input file-only on local alternative supplied path 'path'
+; 	local updir		look for file-only updir from local 'path'
+; 	remote updir	look for file-only updir from remote path (stripped from input filename)
+; 	translate		look for a match translating path roots using table, then for each match:
+; 		file		look for file-only match in translated dir
+; 		updir		also look for file-only match updir (and searching down from there)
+;
+; The variable controlling the number of dirs allowed (before using "...") is
+; in the 'find_file2()' function.
+;
+; file				initial filename (needs a path included to use /translate)
+; path				initial path ( will be tried if path included in file does not work)
+; title				window title
+; multiple_files	multiple select active
+; dialog_parent		parent of modal pop-up
+; filter			file filter string array (e.g. '*' or ['*.spec','*.trav'] )
+; /fix_filter		fix the filter
+; /numeric			show only numeric file extensions
+; /latest			show latest files first
+; /directory		select and return a path name only
+; 					select in tree, unless /multiple, and then in list
+; get_path			return the final path
+;
+; /read				For file read, will cause a dir search for a match, updir and translate
+; /write			For file write, no searching.
+;					If both /read and /write are missing, then no search, updir or translate.
+;					Set /write if require write of file, to be able to create new dirs.
+;					Set /read to force search for file name provided (and updir, translate).
+;
+; new options:
+; 'preview_routine'	string - name of preview routine
+; /image			show image/spectrum preview first
+; /ignore			pass 'ignore nulls' option onto read_geopixe_image (in preview)
+; 
+; /skip_if_exists	skip opening the requester if the file specified already exists
+; 					on the path specified, or after translation or updir.
+; /skip_if_null		skip opening the requester if the file specified is null/blank
+; 					Need to pass a valid 'file' for this to be an effective test.
+; translate=0		If file is passed with a full path included and /translate set (default), then
+; 					if it is not found, or not in the selected path, then use translation tables 
+; 					to try alternate path roots if the file path root matches one in the table.
+; 					Use translate=0 to suppress auto-translation.
+; updir=n			Also check up to 'n' dir level up for a match to the input file name.
+;
+; Preview routines:
+; Input:	file		name of file
+; Output:	result		structure of form {image:image, details:details}
+; 
+; where		image		preview image array
+;			details		string array of various parameters and text
+;						either part of result struct can be missing to indicate no return.
+;
+;	author:		C.G. Ryan, CSIRO							2010
+;				added /skip_if_exists or null				2012	C.G. Ryan
+;				added translation tables					2014	C.G. Ryan
+;				refine search order							2016	C.G. Ryan
+;				fixed offset jumping in Linux				2019	C.G. Ryan
+;				used file_search2 to allow cancel			2019	C.G. Ryan
+;
+;----------------------------------------------------------------------------------------------------------
+
 pro file_requester_event, event
 
 COMPILE_OPT STRICTARR
@@ -881,7 +952,7 @@ pro file_requester_load, pstate
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-if n_elements(geopixe_root) lt 1 then startupp
+if n_elements(geopixe_root) lt 1 then geopixe_root=''
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if n_elements(catch_errors_on) lt 1 then catch_errors_on=0
@@ -939,7 +1010,7 @@ pro file_requester_load_trans, pstate
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-if n_elements(geopixe_root) lt 1 then startupp
+if n_elements(geopixe_root) lt 1 then geopixe_root=''
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if n_elements(catch_errors_on) lt 1 then catch_errors_on=0
@@ -971,7 +1042,7 @@ function file_requester_get_trans, error=err
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-if n_elements(geopixe_root) lt 1 then startupp
+if n_elements(geopixe_root) lt 1 then geopixe_root=''
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if n_elements(catch_errors_on) lt 1 then catch_errors_on=0
@@ -1062,11 +1133,12 @@ endif
 
 if widget_info( (*pstate).details_list, /valid_id) eq 0 then return
 if (*pstate).preview_routine eq '' then goto, bad
-files = (*pstate).file
+;files = (*pstate).file
+files = *(*(*pstate).p).pfile
 if n_elements(files) eq 0 then goto, bad
-file = strsplit(files, '+', /extract)
-if file[0] eq '' then goto, bad
-file = (*pstate).path + strtrim(file[0],2)
+;file = strsplit(files, '+', /extract)
+if files[0] eq '' then goto, bad
+file = (*pstate).path + strtrim( files[0],2)
 
 if (*pstate).ignore then begin
 	call_procedure, (*pstate).preview_routine, file, preview=preview, /ignore
@@ -1291,9 +1363,8 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 		skip_if_exists=skip_if_exists, skip_if_null=skip_if_nulli, translate=translate, $
 		updir=updir, $
 		
-		noconfirm=noconfirm			; obsolete, ignored (only here for compatibility with v6.6)
+		noconfirm=noconfirm			; obsolete (only here for compatibility with v6.6)
 
-;+
 ; Alternative to 'dialog_pickfile' with more uniform behaviour across platforms
 ; Most options like in "dialog_pickfile", plus a few more (see below).
 ; 
@@ -1355,17 +1426,15 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 ;			details		string array of various parameters and text
 ;						either part of result struct can be missing to indicate no return.
 ;
-; Author:		C.G. Ryan, CSIRO							2010
+;	author:		C.G. Ryan, CSIRO							2010
 ;				added /skip_if_exists or null				2012	C.G. Ryan
 ;				added translation tables					2014	C.G. Ryan
 ;				refine search order							2016	C.G. Ryan
 ;				fixed offset jumping in Linux				2019	C.G. Ryan
 ;				used file_search2 to allow cancel			2019	C.G. Ryan
-;-
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
-	common c_working_dir, geopixe_root
 	common c_errors_1, catch_errors_on
 	if catch_errors_on then begin
 		Catch, ErrorNo
@@ -1383,7 +1452,6 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 			return, ''
 		endif
 	endif
-	if n_elements(geopixe_root) lt 1 then geopixe_root=''
 	
 	cancel = 0
 	default = file_expand_path('.')
@@ -1872,9 +1940,9 @@ button = widget_button( b2base, value='Del', uname='del-trans-button', tracking=
 					uvalue='Del: Delete the selected translation path pair. Single click to select an entry. Also remember to "Save" these definitions.')
 label = widget_label( b2base, value='    ')
 
-arrow = picture_button( b2base, geopixe_root + 'images/up-16x14.jpeg', uname='trans-shift-up', $
+arrow = picture_button( b2base, 'images/up-16x14.jpeg', uname='trans-shift-up', $
 			/tracking, uvalue='Move this entry up one in translation table. Table is scanned from top to bottom, so put more general paths (shorter root stubs) at top and more specific ones at bottom.', /pushbutton_events)
-arrow = picture_button( b2base, geopixe_root + 'images/down-16x14.jpeg', uname='trans-shift-down', $
+arrow = picture_button( b2base, 'images/down-16x14.jpeg', uname='trans-shift-down', $
 			/tracking, uvalue='Move this entry down one in translation table. Table is scanned from top to bottom, so put more general paths (shorter root stubs) at top and more specific ones at bottom.', /pushbutton_events)
 
 label = widget_label( b2base, value='    ')
