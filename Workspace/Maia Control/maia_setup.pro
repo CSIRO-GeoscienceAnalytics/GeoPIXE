@@ -624,7 +624,9 @@ case uname of
 							(*pm).pileup.on,(*pm).throttle.on,(*pm).DA.on,(*pm).ROI.on, (*pm).groups.on]
 				end
 			6: begin
-				socket_command_set, ps, 'ENABLE', event.select, class='spectrum', chip=-1, n_chips=(*pm).number.spectra
+				if (*pm).number.spectra gt 0 then begin
+					socket_command_set, ps, 'ENABLE', event.select, class='spectrum', chip=-1, n_chips=(*pm).number.spectra
+				endif
 				end
 			7: begin
 				(*pm).DA.save = event.select
@@ -3821,11 +3823,13 @@ endif
 		endif
 
 		g = intarr(16)
-		for i=0L,(*pm).groups.spectra-1 do begin
-			g[*] = 0					; spectra
-			g[i] = 1
-			socket_command_set, ps, 'select.group', g, channel=-1, n_channels=16, class='spectrum', chip=i
-		endfor
+		if (*pm).groups.spectra gt 0 then begin
+			for i=0L,(*pm).groups.spectra-1 do begin
+				g[*] = 0					; spectra
+				g[i] = 1
+				socket_command_set, ps, 'select.group', g, channel=-1, n_channels=16, class='spectrum', chip=i
+			endfor
+		endif
 
 		g[*] = 0						; Activity (ET 2D handled via ET events now)
 		g[12] = 1
@@ -3894,7 +3898,9 @@ endif
 			endcase
 		endfor
 		(*pm).groups = (*pl).groups
-		socket_command_set, ps, 'enable', (*pl).groups.on, class='spectrum', chip=-1, n_chips=(*pl).groups.spectra
+		if (*pl).groups.spectra gt 0 then begin
+			socket_command_set, ps, 'enable', (*pl).groups.on, class='spectrum', chip=-1, n_chips=(*pl).groups.spectra
+		endif
 		return
 		
 bad_state:
@@ -4397,7 +4403,7 @@ t = strarr(nc,n)
 
 t[0,*] = str_tidy(indgen(n))
 t[1,*] = '- n/a -'
-t[1,0:(*pl).groups.spectra-1] = 'Spectrum ' + str_tidy(indgen((*pl).groups.spectra))
+if (*pl).groups.spectra gt 0 then t[1,0:(*pl).groups.spectra-1] = 'Spectrum ' + str_tidy(indgen((*pl).groups.spectra))
 t[1,12] = 'Activity'
 t[1,13] = 'ET records'
 t[1,14] = 'DA Imaging'

@@ -52,6 +52,7 @@ update = 0
 	mtc_mask = '00F80000'x		; accumulator missing trigger count bit (MTC)
 	mtc_offset = -19
 	
+	if (*(*pstate).pmaia).number.spectra eq 0 then return
 	pshrmem = (*pstate).pshrmem_spectra
 	if (*pshrmem).error then return
 

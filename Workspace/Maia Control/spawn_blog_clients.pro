@@ -1,4 +1,5 @@
-pro spawn_blog_clients, obj=obj, prefix=prefix, conf=conf, server=serveri, error=error
+pro spawn_blog_clients, obj=obj, prefix=prefix, conf=conf, server=serveri, $
+					enable_groups=enable_groups, error=error
 
 ; Launch blog clients ...
 
@@ -26,6 +27,7 @@ endif
 if n_elements(prefix) eq 0 then prefix=''
 if n_elements(conf) eq 0 then conf=''
 if n_elements(serveri) eq 0 then serveri=''
+if n_elements(enable_groups) eq 0 then enable_groups=1
 server = serveri
 error = 1
 
@@ -68,8 +70,10 @@ error = 1
 	if err then return
 	obj[3] = spawn_bridge_object( path, 'blog_client_epics', args=args, error=err)
 	if err then return
-	obj[4] = spawn_bridge_object( path, 'blog_client_group_spectra', args=args, error=err)
-	if err then return
+	if enable_groups then begin
+		obj[4] = spawn_bridge_object( path, 'blog_client_group_spectra', args=args, error=err)
+		if err then return
+	endif
 
 	error = 0
 	return

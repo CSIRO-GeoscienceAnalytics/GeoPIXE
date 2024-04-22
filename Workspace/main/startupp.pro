@@ -72,19 +72,19 @@ if !version.os_family eq 'MacOS' then device, decomposed=0
 
 	geopixe_root = ''
 	if file_test('../geopixe', /dir) then begin
-		geopixe_root = fix_path(file_expand_path('../geopixe'))
+		geopixe_root = fix_path( file_expand_path('../geopixe'))
 	endif else if file_test('../../geopixe', /dir) then begin
-		geopixe_root = fix_path(file_expand_path('../../geopixe'))
+		geopixe_root = fix_path( file_expand_path('../../geopixe'))
 	endif else begin
 
 ;		No "geopixe" runtime dir found (did it get renamed?), so find "GeoPIXE.sav"
 
 		file = 'GeoPIXE.sav'
-		if file_test(file) then geopixe_root = extract_path(file_expand_path(file))
+		if file_test(file) then geopixe_root = fix_path( extract_path(file_expand_path(file)))
 		file = '../GeoPIXE.sav'
-		if file_test(file) then geopixe_root = extract_path(file_expand_path(file))
+		if file_test(file) then geopixe_root = fix_path( extract_path(file_expand_path(file)))
 		file = '../geopixe/GeoPIXE.sav'
-		if file_test(file) then geopixe_root = extract_path(file_expand_path(file))
+		if file_test(file) then geopixe_root = fix_path( extract_path(file_expand_path(file)))
 		if geopixe_root eq '' then begin
 			warning,'startupp','Failed to locate geopixe_root, the "geopixe" runtime dir.'
 		endif else begin
@@ -144,7 +144,8 @@ loop:
 
 	if maia then begin
 		found = 0
-		file = geopixe_root+'maia_control.sav'
+		maia_root = geopixe_root +'maia' + path_sep()
+		file = maia_root+'maia_control.sav'
 		if file_test(file) eq 0 then begin
 			warning,'startupp','Failed to restore "maia_control.sav". 1'
 		endif else found = 1
@@ -159,7 +160,8 @@ loop:
 	endif
 	if daq then begin
 		found = 0
-		file = geopixe_root+'daq_control.sav'
+		daq_root = geopixe_root +'daq' + path_sep()
+		file = daq_root+'daq_control.sav'
 		if file_test(file) eq 0 then begin
 			warning,'startupp','Failed to restore "daq_control.sav".'
 		endif else found = 1

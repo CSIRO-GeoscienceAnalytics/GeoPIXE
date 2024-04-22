@@ -539,12 +539,18 @@ more:
 		if (err eq 0) then begin
 			(*pm).enable.roi = v[0]
 		endif else (*pl)[1]++
-	endif
+	endif else begin
+		(*pm).enable.roi = 0
+	endelse
 
-	v = socket_command_get( ps, 'enable', class='spectrum', chip=-1, n_chips=(*pm).number.spectra, error=err)
-	if (err eq 0) then begin
-		(*pm).enable.groups = v[0]
-	endif else (*pl)[1]++
+	if (*pm).number.spectra gt 0 then begin
+		v = socket_command_get( ps, 'enable', class='spectrum', chip=-1, n_chips=(*pm).number.spectra, error=err)
+		if (err eq 0) then begin
+			(*pm).enable.groups = v[0]
+		endif else (*pl)[1]++
+	endif else begin
+		(*pm).enable.groups = 0
+	endelse
 	
 	if ((*ppar)[3] eq 1) or ((*ppar)[2] eq 1) then goto, done
 	wait, 0.5
@@ -737,12 +743,18 @@ more:
 		if (err eq 0) then begin
 			(*pm).enable.roi = v[0]
 		endif else (*pl)[1]++
-	endif
+	endif else begin
+		(*pm).enable.roi = 0
+	endelse
 
-	v = socket_command_get( ps, 'enable', class='spectrum', chip=-1, n_chips=(*pm).number.spectra, error=err)
-	if (err eq 0) then begin
-		(*pm).enable.groups = v[0]
-	endif else (*pl)[1]++
+	if (*pm).number.spectra gt 0 then begin
+		v = socket_command_get( ps, 'enable', class='spectrum', chip=-1, n_chips=(*pm).number.spectra, error=err)
+		if (err eq 0) then begin
+			(*pm).enable.groups = v[0]
+		endif else (*pl)[1]++
+	endif else begin
+		(*pm).enable.groups = 0
+	endelse
 
 	if (*pm).control.status.link then begin
 	

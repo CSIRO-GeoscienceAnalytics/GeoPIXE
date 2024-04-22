@@ -284,6 +284,7 @@ case tag_names( event,/structure) of
 				widget_control, event.id, timer=(*pstate).time_ET_spectra	
 				end
 			'new-groups-button': begin
+				if (*pm).number.spectra eq 0 then goto, finish
 				if (*(*(*pstate).pshrmem_spectra).ppar)[2] eq 0 then begin
 					maia_update_group_spectra, pstate, update=update, error=error
 					if update then begin
@@ -415,8 +416,10 @@ case uname of
 ;		socket_retry, ps, error=error
 ;		(*ps).attempts = 1
 
-		(*(*pstate).pshrmem_spectra).loop = 0
-		(*(*(*pstate).pshrmem_spectra).ppar)[2] = 1			; send reset to blog client
+		if (*pm).number.spectra ge 1 then begin
+			(*(*pstate).pshrmem_spectra).loop = 0
+			(*(*(*pstate).pshrmem_spectra).ppar)[2] = 1		; send reset to blog client
+		endif
 		print,'Set spectra blog client reset flag ...'
 		(*(*pstate).pshrmem_ET_spectra).loop = 0
 		(*(*(*pstate).pshrmem_ET_spectra).ppar)[2] = 1		; send reset to blog client
@@ -494,6 +497,7 @@ case uname of
 		end
 		
 	'new-groups-button': begin
+		if (*pm).number.spectra eq 0 then goto, finish
 		i = launch_free_activity( (*pstate).activity.display.spectra) 
 		p = (*(*pstate).ppspec)[0]
 		emax = (*p).cal.poly[0] + ((*p).size-1) * (*p).cal.poly[1]
@@ -692,9 +696,10 @@ kill:
 	; Note that Epics client uses the DA shared memory to receive this ...
 	(*(*(*pstate).pshrmem_activity).ppar)[3] = 1			; kill Activity blog_client
 	(*(*(*pstate).pshrmem_ET_spectra).ppar)[3] = 1			; kill ET spectra blog_client
-	(*(*(*pstate).pshrmem_spectra).ppar)[3] = 1				; kill Group spectra blog_client
 	(*(*(*pstate).pshrmem_da).ppar)[3] = 1					; kill DA blog_client
-
+	if (*pm).number.spectra ge 1 then begin
+		(*(*(*pstate).pshrmem_spectra).ppar)[3] = 1			; kill Group spectra blog_client
+	endif
 	; Note that "maia_client_parameters_slow" uses the same shared memory as "maia_client_parameters"
 	(*(*(*pstate).pshrmem_pars).ppar)[3] = 1				; kill parameters maia_client
 	wait, 2
@@ -791,6 +796,7 @@ endif
 		groups = 1
 	endif
 	pimage = (*pstate).pimage
+	pm  = (*pstate).pmaia
 
 	(*(*pstate).pmrates).detectors[*] = 0.					; clear maximum detector rates
 
@@ -837,7 +843,7 @@ endif
 		endif
 	endif
 
-	if groups then begin
+	if groups and ((*pm).number.spectra gt 0) then begin
 		for i=0L,n_elements(*(*pstate).ppspec)-1 do begin	; clear Group spectra in shared
 			(*(*(*(*pstate).ppspec)[i]).data)[*] = 0.0		; memory, which is pointed to by
 		endfor												; individual spectra structs
@@ -1073,13 +1079,15 @@ if (*ps).open eq 1 then begin
 
 ;	Set-up Group Spectra accumulators
 
-	for i=0L,(*pm).number.spectra-1 do begin
-		g[*] = 0						; spectra
-		g[i] = 1
-		socket_command_set, ps, 'select.group', g, channel=-1, n_channels=16, class='spectrum', chip=i
-		socket_command_set, ps, 'trigger.rocont', 'timer1', class='spectrum', chip=i
-		socket_command_set, ps, 'enable', 0, class='spectrum', chip=i
-	endfor
+	if (*pm).number.spectra gt 0 then begin
+		for i=0L,(*pm).number.spectra-1 do begin
+			g[*] = 0					; spectra
+			g[i] = 1
+			socket_command_set, ps, 'select.group', g, channel=-1, n_channels=16, class='spectrum', chip=i
+			socket_command_set, ps, 'trigger.rocont', 'timer1', class='spectrum', chip=i
+			socket_command_set, ps, 'enable', 0, class='spectrum', chip=i
+		endfor
+	endif
 	socket_command_set, ps, 'enable', 1, class='accum'
 
 	if ((*pm).n_detectors eq 384) or ((*pm).version.scepter ge 7) then begin
@@ -1948,8 +1956,10 @@ if n_elements(pshrmem) eq 0 then pshrmem=0L
 			if err eq 0 then (*pm).ROI.on = v[0]
 		endif
 		
-		v = socket_command_get( ps, 'enable', class='spectrum', chip=-1, n_chips=(*pm).groups.spectra, error=err)
-		if err eq 0 then (*pm).groups.on = v[0]	
+		if (*pm).number.spectra gt 0 then begin
+			v = socket_command_get( ps, 'enable', class='spectrum', chip=-1, n_chips=(*pm).groups.spectra, error=err)
+			if err eq 0 then (*pm).groups.on = v[0]	
+		endif
 		
 		v = socket_command_get( ps, 'ECH', class='hermes', chip=-1, channel=-1, error=err)
 		if err eq 0 then begin
@@ -2059,10 +2069,12 @@ endif
 		if err eq 0 then (*pl).Groups.group[i].table[0:(*pl).n_detectors-1] = v[index]
 	endfor
 
-	v = socket_command_get( ps, 'select.pileup', class='spectrum', chip=-1, n_chips=(*pl).Groups.spectra, error=err)
-	if err eq 0 then (*pl).Groups.group[0:(*pl).Groups.spectra-1].pileup = v	
-	v = socket_command_get( ps, 'select.throttle', class='spectrum', chip=-1, n_chips=(*pl).Groups.spectra, error=err)
-	if err eq 0 then (*pl).Groups.group[0:(*pl).Groups.spectra-1].throttle = v
+	if (*pl).Groups.spectra gt 0 then begin
+		v = socket_command_get( ps, 'select.pileup', class='spectrum', chip=-1, n_chips=(*pl).Groups.spectra, error=err)
+		if err eq 0 then (*pl).Groups.group[0:(*pl).Groups.spectra-1].pileup = v	
+		v = socket_command_get( ps, 'select.throttle', class='spectrum', chip=-1, n_chips=(*pl).Groups.spectra, error=err)
+		if err eq 0 then (*pl).Groups.group[0:(*pl).Groups.spectra-1].throttle = v
+	endif
 
 	v = socket_command_get( ps, 'select.pileup', class='event', error=err)
 	if err eq 0 then (*pl).Groups.group[13].pileup = v	
@@ -2350,21 +2362,23 @@ endif
 	
 ;	Should update group masks here into the (*pp).pactive list
 
-	pp = pp_group											; Group spectra
-	q = where ( (abs((*pm).channel.cal.a - 1.0) gt 0.001), nq)
-	if nq gt 0 then begin
-		cal_a = (*pm).channel[q[0]].cal.a
-		cal_b = (*pm).channel[q[0]].cal.b
-		cal_units = 'keV'
-	endif else begin
-		cal_a = 1.0
-		cal_b = 0.0
-		cal_units = 'channel'
-	endelse
-	for i=0L,n_elements(*pp)-1 do begin
-		(*(*pp)[i]).cal.units = cal_units
-		(*(*pp)[i]).cal.poly[0:1] = [cal_b,cal_a]
-	endfor
+	if (*pm).number.spectra gt 0 then begin
+		pp = pp_group											; Group spectra
+		q = where ( (abs((*pm).channel.cal.a - 1.0) gt 0.001), nq)
+		if nq gt 0 then begin
+			cal_a = (*pm).channel[q[0]].cal.a
+			cal_b = (*pm).channel[q[0]].cal.b
+			cal_units = 'keV'
+		endif else begin
+			cal_a = 1.0
+			cal_b = 0.0
+			cal_units = 'channel'
+		endelse
+		for i=0L,n_elements(*pp)-1 do begin
+			(*(*pp)[i]).cal.units = cal_units
+			(*(*pp)[i]).cal.poly[0:1] = [cal_b,cal_a]
+		endfor
+	endif
 	
 	maia_launch_update_image_cal, pimage, pm, play
 	return
@@ -2812,14 +2826,25 @@ n = socket_command_get( ps, 'da.number', class='config', /long, error=error)
 if error eq 0 then (*pm).number.da = n < 32
 if n gt 32 then warning,'maia_launch_version2','Kandinski DA accumulator number greater than 32.'
 n = socket_command_get( ps, 'et2d.number', class='config', /long, error=error)
-if error eq 0 then (*pm).number.et2d = n
+if error eq 0 then begin
+	(*pm).number.et2d = n
+endif else begin
+	(*pm).number.et2d = 0
+endelse
 n = socket_command_get( ps, 'roi.number', class='config', /long, error=error)
-if error eq 0 then (*pm).number.roi = n
+if error eq 0 then begin
+	(*pm).number.roi = n
+endif else begin
+	(*pm).number.roi = 0
+endelse
 n = socket_command_get( ps, 'spectrum.number', class='config', /long, error=error)
 if error eq 0 then begin
 	(*pm).number.spectra = n
 	(*pm).groups.spectra = n
-endif
+endif else begin
+	(*pm).number.spectra = 0
+	(*pm).groups.spectra = 0
+endelse
 n = socket_command_get( ps, 'timer.number', class='config', /long, error=error)
 if error eq 0 then (*pm).number.timer = n
 
@@ -3332,18 +3357,22 @@ time_spectra = 0.8										; group spectra update time
 time_spectra_update = 3.0								; group display update
 time_spectra_min = 1.0									; group display update range
 time_spectra_max = 5.0
+pshrmem_spectra = 0L
+pspec = 0L
 
 n_buffers = (*pm).groups.spectra
-buffer_size = 4096L	
-pshrmem_spectra = shared_memory_buffers( prefix=prefix_spectra, n_buffers=n_buffers, $
-						buffer_size=buffer_size, /init, error=error)
-if error then goto, bad_shrmem
-b = byte(ip_blog)
-n = n_elements(b)
-;(*(*pshrmem_spectra).ppar)[2:3] = 0
-(*(*pshrmem_spectra).pbyte[0])[*] = 0B
-(*(*pshrmem_spectra).pbyte[0])[0:n-1] = b				; IP address
-(*(*pshrmem_spectra).plong[0])[0] = port_blog			; blog port
+if n_buffers ge 1 then begin
+	buffer_size = 4096L	
+	pshrmem_spectra = shared_memory_buffers( prefix=prefix_spectra, n_buffers=n_buffers, $
+							buffer_size=buffer_size, /init, error=error)
+	if error then goto, bad_shrmem
+	b = byte(ip_blog)
+	n = n_elements(b)
+	;(*(*pshrmem_spectra).ppar)[2:3] = 0
+	(*(*pshrmem_spectra).pbyte[0])[*] = 0B
+	(*(*pshrmem_spectra).pbyte[0])[0:n-1] = b			; IP address
+	(*(*pshrmem_spectra).plong[0])[0] = port_blog		; blog port
+endif
 		
 if n_buffers ge 1 then begin
 	pspec = ptrarr(n_buffers)
@@ -3671,7 +3700,8 @@ endif
 if enable_blog then begin
 	print,'Spawn new blog clients ...'
 	log_message, comms, type='INFO', 'maia_launch startup, Spawn new blog clients ...'
-	spawn_blog_clients, obj=blog_client_obj, prefix=maia_prefix, conf=default.conf, server=server, error=err
+	spawn_blog_clients, obj=blog_client_obj, prefix=maia_prefix, conf=default.conf, server=server, $
+						enable_groups=((*pm).groups.spectra gt 0), error=err
 	if err then goto, kill_processes
 
 ; Check blog clients ...
@@ -3729,16 +3759,18 @@ if enable_blog then begin
 	endwhile
 
 	t = 0.0
-	while (*(*pshrmem_spectra).ppar)[5] eq 0 do begin
-		print,'Wait for Group spectra blog client to run ...'
-		wait, 0.3
-		t = t+0.3
-		if t gt timeout_processes then begin
-			warning,'maia_launch','Group spectra client not running.'
-			(*pshrmem_spectra).error = 1
-			break
-		endif
-	endwhile	
+	if (*pm).number.spectra gt 0 then begin
+		while (*(*pshrmem_spectra).ppar)[5] eq 0 do begin
+			print,'Wait for Group spectra blog client to run ...'
+			wait, 0.3
+			t = t+0.3
+			if t gt timeout_processes then begin
+				warning,'maia_launch','Group spectra client not running.'
+				(*pshrmem_spectra).error = 1
+				break
+			endif
+		endwhile	
+	endif
 endif
 goto, start_launch
 
@@ -3893,8 +3925,9 @@ label = widget_label( lr2base, value='Maia to Blog', /tracking, uvalue='Status L
 ; Note that the LED[3] value needs to reflect all background processes that access BLOG ...
 
 lr3base = widget_base( led_base, /row, xpad=0, ypad=0, space=2, /base_align_center, /align_left)
-led[3] = 1 + (enable_blog and (((*pshrmem_spectra).error or (*pshrmem_ET_spectra).error or (*pshrmem_activity).error or (*pshrmem_da).error) eq 0))
-;led[3] = 1 + (enable_blog and (((*pshrmem_spectra).error or (*pshrmem_ET_spectra).error or (*pshrmem_activity).error) eq 0))
+if (*pm).number.spectra gt 0 then begin
+	led[3] = 1 + (enable_blog and (((*pshrmem_spectra).error or (*pshrmem_ET_spectra).error or (*pshrmem_activity).error or (*pshrmem_da).error) eq 0))
+endif
 led3 = picture_button( lr3base, lnames, uname='led3', value=led[3], /tracking, uvalue='Status LED3: Launch panel blog clients appear to be running.')
 label = widget_label( lr3base, value='Blog clients', /tracking, uvalue='Status LED3: Launch panel blog clients appear to be running.')
 
@@ -4208,8 +4241,10 @@ widget_control, maia_setup_button, timer=time_maia				; start slow maia update t
 widget_control, rates_button, timer=time_maia2					; start fast maia update timer
 widget_control, chart_button, timer=time_maia3					; start slow maia chart update timer
 if enable_blog then begin
-	if (*pshrmem_spectra).error eq 0 then begin
-		widget_control, groups_button, timer=time_spectra			; start group spectra update timer
+	if (*pm).number.spectra gt 0 then begin
+		if (*pshrmem_spectra).error eq 0 then begin
+			widget_control, groups_button, timer=time_spectra			; start group spectra update timer
+		endif
 	endif
 	if (*pshrmem_ET_spectra).error eq 0 then begin
 		widget_control, spectra_button, timer=time_ET_spectra		; start detector spectra update timer
