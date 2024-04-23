@@ -24,7 +24,8 @@ source, you will need an IDL license.
 
 Once IDL is installed, you can run GeoPIXE simply by double clicking on "GeoPIXE.sav" in the
 'geopixe' folder within the 'workspace' tree. It will note the absence of a 'geopixe.conf' file,
-but will then create one for you in your <home>/.geopixe directory.
+but will then create one for you in your <home>/.geopixe directory. For Linux, there is a bash 
+script in the Workspace/geopixe/bin/ directory to launch GeoPIXE. Just add bin to your path.
 
 It helps to have a working understanding of the Fundamental Parameter approach as used for 
 quantitative analysis in the workflow through GeoPIXE, and some experience with the Demo data. 
