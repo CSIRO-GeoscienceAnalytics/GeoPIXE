@@ -109,7 +109,6 @@ pro builder, options=options
 ;	image		build image plugins (to geopixe/plugins)
 ;	device		build device objects (to geopixe/interface)
 ;	wizard		build wizard plugins (to geopixe/wizard)
-;	source		build source plugins (to geopixe/plugins)
 ;	maia		build Maia Control components (to geopixe/maia)
 ;	daq			build DAQ Control components (to geopixe/daq)
 ;	main		build main GeoPIXE program and library (to geopixe)
@@ -122,7 +121,7 @@ pro builder, options=options
 	COMPILE_OPT STRICTARR
 	common c_working_dir, geopixe_root
 	common c_working_dir3, workspace_root
-	modes = ['all','misc','main','database','plugin','back','spectrum','image','device','wizard','source','maia','daq','browse','gui']
+	modes = ['all','misc','main','database','plugin','back','spectrum','image','device','wizard','maia','daq','browse','gui']
 	enable = dictionary( modes, intarr(n_elements(modes)))
 		
 ;................................................................................................
@@ -199,10 +198,6 @@ pro builder, options=options
 	endif
 	if enable['all'] or enable['plugin'] or enable['gui'] then begin
 		build_project, lun, 'GUI * Plugin', 'gui_plugin', 'plugins'
-	endif
-
-	if enable['all'] or enable['plugin'] or enable['source'] then begin
-		build_project, lun, 'Source *', 'source_plugin', 'plugins'
 	endif
 
 ;	Some of these are standalone programs, that do not restore "GeoPIXE.sav",

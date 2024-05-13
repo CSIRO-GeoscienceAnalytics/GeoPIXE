@@ -10,7 +10,8 @@ function define, image=image, spectrum=spectrum, table=table, $
 			daq_control=daq_control, daq_shared1=daq_shared1, scan_spec=scan_spec, $
 			wizard_notify=wizard_notify, old_source1=old_source1, source=source, maia_frame_spec=maia_frame_spec, $
 			maia_sample_spec=maia_sample_spec, daq_da_shared1=daq_da_shared1, plot_options=plot_options, $
-			correct_yields=correct_yields, operations=operations, old_source2=old_source2
+			correct_yields=correct_yields, operations=operations, old_source2=old_source2, $
+			pink=pink
 
 ;	Define structures for use in NMP software
 ;	see "GeoPIXE internal workings.docx"
@@ -63,6 +64,7 @@ if n_elements(daq_da_shared1) lt 1 then daq_da_shared1=0
 if n_elements(scan_spec) lt 1 then scan_spec=0
 if n_elements(wizard_notify) lt 1 then wizard_notify=0
 if n_elements(source) lt 1 then source=0
+if n_elements(pink) lt 1 then pink=0
 if n_elements(old_source1) lt 1 then old_source1=0
 if n_elements(old_source2) lt 1 then old_source2=0
 if n_elements(plot_options) lt 1 then plot_options=0
@@ -1805,7 +1807,7 @@ endif else if source ge 1 then begin
 
 ; The definition struct for a continuum laboratory source, by model or experimental spectrum.
 ; Only the mono (continuum=0) is used for ion beams so far.
-; 'continuum' mode=0 means that no details are saved/loaded except 'continuum' itself.
+; 'continuum' model=0 means that no details are saved/loaded except 'continuum' itself.
 ; 'continuum' must be >0 for saving details.
 
 n_filters = 20												; maxmimum # filters
@@ -1818,7 +1820,7 @@ filter = define( /filter)
 
 def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0)
 				energy:		0.0, $							; beam energy (mono), maximum energy (continuum)
-				model:		0, $							; model curve (1), or experimental spectrum file (0)
+				model:		1, $							; model: 1 lab source, 2: pink beam
 				spectrum: {	N:			0L, $				; number of channels used (<= 300)
 							data:		fltarr(300), $		; spectrum (continuum, for model or experimental)
 							E:			fltarr(300), $		; energy axis for spectrum (consistent with Cal)
@@ -1826,6 +1828,7 @@ def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0
 							char:		fltarr(300), $		; characteristic line spectrum
 							cal:	{	B:		0.0, $		; energy cal offset (keV)
 										A:		0.02}}, $	; energy cal gain (keV per channel)
+
 				lines: {	n_lines:	intarr(n_els), $			; number of lines per element/shell
 							Z:			intarr(n_els), $			; atomic numbers
 							shell:		intarr(n_els), $			; shells of elements
@@ -1846,10 +1849,64 @@ def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0
 							mono:	[0.0,3.0,0.5]}, $		; optional monochromator spec [E,BW%,Eff] (E=0.0 means OFF)
 				beam: {		mode:	0, $					; beam mode (0=side-window, 1=transmission)
 							thick:	0.0}, $					; thickness of thin transmission anode (mg/cm2)
+
 				acceptance:	0.001, $						; acceptance from source (msr)
 				mono: {		mode:	0, $					; mono mode (0=off, 1=on)
 							z:		42, $					; Z of elements energy
 							shell:	1}, $					; shell
+				poly: {		mode:	0, $					; poly mode (0=off, 1=on)
+							gain:	21000., $				; flux gain
+							energy:	17.4, $					; energy of this flux gain
+							model:	'XOS default', $		; polycapillary transmission model (file name)
+							diameter:	2.0, $				; diameter of beam at exit (mm)
+							focus:		14.0, $				; focal distance (mm)
+							spot:	0.03, $					; focus spot size
+							pinhole: 0.025, $				; pinhole diameter (at 'distance' mm) as flux gain reference
+							distance: 100., $				; distance of pinhole
+							etrans:	fltarr(300), $			; transmission table energies (keV)
+							trans:	fltarr(300)}, $			; transmissions (rel to 'energy')
+				n_filters:	0, $							; used filters
+				filters:	replicate(filter,n_filters) }	; model filter array	
+
+;--------------------------------------------------------------------------------------------
+
+endif else if pink ge 1 then begin
+
+; The definition struct for a pink beam by model with experimental spectrum.
+; 'continuum' must be >0 for saving details.
+
+n_filters = 20												; maxmimum # filters
+n_mirrors = 4												; maxmimum # mirrors
+filter = define( /filter)
+mirror = { title:'', file:''}								; link to CXRO data file
+
+; N.B.	If change size of data[], E[], etc. in spectrum, or
+;		number of filters (n_filters above), then must fix 'read_source'
+
+def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0)
+				energy:		0.0, $							; beam energy (mono), maximum energy (continuum)
+				model:		2, $							; model: 1 lab source, 2: pink beam
+				spectrum: {	N:			0L, $				; number of channels used (<= 300)
+							data:		fltarr(300), $		; spectrum (continuum, for model or experimental)
+							E:			fltarr(300), $		; energy axis for spectrum (consistent with Cal)
+;							proportion:	fltarr(300), $		; proportion in each channel due to continuum
+;							char:		fltarr(300), $		; characteristic line spectrum
+							cal:	{	B:		0.0, $		; energy cal offset (keV)
+										A:		0.02}}, $	; energy cal gain (keV per channel)
+
+				file:		'', $							; file name: .model file or experimental data
+				title:		'', $							; title string
+				fe_spectrum_file:	'', $					; FE spectrum filename
+				n_mirrors:	0, $							; used mirrors
+				mirrors:	replicate(mirror,n_mirrors), $	; mirrors
+
+				acceptance:	0.001, $						; acceptance from source (msr)
+				mono: {		mode:	0, $					; mono mode (0=off, 1=on)
+							z:		42, $					; Z of elements energy
+							shell:	1}, $					; shell
+				modata: {	spot:	0.02, $					; effective source spot size (mm)
+							bin:	0.02, $					; energy spectrum channel width (keV)
+							mono:	[0.0,3.0,0.5]}, $		; optional monochromator spec [E,BW%,Eff] (E=0.0 means OFF)
 				poly: {		mode:	0, $					; poly mode (0=off, 1=on)
 							gain:	21000., $				; flux gain
 							energy:	17.4, $					; energy of this flux gain

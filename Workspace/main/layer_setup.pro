@@ -61,11 +61,31 @@ case tag_names( event,/structure) of
 				*(*p).detector_list = list
 				widget_control, (*pstate).detector_mode, set_value=title, set_combobox_select=new
 				end
-			'new-source': begin						; from layer_setup
+			'new-source': begin						; from source_setup
 				if ptr_valid( event.pointer) then begin
-					(*p).source = *event.pointer
-					set_widget_text, (*pstate).source_text, (*p).source.file
+					*(*p).source = *event.pointer
+					set_widget_text, (*pstate).source_text, (*(*p).source).file
 					(*p).beam.mode = 6
+					(*p).beam.z1 = 0
+					(*p).beam.a1 = 0
+					(*p).beam.state = 1.0
+					(*p).beam.state_factor = 1.0
+					(*p).beam.e_factor = 1.0
+					mono = ((*p).beam.mode le 5)
+					sense = ((*p).beam.mode lt 5) and ((*pstate).gamma eq 0)
+					widget_control, (*pstate).z1_text, set_value=str_tidy((*p).beam.z1), sensitive=sense
+					widget_control, (*pstate).a1_text, set_value=str_tidy((*p).beam.a1), sensitive=sense
+					widget_control, (*pstate).state_text, set_value=str_tidy((*p).beam.state), sensitive=sense
+					widget_control, (*pstate).beam_mapbase_ZA, map=mono
+					widget_control, (*pstate).beam_mapbase_mono, map=mono
+					widget_control, (*pstate).beam_mapbase_continuum, map=1-mono							
+				endif
+				end
+			'new-pink': begin						; from pink_setup
+				if ptr_valid( event.pointer) then begin
+					(*(*p).source) = *event.pointer
+					set_widget_text, (*pstate).source_text, (*(*p).source).file
+					(*p).beam.mode = 7
 					(*p).beam.z1 = 0
 					(*p).beam.a1 = 0
 					(*p).beam.state = 1.0
@@ -218,14 +238,13 @@ case uname of
 
 ;			Additional beam plugins. For now only accept one ...
 
-			6: begin											; photons (continuum)
+			else: begin											; photons (continuum, pink, ...)
 				(*p).beam.z1 = 0
 				(*p).beam.a1 = 0
 				(*p).beam.state = 1.0
 				(*p).beam.state_factor = 1.0
 				(*p).beam.e_factor = 1.0
 				end
-			else:
 		endcase
 		mono = ((*p).beam.mode le 5)
 		sense = ((*p).beam.mode lt 5) and ((*pstate).gamma eq 0)
@@ -238,28 +257,61 @@ case uname of
 		end
 
 	'load-source-button': begin
-		file = find_file2( (*p).source.file)
-		path = extract_path( file[0])
-		file = strip_path(file[0])
-		if lenchr(path) eq 0 then path = *(*pstate).path
-		F = file_requester( /read, filter = '*.source', file=file, $
-					path=path, group=event.top, $
-					title='Select the X-ray source parameter SOURCE file', /fix_filter)
-		if F ne '' then begin
-			F = strip_file_ext(F) + '.source'
-			src = read_source( F, error=err)
-			if err eq 0 then begin
-				*(*pstate).path = extract_path(F)
-				set_widget_text, (*pstate).source_text, F			
-				(*p).source = src
-				(*p).source.file = F
-			endif
-		endif
+		case (*p).beam.mode of
+			6: begin									; lab source
+				file = ptr_good((*p).source) ? find_file2( (*(*p).source).file) : ''
+				path = extract_path( file[0])
+				file = strip_path(file[0])
+				if lenchr(path) eq 0 then path = *(*pstate).path
+				F = file_requester( /read, filter = '*.source', file=file, $
+							path=path, group=event.top, $
+							title='Select the X-ray Lab SOURCE parameter file', /fix_filter)
+				if F ne '' then begin
+					F = strip_file_ext(F) + '.source'
+					src = read_source( F, error=err)
+					if err eq 0 then begin
+						*(*pstate).path = extract_path(F)
+						set_widget_text, (*pstate).source_text, F			
+						(*(*p).source) = src
+						(*(*p).source).file = F
+					endif
+				endif
+				end
+			7: begin									; pink beam
+				file = ptr_good((*p).source) ? find_file2( (*(*p).source).file) : ''
+				path = extract_path( file[0])
+				file = strip_path(file[0])
+				if lenchr(path) eq 0 then path = *(*pstate).path
+				F = file_requester( /read, filter = '*.pink', file=file, $
+							path=path, group=event.top, $
+							title='Select the X-ray PINK beam parameter file', /fix_filter)
+				if F ne '' then begin
+					F = strip_file_ext(F) + '.pink'
+					src = read_pink( F, error=err)
+					if err eq 0 then begin
+						*(*pstate).path = extract_path(F)
+						set_widget_text, (*pstate).source_text, F			
+						(*(*p).source) = src
+						(*(*p).source).file = F
+					endif
+				endif
+				end
+			else:
+		endcase
 		end
 
 	'new-source-button': begin
-		source_setup, group_leader=event.top, TLB=tlb, pars=(*pstate).psource, path=*(*pstate).path
-		register_notify, event.top, [ 'path','new-source'], from=tlb
+		case (*p).beam.mode of
+			6: begin									; lab source
+				source_setup, group_leader=event.top, TLB=tlb, pars=(*pstate).psource, path=*(*pstate).path
+				register_notify, event.top, [ 'path','new-source'], from=tlb
+				end
+			7: begin									; lab source
+				pink_setup, group_leader=event.top, TLB=tlb, pars=(*pstate).ppink, path=*(*pstate).path
+				register_notify, event.top, [ 'path','new-pink'], from=tlb
+				end
+			else:
+		endcase
 		end
 		
 	'title-text': begin
@@ -591,8 +643,9 @@ case uname of
 		theta = (*p).detector.theta
 		phi = (*p).detector.phi
 		array = (*p).array
-		beam = (*p).source
-		if (*p).beam.mode ne 6 then begin
+		beam = (*(*p).source)
+
+		if (*p).beam.mode le 5 then begin
 			beam.continuum = 0
 			beam.energy = energy
 		endif
@@ -1072,7 +1125,7 @@ endif
 	widget_control, (*pstate).energy_text, set_value=str_tidy(beam.energy)
 
 	source = define(/source)
-	(*p).source = source
+	(*(*p).source) = source
 	if (*p).beam.mode eq 6 then begin
 		source_file = ''
 		readu,2, source_file
@@ -1080,11 +1133,11 @@ endif
 					path=*(*pstate).path, title='Select the X-ray source parameter SOURCE file', /fix_filter)		; , group=(*pstate).lcm_file
 		if F[0] ne '' then begin
 			src = read_source( F[0], error=err) 
-			if err eq 0 then (*p).source = src
+			if err eq 0 then (*(*p).source) = src
 		endif
 	endif
 	mono = ((*p).beam.mode le 5)
-	set_widget_text, (*pstate).source_text, (*p).source.file
+	set_widget_text, (*pstate).source_text, (*(*p).source).file
 	widget_control, (*pstate).beam_mapbase_ZA, map=mono
 	widget_control, (*pstate).beam_mapbase_mono, map=mono
 	widget_control, (*pstate).beam_mapbase_continuum, map=1-mono
@@ -1292,7 +1345,7 @@ endif
 	writeu,1, (*p).output_file
 	writeu,1, (*p).title
 	writeu,1, (*p).beam
-	if (*p).beam.mode eq 6 then writeu,1, (*p).source.file
+	if (*p).beam.mode eq 6 then writeu,1, (*(*p).source).file
 	writeu,1, (*p).detector
 	writeu,1, (*p).target
 	writeu,1, (*p).emin, (*p).emax
@@ -1603,6 +1656,8 @@ endif else begin
 	beam_modes = ['  Proton            +1','  Molecular H2  +1','  Helium            +1','  Alpha             +2','  General ion','  Photons   (mono)']
 endelse
 
+beam_modes = [beam_modes, '  '+'Photons   (lab source)', '  '+'Photons   (pink beam)']
+
 detector_update,  list=detector_list, title=detector_title, /array
 
 w = 0
@@ -1626,96 +1681,6 @@ if n_elements(yoffset) lt 1 then begin
 	yoffset = ((yoff - yh+h) < (screen[1] - yh)) > 0
 endif
 
-; Source plugins, only the first is used at present ...
-
-add_plugins = 0
-plugin_path = geopixe_root+'plugins'+slash()
-plugins = ptr_new()
-if (nosav eq 0) and (gamma eq 0) then begin
-	plugin_list = find_file2(plugin_path+'*_source_plugin.sav')
-	if plugin_list[0] eq '' then begin
-		plugin_title = ['-- none --']
-		print,'layer_Setup: no plugins found.'
-	endif else begin
-		nf = n_elements(plugin_list)
-		print,'layer_Setup:  process ',nf,' plugin files ...'
-		plugin_title = strarr(nf)
-
-		Catch, ErrorNo
-		if (ErrorNo ne 0) then begin
-			Catch, /cancel
-			warning,'GeoPIXE',['Errors detected in source plugins.', $
-					'Check source plugin SAV files.','','Make sure version is less than or', $
-					'equal to current IDL session,', $
-					'and at least v6.0 for VM mode.']
-
-			if catch_errors_on then begin
-				Catch, ErrorNo
-				if (ErrorNo ne 0) then begin
-					Catch, /cancel
-					on_error, 1
-					help, calls = s
-					n = n_elements(s)
-					c = 'Call stack: '
-					if n gt 2 then c = [c, s[1:n-2]]
-					warning,'layer_Setup',['IDL run-time error caught.', '', $
-							'Error:  '+strtrim(!error_state.name,2), $
-							!error_state.msg,'',c,'','Check plugins for errors.'], /error
-					MESSAGE, /RESET
-					return
-				endif
-			endif
-			goto, cont_fit
-		endif
-
-;		for i=0L,nf-1 do begin			; For the moment only allow one source plugin
-		for i=0L,0 do begin
-			print,'Source: restore plugin: ', plugin_list[i]
-			restore, plugin_list[i], /verbose
-			plugin_list[i] = strip_path( plugin_list[i])
-			plugin_list[i] = strip_file_ext( plugin_list[i])
-			call_procedure, plugin_list[i], title=title
-			if n_elements(title) lt 1 then begin
-				plugin_title[i] = 'No "title" return'
-			endif else begin
-				plugin_title[i] = title
-			endelse
-			print,'layer_Setup: register source plugin: ', plugin_title[i]
-		endfor
-
-;		For the moment only allow one source plugin
-;		For more, will need to implement these as objects:
-;			obj[i] = call_function( plugin_list[i])
-;		with methods: obj->title, obj->calculate, obj->setup
-;			Then these methods would replace:
-;			source_calculate --> obj[i]->calculate
-;			source_setup --> obj[i]->setup
-
-		beam_modes = [beam_modes, '  '+plugin_title[0]]
-
-;		add_plugins = 1
-;		plugins = ptr_new( {list:plugin_list, title:plugin_title})
-	endelse
-endif
-if catch_errors_on then begin
-	Catch, ErrorNo
-	if (ErrorNo ne 0) then begin
-		Catch, /cancel
-		on_error, 1
-		help, calls = s
-		n = n_elements(s)
-		c = 'Call stack: '
-		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'layer_Setup',['IDL run-time error caught.', '', $
-				'Error:  '+strtrim(!error_state.name,2), $
-				!error_state.msg,'',c], /error
-		MESSAGE, /RESET
-		return
-	endif
-endif
-
-cont_fit:
-
 p = bad_pars_struct( p, make_pars=make_p)
 
 n_layers = 20										; maxmimum # layers
@@ -1727,8 +1692,6 @@ layer = {layer2, thick:		0.0, $					; layer thickness (mg/cm^2)
 			weight:			0, $					; weight% versus at.fraction
 			formula:		'', $					; chemical formula
 			oxides:			fltarr(16) } 			; oxide components
-
-source = define(/source)							; continuum source blank set-up
 
 ; also in 'detector_show'
 
@@ -1744,7 +1707,7 @@ if make_p then begin
 					state_factor:	1.0, $				; charge state fraction scaling (e.g. for molecular H2)
 					e_factor:	1.0, $					; energy scaling (e.g. for molecular H2)
 					energy:		3.0}, $					; beam energy (is getting superceded by 'pbeam' struct.
-			source:				source, $				; source beam struct (supercedes simple mono energy for continuum beams)
+			source:				ptr_new(/alloc), $		; source beam struct (supercedes simple mono energy for continuum beams)
 			detector: {detector2, theta: (gamma eq 1) ? 0.0 : 135.0, $		; detector angle
 					phi:		0.0 }, $				; out of plane angle
 			array: 				0, $					; flags an array detector
@@ -1832,7 +1795,8 @@ state_text = widget_text( beam3base, value=str_tidy((*p).beam.state), uname='sta
 beam_mapbase_continuum = widget_base( beamBBbase, /row, /base_align_center, ypad=0, xpad=0, space=10, map=1-mono, xoffset=0, yoffset=0)
 beam5base = widget_base( beam_mapbase_continuum, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( beam5base, value='Source:')
-source_text = widget_text( beam5base, value=str_tidy((*p).source.file), uname='source-file-text', /tracking, /editable, scr_xsize=120, $
+file = ptr_good((*p).source) ? (*(*p).source).file : ''
+source_text = widget_text( beam5base, value=file, uname='source-file-text', /tracking, /editable, scr_xsize=120, $
 					uvalue='Enter the filename for the continuum source file or LOAD an existing one, or use NEW to open the source set-up window.')
 new_source_button = widget_button( beam5base, value='New', uname='new-source-button', /tracking, $
 					uvalue='Open source set-up window to model a continuum source. Remember to select "Save" on the Source Setup window to ' + $
@@ -2108,6 +2072,7 @@ state = {	$
 
 		pexport:		ptr_new(/allocate_heap), $		; pointer to export select
 		psource:		ptr_new(/allocate_heap), $		; pointer to source struct for soure_setup
+		ppink:			ptr_new(/allocate_heap), $		; pointer to pink struct for pink_setup
 
 		plot:			0L, $					; ID of layer_plot TLB (if open)
 		pplot:			ptr_new(), $			; pointer to pass new data to layer_plot
@@ -2120,7 +2085,7 @@ child = widget_info( tlb, /child)
 widget_control, child, set_uvalue=ptr_new(state, /no_copy)
 widget_control, tlb, /realize
 
-set_widget_text, source_text, (*p).source.file	; redisplay any file text in widgets right-justified
+if ptr_good((*p).source) then set_widget_text, source_text, (*(*p).source).file	; redisplay any file text in widgets right-justified
 set_widget_text, lcm_file, (*p).lcm_file
 set_widget_text, output_file, (*p).output_file
 

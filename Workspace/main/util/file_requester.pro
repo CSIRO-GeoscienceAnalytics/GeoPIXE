@@ -1452,6 +1452,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 			return, ''
 		endif
 	endif
+	common c_working_dir, geopixe_root
 	
 	cancel = 0
 	default = file_expand_path('.')
@@ -1940,9 +1941,9 @@ button = widget_button( b2base, value='Del', uname='del-trans-button', tracking=
 					uvalue='Del: Delete the selected translation path pair. Single click to select an entry. Also remember to "Save" these definitions.')
 label = widget_label( b2base, value='    ')
 
-arrow = picture_button( b2base, 'images/up-16x14.jpeg', uname='trans-shift-up', $
+arrow = picture_button( b2base, geopixe_root + 'images/up-16x14.jpeg', uname='trans-shift-up', $
 			/tracking, uvalue='Move this entry up one in translation table. Table is scanned from top to bottom, so put more general paths (shorter root stubs) at top and more specific ones at bottom.', /pushbutton_events)
-arrow = picture_button( b2base, 'images/down-16x14.jpeg', uname='trans-shift-down', $
+arrow = picture_button( b2base, geopixe_root + 'images/down-16x14.jpeg', uname='trans-shift-down', $
 			/tracking, uvalue='Move this entry down one in translation table. Table is scanned from top to bottom, so put more general paths (shorter root stubs) at top and more specific ones at bottom.', /pushbutton_events)
 
 label = widget_label( b2base, value='    ')

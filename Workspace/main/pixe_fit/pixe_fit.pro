@@ -143,11 +143,13 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'PIXE_fit',['IDL run-time error caught.', '', $
+		m = ['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
-				!Error_state.msg,'',c], /error
+				!Error_state.msg,'',c]
+		warning,'PIXE_fit',m, /error
 		MESSAGE, /RESET
-		message = 'IDL run-time error caught: '+strtrim(!error_state.name,2)
+		s = strjoin( m, ",")
+		message = s
 		goto, bad_exit
 	endif
 endif
@@ -183,6 +185,7 @@ common c_fit_model_6,  a, org, rorg, na, cpeaks, n_channels, x, cdetector, mask,
 	if n_elements(use_m) lt 1 then use_m=1
 	if n_elements(mp_loop0) lt 1 then mp_loop0=0
 	if n_elements(correct) lt 1 then correct=0L
+	if n_elements(sum_deficit) lt 1 then sum_deficit=0.5
 	if n_elements(tweek_el) lt 1 then tweek_el=-1
 	if n_elements(tweek_lines) ne 20 then begin
 		tweek_lines = replicate(-1,20)

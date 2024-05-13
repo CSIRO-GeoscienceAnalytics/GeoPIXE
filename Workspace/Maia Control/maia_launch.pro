@@ -4022,7 +4022,7 @@ query = widget_label( heart0_base, value=' ', /align_center, uname='query', /tra
 
 if !version.os_family eq 'unix' then heart0_base = widget_base( heart0_base, /column, xpad=0, ypad=1, space=3, /base_align_left)
 heart = intarr(6)
-hnames = ['images/led-off-12x14.jpeg','images/led-red-12x14.jpeg','images/led-green-12x14.jpeg']
+;hnames = ['images/led-off-12x14.jpeg','images/led-red-12x14.jpeg','images/led-green-12x14.jpeg']
 heart_base = widget_base( heart0_base, /column, xpad=1, ypad=0, space=heart_space, /align_center, /base_align_left)
 
 rr0base = widget_base( heart_base, /row, xpad=0, ypad=0, space=2, /base_align_center, /align_left)

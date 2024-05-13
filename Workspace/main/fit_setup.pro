@@ -3366,7 +3366,7 @@ case !version.os_family of
 		slider_xsize = 80
 		xsize_flux = 22
 		mode_xsize = 320
-		xsize_tweek = 60
+		xsize_tweek = 38
 		ysize_help = 3
 		tgeneral = 'General'
 		tbackground = 'Back 1'
@@ -3397,7 +3397,7 @@ case !version.os_family of
 		slider_xsize = 75
 		xsize_flux = 22
 		mode_xsize = 320
-		xsize_tweek = 60
+		xsize_tweek = 38
 		ysize_help = 3
 		tgeneral = 'General'
 		tbackground = 'Back 1'

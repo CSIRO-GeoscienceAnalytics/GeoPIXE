@@ -18,7 +18,7 @@ error = 0
 	close, 1
 	openr, 1, F, /XDR
 
-	valid_versions = [-1,-2,-3,-4,-5,-6,-7,-8,-9,-10]
+	valid_versions = [-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11]
 
 	version = 0L
 	readu,1, version
@@ -153,11 +153,12 @@ more:
 	endif
 
 	beam = define(/source)
-	beam1 = define(/old_source2)
+	pink = define(/pink)
+	model = 1
 	if version le -10 then begin
 		beam0 = beam
 	endif else if version le -9 then begin
-		beam0 = beam1
+		beam0 = define(/old_source2)
 	endif else begin
 		beam0 = define(/old_source1)
 	endelse
@@ -165,6 +166,15 @@ more:
 		use_beam = 0L 
 		readu,1, use_beam
 		if use_beam then begin
+			if version le -11 then begin
+				readu,1, model
+				if model eq 2 then begin
+					beam0 = pink
+					beam = pink
+				endif else begin
+					beam0 = beam
+				endelse
+			endif
 			readu,1, beam0
 		endif
 	endif

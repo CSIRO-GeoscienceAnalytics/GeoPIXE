@@ -194,6 +194,8 @@ endif
 ; secondary fluorescence enhancement factors
 
 	enhance = yield / (yield-sec_yield)
+	q = where( finite(enhance) eq 0, nq)
+	if nq gt 0 then enhance[q]=1.0
 	n_els = n_elements( yield[*,0])
 	linmax = n_elements( e_lines[*,0])
 
@@ -232,8 +234,8 @@ endif
 		if error then goto, bad
 
 		q = where( yield[*,unknown-1] gt 1.0e-10)
+		rY[i,*] = 1.0
 		if q[0] ne -1 then begin
-			rY[i,*] = 1.0
 			rY[i,q] = yieldi[q,unknown-1] * enhance[q,unknown-1] / yield[q,unknown-1]
 		endif
 		rIntensity[i,*,*] = rel_inti[*,*] / rel_int[*,*]

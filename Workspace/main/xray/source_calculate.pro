@@ -3,18 +3,20 @@ pro source_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressu
 ;	Calculate the full spectrum (E2, Spec2) to be drawn,
 ;	and also a compressed form to go in the source struct.
 ;
-;	/convert	convert local 'source_setup' parameters to standard mg/cm2 thick.
+;	/convert	convert local 'pink_setup' filter parameters to standard mg/cm2 thick.
 ;
 ; If 'presssure' and 'temp' present, this indicates a gas filter.
 ;	In this case assume thick is mg/cm2 NPT (1013.25 HPa, 20 C) and scale this for new PT.
 ;	These are scalars, for ambient conditions.
+;	Called from 'fit_recalculate_yields'.
 
 	COMPILE_OPT STRICTARR
-	error = 1
+	error = 0
 	if n_elements(convert) eq 0 then convert=0
 	if ptr_valid(p) eq 0 then return
 	if size(*p,/tname) ne 'STRUCT' then return
 	if (*p).continuum eq 0 then return
+	error = 1
 
 	try_compton = 0										; test a Compton component
 
@@ -85,7 +87,7 @@ pro source_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressu
 	source = define(/source)
 	N1 = n_elements(spec)
 	N2 = n_elements(source.spectrum.data)
-	if N1 gt N2 then begin
+	if N1 gt N2 then begin								; remap onto short 300 step spectrum for storage
 		f = float(N1)/float(N2)
 		spec = f * smart_congrid( spec, N2)
 		proportion = smart_congrid( proportion, N2)

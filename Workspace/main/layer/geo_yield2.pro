@@ -312,6 +312,19 @@ yield = 0
 
 	if continuum then begin
 
+;		Fudge to test falling source spectrum effect on yields ...
+;		Not in 'xos_transmission', which would require all source models to be recalculated (and saved?).
+;		But either in source or here, need to rebuild all yield files.
+
+;		if beam.poly.model eq 'XOS default' then begin
+;			beam2.spectrum.data = beam2.spectrum.data * ((10./(beam2.spectrum.e > 10.))^4)
+;			beam2.spectrum.data = beam2.spectrum.data * exp(-0.3*( (beam2.spectrum.e > 10.) - 10.))
+;			beam2.spectrum.data = beam2.spectrum.data * exp(-0.2*( (beam2.spectrum.e > 10.) - 10.))
+;			beam2.spectrum.data = beam2.spectrum.data * exp(-0.2*( (beam2.spectrum.e > 12.) - 12.))
+;
+;			beam2.spectrum.data = beam2.spectrum.data * exp(-0.19*( (beam2.spectrum.e > 10.) - 10.))
+;		endif
+
 		spec = harden_beam( beam2, slices, lid)		;, scale=scale)
 		
 ;		print,'geo_yield2: scale for continuum spectrum =',scale
@@ -345,7 +358,11 @@ yield = 0
 			for k=0,nhs-1 do begin
 				sum = total( spec[k].spectrum.data * xcs)
 				for j=0,m-1 do begin
-					branch_ratio[j,i,k] = total( spec[k].spectrum.data * xcs * rele[j,i,*]) / sum
+					if sum gt 1.0e-20 then begin
+						branch_ratio[j,i,k] = total( spec[k].spectrum.data * xcs * rele[j,i,*]) / sum
+					endif else begin
+						branch_ratio[j,i,k] = 0.0
+					endelse
 				endfor
 			endfor
 		endfor
@@ -424,6 +441,7 @@ yield:
 					ppm = 0.0
 				endelse
 			endelse
+			if finite(ppm) eq 0 then ppm=0.0
 
 			mass_yield[*,i] = mass_yield[*,i] + intensity[*,i,l] * yield[i,l] * ppm
 			mass_tot[i] = mass_tot[i] + ppm
@@ -436,18 +454,22 @@ yield:
 	rel_int = fltarr(linmax,n_els)
 	for i=0L,n_els-1 do begin
 		total_yield = mass_yield[*,i] / mass_tot[i]
-		major_yield[i] = total_yield[0]
+		q = where( finite(total_yield) eq 0, nq)
+		if nq gt 0 then total_yield[q]=0.0
 
+		major_yield[i] = total_yield[0]
 		rel_int[*,i] = total_yield / major_yield[i]
 	endfor
 
-	q = where( zero eq 1)
+	q = where( (zero eq 1) or (finite(rel_int[0,*]) eq 0) or (finite(rel_int[1,*]) eq 0))
 	if q[0] ne -1 then begin
 		yield[q,*] = 0.0
 		major_yield[q] = 0.0
+		rel_int[1:*,q] = 0.0
+		rel_int[0,q] = 1.0
 	endif
 
-;	But, return the yields for the individual layers ...
+;	Return the yields for the individual layers ...
 
 	error = 0
 	goto, done

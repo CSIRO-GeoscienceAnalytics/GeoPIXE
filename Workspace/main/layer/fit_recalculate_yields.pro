@@ -38,8 +38,17 @@ error = 1
 	playout = (*p).playout					; detector layout
 	psource = ptr_new( (*py).beam)			; source struct
 
-	source_calculate, psource, convert=0, pressure=pressure, temp=temp, error=error
-	print,'Done source calculate.'
+;	Note for non continuum beams these return passively without 'error' ...
+
+	case (*py).beam.model of
+		1: begin
+			source_calculate, psource, convert=0, pressure=pressure, temp=temp, error=error
+			end
+		2: begin
+			pink_calculate, psource, convert=0, pressure=pressure, temp=temp, error=error
+			end
+		else:
+	endcase
 	if error then goto, bad_source
 
 	yield = geo_array_yield( (*py).formula, (*py).thick, microns=(*py).microns, density=(*py).density, weight=(*py).weight, $

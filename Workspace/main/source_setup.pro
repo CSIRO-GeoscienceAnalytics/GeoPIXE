@@ -501,7 +501,6 @@ endcase
 update:
 	source_update_pars, pstate
 	source_calculate, p, /convert, Energy=E, spec=spec, error=error
-;	if error then goto, bad_tube
 
 	norm = 7.e+15									; norm spec*cross to ~counts (see plot_tube_yields3)
 	crossa = photo_subshell( 79, 4, E)				; Au L3 subshell cross-section across spectrum
@@ -511,32 +510,16 @@ update:
 
 ;	To overlay another source ...
 	
-;	p2 = ptr_new( read_source( 'C:\Software\Data\CSIRO\DET_XRF\delta-Rh-40kV-4W.source', error=error), /no_copy)
-;	p2 = ptr_new( read_source( 'C:\Software\Data\CSIRO\DET_XRF\delta-Rh-10kV-4W.source', error=error), /no_copy)
-;	p2 = ptr_new( read_source( 'C:\Software\IDL\GeoPIXE-source2\Workspace\GeoPIXE\setup\sources\excillum-I2-70kV-100W.source', error=error), /no_copy)	
-
 	p2 = (*pstate).plast
-
 	if error eq 0 then begin
-
-;	If loaded afresh, then  need to fix filters ...
-;		n = (*p2).n_filters
-;		if n gt 0 then f = source_convert_filter_to_local( (*p2).filters[0:n-1], error=error)
-;		if error eq 0 then begin
-;			(*p2).filters[0:n-1] = f
-		
-			source_calculate, /convert, p2, Energy=E2, spec=spec2, error=error
-;			if error then goto, bad_tube
-;		endif
+		source_calculate, /convert, p2, Energy=E2, spec=spec2, error=error
 	endif
 	
-;	if (drag eq 0) and (error eq 0) then begin
 	if (error eq 0) then begin
 		source_draw, pstate, p=p, E=E, spec=spec, /overlay, altp=p2, altE=E2, altspec=spec2, test=(*pstate).test
 	endif else begin
 		source_draw, pstate, p=p, E=E, spec=spec, test=(*pstate).test
 	endelse
-;	if ptr_valid(p2) then ptr_free, p2			; only free it if loaded just now, above
 
 finish:
 	widget_control, hourglass=0
@@ -1068,7 +1051,18 @@ endif
 	widget_control, (*pstate).mono_mapbase2, map=(*p).mono.mode
 
 	q = where( (*p).poly.model eq (*pstate).poly_model)
-	if q[0] ne -1 then widget_control, (*pstate).poly_type, set_combobox_select=q[0]
+	if q[0] ne -1 then begin
+		(*pstate).poly_active = q[0]	
+		poly = get_poly_config( (*pstate).poly_list[ (*pstate).poly_active], error=err)
+		if err eq 0 then begin
+			(*p).poly = poly
+			(*p).poly.mode = 1
+		endif
+	endif 
+	if mode eq 0 then begin
+		(*p).poly.mode = 0
+	endif
+	widget_control, (*pstate).poly_type, set_combobox_select= (*pstate).poly_active
 
 	widget_control, (*pstate).poly_gain_text, set_value=str_tidy((*p).poly.gain)
 	widget_control, (*pstate).poly_energy_text, set_value=str_tidy((*p).poly.energy)

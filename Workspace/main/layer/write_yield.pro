@@ -41,7 +41,7 @@ endif
 	endelse
 	if size(y,/tname) ne 'STRUCT' then goto, bad_data
 
-	version = -10L					; .yield version number
+	version = -11L					; .yield version number
 	on_ioerror, bad_io
 	close, 1
 	openw, 1, F, /XDR
@@ -93,7 +93,10 @@ more:
 	use_beam = 0L
 	if peaks.beam.continuum ge 1 then use_beam=1L
 	writeu,1, use_beam
-	if use_beam then writeu,1, peaks.beam
+	if use_beam then begin
+		writeu,1, peaks.beam.model
+		writeu,1, peaks.beam
+	endif
 
 	if i+1 lt ny then begin
 		i = i+1

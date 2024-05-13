@@ -93,7 +93,8 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 
 	if (photo eq 1) and (no_extras eq 0) then begin
 		add_lines = 1
-		if (*pyield).beam.continuum then begin
+		if tag_present( 'LINES', (*pyield).beam) eq 0 then add_lines=0
+		if add_lines and (*pyield).beam.continuum then begin
 			qc = where( (*pyield).beam.lines.z ne 0, nqc)
 			if nqc gt 0 then begin
 				nlc = n_elements( (*pyield).beam.lines.e[*,0]) < nk
