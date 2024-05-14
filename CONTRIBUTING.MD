@@ -11,4 +11,4 @@ to focus changes to the best part of GeoPIXE for all users. In time, this should
 more people develop an effective overview of the software as a whole and the philosophy of (i) maintaining backward
 compatibility with all previously generated data files, and across all supported and historical computer platforms, 
 and (ii) maintaining the general purpose core, while supporting specific needs in plugins (image processing, spectrum processing,
-background algorithms, source definitions, Wizards and GUI extensions) and device objects.
+background algorithms, Wizards and GUI extensions) and device objects.
