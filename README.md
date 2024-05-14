@@ -77,4 +77,4 @@ However, some advanced methods, such as parallel processing of large data-sets s
 make use of features not available in the VM. For these, a runtime licensed version is required. 
 
 If you desire to edit and test IDL pro files, then a full license is required to run IDLDE, the IDL
-Eclipse development envuronment.
+Eclipse development environment.
