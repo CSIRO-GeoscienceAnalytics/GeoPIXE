@@ -37,7 +37,7 @@ processing of the images to first verify their accuracy, including extracting sp
 observed features (region shapes or element-element Associations), and make corrections and then 
 to explore their content.
 
-A DOI to download the GeoPIXE Demo data will be avaliable shortly.
+The GeoPIXE Demo data can be downloaded from this DOI:  https://doi.org/10.25919/mc2f-1979
 
 ### Opening GeoPIXE using the Eclipse IDLDE environment
 
