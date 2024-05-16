@@ -514,7 +514,7 @@ pro save_fit_results, pstate, F
 	if n eq 0 then no_results=1
 	if no_results then goto, bad_data
 
-	version = -15L									; version number
+	version = -16L									; version number
 	on_ioerror, bad_io
 	close, 1
 	openw, 1, F, /XDR
@@ -562,7 +562,22 @@ pro save_fit_results, pstate, F
 			writeu,1, (*p).correct
 			writeu,1, (*p).deadtime_correction
 
-			write_source, (*p).beam, unit=1, error=err
+			writeu,1, (*p).beam.continuum
+			use_beam = 0L
+			err = 0
+			if (*p).beam.continuum ge 1 then use_beam=1L
+			if use_beam then begin
+				writeu,1, (*p).beam.model
+				case (*p).beam.model of
+					1: begin
+						write_source, (*p).beam, unit=1, error=err
+						end
+					2: begin
+						write_pink, (*p).beam, unit=1, error=err
+						end
+					else:
+				endcase
+			endif
 			if err then goto, bad_beam
 		endif
 	endfor

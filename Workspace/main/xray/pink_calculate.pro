@@ -1,4 +1,4 @@
-pro pink_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressure, temp=temp, error=error
+pro pink_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressure, temp=temp, path=path, error=error
 
 ;	Calculate the full spectrum (E2, Spec2) to be drawn,
 ;	and also a compressed form to go in the pink struct.
@@ -13,6 +13,7 @@ pro pink_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressure
 	COMPILE_OPT STRICTARR
 	error = 0
 	if n_elements(convert) eq 0 then convert=0
+	if n_elements(path) eq 0 then path=''
 	if ptr_valid(p) eq 0 then return
 	if size(*p,/tname) ne 'STRUCT' then return
 	if (*p).continuum eq 0 then return
@@ -25,22 +26,32 @@ pro pink_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressure
 
 	if (*p).n_filters ge 1 then begin
 		if convert then begin
-			f = pink_convert_filter_to_standard( (*p).filters[0:(*p).n_filters-1], error=err)
+			filters = pink_convert_filter_to_standard( (*p).filters[0:(*p).n_filters-1], error=err)
 		endif else begin
-			f = (*p).filters[0:(*p).n_filters-1]
+			filters = (*p).filters[0:(*p).n_filters-1]
 		endelse
 	endif else begin
-		f = make_filter('Be',0.0,name='null')
+		filters = make_filter('Be',0.0,name='null')
 	endelse
 	
 	E = 0.5 + bin * findgen(2000)
+	spec = replicate(0.0, 2000)
+	E2 = E
+	spec2 = spec
 
-	if (*p).fe_spectrum_file eq '' then return
+	F = (*p).fe_spectrum_file
+	if F eq '' then return
+	F = file_requester( /read, filter = ['*.txt'], file=F, path=path, /translate, updir=4, $
+				title='Select the pink beam spectrum file', fix_filter=0, /skip_if_exists)
+	if F[0] eq '' then return
+	if F[0] ne (*p).fe_spectrum_file then (*p).fe_spectrum_file=F
+	path = extract_path(F)
+
 	d = read_beam( (*p).fe_spectrum_file, count=n, skip=0, remap_energy=E, error=error)
 	if error then return
 
 	E = d.energy
-	t = transmit( f, E, pressure=pressure, temp=temp)
+	t = transmit( filters, E, pressure=pressure, temp=temp)
 
 	use_mono = 1
 	if (*p).mono.mode ne 1 then use_mono = 0
@@ -72,6 +83,13 @@ pro pink_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressure
 	E = E[q]
 	
 	for i=0,(*p).n_mirrors-1 do begin
+		F = (*p).mirrors[i].file
+		F = file_requester( /read, filter = ['*.txt'], file=F, path=path, /translate, updir=4, $
+					title='Select the CXRO mirror reflectivity file [mirror '+str_tidy(i+1)+']', fix_filter=0, /skip_if_exists)
+		if F[0] eq '' then return
+		if F[0] ne (*p).mirrors[i].file then (*p).mirrors[i].file=F
+		path = extract_path(F)
+
 		dm = read_beam( (*p).mirrors[i].file, count=n, skip=2, remap_energy=E, error=error)
 		if error then return
 

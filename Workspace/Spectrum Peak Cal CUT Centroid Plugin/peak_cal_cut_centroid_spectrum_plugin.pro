@@ -53,11 +53,14 @@ if nq eq 0 then return
 ; which changes between colour and highlight spectrum modes.
 
 common c_spectrum_current, ispec_current
+common c_cal_elements, tE1, tE2
 if n_elements(ispec_current) ne 0 then begin
 	icurrent = clip( ispec_current, 0, np-1)
 endif else begin
 	icurrent = 0
 endelse
+if n_elements(tE1) eq 0 then tE1 = '6.4'
+if n_elements(tE2) eq 0 then tE2 = '17.44'
 
 id = intarr(nq)
 sdev = fltarr(nq)
@@ -66,15 +69,18 @@ marks = marks[0:5,1]                 	    ; View: V0-V1 [3] markers; Cuts: C0-C1
 marks = marks[sort(marks)]
 qm = where( marks gt 0, nqm)
 if nqm lt 4 then begin
-	warning,'',['Zero X markers.','Select two peaks using 4 X markers and try again.']
+	warning,'peak_cal_cut_centroid_spectrum_plugin',['Zero X markers.','Select two peaks using 4 X markers and try again.']
 	return
+endif
+if nqm gt 4 then begin
+	qm = qm[nqm-4:nqm-1]
 endif
 
 mark1 = marks[qm[0:1]]						; 2 CUTs for 2 peaks
 mark2 = marks[qm[2:3]]
 
 text = ['First X cut energy (keV)','Second X cut energy (keV)']
-initial_text = str_tidy(string([8.15,17.45]))
+initial_text = str_tidy(string([tE1,tE2]))
 help_text = ['Energy (keV) for first X range cut (using smallest 2 non-zero X markers).','Energy (keV) for second X range cut (using next 2 non-zero X markers).']
 Help_default = 'Select 2 channel ranges defined by X markers (e.g. using 0,1, 2,3 or 2,3, 4,5 X markers) and then provide the energies for the centroids of the spectrum within each X range. ' + $
 		'Remember to set first X markers starting from the right, and then proceed left.'
@@ -82,6 +88,8 @@ r = options_popup( title='Cal by Centroids between X markers Options', text=text
 			help_default=help_default, min_xsize=300, error=error)
 if error then return
 
+tE1 = r.text[0]
+tE2 = r.text[1]
 e1 = float2( r.text[0])						; energy CUT 1
 e2 = float2( r.text[1])						; energy CUT 2
 

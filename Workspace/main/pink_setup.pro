@@ -120,17 +120,16 @@ case uname of
 
 	'load-pink-button': begin
 		file = find_file2( (*p).file)
-		path = extract_path( file[0])
-		if lenchr(path) eq 0 then path = *(*pstate).path
+		path = *(*pstate).path
 		F = file_requester( /read, filter = '*.pink', $
 				/must_exist, path=path, group=event.top, $
-				title='Select the pink file', /fix_filter)
+				title='Select the pink beam file', /fix_filter)
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.pink'
-			*(*pstate).path = extract_path(F)
 			set_widget_text, (*pstate).pink_file, F
 			src = read_pink( F, error=err)
 			if err eq 0 then begin
+				*(*pstate).path = extract_path(F)
 				*(*pstate).plast = *p
 				*p = src
 				(*p).file = F
@@ -144,17 +143,16 @@ case uname of
 
 	'save-pink-button': begin
 		file = find_file2( (*p).file)
-		path = extract_path( file[0])
-		if lenchr(path) eq 0 then path = *(*pstate).path
+		path = *(*pstate).path
 		F = file_requester( /write, file=file, filter = '*.pink', $
 			/noconfirm, path=path, group=event.top, $
-			title='Save pink definitions and model spectrum to file', /fix_filter)
+			title='Save pink beam definitions and model spectrum to file', /fix_filter)
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.pink'
 			*(*pstate).path = extract_path(F)
 			set_widget_text, (*pstate).pink_file, F
-			pink_update_pars, pstate
-			pink_calculate, p, /convert
+			pink_calculate, p, path=*(*pstate).path, /convert
+			pink_setup_pars, pstate
 			
 			src = *p
 			n = (*p).n_filters
@@ -174,10 +172,10 @@ case uname of
 		widget_control, event.id, get_value=F
 		F = strip_file_ext(F[0]) + '.pink'
 		(*p).file = F
-		*(*pstate).path = extract_path(F)
 		set_widget_text, (*pstate).pink_file, F
 		src = read_pink( F, error=err)
 		if err eq 0 then begin
+			*(*pstate).path = extract_path(F)
 			*(*pstate).plast = *p
 			*p = src
 			(*p).file = F
@@ -195,8 +193,7 @@ case uname of
 
 	'load-fe-spectrum-button': begin
 		file = find_file2( (*p).fe_spectrum_file)
-		path = extract_path( file[0])
-		if lenchr(path) eq 0 then path = *(*pstate).path
+		path = *(*pstate).path
 		F = file_requester( /read, filter = ['*.txt','*.csv'], $
 				/must_exist, path=path, group=event.top, $
 				title='Select the pink beam spectrum file')
@@ -332,8 +329,7 @@ case uname of
 
 	'load-mirror-file-button': begin
 		file = find_file2( (*p).mirrors[(*pstate).mactive].file)
-		path = extract_path( file[0])
-		if lenchr(path) eq 0 then path = *(*pstate).path
+		path = *(*pstate).path
 		F = file_requester( /read, filter = ['*.txt','*.csv'], $
 				/must_exist, path=path, group=event.top, $
 				title='Select the CXRO mirror reflectivity file')
@@ -532,8 +528,9 @@ endcase
 
 update:
 	pink_update_pars, pstate
-	pink_calculate, p, /convert, Energy=E, spec=spec, error=error
+	pink_calculate, p, /convert, path=*(*pstate).path, Energy=E, spec=spec, error=error
 	if error then return
+	pink_setup_pars, pstate
 
 	norm = 7.e+15									; norm spec*cross to ~counts (see plot_tube_yields3)
 	crossa = photo_subshell( 79, 4, E)				; Au L3 subshell cross-section across spectrum
@@ -545,7 +542,8 @@ update:
 	
 	p2 = (*pstate).plast
 	if error eq 0 then begin
-		pink_calculate, /convert, p2, Energy=E2, spec=spec2, error=error
+		pink_calculate, /convert, p2, path=*(*pstate).path, Energy=E2, spec=spec2, error=error
+		pink_setup_pars, pstate
 	endif
 
 	if (error eq 0) then begin
@@ -1068,7 +1066,7 @@ endif
 	if n gt 0 then begin
 		for i=0,n-1 do begin
 			widget_control, (*pstate).mtitle_text[i], set_value=(*p).mirrors[i].title
-			widget_control, (*pstate).mfile_text[i], set_value=(*p).mirrors[i].file
+			set_widget_text, (*pstate).mfile_text[i], (*p).mirrors[i].file
 		endfor
 	endif
 
@@ -1129,7 +1127,7 @@ child = widget_info( top, /child)
 widget_control, child, get_uvalue=pstate
 
 if ptr_valid( (*pstate).p) then begin
-	widget_control, wWidget, set_combobox_select=(*(*pstate).p).n_mirrors-1
+	widget_control, wWidget, set_combobox_select=(*(*pstate).p).n_mirrors
 endif
 end
 
@@ -1679,7 +1677,7 @@ help = widget_text( tbase, scr_xsize=391, ysize=4, /wrap, uname='help', /trackin
 				frame=0)
 
 state = {	$
-		path:				ptr_new(path), $		; pointer to current path
+		path:				ptr_new(path), $		; current path
 		p:					p, $					; pointer to parameters
 		plast:				ptr_new(/allocate_heap), $	; pointer to previous set of parameters
 		active:				0, $					; active filter for edit
@@ -1741,7 +1739,8 @@ state = {	$
 	}
 
 child = widget_info( tlb, /child)
-widget_control, child, set_uvalue=ptr_new(state, /no_copy)
+pstate = ptr_new(state, /no_copy)
+widget_control, child, set_uvalue=pstate
 widget_control, tlb, /realize
 
 register_notify, tlb, ['path' $						; new path
@@ -1750,5 +1749,6 @@ register_notify, tlb, ['path' $						; new path
 
 xmanager, 'pink_setup', tlb, /no_block
 
+pink_setup_pars, pstate, error=error
 return
 end

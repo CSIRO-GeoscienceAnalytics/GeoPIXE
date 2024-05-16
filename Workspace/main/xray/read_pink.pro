@@ -61,7 +61,7 @@ source = 0
 	pink.continuum = continuum
 	pink.energy = energy
 	pink.model = model
-	pink.file = F
+	if open_file then pink.file = F
 	pink.title = title
 
 	n = 0L

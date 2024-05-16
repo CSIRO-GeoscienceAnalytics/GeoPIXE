@@ -42,10 +42,10 @@ error = 1
 	
 	if size(p1,/tname) eq 'POINTER' then begin
 		if ptr_good(p1) eq 0 then goto, bad_ptr
-		(*p1).file = F
+		if open_file then (*p1).file = F
 		p = p1
 	endif else if size(p1,/tname) eq 'STRUCT' then begin
-		p1.file = F
+		if open_file then p1.file = F
 		p = ptr_new( p1)
 	endif else return
 

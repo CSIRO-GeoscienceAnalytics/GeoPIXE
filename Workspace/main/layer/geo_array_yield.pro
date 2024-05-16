@@ -118,8 +118,6 @@ COMPILE_OPT STRICTARR
 ;select_z = [26,29,79]
 ;e_min = 4.
 
-;	beam = make_tube_spectrum()							; make a test continuum spectrum ...   ????	
-
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if catch_errors_on then begin

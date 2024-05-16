@@ -66,7 +66,7 @@ retry:
 	openr, 1, F, /XDR
 
 cont:
-	valid_versions = [-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15]
+	valid_versions = [-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16]
 
 	version = 0L
 	readu,1, version
@@ -273,11 +273,37 @@ cont:
 			readu,1, dt_corr
 		endif
 
-		beam = define(/source)						; source beam struct (for continuum sources)
-		if version le -14 then begin
-			beam = read_source( unit=1, error=err2)
-			if err2 then goto, bad_beam
-		endif
+		continuum = 0
+		model = 0
+		if version le -16 then begin
+			readu,1, continuum
+			use_beam = 0L
+			if continuum ge 1 then use_beam=1L
+			if use_beam then begin
+				readu,1, model
+				case model of
+					1: begin						; source beam struct (for continuum sources)
+						beam = read_source( unit=1, error=err2)
+						if err2 then goto, bad_beam
+						end
+					2: begin						; pink beam struct (for continuum sources)
+						beam = read_pink( unit=1, error=err2)
+						if err2 then goto, bad_beam
+						end
+					else: begin
+						beam = define(/source)
+						end
+				endcase 
+			endif else begin
+				beam = define(/source)
+			endelse
+		endif else begin
+			beam = define(/source)					; source beam struct (for continuum sources)
+			if version le -14 then begin
+				beam = read_source( unit=1, error=err2)
+				if err2 then goto, bad_beam
+			endif
+		endelse
 
 ;	Changes here have to be matched by 'pixe_fit'
 

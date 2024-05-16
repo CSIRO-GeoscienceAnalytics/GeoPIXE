@@ -94,6 +94,8 @@ if !version.os_family eq 'MacOS' then device, decomposed=0
 					'some background process execution.']
 		endelse
 	endelse
+	print, 'GeoPIXE root: ', geopixe_root
+;	warning,/info, 'Startupp', 'GeoPIXE root: '+ geopixe_root
 
 ; Find the subdir for database source data files (not the output database SAV file
 ; "geopixe2.sav", which is in the runtime "geopixe" dir).
