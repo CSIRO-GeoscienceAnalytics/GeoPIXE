@@ -1361,7 +1361,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 		read=readm, write=writem, must_exist=must_exist, directory=dir, $
 		numeric=numeric, latest=latest, ignore=ignore, cancel=cancel, $
 		skip_if_exists=skip_if_exists, skip_if_null=skip_if_nulli, translate=translate, $
-		updir=updir, $
+		updir=updir, within_modal=within_modal, $
 		
 		noconfirm=noconfirm			; obsolete (only here for compatibility with v6.6)
 
@@ -1389,6 +1389,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 ; title				window title
 ; multiple_files	multiple select active
 ; dialog_parent		parent of modal pop-up
+; within_modal		flags being called from a modal widget, which needs forcing /modal
 ; filter			file filter string array (e.g. '*' or ['*.spec','*.trav'] )
 ; /fix_filter		fix the filter
 ; /numeric			show only numeric file extensions
@@ -1432,6 +1433,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 ;				refine search order							2016	C.G. Ryan
 ;				fixed offset jumping in Linux				2019	C.G. Ryan
 ;				used file_search2 to allow cancel			2019	C.G. Ryan
+;				added "more" with file search				2022	C.G. Ryan
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -1460,6 +1462,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 	get_path = ''
 	if n_elements(writem) lt 1 then writem=0
 	if n_elements(readm) lt 1 then readm=0
+	if n_elements(within_modal) lt 1 then within_modal=0
 	if n_elements(skip_if_exists) lt 1 then skip_if_exists=0
 	if n_elements(skip_if_nulli) lt 1 then skip_if_null=0 else skip_if_null=skip_if_nulli
 	if skip_if_exists and (writem eq 0) then readm=1
@@ -1527,13 +1530,36 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 ;
 ;	If Modal=1 is used, it would force no_block=0 anyway, so this works the same, in effect.
 ;	But this way (modal=0 and no_block=0) allows 'progress' to receive its events properly.
+;
+;	However, if called from a modal widget, then use /within_modal to force /modal here.
+;
+; History notes:
+;	Originally, ‘file_requester’ was setup as a normal modal widget, which blocks until is closes.
+;	It’s also floating, which means it sits in front of other windows.
+;	
+;	Blocking is similar, keeping control in xmanager near the end of the main file requester program. 
+;	We don’t want to set no_block=1 on xmanager. However, we should *NEVER* set no_block=0, which does 
+;	some weird stuff, like disable debugging. Simply, omit the no_block keyword to xmanager to achieve 
+;	the same result. See ‘file_requester code.
+;	
+;	Then file_requester was changed to permit a progress bar popup while searching for a file match 
+;	using “Find”. i.e. It was found that you could use modal=0, floating=1 on the top base widget and 
+;	omit no_block on xmanager.
+;	
+;	However, then file_requester could not work properly if called from another modal widget (e.g. 
+;	‘flux_select’). In that case, we use another option ‘/within_modal’ to remind file_requester to 
+;	use /modal (and disable the Find). Only use ‘/within_modal’ when called from a modal widget.
 
 	if debug then begin
 		modal = 0
 		floating = 0
 		no_block = 1
+	endif else if within_modal then begin
+		modal = 1							; need this if 'file_requester' called from a modal
+		floating = 1						; program like 'flux_scan'.
+		no_block = 0						; But this means "Find" will not work properly (so search box disabled)
 	endif else begin
-		modal = 0
+		modal = 0							; was modal=1 before file search "Find" option added June,2022
 		floating = 1
 		no_block = 0
 	endelse
@@ -1896,7 +1922,7 @@ path_text = widget_text( f0base, value=path, uname='path-text', tracking=trackin
 					uvalue=path_help, scr_xsize=text_xsize2)
 f1base = widget_base( pbase, /row, /base_align_center, /align_right, xpad = 1, ypad=0, space=5)
 label = widget_label( f1base, value='Find:')
-find_text = widget_text( f1base, value='', uname='find-text', tracking=tracking, /editable, $
+find_text = widget_text( f1base, value='', uname='find-text', tracking=tracking, /editable, sensitive=(within_modal eq 0), $
 					uvalue='Find a match:  Will set "Path" to the location of a file specified by a search pattern. ' + $
 					'First, select start for search in "Path", pattern to search for in "Find" and hit <return> to start search. ' + $
 					'Returns first match(es). Click "More" for next matches.', scr_xsize=text_xsize2-35-5)
@@ -2035,6 +2061,7 @@ p = ptr_new( {pfile:ptr_new(file), path:path, dir:dir, cancel:0, error:0})
 
 state = { $
 		p:				p, $					; parameters
+		within_modal:	within_modal, $			; flags special case of called from a modal popup
 		
 		group:			group, $				; group_leader
 		local_group:	local_group, $			; fake group, need to close later

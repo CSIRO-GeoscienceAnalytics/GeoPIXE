@@ -132,18 +132,18 @@ if opt.spec_evt then begin
 	
 	if opt.use_linear then begin
 		Fl = file_requester( /read, filter = ['*.linear.var','*.linear'], title='Select (re-)linearization function file', $
-					file=linearize, path=path, dialog_parent=group, fix_filter=1)	;, /skip_if_exists)
+					file=linearize, path=path, dialog_parent=group, fix_filter=1, updir=3)	;, /skip_if_exists)
 		linearize = Fl[0]
 	endif
 	if opt.use_pileup and do_pileup then begin
 		Fp = file_requester( /read, filter = ['*.pileup.var','*.txt'], title='Select pileup limits file', $
-					path=path, file=pileup, dialog_parent=group, fix_filter=1)		;, /skip_if_exists)
+					path=path, file=pileup, dialog_parent=group, fix_filter=1, updir=3)		;, /skip_if_exists)
 ;		if Fp[0] ne '' then pileup = Fp[0]
 		pileup = Fp[0]
 	endif
 	if opt.use_throttle and do_throttle then begin
 		Ft = file_requester( /read, filter = ['*.throttle.var','*.txt'], title='Select throttle factors file', $
-					path=path, file=throttle, dialog_parent=group, fix_filter=1)	;, /skip_if_exists)
+					path=path, file=throttle, dialog_parent=group, fix_filter=1, updir=3)	;, /skip_if_exists)
 ;		if Ft[0] ne '' then throttle=Ft[0]
 		throttle = Ft[0]
 	endif

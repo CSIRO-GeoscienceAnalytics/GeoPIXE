@@ -191,7 +191,7 @@ case uname of
 		print,'From ...'
 		path = *(*pstate).path
 		F = file_requester( filter = '*.spec', path=path, group=event.top, $
-					title='Select the source SPEC file', fix_filter=1 )
+					title='Select the source SPEC file', fix_filter=1, /within_modal )
 		if F ne '' then begin
 			*(*pstate).path = extract_path(F[0])
 			psa = read_spec( F[0], /header, error=err)
@@ -256,7 +256,7 @@ case uname of
 		print,'From ...'
 		path = *(*pstate).path
 		F = file_requester( filter = '*.dai', path=path, group=event.top, $
-					title='Select the source DAI file', fix_filter=1 )
+					title='Select the source DAI file', fix_filter=1, /within_modal )
 		if F ne '' then begin
 			*(*pstate).path = extract_path(F[0])
 			ps = read_geopixe_image( F[0], /header, error=err)
