@@ -636,14 +636,20 @@ case uname of
 		case event.index of
 			2: begin
 				if (*pstate).enable_project_select then begin
+					tproject = socket_command_get( ps, 'project.next', class='blog', error=err)
+					if err eq 0 then (*pm).run.project = tproject
+					tgroup = socket_command_get( ps, 'group.next', class='blog', error=err)
+					if err eq 0 then (*pm).run.group = tgroup
 					text = ['"Project" for next run','"Group" for next run']
-					initial_text = ['','']
+					initial_text = [(*pm).run.project, (*pm).run.group]
 					help_text = ['"Project" directory tree for blog data storage from next run on.', $
 								'"Group" sub-directory for blog data storage from next run on.']
 					Help_default = 'Change "Project" or "Group" dirs for blog data. Leave either or both blank to not make a change.'
 				endif else begin
+					tgroup = socket_command_get( ps, 'group.next', class='blog', error=err)
+					if err eq 0 then (*pm).run.group = tgroup
 					text = ['"Group" for next run']
-					initial_text = ['']
+					initial_text = [(*pm).run.group]
 					help_text = ['"Group" sub-directory for blog data storage from next run on.']
 					Help_default = 'Change "Group" dir for blog data. Leave blank to not make a change.'
 				endelse

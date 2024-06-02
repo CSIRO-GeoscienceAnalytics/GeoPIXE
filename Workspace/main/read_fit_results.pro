@@ -367,6 +367,6 @@ bad_io:
 	warning,'read_fit_results','Error reading results file',/error
 	goto, finish
 bad_version:
-	warning, 'read_fit_results', 'Bad file version',/error
+	warning, 'read_fit_results', 'Bad file version '+str_tidy(version),/error
 	goto, finish
 end

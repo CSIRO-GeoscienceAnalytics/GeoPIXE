@@ -43,6 +43,6 @@ pro make_Device_Maia
 		resolve_routine, routine[i], /compile_full_file, /either
 	endfor
 	
-	save, /routines, file='../GeoPIXE/interface/'+sav_name+'.sav'
+	save, /routines, file='../geopixe/interface/'+sav_name+'.sav'
 	return
 end

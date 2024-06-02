@@ -14,4 +14,14 @@ Workspace/.metadata/
 IDLDE?89?Python38?GeoPIXE?open?source.bat
 Runtime?GeoPIXE?open.bat
 build.spro
-
+*.clf
+equip*.*
+Rio*
+crunch*.*
+stand.csv
+good.spec
+bad.spec
+background.csv
+bad.csv
+good.csv
+history.pcm

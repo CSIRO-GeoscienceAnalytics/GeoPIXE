@@ -8,7 +8,7 @@ pro build_project, lun, from, to, dir, resolve_all=resolve_all
 ; to		destination SAV file name suffix (or full name if 'dir' is "")
 ;			if 'to' is "", then use 'from' explicitly (after replacing blanks or "-" with "_").
 ; dir		destination subdir of "geopixe" runtime dir for SAV file
-;			'dir' = "" means top level of geopixe runtime dir.
+;			'dir' = "" means top level of 'geopixe' runtime dir.
   
 	COMPILE_OPT STRICTARR
 	common c_working_dir, geopixe_root
@@ -201,7 +201,7 @@ pro builder, options=options
 	endif
 
 ;	Some of these are standalone programs, that do not restore "GeoPIXE.sav",
-;	so we use /resolve_all only for these.
+;	so we use /resolve_all **only** for these.
 
 	if enable['all'] or enable['main'] then begin
 		build_project, lun, 'main', 'GeoPIXE', '', /resolve_all
@@ -239,7 +239,8 @@ pro builder, options=options
 	endif
 	warning,'builder',['Build script output written to file:,','"'+now+path_sep()+'build.spro".', $
 			'','Use "@build.spro" at the IDL command line to perform the build, ' + $
-			'after a "cd" to the directory: '+now+path_sep()],/info	
+			'after a "cd" to the directory: '+now+path_sep(),'', $
+			'NOTE: Close this popup first.'],/info	
 
 done:
 	printf, lun, 'print,"All done."'
