@@ -166,6 +166,7 @@ endif
 	if ptr_valid( self.sort_id.clear_z) then ptr_free, self.sort_id.clear_z
 	if ptr_valid( self.sort_id.flip_x) then ptr_free, self.sort_id.flip_x
 	if ptr_valid( self.sort_id.flip_y) then ptr_free, self.sort_id.flip_y
+	if ptr_valid( self.sort_id.skew_x) then ptr_free, self.sort_id.skew_x
 	if ptr_valid( self.sort_id.deadtime_cal_a) then ptr_free, self.sort_id.deadtime_cal_a
 	if ptr_valid( self.sort_id.deadtime_cal_b) then ptr_free, self.sort_id.deadtime_cal_b
 	if ptr_valid( self.sort_id.source_x) then ptr_free, self.sort_id.source_x
@@ -314,6 +315,14 @@ if axes_only eq 0 then begin
 	maia_clearZ = widget_combobox( maiacbase, value=str_tidy(indgen(20)), uname='maia-clear-z', /tracking, $
 						notify_realize='OnRealize_maia_device_sort_option_clear_z', sensitive=1, $
 						uvalue='Clear both borders along Z axis.',xsize=source_xsize)
+
+; Skew control for X axis
+
+	maiaskbase = widget_base( maiamode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
+	lab = widget_label( maiaskbase, value='Skew (correct) X Axis:')
+	maia_skewX = widget_combobox( maiaskbase, value=str_tidy(indgen(50)), uname='maia-skew-x', /tracking, $
+		notify_realize='OnRealize_maia_device_sort_option_skew_x', sensitive=1, $
+		uvalue='Correct skew in X by one for this many Y steps.',xsize=source_xsize)
 endif
 
 ; Check-boxes to flip (mirror) X,Y axes
@@ -334,6 +343,7 @@ if axes_only eq 0 then begin
 	add_widget_vector, self.sort_id.clear_X, maia_clearX, error=err & error=error or err
 	add_widget_vector, self.sort_id.clear_Y, maia_clearY, error=err & error=error or err
 	add_widget_vector, self.sort_id.clear_Z, maia_clearZ, error=err & error=error or err
+	add_widget_vector, self.sort_id.skew_X, maia_skewX, error=err & error=error or err
 	add_widget_vector, self.sort_id.deadtime_cal_a, maia_deadtime_cal_a, error=err & error=error or err
 	add_widget_vector, self.sort_id.deadtime_cal_b, maia_deadtime_cal_b, error=err & error=error or err
 endif
@@ -427,6 +437,47 @@ endif
 	options = obj->get_options()
 	
 	widget_control, wWidget, set_combobox_select=options.clear.y
+	return
+end
+
+;------------------------------------------------------------------------------------------
+
+pro OnRealize_maia_device_sort_option_skew_x, wWidget
+
+	COMPILE_OPT STRICTARR
+	common c_errors_1, catch_errors_on
+	if n_elements(catch_errors_on) lt 1 then catch_errors_on=1
+	if catch_errors_on then begin
+		Catch, ErrorNo
+		if (ErrorNo ne 0) then begin
+			Catch, /cancel
+			on_error, 1
+			help, calls = s
+			n = n_elements(s)
+			c = 'Call stack: '
+			if n gt 2 then c = [c, s[1:n-2]]
+			warning,'OnRealize_maia_device_sort_option_clear_x',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+			MESSAGE, /RESET
+			return
+		endif
+	endif
+
+	ObjBase = find_id( wWidget, uname='obj-ref-here')
+	if widget_info(ObjBase, /valid) eq 0L then begin
+		print,'OnRealize_maia_device_sort_option_skew_x: Object base not found.'
+		return
+	endif
+	widget_control, ObjBase, get_uvalue=obj
+	if obj_valid(obj) eq 0L then begin
+		print,'OnRealize_maia_device_sort_option_skew_x: Device Object ref not found.'
+		return
+	endif
+
+	options = obj->get_options()
+
+	widget_control, wWidget, set_combobox_select=options.skew.x
 	return
 end
 
@@ -798,6 +849,9 @@ case tag_names( event,/structure) of
 			'maia-flip-y': begin
 				obj->set_options, flip_y = event.select
 				end
+			'maia-skew-x': begin
+				obj->set_options, skew_x = event.index
+				end
 			'maia-deadtime-cal-a': begin
 				widget_control, event.id, get_value=s
 				obj->set_options, dt_cala = float2(s)
@@ -844,7 +898,7 @@ pro maia_device::set_options, p, encoder_y_correct=encoder_y_correct, $
 				clear_x=clear_x, clear_y=clear_y, clear_z=clear_z, $			; x_margin=x_margin
 				deadtime_cal=deadtime_cal, dt_cala=dt_cala, dt_calb=dt_calb, $
 				source_x=source_x, source_y=source_y, source_z=source_z, $
-				slowest=slowest, flip_x=flip_x, flip_y=flip_y 
+				slowest=slowest, flip_x=flip_x, flip_y=flip_y, skew_x=skew_x
 
 COMPILE_OPT STRICTARR
 common c_errors_1, catch_errors_on
@@ -887,6 +941,9 @@ endif
 			if tag_present('X',maia.flip) then self.sort_options.flip.x = maia.flip.x
 			if tag_present('Y',maia.flip) then self.sort_options.flip.y = maia.flip.y
 		endif
+		if tag_present('SKEW',maia) then begin
+			if tag_present('X',maia.skew) then self.sort_options.skew.x = maia.skew.x
+		endif
 		if tag_present('DEADTIME_CAL',maia) then self.sort_options.deadtime_cal = maia.deadtime_cal
 		if tag_present('SOURCE',maia) then begin
 			if tag_present('X',maia.source) then self.sort_options.source.x = maia.source.x
@@ -902,6 +959,7 @@ endif
 		if n_elements(clear_z) eq 1 then self.sort_options.clear.z = clear_z
 		if n_elements(flip_x) eq 1 then self.sort_options.flip.x = flip_x
 		if n_elements(flip_y) eq 1 then self.sort_options.flip.y = flip_y
+		if n_elements(skew_x) eq 1 then self.sort_options.skew.x = skew_x
 		if n_elements(deadtime_cal) eq 1 then begin
 			if deadtime_cal.a gt 0.0 then begin
 				self.sort_options.deadtime_cal = deadtime_cal
@@ -930,6 +988,7 @@ endif
 	widget_control_vector, self.sort_id.clear_z, set_combobox_select = self.sort_options.clear.z
 	widget_control_vector, self.sort_id.flip_x, set_value = self.sort_options.flip.x
 	widget_control_vector, self.sort_id.flip_y, set_value = self.sort_options.flip.y
+	widget_control_vector, self.sort_id.skew_x, set_combobox_select = str_tidy(self.sort_options.skew.x)
 	widget_control_vector, self.sort_id.deadtime_cal_a, set_value = str_tidy(self.sort_options.deadtime_cal.a)
 	widget_control_vector, self.sort_id.deadtime_cal_b, set_value = str_tidy(self.sort_options.deadtime_cal.b)
 	widget_control_vector, self.sort_id.source_x, set_combobox_select = str_tidy(self.sort_options.source.x)
@@ -1019,6 +1078,7 @@ endif
 	clear_z = options.clear.z
 	flip_x = options.flip.x
 	flip_y = options.flip.y
+	skew_x = options.skew.x
 	deadtime_cal = options.deadtime_cal
 	source = options.source
 	slow_axis = options.slow_axis
@@ -1053,6 +1113,9 @@ endif
 		if version le -6 then begin
 			readu, unit, flip_x, flip_y
 		endif
+		if version le -7 then begin
+			readu, unit, skew_x
+		endif
 	endif
 	
 	clear_z = clip(clear_z,0,19)
@@ -1067,6 +1130,7 @@ endif
 	options.clear.z = clear_z
 	options.flip.x = flip_x
 	options.flip.y = flip_y
+	options.skew.x = skew_x
 	options.slow_axis = slow_axis
 	if deadtime_cal.a gt 2. then begin									; reject 0. or 1. dummies
 		options.deadtime_cal = deadtime_cal
@@ -1132,7 +1196,7 @@ endif
 		endelse
 	endelse
 	
-	version = -6L
+	version = -7L
 	x_margin = 0
 	
 	on_ioerror, bad_io
@@ -1145,6 +1209,7 @@ endif
 	writeu, unit, options.clear.z
 	writeu, unit, options.slow_axis
 	writeu, unit, options.flip.x, options.flip.y
+	writeu, unit, options.skew.x
 	error = 0
 	return
 	
@@ -1175,6 +1240,18 @@ function maia_device::flipY
 COMPILE_OPT STRICTARR
 		
 	return, self.sort_options.flip.y
+end
+
+;-------------------------------------------------------------------
+
+; Is the Skew (correctr) X axis on?
+; Use in tests: if obj->skewX() ne 0
+
+function maia_device::skewX
+
+	COMPILE_OPT STRICTARR
+
+	return, self.sort_options.skew.x
 end
 
 ;-------------------------------------------------------------------------------
@@ -1227,6 +1304,7 @@ endif
 	endif
 	list = [list, '   Clear margins X: ' + str_tidy(options.clear.x) + ', Y: ' + str_tidy(options.clear.y) + ', Z: ' + str_tidy(options.clear.z) ]
 	list = [list, '   Flip (mirror) axis X: ' + str_tidy(options.flip.x) + ', Y: ' + str_tidy(options.flip.y)  ]
+	list = [list, '   Skew (correct) axis X: ' + str_tidy(options.skew.x)  ]
 
 	return, list
 end
@@ -2406,6 +2484,7 @@ z_coord_units = ''
 ;print,'Setup: first ...'
 
 			gprint,level=2, 'Maia device: flip.X = ', self.sort_options.flip.x
+			gprint,level=2, 'Maia device: skew.X = ', self.sort_options.skew.x
 
 			maia = maia_defaults(source='maia_device::read_setup', /any)		; read "Maia.conf" default PVs
 			maia_energy_pv = maia.epics.energy
@@ -2491,6 +2570,7 @@ z_coord_units = ''
 				self->change_options, 1
 			
 				gprint,level=2, 'Maia device: flip.X = ', self.sort_options.flip.x
+				gprint,level=2, 'Maia device: skew.X = ', self.sort_options.skew.x
 
 				if xrange eq 16384 then begin
 					if head.scan.xrange gt 1 then begin
@@ -2796,6 +2876,9 @@ common c_sandia_7, adc, tag, k_adc
 		endcase
 ;		print,'raw X1,y1=',x1[0],y1[0]
 
+		if (self.sort_options.skew.x gt 0) then begin					; will this work with Cluster stripes?
+			x1 = x1 - long( y1 / float(self.sort_options.skew.x) )
+		endif
 		if self.sort_options.flip.x then begin
 			x1 = width - x1
 		endif
@@ -3268,7 +3351,8 @@ endif
 
 	self.options.scan.on = 1		; scan sort options available for this class
 									; these must be set-up in the render_options method
-	self.options.scan.ysize = 227	; Y size of sort options box, when open
+;	self.options.scan.ysize = 227	; Y size of sort options box, when open
+	self.options.scan.ysize = 247	; Y size of sort options box, when open (w/ skew)
 
 ; Set default Sort Options local parameters ...
 
@@ -3278,6 +3362,7 @@ endif
 	self.sort_options.clear.z = 0					; no clear Z margins by default
 	self.sort_options.flip.x = 0					; no flip X axis by default
 	self.sort_options.flip.y = 0					; no flip Y axis by default
+	self.sort_options.skew.x = 0					; no skew X axis by default
 	self.sort_options.deadtime_cal.a = 0.0			; deadtime calibration (slope)
 	self.sort_options.deadtime_cal.b = 0.0			; deadtime cal (offset)
 	self.sort_options.source.x = 0					; axis to use for X
@@ -3296,6 +3381,7 @@ endif
 	self.sort_id.clear_z = ptr_new(/allocate_heap)			; Clear X border droplist ID array pointer
 	self.sort_id.flip_x = ptr_new(/allocate_heap)			; Flip X axis check-box ID array pointer
 	self.sort_id.flip_y = ptr_new(/allocate_heap)			; Flip Y axis check-box ID array pointer
+	self.sort_id.skew_x = ptr_new(/allocate_heap)			; Skew along X axis check-box ID array pointer
 	self.sort_id.deadtime_cal_a = ptr_new(/allocate_heap)	; Deadtime Cal A text ID array pointer
 	self.sort_id.deadtime_cal_b = ptr_new(/allocate_heap)	; Deadtime Cal B text ID array pointer
 	self.sort_id.source_x = ptr_new(/allocate_heap)			; axis to use for X ID ptrarr
@@ -3357,7 +3443,9 @@ maia = { MAIA_DEVICE,  $
 						x:			0, $					; X axis source (0,1,2 PA data)
 						y:			1, $					; Y axis source (0,1,2 PA data)
 						z:			2 }, $					; Z axis source (0,1,2 PA data)
-				slow_axis:	1 }, $							; slow axis for YLUT  (LATER?)
+				slow_axis:	1, $							; slow axis for YLUT  (LATER?)
+				skew: {sort_options_skew_devicespec_maia, $
+						x:			0 }}, $					; correct a skew offset in X (divide Y by this for correction)
 											
 		sort_id: {sort_id_maia, $							; pointers to vector of sort widget IDs
 				yenable:					ptr_new(), $	; XY correct mode ID array pointer
@@ -3369,6 +3457,7 @@ maia = { MAIA_DEVICE,  $
 				clear_z:					ptr_new(), $	; Clear Z border droplist ID array pointer
 				flip_x:						ptr_new(), $	; Flip X axis check-box ID array pointer
 				flip_y:						ptr_new(), $	; Flip Y axis check-box ID array pointer
+				skew_x:						ptr_new(), $	; Skew X axis check-box ID array pointer
 				deadtime_cal_a:				ptr_new(), $	; Deadtime Cal A text ID array pointer
 				deadtime_cal_b:				ptr_new(), $	; Deadtime Cal B text ID array pointer
 				source_x:					ptr_new(), $	; Re-direction droplist(s) ID array pointer
