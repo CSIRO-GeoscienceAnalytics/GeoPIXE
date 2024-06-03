@@ -1,7 +1,7 @@
 
 ;	Plugin to add an XFM tab to the Image Table GUI
 
-function image_table_xfm_gui_plugin_event, Event
+function image_table_xfm_nsls_gui_plugin_event, Event
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -15,7 +15,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'image_table_xfm_gui_plugin_event',['IDL run-time error caught.', '', $
+		warning,'image_table_xfm_nsls_gui_plugin_event',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -53,7 +53,7 @@ endif
 	case uname of
 		'XFM_Button': begin
 			if no_regions then goto, finish
-			OnButton_Image_Table_Export_XFM, Event
+			OnButton_Image_Table_Export_XFM_NSLS, Event
 			end
 	
 		else: return, event
@@ -63,16 +63,16 @@ finish:
 	return, 0L
 
 bad_state:
-	warning,'image_table_xfm_gui_plugin_event',['STATE variable has become ill-defined.','Abort Image Table.'],/error
+	warning,'image_table_xfm_nsls_gui_plugin_event',['STATE variable has become ill-defined.','Abort Image Table.'],/error
 	goto, finish
 bad_ptr:
-	warning,'image_table_xfm_gui_plugin_event',['Parameter structure variable has become ill-defined.','Abort Image Table.'],/error
+	warning,'image_table_xfm_nsls_gui_plugin_event',['Parameter structure variable has become ill-defined.','Abort Image Table.'],/error
 	goto, finish
 end
 
 ;-----------------------------------------------------------------
 
-pro OnButton_Image_Table_Export_XFM, Event
+pro OnButton_Image_Table_Export_XFM_NSLS, Event
 
 ;	XFM export of region bounds 
 
@@ -131,7 +131,7 @@ COMPILE_OPT STRICTARR
 			sx = r.absolute.size.x
 			sy = r.absolute.size.y
 
-			printf,1, (*pj).note, sx,ox, sy,oy, format='(A,",,",F7.3,",",F7.3,",,,",F7.3,",",F7.3)'
+			printf,1, (*pj).note, ox,ox+sx, oy,oy+sy, format='(A,",",F7.3,",",F7.3,",",F7.3,",",F7.3)'
 		endif
 	endfor
 
@@ -157,7 +157,7 @@ end
 
 ;---------------------------------------------------------------------
 
-function image_table_xfm_gui_plugin, tab_panel, pstate_parent
+function image_table_xfm_nsls_gui_plugin, tab_panel, pstate_parent
 
 ;	Plugin to add a XFM tab to the Image Table GUI
 ;	with an export button, to export a table of coordinates of regions, to be import
@@ -178,7 +178,7 @@ function image_table_xfm_gui_plugin, tab_panel, pstate_parent
 			VALUE='Export Coords', uvalue='Export region coordinates to a CSV file to be imported into the XFM Scan Script spreadsheet.' )
 
   
-	WIDGET_CONTROL, xfm_base, EVENT_FUNC = 'image_table_xfm_gui_plugin_event'
+	WIDGET_CONTROL, xfm_base, EVENT_FUNC = 'image_table_xfm_nsls_gui_plugin_event'
   
 	state = {	pstate_parent:	pstate_parent, $	; pstate in image_table parent	
 
