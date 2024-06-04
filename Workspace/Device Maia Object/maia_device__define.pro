@@ -322,7 +322,7 @@ if axes_only eq 0 then begin
 	lab = widget_label( maiaskbase, value='Skew (correct) X Axis:')
 	maia_skewX = widget_combobox( maiaskbase, value=str_tidy(indgen(50)), uname='maia-skew-x', /tracking, $
 		notify_realize='OnRealize_maia_device_sort_option_skew_x', sensitive=1, $
-		uvalue='Correct skew in X by one for this many Y steps.',xsize=source_xsize)
+		uvalue='Correct skew in X by one for this many Y steps.',xsize=source_xsize*1.5)
 endif
 
 ; Check-boxes to flip (mirror) X,Y axes

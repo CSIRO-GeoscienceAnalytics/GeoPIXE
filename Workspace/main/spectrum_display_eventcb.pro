@@ -4015,7 +4015,9 @@ widget_control, child, get_uvalue=pstate
 	if size(p[0],/tname) eq 'POINTER' then begin
 		for i=0L,np-1 do begin
 			if ptr_valid(p[i]) then begin
-				if (locate('/X',(*p[i]).label) eq -1) and (locate('/Y',(*p[i]).label) eq -1) then begin
+				s = strsplit( (*p[i]).label, '	 ', /extract, count=ns)
+				s1 = s[ns-1]
+				if (locate('/X',s1) eq -1) and (locate('/Y',s1) eq -1) then begin
 					(*p[i]).cal.poly[1] = 1.0
 					(*p[i]).cal.poly[0] = 0.0
 					(*p[i]).cal.order = 1
