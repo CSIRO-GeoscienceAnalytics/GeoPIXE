@@ -284,6 +284,10 @@ if nf lt 1 then begin
 	print,'picture_button: No picture supplied.'
 	return, 0L
 endif
+if file_test(file) eq 0 then begin
+	print,'picture_button: File not found: '+file
+	return, 0L
+endif
 
 dim = dimensions(file)
 if (nf eq 1) and (dim eq 3) then begin					; single image data already

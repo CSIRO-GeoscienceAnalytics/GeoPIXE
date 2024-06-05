@@ -929,7 +929,7 @@ function wizard_standards_read_config, file, error=err
 	while eof(lun) eq 0 do begin
 		readf, lun, line
 		if (strmid( line, 0,1) eq '#') or (lenchr(line) eq 0) then continue
-		str = strsplit( line, ',	 ', /extract)
+		str = strtrim( strsplit( line, ',', /extract, /preserve_null), 2 )
 		ns = n_elements(str)
 		if ns lt 8 then goto, bad_format
 		error = 0
@@ -1133,7 +1133,8 @@ endif
 
 	error = 1
 
-	if (row.blog ne '') and (row.serial ne '') and (row.detector ne '') and (row.energy ne 0.) and   $
+;	Removed (row.serial ne '') from this test ...
+	if (row.blog ne '') and (row.detector ne '') and (row.energy ne 0.) and   $
 			(row.gain ne 0.) and (row.el ne '') then begin
 		error = 0
 		return, 1
@@ -1974,7 +1975,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 
-wversion = '7.6@'							; wizard version
+wversion = '8.8'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
