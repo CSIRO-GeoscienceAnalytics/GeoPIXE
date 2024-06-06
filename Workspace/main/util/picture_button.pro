@@ -58,6 +58,7 @@ endif else on_error,0
 
 child = WIDGET_INFO(event.handler, /Child)
 WIDGET_CONTROL, child, get_uvalue=pstate
+if ptr_good(pstate) eq 0 then return, 0
 
 	eventname = tag_names(event,/structure_name)
 	if eventname eq 'WIDGET_TRACKING' then begin
@@ -127,6 +128,7 @@ PRO picture_button_SET, id, thisValue
 
 child = WIDGET_INFO(id, /Child)
 WIDGET_CONTROL, child, get_uvalue=pstate
+if ptr_good(pstate) eq 0 then return
 
 (*pstate).value = clip( thisValue, 0, n_elements(*(*pstate).pppic)-1)
 
@@ -147,6 +149,7 @@ FUNCTION picture_button_GET, id
 
 child = WIDGET_INFO(id, /Child)
 WIDGET_CONTROL, child, get_uvalue=pstate
+if ptr_good(pstate) eq 0 then return,0
 
 retvalue = (*pstate).value
 RETURN, retvalue
@@ -179,6 +182,7 @@ endif else on_error,0
 
 child = WIDGET_INFO(id, /Child)
 WIDGET_CONTROL, child, get_uvalue=pstate
+if ptr_good(pstate) eq 0 then return
 
    ; Make the draw widget the current graphics window.
 
@@ -225,7 +229,7 @@ END
 FUNCTION picture_button, parent, file, Colours=colours, XSize=xsize, $
    YSize=ysize, UValue=uvalue, Font=font, value=value, tracking=tracking, $
    Event_Pro=newprocedure, Event_Func=newfunction, uname=uname, fill=fill, $
-   pushbutton_events=pushbutton_events
+   pushbutton_events=pushbutton_events, error=error
 
 ; parent		parent widget
 ; file			image file name (multiple files to change image by value [0,1,2,...] )
@@ -244,6 +248,7 @@ FUNCTION picture_button, parent, file, Colours=colours, XSize=xsize, $
 ; /pushbutton_events	generate both release events (select=0) as well as press
 
 ErrorNo = 0
+error = 1
 common c_errors_1, catch_errors_on
 if catch_errors_on then begin
     Catch, ErrorNo
@@ -279,14 +284,18 @@ endif
 IF N_ELEMENTS(newprocedure) EQ 0 THEN newprocedure = ''
 IF N_ELEMENTS(newfunction) EQ 0 THEN newfunction = ''
 
+cw_tlb = WIDGET_BASE(parent, UValue=uvalue, Event_Func='picture_button_EVENTS', $
+	Pro_Set_Value='picture_button_SET', Func_Get_Value='picture_button_GET', Uname=uname, $
+	Notify_Realize='picture_button_REALIZE')
+
 nf = n_elements(file)
 if nf lt 1 then begin
 	print,'picture_button: No picture supplied.'
-	return, 0L
+	return, cw_tlb
 endif
-if file_test(file) eq 0 then begin
-	print,'picture_button: File not found: '+file
-	return, 0L
+if file_test(file[0]) eq 0 then begin
+	print,'picture_button: File not found: '+file[0]
+	return, cw_tlb
 endif
 
 dim = dimensions(file)
@@ -358,10 +367,6 @@ if n_elements(colours) lt 1 then colours = [black, highlight, shadow, white]
 IF N_ELEMENTS(colours) NE 4 THEN $
    MESSAGE, 'COLORINDEX keyword must be 4-element array.'
 
-cw_tlb = WIDGET_BASE(parent, UValue=uvalue, Event_Func='picture_button_EVENTS', $
-		Pro_Set_Value='picture_button_SET', Func_Get_Value='picture_button_GET', Uname=uname, $
-   		Notify_Realize='picture_button_REALIZE')
-
 base1 = widget_base(cw_tlb, /column, space=0, xpad=0, ypad=0)
 
 drawID = WIDGET_DRAW(base1, XSize=xsize, YSize=ysize, Button_Events=1, $
@@ -388,5 +393,6 @@ state = { drawID:drawID, $ ;        Draw widget ID.
          index:colours} ;            The index array that specifies button values.
 
 WIDGET_CONTROL, base1, Set_UValue=ptr_new(state, /No_Copy)
+error = 0
 RETURN, cw_tlb
 END

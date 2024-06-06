@@ -114,8 +114,8 @@ tlb = widget_base( /column, title=title, group=group, /TLB_KILL_REQUEST_EVENTS, 
 					uname='figure_TLB', /base_align_center, xpad=0, ypad=0, space=0 )
 tbase = widget_base( tlb, /column, xpad=2, ypad=2, space=2, /base_align_center)
 
-fig = picture_button( tbase, file)
-if widget_info(fig, /valid) eq 0 then begin
+fig = picture_button( tbase, file, error=err)
+if err or (widget_info(fig, /valid) eq 0) then begin
 	widget_control, tlb, /destroy
 	return
 endif

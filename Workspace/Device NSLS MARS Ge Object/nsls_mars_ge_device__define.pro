@@ -760,7 +760,7 @@ endif
 		ext = '.bin', $			; a fixed file extension for raw data
 		multi_files = 0, $		; multiple segment files per run
 		multi_char = '', $		; separates run from segment number in file name
-		big_endian = 0, $		; list-mode data written with Unix byte order
+		big_endian = 1, $		; 1=list-mode data written with Unix byte order
 		vax_float = 0, $		; not VAX floating point
 		start_adc = 0, $		; start detector ADC #'s at 1
 		use_bounds = 0, $		; not confine charge/flux within bounded area
