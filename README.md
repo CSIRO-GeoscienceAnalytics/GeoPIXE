@@ -38,6 +38,8 @@ observed features (region shapes or element-element Associations), and make corr
 to explore their content.
 
 The GeoPIXE Demo data can be downloaded from this DOI:  https://doi.org/10.25919/mc2f-1979
+(NOTE: There is a problem with this archive at present, with broken/missing soft links. A new
+archive will be available soon to rectify the problem.)
 
 ### Opening GeoPIXE using the Eclipse IDLDE environment
 
