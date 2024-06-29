@@ -2268,25 +2268,25 @@ if (*pimg).mode ne 0 then begin
 endif
 
 if strip_path((*pstate).matrix_file) ne strip_path((*pimg).matrix.file) then begin
-    file = (*pimg).matrix.file
-    ext = extract_extension(file)
-    matrix = read_da( file, error=error)
-    if error then begin
-       path = *(*pstate).path
-       file = path + strip_path( (*pimg).matrix.file)
-       matrix = read_da( file, error=error)
-       if error then begin
-         file = file_requester( /read, /must_exist, filter = '*.'+ext, group=event.top, $
-              			title='Select original '+ext+' file for Images', file=file, fix_filter=0)
-         matrix = read_da( file, error=error)
-         if error then begin
-          goto, done
-         endif
-       endif
-    endif
-    if ptr_valid( (*pstate).matrix) then ptr_free, (*pstate).matrix
-    (*pstate).matrix_file = file
-    (*pstate).matrix = ptr_new( matrix, /no_copy)
+	file = (*pimg).matrix.file
+	ext = extract_extension(file)
+	matrix = read_da( file, error=error)
+	if error then begin
+		path = *(*pstate).path
+		file = path + strip_path( (*pimg).matrix.file)
+		matrix = read_da( file, error=error)
+		if error then begin
+			file = file_requester( /read, /must_exist, filter = '*.'+ext, group=event.top, $
+							title='Select original '+ext+' file for Images', file=file, fix_filter=0)
+			matrix = read_da( file, error=error)
+			if error then begin
+				goto, done
+			endif
+		endif
+	endif
+	if ptr_valid( (*pstate).matrix) then ptr_free, (*pstate).matrix
+	(*pstate).matrix_file = file
+	(*pstate).matrix = ptr_new( matrix, /no_copy)
 endif
 if ptr_valid( (*pstate).matrix) eq 0 then begin
     warning,'Spectrum_Correct_Pileup_Image','DA matrix file not found'
@@ -2318,96 +2318,96 @@ endif
     shells = ['K','L','M']
     e = 0.0
     i = -1
-    for k=0L,n_el-1 do begin
-       name = el[k]
-       n = lenchr(name)
-       last = extract(name,n-1,n-1)
-       shell = where(last eq shells)
-       if shell[0] eq -1 then begin
-         shell = 0
-       endif else begin
-         name = extract(name,0,n-2)
-       endelse
-       shell = shell[0]+1
-       z = atomic_number(name)
-       if z gt 0 then begin
-         e = [e, e_line( z, major_line( z, shell))]
-         i = [i,k]
-       endif
-    endfor
-    if n_elements(i) le 1 then goto, done
-    i = i[1:*]
-    e = e[1:*]
-    y = (*(*pspec).data)[ (e-cb)/ca ]
-    q = reverse(sort(y))
-    q2 = where( y[q] ge 0.2*y[q[0]] )          ; identify dominant elements for
-                                  ; element_select pop-up
-    old = intarr(n_el)
-    old[i[q[q2]]] = 1
-    select = element_select( event.top, el, old_select=old, path=*(*pstate).path)
-    iq = where(select eq 1)
-    if iq [0] eq -1 then goto, done
-    nq = (n_elements(iq) < 6) < (*(*pstate).matrix).n_pure
-    if nq lt 1 then goto, done
+	for k=0L,n_el-1 do begin
+		name = el[k]
+		n = lenchr(name)
+		last = extract(name,n-1,n-1)
+		shell = where(last eq shells)
+		if shell[0] eq -1 then begin
+			shell = 0
+		endif else begin
+			name = extract(name,0,n-2)
+		endelse
+		shell = shell[0]+1
+		z = atomic_number(name)
+		if z gt 0 then begin
+			e = [e, e_line( z, major_line( z, shell))]
+			i = [i,k]
+		endif
+	endfor
+	if n_elements(i) le 1 then goto, done
+	i = i[1:*]
+	e = e[1:*]
+	y = (*(*pspec).data)[ (e-cb)/ca ]
+	q = reverse(sort(y))
+	q2 = where( y[q] ge 0.2*y[q[0]] )			; identify dominant elements for
+												; element_select pop-up
+	old = intarr(n_el)
+	old[i[q[q2]]] = 1
+	select = element_select( event.top, el, old_select=old, path=*(*pstate).path)
+	iq = where(select eq 1)
+	if iq [0] eq -1 then goto, done
+	nq = (n_elements(iq) < 6) < (*(*pstate).matrix).n_pure
+	if nq lt 1 then goto, done
 
 ;   Then take all pair-wise combinations (plus binomial factors).
 
-    ca2 = (*(*pstate).matrix).cal.a
-    cb2 = (*(*pstate).matrix).cal.b
-    siz2 = n_elements((*(*pstate).matrix).pure[*,0]) < siz
-    pileup = fltarr(siz)
-    pure1 = fltarr(siz)
-    pure2 = fltarr(siz)
-;   widget_control, /hour
+	ca2 = (*(*pstate).matrix).cal.a
+	cb2 = (*(*pstate).matrix).cal.b
+	siz2 = n_elements((*(*pstate).matrix).pure[*,0]) < siz
+	pileup = fltarr(siz)
+	pure1 = fltarr(siz)
+	pure2 = fltarr(siz)
+;	widget_control, /hour
 
-    nt = nq*(nq+1)/2
-    cancel = 0
-    progress, tlb=progress_tlb, title='Correct Images for Pile-up'
-    kt = 1
+	nt = nq*(nq+1)/2
+	cancel = 0
+	progress, tlb=progress_tlb, title='Correct Images for Pile-up'
+	kt = 1
 
-    for j1=0,nq-1 do begin
-       for j2=0,j1 do begin
-         i1 = iq[j1]                       ; indices to images
-         i2 = iq[j2]
-         im1 = where( el[i1] eq (*(*pstate).matrix).el )   ; indices to matrix rows
-         im2 = where( el[i2] eq (*(*pstate).matrix).el )
-         im1 = im1[0]
-         im2 = im2[0]
-         if (im1 eq -1) then warning,'Spectrum_Correct_Pileup_Image','Major element ' + el[i1] + ' is missing from DA matrix.'
-         if (im2 eq -1) then warning,'Spectrum_Correct_Pileup_Image','Major element ' + el[i2] + ' is missing from DA matrix.'
-         progress, /update, progress_tlb, {unit:0, value:0, current:kt, size:nt}, cancel=cancel
-         if cancel then goto, done
-         kt = kt+1
+	for j1=0,nq-1 do begin
+		for j2=0,j1 do begin
+			i1 = iq[j1]                       ; indices to images
+			i2 = iq[j2]
+			im1 = where( el[i1] eq (*(*pstate).matrix).el )   ; indices to matrix rows
+			im2 = where( el[i2] eq (*(*pstate).matrix).el )
+			im1 = im1[0]
+			im2 = im2[0]
+			if (im1 eq -1) then warning,'Spectrum_Correct_Pileup_Image','Major element ' + el[i1] + ' is missing from DA matrix.'
+			if (im2 eq -1) then warning,'Spectrum_Correct_Pileup_Image','Major element ' + el[i2] + ' is missing from DA matrix.'
+			progress, /update, progress_tlb, {unit:0, value:0, current:kt, size:nt}, cancel=cancel
+			if cancel then goto, done
+			kt = kt+1
 
-         binomial = (i1 eq i2) ? 1.0 : 2.0
+			binomial = (i1 eq i2) ? 1.0 : 2.0
 
-;      image1 = (*(*pimg).image)[*,*,i1] > 0.0
-;      image2 = (*(*pimg).image)[*,*,i2] > 0.0
-         image1 = (*(*pimg).image)[*,*,i1]
-         image2 = (*(*pimg).image)[*,*,i2]
-         intensity = pileup_ratio * binomial * (image1 * image2) *  $
-                 (*(*pstate).matrix).yield[im1] * (*(*pstate).matrix).yield[im2]
+;			image1 = (*(*pimg).image)[*,*,i1] > 0.0
+;			image2 = (*(*pimg).image)[*,*,i2] > 0.0
+			image1 = (*(*pimg).image)[*,*,i1]
+			image2 = (*(*pimg).image)[*,*,i2]
+			intensity = pileup_ratio * binomial * (image1 * image2) *  $
+					(*(*pstate).matrix).yield[im1] * (*(*pstate).matrix).yield[im2]
 
-         pure1[0:siz2-1] = (*(*pstate).matrix).pure[*,im1]
-         if siz gt siz2 then pure1[siz2:siz-1] = 0.0
-         pure2[0:siz2-1] = (*(*pstate).matrix).pure[*,im2]
-         if siz gt siz2 then pure2[siz2:siz-1] = 0.0
+			pure1[0:siz2-1] = (*(*pstate).matrix).pure[*,im1]
+			if siz gt siz2 then pure1[siz2:siz-1] = 0.0
+			pure2[0:siz2-1] = (*(*pstate).matrix).pure[*,im2]
+			if siz gt siz2 then pure2[siz2:siz-1] = 0.0
 
-         cross = convol_self( pure1, ca2,cb2, cross=pure2)
+			cross = convol_self( pure1, ca2,cb2, cross=pure2)
 
-         contribute = reform( (*(*pstate).matrix).matrix ## cross[0:siz2-1] )
+			contribute = reform( (*(*pstate).matrix).matrix ## cross[0:siz2-1] )
 
-;      Note: to put these contributions back in images, you need to map matrix index
-;      back to image index.
+;			Note: to subtract these contributions from images, you need to map matrix index
+;			back to image index.
 
-         for k=0L,(*(*pstate).matrix).n_el-1 do begin
-          k2 = where( (*(*pstate).matrix).el[k] eq el)
-          k2 = k2[0]
-          if k2 ne -1 then begin
-              (*(*pimg).image)[*,*,k2] = (*(*pimg).image)[*,*,k2] - contribute[k]*intensity
-          endif
-         endfor
-       endfor
+			for k=0L,(*(*pstate).matrix).n_el-1 do begin
+				k2 = where( (*(*pstate).matrix).el[k] eq el)
+				k2 = k2[0]
+				if k2 ne -1 then begin
+					(*(*pimg).image)[*,*,k2] = (*(*pimg).image)[*,*,k2] - contribute[k]*intensity
+				endif
+			endfor
+		endfor
     endfor
     progress, /complete, progress_tlb, 'Finished, notify Image ...'
 
