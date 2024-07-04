@@ -37,9 +37,15 @@ processing of the images to first verify their accuracy, including extracting sp
 observed features (region shapes or element-element Associations), and make corrections and then 
 to explore their content.
 
-The GeoPIXE Demo data can be downloaded from this DOI:  https://doi.org/10.25919/mc2f-1979
-(NOTE: There is a problem with this archive at present, with broken/missing soft links. A new
-archive will be available soon to rectify the problem.)
+### GeoPIXE Demo data
+
+The GeoPIXE Demo data can be downloaded from this DOI:  https://doi.org/10.25919/ff5b-wr11
+This uses a simple dir structure, aimed at a single user.
+
+If you plan to host a GeoPIXE analysis workshop of many users, and would like organize the data
+on disk to avoid multiple copies of the raw data (but have a separate copy of working files
+for each user), then download from this DOI:  https://doi.org/10.25919/3yrz-7x38
+But first, check out the notes in the "Read me - Linux.txt" file in this archive.
 
 ### Opening GeoPIXE using the Eclipse IDLDE environment
 
