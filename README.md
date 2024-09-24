@@ -84,5 +84,5 @@ provides runtime support, which can be used for most GeoPIXE functionality by ex
 However, some advanced methods, such as parallel processing of large data-sets such as Maia blog data,
 make use of features not available in the VM. For these, a runtime licensed version is required. 
 
-If you desire to edit and test IDL pro files, then a full license is required to run IDLDE, the IDL
-Eclipse development environment.
+If you desire to edit and test IDL pro files, and to build SAV files, then a full license is required 
+to run IDLDE, the IDL Eclipse development environment.
