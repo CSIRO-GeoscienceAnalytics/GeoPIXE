@@ -165,17 +165,22 @@ end
 
 ;-----------------------------------------------------------------
 
-function export_da_select, group, file=file, big_endian=big_endian, mode=mode
+function export_da_select, group, big_endian=big_endian, mode=mode, pileup=pileup, throttle=throttle, linear=linear
 
 ;	Select export_da parameters
 ;	'big_endian' to select big endian binary format target processor (e.g. VME)
 ;	'mode' select format mode
+;	
+;	'linear' suppressed for now, as we don't have real-time tools to support the 
+;	v2 Maia Linearization scheme, which uses per chip Linearization functions.
 
 COMPILE_OPT STRICTARR
 	if n_elements(group) lt 1 then return, {error:1}
 	if n_elements(big_endian) lt 1 then big_endian=1
-	if n_elements(mode) lt 1 then mode=0
-	if n_elements(file) lt 1 then file=''
+	if n_elements(mode) lt 1 then mode=1
+	if n_elements(pileup) lt 1 then pileup=''
+	if n_elements(throttle) lt 1 then throttle=''
+	if n_elements(linear) lt 1 then linear=''
 
 	xsize = 150
 	ysize = 150
@@ -203,41 +208,46 @@ COMPILE_OPT STRICTARR
 
 	s3base = widget_base( tbase, /row, xpad=0, ypad=0, space=2, /base_align_center)
 	lab = widget_label( s3base, value='Pileup limits file:')
-	pileup_id = widget_text( s3base, uname='pileup', /editable, value='           ', $
+	pileup_id = widget_text( s3base, uname='pileup', /editable, value=pileup, $
 					uvalue='Enter the file-name for the pileup limits for pileup rejection.',scr_xsize=200, tracking=0)
 	button = widget_button( s3base, value='Load', uname='pileup-button')
 
 	s4base = widget_base( tbase, /row, xpad=0, ypad=0, space=2, /base_align_center)
 	lab = widget_label( s4base, value='Throttle factors file:')
-	throttle_id = widget_text( s4base, uname='throttle', /editable, value='           ', $
+	throttle_id = widget_text( s4base, uname='throttle', /editable, value=throttle, $
 					uvalue='Enter the file-name for the throttling factors for high count rates.',scr_xsize=200, tracking=0)
 	button = widget_button( s4base, value='Load', uname='throttle-button')
 
-	s5base = widget_base( tbase, /row, xpad=0, ypad=0, space=2, /base_align_center)
-	lab = widget_label( s5base, value='Linearization file:')
-	linear_id = widget_text( s5base, uname='linear', /editable, value='           ', $
-					uvalue='Enter the file-name for the E signal gain linearization correction function.',scr_xsize=200, tracking=0)
-	button = widget_button( s5base, value='Load', uname='linear-button')
+;	s5base = widget_base( tbase, /row, xpad=0, ypad=0, space=2, /base_align_center)
+;	lab = widget_label( s5base, value='Linearization file:')
+;	linear_id = widget_text( s5base, uname='linear', /editable, value=linear, $
+;					uvalue='Enter the file-name for the E signal gain linearization correction function.',scr_xsize=200, tracking=0)
+;	button = widget_button( s5base, value='Load', uname='linear-button')
 
 	bbase = widget_base( tbase, /row, xpad=0, ypad=0, space=5, /base_align_center)
 	button = widget_button( bbase, value='Cancel', uname='cancel')
 	button = widget_label( bbase, value='         ')
 	button = widget_button( bbase, value='OK', uname='ok')
 
-	p = ptr_new( {mode:mode, options:[big_endian], pileup:'', throttle:'', linear:'', file:file, error:0 })
+;	p = ptr_new( {mode:mode, options:[big_endian], pileup:pileup, throttle:throttle, linear:linear, error:0 })
+	p = ptr_new( {mode:mode, options:[big_endian], pileup:pileup, throttle:throttle, error:0 })
 
 	state = {	$
 			p:		p, $					; pointer to selection
 			mode:	mode_id, $				; widget ID of format type droplist
 			options: options_id, $			; widget ID of options
 			pileup:	pileup_id, $			; widget ID of pileup file-name
-			linear:	linear_id, $			; widget ID of linearization file-name
+;			linear:	linear_id, $			; widget ID of linearization file-name
 			throttle: throttle_id $			; widget ID of throttle file-name
 			}
 
 	child = widget_info( tlb, /child)
 	widget_control, child, set_uvalue=ptr_new(state, /no_copy)
 	widget_control, tlb, /realize
+	
+	set_widget_text, pileup_id, pileup
+	set_widget_text, throttle_id, throttle
+;	set_widget_text, linear_id, linear
 
 	xmanager, 'export_da_select', tlb					;, /no_block
 

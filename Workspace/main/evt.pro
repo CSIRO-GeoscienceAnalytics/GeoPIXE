@@ -463,6 +463,17 @@ case uname of
 		evt_start, pstate, group=event.top, pprefs=(*pstate).pprefs, /verify
 		end
 
+	'export_DA_button': begin
+		matrix = read_da( (*p).file[0], phases=phase_dai, pcorr=pcorr, mpda=mpda, eDA=eDA, error=err)
+		if err eq 0 then begin
+			if mpda then begin
+				warning,'Evt event',"Can't export an MPDA matrix file for real-time."
+			endif else begin
+				export_DA2, matrix, group=event.top, pileup=(*p).pileup_file, throttle=(*p).throttle_file, linear=(*p).linearize_file
+			endelse
+		endif
+		end
+
 	'export_button': begin
 		widget_control, hourglass=1
 		evt_start, pstate, group=event.top, /export, pprefs=(*pstate).pprefs, /verify
@@ -722,6 +733,7 @@ case uname of
 				widget_control, (*pstate).mode, set_combobox_select=(*p).mode[(*p).station]
 				widget_control, (*pstate).file, set_value=(*p).file[(*p).station]
 				widget_control, (*pstate).base_new_MPDA, map=(mode eq 3)
+				widget_control, (*pstate).base_export, map=(mode ne 3)
 				set_widget_text, (*pstate).file, (*p).file[(*p).station]
 			endif else begin
 				i = (*p).station
@@ -743,6 +755,7 @@ case uname of
 				widget_control, (*pstate).mode, set_combobox_select=(*p).mode[i]
 				widget_control, (*pstate).file, set_value=(*p).file[i]
 				widget_control, (*pstate).base_new_MPDA, map=(mode eq 3)
+				widget_control, (*pstate).base_export, map=(mode ne 3)
 				set_widget_text, (*pstate).file, (*p).file[i]
 			endelse
 			widget_control, (*pstate).file, sensitive=(mode ne 4)
@@ -3104,6 +3117,7 @@ endif
 	widget_control, (*pstate).da_xanes_base1b, map=((*p).mode[(*p).station] ne 3) and ((*p).mode[(*p).station] ne 4) and ((*p).mode[(*p).station] ne 5)
 	widget_control, (*pstate).da_xanes_base2, map=(((*p).xy_mode eq 4) or (((*p).xy_mode eq 0) and ((*p).mode[(*p).station] ne 3) and ((*p).energy_proxy_axis gt 0)))
 	widget_control, (*pstate).base_new_MPDA, map=((*p).mode[(*p).station] eq 3)
+	widget_control, (*pstate).base_export, map=((*p).mode[(*p).station] ne 3)
 	widget_control, (*pstate).mode, set_combobox_select=(*p).mode[(*p).station]
 	widget_control, (*pstate).base_proj_file, map=((*p).mode[(*p).station] ne 4) and ((*p).mode[(*p).station] ne 5)
 
@@ -4186,7 +4200,7 @@ case !version.os_family of
 		sample_xsize = 113
 		comment_xsize = 266
 		xy_mode_xsize = 240
-		stepmode_base_width = 320
+		stepmode_base_width = 305
 		stepmode_xsize = 290
 		steps_xsize = 90
 		distance_xsize = 90
@@ -4198,7 +4212,7 @@ case !version.os_family of
 		cal_xsize = 70
 		mode_xsize = 260
 		file_xsize = 320
-		map_base_xsize = 320
+		map_base_xsize = 305
 		pad5 = 5
 		help_xsize = 422
 		tab_xsize = 412
@@ -4226,7 +4240,7 @@ case !version.os_family of
 		sample_xsize = 143
 		comment_xsize = 342
 		xy_mode_xsize = 260
-		stepmode_base_width = 400
+		stepmode_base_width = 385
 		stepmode_xsize = 220
 		steps_xsize = 120
 		distance_xsize = 90
@@ -4238,7 +4252,7 @@ case !version.os_family of
 		cal_xsize = 110
 		mode_xsize = 260
 		file_xsize = 327
-		map_base_xsize = 400
+		map_base_xsize = 385
 		pad5 = 5
 		help_xsize = 422
 		tab_xsize = 412
@@ -4266,7 +4280,7 @@ case !version.os_family of
 		sample_xsize = 113
 		comment_xsize = 270
 		xy_mode_xsize = 245
-		stepmode_base_width = 320
+		stepmode_base_width = 305
 		stepmode_xsize = 298
 		steps_xsize = 90
 		distance_xsize = 90
@@ -4278,7 +4292,7 @@ case !version.os_family of
 		cal_xsize = 70
 		mode_xsize = 240
 		file_xsize = 255	; 240
-		map_base_xsize = 320
+		map_base_xsize = 305
 		pad5 = 7
 		help_xsize = 343	; 326
 		tab_xsize = 336
@@ -4872,7 +4886,7 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 
 	si = str_tidy((*p).station)
 
-	station_base = widget_base( da_base, /column, /frame, /align_center, /base_align_center, xsize=map_base_xsize, ypad=2)
+	station_base = widget_base( da_base, /column, /frame, /align_center, /base_align_center, xsize=map_base_xsize, ypad=1)
 	base1 = widget_base( station_base, /column, /base_align_right, space=space1, xpad=0, ypad=0)
 
 	base1b = widget_base( base1, /row, /base_align_center, ypad=0, space=40)
@@ -4914,9 +4928,14 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 						notify_realize='OnRealize_station_file', $
 						uvalue='Enter a file-name for the projection method, ' + $
 						'or click on the "File" button to the left to browse for the projection file.',scr_xsize=file_xsize-35)
-	base_new_MPDA = widget_base( base_proj_file, /row, /base_align_center, xpad=0, ypad=0, map=((*p).mode[(*p).station] eq 3))
+
+	base_billboard = widget_base( base_proj_file)
+	base_new_MPDA = widget_base( base_billboard, /row, /base_align_center, xpad=0, ypad=0, map=((*p).mode[(*p).station] eq 3))
 	new_button = widget_button( base_new_MPDA, value='New', uname='new_button', /tracking, $
 						uvalue='Creates a new .MPDAM file. Browse to select a phase map .DAI file and a corrections matrix .CORRECT file.')
+	base_export = widget_base( base_billboard, /row, /base_align_center, xpad=0, ypad=0, map=((*p).mode[(*p).station] ne 3))
+	export_button = widget_button( base_export, value='Exp', uname='export_DA_button', /tracking, $
+						uvalue='Export the chosen DA matrix file to a binary file to be used for real-time processing.')
 
 	da_xanes_base0 = widget_base( da_base, xpad=0, ypad=0, /base_align_center)
 	da_xanes_base1a = widget_base( da_xanes_base0, /column, xpad=0, ypad=0, space=space2, /base_align_center, map=((*p).xy_mode eq 4))
@@ -5140,6 +5159,7 @@ state = {  $
 		energy_file_text: energy_file_text, $ ; XANES energies file text ID
 		collapse:		collapse, $			; collapse energies check-box ID
 		base_new_MPDA:	base_new_MPDA, $	; mapping base for "New" button
+		base_export:	base_export, $		; mapping base for "Exp" button
 
 		help:			help $				; help text ID
 	}

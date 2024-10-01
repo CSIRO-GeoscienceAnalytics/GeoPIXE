@@ -1354,7 +1354,8 @@ case uname of
 	'export-button': begin
 		print,'Export DA ...'
 		if (*pstate).da_fresh then begin
-			export_da, (*pstate).pall, (*pstate).pda, group=event.top
+;			export_da, (*pstate).pall, (*pstate).pda, group=event.top
+			export_DA2, (*pstate).pda, group=event.top
 		endif else begin
 			warning,'fit_setup','Generate DA matrix first.'
 		endelse

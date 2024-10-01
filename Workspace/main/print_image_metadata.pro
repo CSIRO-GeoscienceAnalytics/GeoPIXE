@@ -1,12 +1,13 @@
 pro print_image_metadata, p, files=dai, output=file, stats=stats
 
 ;	Print a file of image metadata for image struct 'p'
-;	or read in file 'dai' is 'p' not supplied.
+;	or read in file 'dai' if 'p' not supplied.
 ;	Output to 'file', or (*p).file if this not provided.
 ;
 ;	files		source image file
 ;	output		output metadata file
-;	/stats		add image statistics
+;	
+;	/stats		add image pixel statistics
 
 	COMPILE_OPT STRICTARR
 
