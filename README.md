@@ -14,9 +14,8 @@ using PIXE and synchtotron and laboratory X-ray beams, the software users guide,
 of the core software and its extensions (plugins and device objects) and building GeoPIXE and 
 its modules.
 
-There are two main branches:
-main    used to hold the latest stable release.
-develop may be regarded as the 'beta' version with new features under test.
+There are two main branches: "main", which is used to hold the latest stable release, and "develop", 
+which may be regarded as the 'beta' version with new features under test.
 
 ### Install IDL
 
