@@ -14,6 +14,10 @@ using PIXE and synchtotron and laboratory X-ray beams, the software users guide,
 of the core software and its extensions (plugins and device objects) and building GeoPIXE and 
 its modules.
 
+There are two main branches:
+main    used to hold the latest stable release.
+develop may be regarded as the 'beta' version with new features under test.
+
 ### Install IDL
 
 Running GeoPIXE requires at least IDL runtime support. With IDL installed, but not licensed, you 
