@@ -2,6 +2,7 @@ function sig_change, old, new, error=err
 
 ; Flag a significant change in 'new' compared to 'old'
 ; Assumes quantities should be positive.
+; Assumes "significance" is more than 1 part in 1,000,000.
 
 	err = 1
 	if n_elements(old) eq 0 then return, 1
@@ -22,10 +23,11 @@ pro compare_yields, fnew, fold, error=err
 
 ; Compare two yields files for consistency.
 ; Check input parameters first, such as beam, detector, layers.
-; Compare 'yield' and 'intensity' results, but only for cases (Z, shell) with
-; finite yield results.
+; Compare 'yield' and 'intensity' results, but only for matching cases (Z, shell) with
+; finite, non-zero yield results.
 ;
-; 'fnew', 'fold'' are input yield file names.
+; 'fnew', 'fold'' are input yield file names. Prompts for these if missing.
+; 'err=1'	error reading yield files, or some crash.
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -43,7 +45,7 @@ pro compare_yields, fnew, fold, error=err
 				'Error:  '+strtrim(!error_state.name,2), $
 				!Error_state.msg,'',c], /error
 			MESSAGE, /RESET
-			error = 1
+			err = 1
 			return
 		endif
 	endif
@@ -70,6 +72,7 @@ pro compare_yields, fnew, fold, error=err
 		return
 	endif
 	
+	err = 0
 	print,'-------------------------------------------------------------------------------------'
 	print,'Setup parameters ...'
 	bad = 0
@@ -192,7 +195,7 @@ pro compare_yields, fnew, fold, error=err
 		y = y[1:*]
 		z = z[1:*]
 		shell = shell[1:*]
-		sig = sig_change( x, y, error=err)
+		sig = sig_change( x, y, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			print,'Yields not consistent ...'
@@ -242,7 +245,7 @@ pro compare_yields, fnew, fold, error=err
 		shell = shell[1:*]
 		lines = lines[1:*]
 		e = e[1:*]
-		sig = sig_change( x, y, error=err)
+		sig = sig_change( x, y, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			print,'Intensities not consistent ...'
@@ -255,6 +258,7 @@ pro compare_yields, fnew, fold, error=err
 		endelse
 	endfor
 	
+	err = 0
 	print,'All done.'
 	print,'-------------------------------------------------------------------------------------'
 	return
