@@ -1,6 +1,6 @@
 function geo_array_yield, formula, thick, microns=microns, density=density, weight=weight, energy=e_beami, $
 			theta=theta, phi=phi, alpha=alpha, beta=beta, unknown=unknown, beam=beam, $
-			z1=z1, a1=a1, state=state, sec_fl=sec_fl, select=select_z, gamma=gamma, $
+			z1=z1, a1=a1, state=state, select=select_z, gamma=gamma, $
 			e_min=e_min, e_max=e_max, progress=do_progress, error=error, $
 			detector=pdetector, layout=playout, ratio_yield=rY, array=array, $
 			ratio_intensity=rIntensity, $
@@ -45,7 +45,6 @@ function geo_array_yield, formula, thick, microns=microns, density=density, weig
 ;		alpha			rotation of target about Y axis
 ;		beta			tile of the target about the target centre line
 ;		unknown			number of the "UNKNOWN" layer, to weight relative intensities.
-;		sec_fl=0		disables secondary fluorescence calculation.
 ;		select			specify a list of Z to calculate yields for (default 2-92).
 ;		/gamma			for PIGE yield calculation
 ;		array			array=1 denotes a detector array, for which detector and layout should be supplied
@@ -173,7 +172,7 @@ endif
 	q = where( cos_detector lt 0.0, count)		; if cos_detector < 0 for any detector elements,
 	if (count gt 0) then force_trans=1			; include slices after proton range
 
-; generic yields, using 'central' detector, with sec_fl
+; generic yields, using 'central' detector, with /sec_fl
 
 	yield = geo_yield2( formula, thick, microns=microns, density=density, weight=weight, energy=e_beam, $
 			theta=theta, phi=phi, alpha=alpha, beta=beta, unknown=unknown, beam=beam, $

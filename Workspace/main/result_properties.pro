@@ -694,7 +694,7 @@ common c_working_dir, geopixe_root
                    alpha=(*p).yield.alpha, beta=(*p).yield.beta, unknown=(*p).yield.unknown, $
                    z1=(*p).yield.z1, a1=(*p).yield.a1, state=(*p).yield.state, $
                    intensity=intensity, lines=lines, n_lines=n_lines, z2=z2, shell=shell, $
-                   e_min=emin, e_max=emax, layers=layers, select=(*p).el.z, sec_fl=sec_fl, $
+                   e_min=emin, e_max=emax, layers=layers, select=(*p).el.z, $
                    gamma=gamma, e_lines=e_lines, x_slow=x, e_slow=e, $
                    array=(*p).array.on, detector=detector, layout=playout, $
                    mu_zero=mu_zero, ratio_yield=ratio_yield, ratio_intensity=ratio_intensity, error=error )
@@ -724,7 +724,7 @@ common c_working_dir, geopixe_root
                    alpha=(*p).yield.alpha, beta=(*p).yield.beta, unknown=(*p).yield.unknown, $
                    z1=(*p).yield.z1, a1=(*p).yield.a1, state=(*p).yield.state, $
                    intensity=intensity, lines=lines, n_lines=n_lines, z2=z2, shell=shell, $
-                   e_min=emin, e_max=emax, layers=layers, select=(*p).el.z, sec_fl=sec_fl, $
+                   e_min=emin, e_max=emax, layers=layers, select=(*p).el.z, $
                    gamma=gamma, e_lines=e_lines, $
                    array=(*p).array.on, detector=detector, layout=playout, $
                    mu_zero=mu_zero, ratio_yield=ratio_yield, ratio_intensity=ratio_intensity, error=error )
@@ -913,11 +913,9 @@ common c_working_dir, geopixe_root
               if emax lt 0.1 then emax=50.0
               (*p).yield.emin = emin
               (*p).yield.emax = emax
-              sec_fl = 0
               gamma = 0
               if ((*p).type eq 1) or ((*p).el.line[0] eq 'gamma') then begin
                  gamma = 1
-                 sec_fl = 0
               endif
 
               yield = geo_array_yield( (*p).yield.formula, (*p).yield.thick, microns=(*p).yield.microns, $
@@ -926,7 +924,7 @@ common c_working_dir, geopixe_root
                    alpha=(*p).yield.alpha, beta=(*p).yield.beta, unknown=(*p).yield.unknown, $
                    z1=(*p).yield.z1, a1=(*p).yield.a1, state=(*p).yield.state, $
                    intensity=intensity, lines=lines, n_lines=n_lines, z2=z2, shell=shell, $
-                   e_min=emin, e_max=emax, layers=layers, select=(*p).el.z, sec_fl=sec_fl, $
+                   e_min=emin, e_max=emax, layers=layers, select=(*p).el.z, $
                    gamma=gamma, e_lines=e_lines, error=error )
 
               if error then begin

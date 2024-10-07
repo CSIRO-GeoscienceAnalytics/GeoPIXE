@@ -1,6 +1,6 @@
 function geo_yield2, formula, thick, microns=microns, density=density, weight=weight, energy=e_beami, $
 			theta=theta, phi=phi, alpha=alpha, beta=beta, unknown=unknown, beam=beam, $
-			z1=z1, a1=a1, state=state, sec_fl=sec_fl, select=select_z, gamma=gamma, $
+			z1=z1, a1=a1, state=state, select=select_z, gamma=gamma, $
 			e_min=e_min, e_max=e_max, progress=do_progressi, error=error, $
 
 			intensity=rel_int, lines=line_indx, e_lines=e_lines, n_lines=n_lines, z2=z2, $
@@ -12,7 +12,7 @@ function geo_yield2, formula, thick, microns=microns, density=density, weight=we
 ;	They are used to bring in results (e.g. 'slices' and 'fluoro') from initial 'geo_yield2' 
 ;	(called from 'geo_array_yield') using central detector and including secondary fluorescence.
 
-			force_trans=force_trans, reenter=reenter, $
+			force_trans=force_trans, reenter=reenter, sec_fl=sec_fl, $
 			slices=slices, lid=lid, relmux=relmux, spec=spec, $
 			branch_ratio=branch_ratio, e_bind=e_bind, fluoro=fluoro, jump=jump
 ;+
@@ -455,7 +455,9 @@ yield:
 	for i=0L,n_els-1 do begin
 		total_yield = mass_yield[*,i] / mass_tot[i]
 		q = where( finite(total_yield) eq 0, nq)
-		if nq gt 0 then total_yield[q]=0.0
+		if nq gt 0 then begin
+			total_yield[q]=0.0
+		endif
 
 		major_yield[i] = total_yield[0]
 		rel_int[*,i] = total_yield / major_yield[i]
@@ -468,7 +470,11 @@ yield:
 		rel_int[1:*,q] = 0.0
 		rel_int[0,q] = 1.0
 	endif
-
+	q1 = where( (zero eq 0) and ((finite(rel_int[0,*]) eq 0) or (finite(rel_int[1,*]) eq 0)) )
+	if q1[0] ne -1 then begin
+		print,'geo_yield2: Undefined rel-ints - ',q1
+	endif
+	
 ;	Return the yields for the individual layers ...
 
 	error = 0
