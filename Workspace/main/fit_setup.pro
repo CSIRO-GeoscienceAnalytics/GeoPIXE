@@ -4081,7 +4081,7 @@ lab = widget_label( bbase, value='', scr_xsize=11)
 da_button = widget_button( bbase, value='Generate DA matrix', uname='dynamic-button', /tracking, $
 					uvalue='Generate the Dynamic Analysis transform matrix and write a DAM file.')
 export_button = widget_button( bbase, value='Export', uname='export-button', /tracking, sensitive=0, $
-					uvalue='Export the Dynamic Analysis matrix to an export format file (e.g. for download into the Maia or HYMOD data acquisition system).')
+					uvalue='Export the Dynamic Analysis matrix to an export format file (e.g. for download into a data acquisition system for realtime imaging).')
 pure_button = widget_button( bbase, value='P', uname='pure-button', /tracking, sensitive=0, $
 					uvalue='Overlay the elemental component spectra on the fit to the spectrum. Need to "Generate DA matrix" first.')
 lab = widget_label( bbase, value='', scr_xsize=11)
