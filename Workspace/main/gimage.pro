@@ -1201,6 +1201,8 @@ end
 
 pro runtime
 
+;	See comments in "geopixe" below ...
+
 	argv = command_line_args( count=argc)
 	if argc ge 1 then begin
 
@@ -1250,8 +1252,7 @@ pro geopixe
 	if argc ge 1 then begin
 		if argv[0] ne '' then begin
 
-;			Choice here is minimum to get process going, versus also
-;			checking license, etc. and splash page.
+;			Choice here is minimum to get process going.
 
 			startupp, /database, /colours, /devices
 

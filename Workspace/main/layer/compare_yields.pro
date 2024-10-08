@@ -19,14 +19,15 @@ end
 
 ;------------------------------------------------------------------------------------
 
-pro compare_yields, fnew, fold, error=err
+pro compare_yields, files, output, error=err
 
 ; Compare two yields files for consistency.
 ; Check input parameters first, such as beam, detector, layers.
 ; Compare 'yield' and 'intensity' results, but only for matching cases (Z, shell) with
 ; finite, non-zero yield results.
 ;
-; 'fnew', 'fold'' are input yield file names. Prompts for these if missing.
+; 'files' are input yield file names to compare. Prompts for these if missing.
+; 'output' is a txt file report to create.
 ; 'err=1'	error reading yield files, or some crash.
 
 	COMPILE_OPT STRICTARR
@@ -51,15 +52,15 @@ pro compare_yields, fnew, fold, error=err
 	endif
 
 	err = 1
-	if n_elements(fold) eq 0 then begin
+	if n_elements(files) eq 0 then begin
 		fold = file_requester( /read, filter='*.yield', /fix_filter, title='Reference YIELD file.')
 		if fold eq '' then return
-	endif
-	if n_elements(fnew) eq 0 then begin
+	endif else fold=files[0]
+	if n_elements(files) lt 2 then begin
 		path = extract_path(fold)
 		fnew = file_requester( /read, path=path, filter='*.yield', /fix_filter, title='New YIELD file to check.')
 		if fnew eq '' then return
-	endif
+	endif else fnew=files[1]
 	
 	new = read_yield( fnew, error=err)
 	if err then begin
@@ -71,93 +72,100 @@ pro compare_yields, fnew, fold, error=err
 		warning, 'compare_yields','Failed to read REFERENCE file: '+fold
 		return
 	endif
+	if n_elements(output) eq 0 then begin
+		output = strip_file_ext( fnew) + '.txt'
+	endif
 	
 	err = 0
-	print,'-------------------------------------------------------------------------------------'
-	print,'Setup parameters ...'
+	on_ioerror, bad_open
+	openw, lun, output, /get_lun
+	on_ioerror, bad_write
+	
+	printf, lun,'-------------------------------------------------------------------------------------'
+	printf, lun,'Setup parameters ...'
 	bad = 0
 	if (*new).Z1 ne (*old).Z1 then begin
-		print,'	Beam Z1 changed.
+		printf, lun,'	Beam Z1 changed.
 		bad = 1
 	endif
 	if (*new).A1 ne (*old).A1 then begin
-		print,'	Beam A1 changed.
+		printf, lun,'	Beam A1 changed.
 		bad = 1
 	endif
 	if (*new).state ne (*old).state then begin
-		print,'	Beam state changed.
+		printf, lun,'	Beam state changed.
 		bad = 1
 	endif
 	if (*new).e_beam ne (*old).e_beam then begin
-		print,'	Beam E Beam changed.
+		printf, lun,'	Beam E Beam changed.
 		bad = 1
 	endif
 	if (*new).beam.continuum ne (*old).beam.continuum then begin
-		print,'	Beam continuum changed.
+		printf, lun,'	Beam continuum changed.
 		bad = 1
 	endif
 	if (*new).theta ne (*old).theta then begin
-		print,'	Detector theta changed.
+		printf, lun,'	Detector theta changed.
 		bad = 1
 	endif
 	if (*new).phi ne (*old).phi then begin
-		print,'	Detector phi changed.
+		printf, lun,'	Detector phi changed.
 		bad = 1
 	endif
 	if (*new).alpha ne (*old).alpha then begin
-		print,'	Target alpha changed.
+		printf, lun,'	Target alpha changed.
 		bad = 1
 	endif
 	if (*new).beam.continuum ne 0 then begin
 		if (*new).beam.model ne (*old).beam.model then begin
-			print,'	Beam continuum model changed.
+			printf, lun,'	Beam continuum model changed.
 			bad = 1
 		endif
 		if (*new).beam.energy ne (*old).beam.energy then begin
-			print,'	Beam continuum energy changed.
+			printf, lun,'	Beam continuum energy changed.
 			bad = 1
 		endif
 		if strip_path((*new).beam.file) ne strip_path((*old).beam.file) then begin
-			print,'	Beam continuum file changed.
+			printf, lun,'	Beam continuum file changed.
 			bad = 1
 		endif
 		if (*new).beam.modata.volts ne (*old).beam.modata.volts then begin
-			print,'	Beam continuum volts changed.
+			printf, lun,'	Beam continuum volts changed.
 			bad = 1
 		endif
 		if (*new).beam.modata.power ne (*old).beam.modata.power then begin
-			print,'	Beam continuum power changed.
+			printf, lun,'	Beam continuum power changed.
 			bad = 1
 		endif
 		if (*new).beam.modata.phi ne (*old).beam.modata.phi then begin
-			print,'	Beam continuum phi changed.
+			printf, lun,'	Beam continuum phi changed.
 			bad = 1
 		endif
 		if (*new).beam.modata.eps ne (*old).beam.modata.eps then begin
-			print,'	Beam continuum eps changed.
+			printf, lun,'	Beam continuum eps changed.
 			bad = 1
 		endif
 		if (*new).beam.modata.anode.formula ne (*old).beam.modata.anode.formula then begin
-			print,'	Beam continuum anode formula changed.
+			printf, lun,'	Beam continuum anode formula changed.
 			bad = 1
 		endif
 	endif
 	if (*new).n_layers ne (*old).n_layers then begin
-		print,'	Layer number changed.
+		printf, lun,'	Layer number changed.
 		bad = 1
 	endif
 	for l=0,(*new).n_layers-1 do begin
 		if (*new).n_layers le (*old).n_layers then begin
 			if (*new).formula[l] ne (*old).formula[l] then begin
-				print,'	Layer '+str_tidy(l)+' formula changed.
+				printf, lun,'	Layer '+str_tidy(l)+' formula changed.
 				bad = 1
 			endif
 			if (*new).thick[l] ne (*old).thick[l] then begin
-				print,'	Layer '+str_tidy(l)+' thickness changed.
+				printf, lun,'	Layer '+str_tidy(l)+' thickness changed.
 				bad = 1
 			endif
 			if (*new).density[l] ne (*old).density[l] then begin
-				print,'	Layer '+str_tidy(l)+' density changed.
+				printf, lun,'	Layer '+str_tidy(l)+' density changed.
 				bad = 1
 			endif
 		endif
@@ -166,15 +174,15 @@ pro compare_yields, fnew, fold, error=err
 	if bad then begin
 ;		return
 	endif else begin
-		print,'Parameters consistent.'
+		printf, lun,'Parameters consistent.'
 	endelse
 	
 	for l=0,(*new).n_layers-1 do begin	
 
 ;		Check yields, for layer=l
 
-		print,'-------------------------------------------------------------------------------------'
-		print,'Layer ',l,' ...'
+		printf, lun,'-------------------------------------------------------------------------------------'
+		printf, lun,'Layer ',l,' ...'
 		x = 0.0
 		y = 0.0
 		z = 0
@@ -188,7 +196,7 @@ pro compare_yields, fnew, fold, error=err
 				shell = [shell, (*new).shell[i]]			
 			endif else begin
 ;				warning,'compare_yields','Element Z='+str_tidy((*new).z[i])+', shell='+str_tidy((*new).shell[i])+' not found in reference.'
-				print,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+' not found in reference.'
+				printf, lun,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+' not found in reference.'
 			endelse
 		endfor
 		x = x[1:*]
@@ -198,13 +206,13 @@ pro compare_yields, fnew, fold, error=err
 		sig = sig_change( x, y, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
-			print,'Yields not consistent ...'
-			print,'        Index,     Z,   Name,   Shell,     Ref,         New'
+			printf, lun,'Yields not consistent ...'
+			printf, lun,'        Index,     Z,   Name,   Shell,     Ref,         New'
 			for j=0,nq-1 do begin
-				print,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], x[q[j]], y[q[j]]
+				printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], x[q[j]], y[q[j]]
 			endfor
 		endif else begin
-			print,'Yields all consistent.'
+			printf, lun,'Yields all consistent.'
 		endelse
 
 ;		Check intensities, for layer=l and non zero yields
@@ -233,7 +241,7 @@ pro compare_yields, fnew, fold, error=err
 						endif
 					endif else begin
 ;						warning,'compare_yields','Element Z='+str_tidy((*new).z[i])+', shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+', E='+str_tidy((*new).e[k,i])+' not found in reference.'
-						print,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+' ('+line_id((*new).lines[k,i])+'), E='+str_tidy((*new).e[k,i])+' not found in reference.'
+						printf, lun,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+' ('+line_id((*new).lines[k,i])+'), E='+str_tidy((*new).e[k,i])+' not found in reference.'
 					endelse				
 				endfor
 			endif
@@ -248,19 +256,30 @@ pro compare_yields, fnew, fold, error=err
 		sig = sig_change( x, y, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
-			print,'Intensities not consistent ...'
-			print,'        Index,     Z,   Name,   Shell,   Lindex,   Line,    Name,       E,         Ref,         New'
+			printf, lun,'Intensities not consistent ...'
+			printf, lun,'        Index,     Z,   Name,   Shell,   Lindex,   Line,    Name,       E,         Ref,         New'
 			for j=0,nq-1 do begin
-				print,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], qo[q[j]], lines[q[j]], '      ',line_id(lines[q[j]]), e[q[j]], x[q[j]], y[q[j]]
+				printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], qo[q[j]], lines[q[j]], '      ',line_id(lines[q[j]]), e[q[j]], x[q[j]], y[q[j]]
 			endfor
 		endif else begin
-			print,'Intensities all consistent.'
+			printf, lun,'Intensities all consistent.'
 		endelse
 	endfor
 	
 	err = 0
-	print,'All done.'
-	print,'-------------------------------------------------------------------------------------'
+	printf, lun,'All done.'
+	printf, lun,'-------------------------------------------------------------------------------------'
+	close_file, lun
+	return
+	
+bad_open:
+	printf, lun,'compare_yields: Error opening output file: '+output
+	err = 1
+	return
+bad_write:
+	printf, lun,'compare_yields: Error writing to output file: '+output
+	close_file, lun
+	err = 1
 	return
 end
 

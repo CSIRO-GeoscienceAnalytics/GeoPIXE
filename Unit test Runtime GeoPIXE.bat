@@ -15,7 +15,7 @@ SET PYTHONPATH=C:\Program Files\Harris\IDL88\bin\bin.x86_64;C:\Program Files\Har
 cd "C:\Software\IDL\GeoPIXE-open-source\workspace\geopixe"
 rem "C:\Program Files\Harris\IDL88\bin\bin.x86_64\idlrt.exe" "GeoPIXE.sav" 
 
-rem "Use this variant to run GeoPIXE as a module in a workflow ..."
+rem "Use this variant to run GeoPIXE for Unit Tests ..."
 rem "It assumes you have downloaded the Demo data to folder 'Demo/'."
 
-"C:\Program Files\Harris\IDL89\bin\bin.x86_64\idlrt.exe" "GeoPIXE.sav" -args "C:\Software\Demo\MM\analysis\925\image-history.gcf" "C:\Software\Demo\MM\analysis\925\925-Bi-x.dai" "C:\Software\Demo\MM\analysis\925\925-Bi-x-metadata3.txt"
+"C:\Program Files\Harris\IDL89\bin\bin.x86_64\idlrt.exe" "GeoPIXE.sav" -args "compare_yields" "['C:\Software\Demo\Maia\XANES\analysis\pyrite-30um-7-35.yield','C:\Software\Demo\Maia\XANES\analysis\pyrite-30um-7-35-test.yield']" "C:\Software\Demo\Maia\XANES\analysis\pyrite-30um-7-35-test.txt"

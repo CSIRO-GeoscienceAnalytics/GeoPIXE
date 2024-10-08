@@ -93,7 +93,7 @@ pro geopixe_do_commands, argc=argc, argv=argv, error=error, cluster=cluster_over
 ;			Needs extra work for regions spectra, as they may need multipe passes.
 ;			The GCF file is created in "geopixe_gen_commands".
 ; 
-; argv[0]	command file
+; argv[0]	command file (.gcf), else a simple command
 ; argv[1]	optional file list to replace "files=" line in GCF file.
 ;			May contain wild-cards ("*", "?").
 ;			Preceed with "@" to supply a file-name containing the file-list,
@@ -159,6 +159,16 @@ pro geopixe_do_commands, argc=argc, argv=argv, error=error, cluster=cluster_over
 ;			"C:\Software\Demo\MM\analysis\925\925-Bi-x-metadata2.txt"]
 ;	argc = 3
 
+;	argv = [ "compare_yields" , $
+;			'["C:\Software\Demo\Maia\XANES\analysis\pyrite-30um-7-35.yield","C:\Software\Demo\Maia\XANES\analysis\pyrite-30um-7-35-test.yield"]' , $
+;			"C:\Software\Demo\Maia\XANES\analysis\pyrite-30um-7-35-test.txt"]
+;	argc = 3
+
+;	argv = [ "compare_yields" , $
+;		'["C:\Software\Demo\Maia\Rock3\analysis\Shale_100um_SiO_1mm_384C14_18500eV.yield","C:\Software\Demo\Maia\Rock3\analysis\Shale_100um_SiO_1mm_384C14_18500eV-test.yield"]' , $
+;		"C:\Software\Demo\Maia\Rock3\analysis\Shale_100um_SiO_1mm_384C14_18500eV-test.txt"]
+;	argc = 3
+
 	error = 1
 	print, 'ARGV:'
 	for i=0,argc-1 do begin
@@ -169,6 +179,21 @@ pro geopixe_do_commands, argc=argc, argv=argv, error=error, cluster=cluster_over
 
 	if n_elements(argc) lt 1 then goto, bad_args
 	if n_elements(argv) lt argc then goto, bad_args
+
+	prefs = geopixe_defaults( error=err, source='geopixe_do_commands')
+	cluster_prefs = prefs.cluster
+
+	;	First check that there is a GCF shown, else do a simple command execute
+	;	the command should conform to template, using the form:
+	;	
+	;		command, files=['file','file',...], output='out'
+
+	if locate( '.gcf', strlowcase(argv[0])) eq -1 then begin
+		args = strjoin( argv, ', ')
+
+		geopixe_execute, args, error=error
+		return
+	endif
 
 	output = ''
 	ixsize = 0
@@ -186,8 +211,7 @@ pro geopixe_do_commands, argc=argc, argv=argv, error=error, cluster=cluster_over
 	images = ['da_evt','cut_evt','da_stack_evt','da_tomo_evt']
 	export = ['export_zarr','print_image_metadata']
 
-  	prefs = geopixe_defaults( error=err, source='geopixe_do_commands')
-	cluster_prefs = prefs.cluster
+;	Continue to deal with a GCF file in argv[0]
 
 	str = strarr(1000)
 	n_files = 0
