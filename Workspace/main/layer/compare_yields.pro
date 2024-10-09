@@ -207,9 +207,9 @@ pro compare_yields, files, output, error=err
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			printf, lun,'Yields not consistent ...'
-			printf, lun,'        Index,     Z,   Name,   Shell,     Ref,         New'
+			printf, lun,'        Index,     Z,   Name,   Shell,       Ref,         New'
 			for j=0,nq-1 do begin
-				printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], x[q[j]], y[q[j]]
+				printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], '    ',x[q[j]], y[q[j]]
 			endfor
 		endif else begin
 			printf, lun,'Yields all consistent.'
@@ -257,15 +257,105 @@ pro compare_yields, files, output, error=err
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			printf, lun,'Intensities not consistent ...'
-			printf, lun,'        Index,     Z,   Name,   Shell,   Lindex,   Line,    Name,       E,         Ref,         New'
+			printf, lun,'  Index    Z    Name  Shell  Lindex  Line  Name      E        Ref        New'
 			for j=0,nq-1 do begin
-				printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], qo[q[j]], lines[q[j]], '      ',line_id(lines[q[j]]), e[q[j]], x[q[j]], y[q[j]]
+				printf, lun, q[j], z[q[j]], element_name(z[q[j]]), shell[q[j]], qo[q[j]], lines[q[j]], line_id(lines[q[j]]), e[q[j]], x[q[j]], y[q[j]], $
+					format='(I6,I6,3x,A4,I6,I7,I7,A7,3x,F8.3,G11.4,G11.4)'
 			endfor
 		endif else begin
 			printf, lun,'Intensities all consistent.'
 		endelse
 	endfor
 	
+;	Check mu_zero for non zero yields
+
+	x = 0
+	y = 0
+	z = 0
+	shell = 0
+	lines = 0
+	e = 0.0
+	qo = 0
+	for i=0,(*new).n_els-1 do begin
+		q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
+		if nq ge 1 then begin
+			for k=0,(*new).n_lines[i]-1 do begin
+				q1 = where( (*old).lines[*,q[0]] eq (*new).lines[k,i], nq1)
+				if nq1 gt 0 then begin
+					if (*old).yield[q[0],0] gt 1.0e-19 then begin
+						qo = [qo, q1[0]]
+						x = [x, (*old).mu_zero[q1[0],q[0]]]
+						y = [y, (*new).mu_zero[k,i]]
+						z = [z, (*new).z[i]]
+						shell = [shell, (*new).shell[i]]
+						lines = [lines, (*new).lines[k,i]]
+						e = [e, (*new).e[k,i]]
+					endif
+				endif else begin
+					;						warning,'compare_yields','Element Z='+str_tidy((*new).z[i])+', shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+', E='+str_tidy((*new).e[k,i])+' not found in reference.'
+					printf, lun,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+' ('+line_id((*new).lines[k,i])+'), E='+str_tidy((*new).e[k,i])+' not found in reference.'
+				endelse
+			endfor
+		endif
+	endfor
+	qo = qo[1:*]
+	x = x[1:*]
+	y = y[1:*]
+	z = z[1:*]
+	shell = shell[1:*]
+	lines = lines[1:*]
+	e = e[1:*]
+	sig = sig_change( x, y, error=err1)
+	q = where( sig ne 0, nq)
+	if nq gt 0 then begin
+		printf, lun,'mu_zero not consistent ...'
+		printf, lun,'        Index,     Z,   Name,   Shell,   Lindex,   Line,    Name,       E,         Ref,         New'
+		for j=0,nq-1 do begin
+			printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], qo[q[j]], lines[q[j]], '      ',line_id(lines[q[j]]), e[q[j]], x[q[j]], y[q[j]]
+		endfor
+	endif else begin
+		printf, lun,'mu_zero all consistent.'
+	endelse
+
+;	Check ratio_yield for non zero yields
+
+	n_dets = n_elements( (*new).ratio_yield[*,0])
+	x = intarr( n_dets, 1)
+	y = intarr( n_dets, 1)
+	z = 0
+	shell = 0
+	n = 0
+	for i=0,(*new).n_els-1 do begin
+		q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
+		if nq ge 1 then begin
+			if (*old).yield[q[0],0] gt 1.0e-19 then begin
+				x = [x, (*old).ratio_yield[*,q[0]]]
+				y = [y, (*new).ratio_yield[*,i]]
+				z = [z, (*new).z[i]]
+				shell = [shell, (*new).shell[i]]
+				n++
+			endif
+		endif
+	endfor
+	x = x[n_dets:*]
+	y = y[n_dets:*]
+	x = reform( x, n_dets, n)
+	y = reform( y, n_dets, n)
+	z = z[1:*]
+	shell = shell[1:*]
+	sig = sig_change( x, y, error=err1)
+	q = where( sig ne 0, nq)
+	if nq gt 0 then begin
+		q_to_xy, q, n_dets, id,iz
+		printf, lun,'ratio_yield not consistent ...'
+		printf, lun,'        Index,     Z,   Name,   Shell,    Detector,    Ref,         New'
+		for j=0,nq-1 do begin
+			printf, lun, iz[j], z[iz[j]], '     ',element_name(z[iz[j]]), shell[iz[j]], id[j], x[id[j],iz[j]], y[id[j],iz[j]]
+		endfor
+	endif else begin
+		printf, lun,'ratio_yield all consistent.'
+	endelse
+
 	err = 0
 	printf, lun,'All done.'
 	printf, lun,'-------------------------------------------------------------------------------------'
