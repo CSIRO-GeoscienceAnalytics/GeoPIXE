@@ -2,7 +2,7 @@ function sig_change, old, new, error=err
 
 ; Flag a significant change in 'new' compared to 'old'
 ; Assumes quantities should be positive.
-; Assumes "significance" is more than 1 part in 1,000,000.
+; Assumes "significance" is more than 1 ppm.
 
 	err = 1
 	if n_elements(old) eq 0 then return, 1
@@ -85,87 +85,87 @@ pro compare_yields, files, output, error=err
 	printf, lun,'Setup parameters ...'
 	bad = 0
 	if (*new).Z1 ne (*old).Z1 then begin
-		printf, lun,'	Beam Z1 changed.
+		printf, lun,'	Beam Z1 changed (Ref=',(*old).Z1,'    new=',(*new).Z1,').'
 		bad = 1
 	endif
 	if (*new).A1 ne (*old).A1 then begin
-		printf, lun,'	Beam A1 changed.
+		printf, lun,'	Beam A1 changed (Ref=',(*old).A1,'    new=',(*new).A1,').'
 		bad = 1
 	endif
 	if (*new).state ne (*old).state then begin
-		printf, lun,'	Beam state changed.
+		printf, lun,'	Beam state changed (Ref=',(*old).state,'    new=',(*new).state,').'
 		bad = 1
 	endif
 	if (*new).e_beam ne (*old).e_beam then begin
-		printf, lun,'	Beam E Beam changed.
+		printf, lun,'	Beam E Beam changed (Ref=',(*old).e_beam,'    new=',(*new).e_beam,').'
 		bad = 1
 	endif
 	if (*new).beam.continuum ne (*old).beam.continuum then begin
-		printf, lun,'	Beam continuum changed.
+		printf, lun,'	Beam continuum changed (Ref=',(*old).beam.continuum,'    new=',(*new).beam.continuum,').'
 		bad = 1
 	endif
 	if (*new).theta ne (*old).theta then begin
-		printf, lun,'	Detector theta changed.
+		printf, lun,'	Detector theta changed (Ref=',(*old).theta,'    new=',(*new).theta,').'
 		bad = 1
 	endif
 	if (*new).phi ne (*old).phi then begin
-		printf, lun,'	Detector phi changed.
+		printf, lun,'	Detector phi changed (Ref=',(*old).phi,'    new=',(*new).phi,').'
 		bad = 1
 	endif
 	if (*new).alpha ne (*old).alpha then begin
-		printf, lun,'	Target alpha changed.
+		printf, lun,'	Target alpha changed (Ref=',(*old).alpha,'    new=',(*new).alpha,').'
 		bad = 1
 	endif
 	if (*new).beam.continuum ne 0 then begin
 		if (*new).beam.model ne (*old).beam.model then begin
-			printf, lun,'	Beam continuum model changed.
+			printf, lun,'	Beam continuum model changed (Ref=',(*old).beam.model,'    new=',(*new).beam.model,').'
 			bad = 1
 		endif
 		if (*new).beam.energy ne (*old).beam.energy then begin
-			printf, lun,'	Beam continuum energy changed.
+			printf, lun,'	Beam continuum energy changed (Ref=',(*old).beam.energy,'    new=',(*new).beam.energy,').'
 			bad = 1
 		endif
 		if strip_path((*new).beam.file) ne strip_path((*old).beam.file) then begin
-			printf, lun,'	Beam continuum file changed.
+			printf, lun,'	Beam continuum file changed (Ref=',(*old).beam.file,'    new=',(*new).beam.file,').'
 			bad = 1
 		endif
 		if (*new).beam.modata.volts ne (*old).beam.modata.volts then begin
-			printf, lun,'	Beam continuum volts changed.
+			printf, lun,'	Beam continuum volts changed (Ref=',(*old).beam.modata.volts,'    new=',(*new).beam.modata.volts,').'
 			bad = 1
 		endif
 		if (*new).beam.modata.power ne (*old).beam.modata.power then begin
-			printf, lun,'	Beam continuum power changed.
+			printf, lun,'	Beam continuum power changed (Ref=',(*old).beam.modata.power,'    new=',(*new).beam.modata.power,').'
 			bad = 1
 		endif
 		if (*new).beam.modata.phi ne (*old).beam.modata.phi then begin
-			printf, lun,'	Beam continuum phi changed.
+			printf, lun,'	Beam continuum phi changed (Ref=',(*old).beam.modata.phi,'    new=',(*new).beam.modata.phi,').'
 			bad = 1
 		endif
 		if (*new).beam.modata.eps ne (*old).beam.modata.eps then begin
-			printf, lun,'	Beam continuum eps changed.
+			printf, lun,'	Beam continuum eps changed (Ref=',(*old).beam.modata.eps,'    new=',(*new).beam.modata.eps,').'
 			bad = 1
 		endif
 		if (*new).beam.modata.anode.formula ne (*old).beam.modata.anode.formula then begin
-			printf, lun,'	Beam continuum anode formula changed.
+			printf, lun,'	Beam continuum anode formula changed (Ref=',(*old).beam.modata.anode.formula,'    new=',(*new).beam.modata.anode.formula,').'
 			bad = 1
 		endif
 	endif
 	if (*new).n_layers ne (*old).n_layers then begin
-		printf, lun,'	Layer number changed.
+		printf, lun,'	Layer number changed (Ref=',(*old).n_layers,'    new=',(*new).n_layers,').'
 		bad = 1
 	endif
 	for l=0,(*new).n_layers-1 do begin
 		if (*new).n_layers le (*old).n_layers then begin
 			if (*new).formula[l] ne (*old).formula[l] then begin
-				printf, lun,'	Layer '+str_tidy(l)+' formula changed.
+				printf, lun,'	Layer '+str_tidy(l)+' formula changed (Ref=',(*old).formula[l],'    new=',(*new).formula[l],').'
 				bad = 1
 			endif
 			if (*new).thick[l] ne (*old).thick[l] then begin
-				printf, lun,'	Layer '+str_tidy(l)+' thickness changed.
+				printf, lun,'	Layer '+str_tidy(l)+' thickness changed (Ref=',(*old).thick[l],'    new=',(*new).thick[l],').'
 				bad = 1
 			endif
 			if (*new).density[l] ne (*old).density[l] then begin
-				printf, lun,'	Layer '+str_tidy(l)+' density changed.
+				printf, lun,'	Layer '+str_tidy(l)+' density changed (Ref=',(*old).density[l],'    new=',(*new).density[l],').'
 				bad = 1
 			endif
 		endif
@@ -183,33 +183,29 @@ pro compare_yields, files, output, error=err
 
 		printf, lun,'-------------------------------------------------------------------------------------'
 		printf, lun,'Layer ',l,' ...'
-		x = 0.0
-		y = 0.0
-		z = 0
-		shell = 0
+		
+		x = fltarr( (*new).n_els)
+		y = fltarr( (*new).n_els)
+		z = (*new).z
+		shell = (*new).shell
 		for i=0,(*new).n_els-1 do begin
 			q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
 			if nq ge 1 then begin
-				x = [x, (*old).yield[q[0],l]]
-				y = [y, (*new).yield[i,l]]
-				z = [z, (*new).z[i]]
-				shell = [shell, (*new).shell[i]]			
+				x[i] = (*old).yield[q[0],l]
+				y[i] = (*new).yield[i,l]
 			endif else begin
 ;				warning,'compare_yields','Element Z='+str_tidy((*new).z[i])+', shell='+str_tidy((*new).shell[i])+' not found in reference.'
 				printf, lun,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+' not found in reference.'
 			endelse
 		endfor
-		x = x[1:*]
-		y = y[1:*]
-		z = z[1:*]
-		shell = shell[1:*]
 		sig = sig_change( x, y, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			printf, lun,'Yields not consistent ...'
-			printf, lun,'        Index,     Z,   Name,   Shell,       Ref,         New'
+			printf, lun,'  Index    Z    Name   Shell       Ref        New'
 			for j=0,nq-1 do begin
-				printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], '    ',x[q[j]], y[q[j]]
+				printf, lun, q[j], z[q[j]], element_name(z[q[j]]), shell[q[j]], x[q[j]], y[q[j]], $
+					format='(I6,I6,3x,A4,I7,2x,G11.4,G11.4)'
 			endfor
 		endif else begin
 			printf, lun,'Yields all consistent.'
@@ -217,13 +213,13 @@ pro compare_yields, files, output, error=err
 
 ;		Check intensities, for layer=l and non zero yields
 
-		x = 0.0
-		y = 0.0
-		z = 0
-		shell = 0
-		lines = 0
-		e = 0.0
-		qo = 0
+		n_lines_max = n_elements( (*new).intensity[*,0])
+		x = fltarr( n_lines_max, (*new).n_els)
+		y = fltarr( n_lines_max, (*new).n_els)
+		z = (*new).z
+		shell = (*new).shell
+		lines = (*new).lines
+		e = (*new).e
 		for i=0,(*new).n_els-1 do begin
 			q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
 			if nq ge 1 then begin
@@ -231,13 +227,8 @@ pro compare_yields, files, output, error=err
 					q1 = where( (*old).lines[*,q[0]] eq (*new).lines[k,i], nq1)
 					if nq1 gt 0 then begin
 						if (*old).yield[q[0],l] gt 1.0e-19 then begin
-							qo = [qo, q1[0]]
-							x = [x, (*old).intensity[q1[0],q[0]]]
-							y = [y, (*new).intensity[k,i]]
-							z = [z, (*new).z[i]]
-							shell = [shell, (*new).shell[i]]
-							lines = [lines, (*new).lines[k,i]]
-							e = [e, (*new).e[k,i]]
+							x[k,i] = (*old).intensity[q1[0],q[0]]
+							y[k,i] = (*new).intensity[k,i]
 						endif
 					endif else begin
 ;						warning,'compare_yields','Element Z='+str_tidy((*new).z[i])+', shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+', E='+str_tidy((*new).e[k,i])+' not found in reference.'
@@ -246,36 +237,31 @@ pro compare_yields, files, output, error=err
 				endfor
 			endif
 		endfor
-		qo = qo[1:*]
-		x = x[1:*]
-		y = y[1:*]
-		z = z[1:*]
-		shell = shell[1:*]
-		lines = lines[1:*]
-		e = e[1:*]
 		sig = sig_change( x, y, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
+			q_to_xy, q, n_lines_max, il,iz
 			printf, lun,'Intensities not consistent ...'
-			printf, lun,'  Index    Z    Name  Shell  Lindex  Line  Name      E        Ref        New'
+			printf, lun,'  Index    Z    Name  Shell  Line   Name      E        Ref        New'
 			for j=0,nq-1 do begin
-				printf, lun, q[j], z[q[j]], element_name(z[q[j]]), shell[q[j]], qo[q[j]], lines[q[j]], line_id(lines[q[j]]), e[q[j]], x[q[j]], y[q[j]], $
-					format='(I6,I6,3x,A4,I6,I7,I7,A7,3x,F8.3,G11.4,G11.4)'
+				printf, lun, q[j], z[iz[j]], element_name(z[iz[j]]), shell[iz[j]], lines[il[j],iz[j]], line_id(lines[il[j],iz[j]]), e[il[j],iz[j]], x[il[j],iz[j]], y[il[j],iz[j]], $
+					format='(I6,I6,3x,A4,I6,I7,A8,2x,F8.3,G11.4,G11.4)'
 			endfor
 		endif else begin
 			printf, lun,'Intensities all consistent.'
 		endelse
 	endfor
+	printf, lun,'-------------------------------------------------------------------------------------'
 	
 ;	Check mu_zero for non zero yields
 
-	x = 0
-	y = 0
-	z = 0
-	shell = 0
-	lines = 0
-	e = 0.0
-	qo = 0
+	n_lines_max = n_elements( (*new).intensity[0,*,0])
+	x = fltarr( n_lines_max, (*new).n_els)
+	y = fltarr( n_lines_max, (*new).n_els)
+	z = (*new).z
+	shell = (*new).shell
+	lines = (*new).lines
+	e = (*new).e
 	for i=0,(*new).n_els-1 do begin
 		q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
 		if nq ge 1 then begin
@@ -283,13 +269,8 @@ pro compare_yields, files, output, error=err
 				q1 = where( (*old).lines[*,q[0]] eq (*new).lines[k,i], nq1)
 				if nq1 gt 0 then begin
 					if (*old).yield[q[0],0] gt 1.0e-19 then begin
-						qo = [qo, q1[0]]
-						x = [x, (*old).mu_zero[q1[0],q[0]]]
-						y = [y, (*new).mu_zero[k,i]]
-						z = [z, (*new).z[i]]
-						shell = [shell, (*new).shell[i]]
-						lines = [lines, (*new).lines[k,i]]
-						e = [e, (*new).e[k,i]]
+						x[k,i] = (*old).mu_zero[q1[0],q[0]]
+						y[k,i] = (*new).mu_zero[k,i]
 					endif
 				endif else begin
 					;						warning,'compare_yields','Element Z='+str_tidy((*new).z[i])+', shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+', E='+str_tidy((*new).e[k,i])+' not found in reference.'
@@ -298,20 +279,15 @@ pro compare_yields, files, output, error=err
 			endfor
 		endif
 	endfor
-	qo = qo[1:*]
-	x = x[1:*]
-	y = y[1:*]
-	z = z[1:*]
-	shell = shell[1:*]
-	lines = lines[1:*]
-	e = e[1:*]
 	sig = sig_change( x, y, error=err1)
 	q = where( sig ne 0, nq)
 	if nq gt 0 then begin
+		q_to_xy, q, n_lines_max, il,iz
 		printf, lun,'mu_zero not consistent ...'
-		printf, lun,'        Index,     Z,   Name,   Shell,   Lindex,   Line,    Name,       E,         Ref,         New'
+		printf, lun,'  Index    Z    Name  Shell  Line  Name      E        Ref        New'
 		for j=0,nq-1 do begin
-			printf, lun,q[j], z[q[j]], '     ',element_name(z[q[j]]), shell[q[j]], qo[q[j]], lines[q[j]], '      ',line_id(lines[q[j]]), e[q[j]], x[q[j]], y[q[j]]
+			printf, lun, q[j], z[iz[j]] ,element_name(z[iz[j]]), shell[iz[j]], lines[il[j],iz[j]], line_id(lines[il[j],iz[j]]), e[il[j],iz[j]], x[il[j],iz[j]], y[il[j],iz[j]], $
+				format='(I6,I6,3x,A4,I6,I7,A8,2x,F8.3,G11.4,G11.4)'
 		endfor
 	endif else begin
 		printf, lun,'mu_zero all consistent.'
@@ -320,42 +296,80 @@ pro compare_yields, files, output, error=err
 ;	Check ratio_yield for non zero yields
 
 	n_dets = n_elements( (*new).ratio_yield[*,0])
-	x = intarr( n_dets, 1)
-	y = intarr( n_dets, 1)
-	z = 0
-	shell = 0
-	n = 0
-	for i=0,(*new).n_els-1 do begin
-		q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
-		if nq ge 1 then begin
-			if (*old).yield[q[0],0] gt 1.0e-19 then begin
-				x = [x, (*old).ratio_yield[*,q[0]]]
-				y = [y, (*new).ratio_yield[*,i]]
-				z = [z, (*new).z[i]]
-				shell = [shell, (*new).shell[i]]
-				n++
+	if n_dets gt 1 then begin
+		x = fltarr( n_dets, (*new).n_els)
+		y = fltarr( n_dets, (*new).n_els)
+		z = (*new).z
+		shell = (*new).shell
+		for i=0,(*new).n_els-1 do begin
+			q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
+			if nq ge 1 then begin
+				if (*old).yield[q[0],0] gt 1.0e-19 then begin
+					x[*,i] = (*old).ratio_yield[*,q[0]]
+					y[*,i] = (*new).ratio_yield[*,i]
+				endif
 			endif
-		endif
-	endfor
-	x = x[n_dets:*]
-	y = y[n_dets:*]
-	x = reform( x, n_dets, n)
-	y = reform( y, n_dets, n)
-	z = z[1:*]
-	shell = shell[1:*]
-	sig = sig_change( x, y, error=err1)
-	q = where( sig ne 0, nq)
-	if nq gt 0 then begin
-		q_to_xy, q, n_dets, id,iz
-		printf, lun,'ratio_yield not consistent ...'
-		printf, lun,'        Index,     Z,   Name,   Shell,    Detector,    Ref,         New'
-		for j=0,nq-1 do begin
-			printf, lun, iz[j], z[iz[j]], '     ',element_name(z[iz[j]]), shell[iz[j]], id[j], x[id[j],iz[j]], y[id[j],iz[j]]
 		endfor
-	endif else begin
-		printf, lun,'ratio_yield all consistent.'
-	endelse
+		sig = sig_change( x, y, error=err1)
+		q = where( sig ne 0, nq)
+		if nq gt 0 then begin
+			q_to_xy, q, n_dets, id,iz
+			printf, lun,'ratio_yield not consistent ...'
+			printf, lun,'  Index    Z    Name   Shell  Detector   Ref        New'
+			for j=0,nq-1 do begin
+				printf, lun, q[j], z[iz[j]], element_name(z[iz[j]]), shell[iz[j]], id[j], x[id[j],iz[j]], y[id[j],iz[j]], $
+					format='(I6,I6,3x,A4,I7,I7,G11.4,G11.4)'
+			endfor
+		endif else begin
+			printf, lun,'ratio_yield all consistent.'
+		endelse
+	endif
 
+;	Check ratio_intensity for non zero yields
+
+	n_dets = n_elements( (*new).ratio_intensity[*,0,0])
+	if n_dets gt 1 then begin
+		n_lines_max = n_elements( (*new).ratio_intensity[0,*,0])
+		x = fltarr( n_dets, n_lines_max, (*new).n_els)
+		y = fltarr( n_dets, n_lines_max, (*new).n_els)
+		z = (*new).z
+		shell = (*new).shell
+		lines = (*new).lines
+		e = (*new).e
+		for i=0,(*new).n_els-1 do begin
+			q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
+			if nq ge 1 then begin
+				x1 = fltarr( n_dets, n_lines_max)
+				y1 = fltarr( n_dets, n_lines_max)
+				for k=0,(*new).n_lines[i]-1 do begin
+					q1 = where( (*old).lines[*,q[0]] eq (*new).lines[k,i], nq1)
+					if nq1 gt 0 then begin
+						if (*old).yield[q[0],0] gt 1.0e-19 then begin
+							x[*,k,i] = (*old).ratio_intensity[*,q1[0],q[0]]
+							y[*,k,i] = (*new).ratio_intensity[*,k,i]
+						endif
+					endif else begin
+						;						warning,'compare_yields','Element Z='+str_tidy((*new).z[i])+', shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+', E='+str_tidy((*new).e[k,i])+' not found in reference.'
+						printf, lun,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+', line='+str_tidy((*new).lines[k,i])+' ('+line_id((*new).lines[k,i])+'), E='+str_tidy((*new).e[k,i])+' not found in reference.'
+					endelse
+				endfor
+			endif
+		endfor
+		sig = sig_change( x, y, error=err1)
+		q = where( sig ne 0, nq)
+		if nq gt 0 then begin
+			q_to_xyz, q, n_dets,n_lines_max, id,il,iz
+			printf, lun,'ratio_intensity not consistent ...'
+			printf, lun,'  Index    Z    Name  Shell   Det   Line   Name       E        Ref        New'
+			for j=0,nq-1 do begin
+				printf, lun, q[j], z[iz[j]], element_name(z[iz[j]]), shell[iz[j]], id[j], lines[il[j],iz[j]], line_id(lines[il[j],iz[j]]), e[il[j],iz[j]], x[id[j],il[j],iz[j]], y[id[j],il[j],iz[j]], $
+					format='(I6,I6,3x,A4,I6,I7,I7,A8,2x,F8.3,G11.4,G11.4)'
+			endfor
+		endif else begin
+			printf, lun,'ratio_intensity all consistent.'
+		endelse
+	endif
+	
 	err = 0
 	printf, lun,'All done.'
 	printf, lun,'-------------------------------------------------------------------------------------'

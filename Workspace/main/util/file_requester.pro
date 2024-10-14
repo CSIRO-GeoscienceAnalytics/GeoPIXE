@@ -1455,6 +1455,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 		endif
 	endif
 	common c_working_dir, geopixe_root
+	if n_elements(geopixe_root) eq 0 then startupp
 	
 	cancel = 0
 	default = file_expand_path('.')
