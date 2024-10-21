@@ -414,6 +414,9 @@ start:
 	endelse
 	e = reform(major_e)
 		
+;	Use ‘detector_geometry’ to provide the effective geometry (theta, phi) of every detector
+;	in the array that has been selected, given the global angles and tilt of the array as a whole.
+		
 	yield = array_yield( pdetector=(*p).detector, playout=(*p).playout, pfilter=(*p).filter, $
 				Energy=e, charge=charge, array=array, active=active, $
 				n_det=n_det, multiplicity=(*pspec).multiplicity, n_lines=(*peaks).n_lines, $ 
@@ -448,7 +451,7 @@ start:
 
 start_fit:
 	back_on = 0									; normal mode for fit and "dynamic=2" mode.
-	if dynamic eq 1 then back_on = 1			; background subtraction (not used in IDL yet)
+	if dynamic eq 1 then back_on = 1			; background subtraction (old Fortran option, not used in IDL yet)
 ;	mask[7] = 1									; re-enable back varying for testing
 ;												; when is this used? (what about mask[10]?)
 	
@@ -575,8 +578,8 @@ start_fit:
 
 		beta = dblarr(ni,nq)
 		for k=0L,nq-1 do begin
-			beta[*,k] = df[*,k] / (f > 1.0)			; Awaya 'f' weighting
-;			beta[*,k] = df[*,k] / (1.0)				; unit weighting (Clayton et al.)
+			beta[*,k] = df[*,k] / (f > 1.0)			; Awaya 'f' weighting (T. Awaya, Nucl. Instr. Meth. 165 (1978), 449)
+;			beta[*,k] = df[*,k] / (1.0)				; unit weighting (E. Clayton and C.G. Ryan, 1990, "Weighting Measures in Fitting PIXE Spectra", Nucl. Instr. and Meth. B49, 161-165)
 		endfor
 
 		alpha = df ## transpose(beta)

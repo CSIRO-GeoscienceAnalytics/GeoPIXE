@@ -37,7 +37,7 @@ function array_yield, pdetector=pdetector, playout=playout, pfilter=pfilter, $
 ;	multiplicity	fall-back (some old data), replaced by sum of 'rGamma' to form 'totGamma'
 ;
 ;	pressure		indicates fitting a spectrum with ambient conditions specified, with pressure (mbar) and
-;	temp			temperature (C). Pass these onto to 'transmit' in filters and 'det-eff' (in 'array_yield').
+;	temp			temperature (C). Pass these onto 'transmit' in filters and 'det-eff' (in 'array_yield').
 ;
 ;	refit		flags doing a refit of an existing fit results
 ;	use_last	use previous calculation of array corrections to save time
@@ -159,6 +159,9 @@ common c_fit_array_yield_1, wGamma, wIntensity
 ;			endelse
 ;			if q[0] ne -1 then ok[q] = 0
 
+; Use ‘detector_geometry’ to provide the effective geometry (theta, phi) of every detector in
+; the array, given the global angles and tilt of the array as a whole.
+; 
 ; Note that 'detector_geometry' output struct vector 'g' is in CSV table index order.
 ; All the quantities calculated from it (rOmega, rFilt, rEff) will be in this order too.
 ; Must re-order later.

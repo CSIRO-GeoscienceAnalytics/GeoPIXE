@@ -2,7 +2,8 @@ pro source_update, list=source_list, title=source_title, $
 					present=present, new=new, file=file, count=count
 
 ; Check for new source files, and update local lists, and the
-; current droplist settings.
+; current droplist settings. This has become reduntant for now, as we explicitly
+; put different continuum source types in droplists (e.g. lab, pink in 'layer_setup').
 ;
 ; list		the new source file list found (no paths)
 ; title		the new source title strings

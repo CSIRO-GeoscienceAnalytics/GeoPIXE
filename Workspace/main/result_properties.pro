@@ -786,7 +786,7 @@ common c_working_dir, geopixe_root
 
           if (*pstate).tie_formula_changed and (lenchr((*pstate).tie_formula) gt 0) then begin
 
-;	Need to work out scaling/norm for a Tie applied to a formula here ...
+;	Need to work out scaling/norm for a Tie applied to a formula here, as used in old Fortran GeoPIXE ...
 
           endif
 

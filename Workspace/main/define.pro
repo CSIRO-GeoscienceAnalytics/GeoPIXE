@@ -1701,7 +1701,7 @@ n_els = 10													; maximum number of characteristic elements
 filter = define( /filter)
 
 ; N.B.	If change size of data[], E[], etc. in spectrum, or
-;		number of filters (n_filters above), then must fix 'read_source'
+;		number of filters (n_filters above), then must fix 'read_source', 'read_pink'
 
 def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0)
 				energy:		0.0, $							; beam energy (mono), maximum energy (continuum)
@@ -1753,7 +1753,7 @@ n_els = 10													; maximum number of characteristic elements
 filter = define( /filter)
 
 ; N.B.	If change size of data[], E[], etc. in spectrum, or
-;		number of filters (n_filters above), then must fix 'read_source'
+;		number of filters (n_filters above), then must fix 'read_source', 'read_pink'
 
 def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0)
 				energy:		0.0, $							; beam energy (mono), maximum energy (continuum)
@@ -1816,7 +1816,7 @@ n_els = 10													; maximum number of characteristic elements
 filter = define( /filter)
 
 ; N.B.	If change size of data[], E[], etc. in spectrum, or
-;		number of filters (n_filters above), then must fix 'read_source'
+;		number of filters (n_filters above), then must fix 'read_source', 'read_pink'
 
 def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0)
 				energy:		0.0, $							; beam energy (mono), maximum energy (continuum)
@@ -1881,7 +1881,7 @@ filter = define( /filter)
 mirror = { title:'', file:''}								; link to CXRO data file
 
 ; N.B.	If change size of data[], E[], etc. in spectrum, or
-;		number of filters (n_filters above), then must fix 'read_source'
+;		number of filters (n_filters above), then must fix 'read_source', 'read_pink'
 
 def_struct = {	continuum:	0, $							; continuum spectrum (1), or mono source (0)
 				energy:		0.0, $							; beam energy (mono), maximum energy (continuum)

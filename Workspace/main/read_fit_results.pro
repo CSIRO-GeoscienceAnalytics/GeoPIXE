@@ -19,7 +19,7 @@ function read_fit_results, F, error=error
 ;						10-19	tweek lines
 ;						20-*	element peak area
 ;
-;	Note: The legal values of ORG and RORG are such that ORG-RORG equals 10.
+;	Note: The legal values of ORG and RORG are such that ORG-RORG always equals 10.
 ;
 ;--------------------------------------------------------------------------------------
 
