@@ -59,7 +59,7 @@ pro source_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressu
 							'Desired energies: '+str_tidy(min(E))+' to '+str_tidy(max(E))]
 			return
 		endif
-		poly_rel[q] = interpol( (*p).poly.trans[q2], (*p).poly.etrans[q2], E[q])	; don't trust 'interpol' beyond E range
+		poly_rel[q] = interpol( (*p).poly.trans[q2] > 0.0, (*p).poly.etrans[q2], E[q])	; don't trust 'interpol' beyond E range
 		gain = (*p).poly.gain * poly_rel											; flux gain of polycapillary versus E
 		solid = 1.0e+3 * !pi * ((*p).poly.pinhole/2.)^2 / (*p).poly.distance^2		; solid-angle of pin-hole (msr)
 

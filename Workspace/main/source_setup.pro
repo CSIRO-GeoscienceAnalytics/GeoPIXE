@@ -1037,9 +1037,17 @@ endif
 
 	if (*p).poly.mode eq 1 then begin
 		mode = 2
+		map_poly = 1
+		map_mono = 0
 	endif else if (*p).mono.mode eq 1 then begin
 		mode = 1
-	endif else mode=0
+		map_poly = 0
+		map_mono = 1
+	endif else begin
+		mode=0
+		map_poly = 0
+		map_mono = 0
+	endelse
 	widget_control, (*pstate).optics_mode, set_combobox_select=mode
 	widget_control, (*pstate).omega_mapbase1, map=((*p).poly.mode ne 1)
 
@@ -1047,8 +1055,8 @@ endif
 	widget_control, (*pstate).mono_energy_text, set_value=str_tidy((*p).modata.mono[0])
 	widget_control, (*pstate).mono_bw_text, set_value=str_tidy((*p).modata.mono[1])
 	widget_control, (*pstate).mono_eff_text, set_value=str_tidy((*p).modata.mono[2])
-	widget_control, (*pstate).mono_mapbase1, map=(*p).mono.mode
-	widget_control, (*pstate).mono_mapbase2, map=(*p).mono.mode
+	widget_control, (*pstate).mono_mapbase1, map=map_mono
+	widget_control, (*pstate).mono_mapbase2, map=map_mono
 
 	q = where( (*p).poly.model eq (*pstate).poly_model)
 	if q[0] ne -1 then begin
@@ -1067,8 +1075,8 @@ endif
 	widget_control, (*pstate).poly_gain_text, set_value=str_tidy((*p).poly.gain)
 	widget_control, (*pstate).poly_energy_text, set_value=str_tidy((*p).poly.energy)
 	widget_control, (*pstate).poly_pinhole_text, set_value=str_tidy((*p).poly.pinhole)
-	widget_control, (*pstate).poly_mapbase1, map=(*p).poly.mode
-	widget_control, (*pstate).poly_mapbase2, map=(*p).poly.mode
+	widget_control, (*pstate).poly_mapbase1, map=map_poly
+	widget_control, (*pstate).poly_mapbase2, map=map_poly
 
 ;	filters
 
@@ -1554,7 +1562,7 @@ mono_mapbase2 = widget_base( opticsbase2, column=3, /base_align_right, ypad=0, x
 mbase1a = widget_base( mono_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( mbase1a, value='Energy:')
 mono_energy_text = widget_text( mbase1a, value=str_tidy((*p).modata.mono[0]), uname='mono-energy-text', /tracking, /editable, $
-					uvalue='Enter the energy of the centre of the monochromator window (keV). Alternatively, use the GREEN element button to pop-up ' + $
+					uvalue='Enter the energy of the centre of the monochromator (keV). Alternatively, use the GREEN element button to pop-up ' + $
 					"a periodic table to select centre energy based on element's Ka energy.", scr_xsize=pars_xsize)
 
 mbase1b = widget_base( mono_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
@@ -1565,7 +1573,7 @@ mono_bw_text = widget_text( mbase1b, value=str_tidy((*p).modata.mono[1]), uname=
 mbase1c = widget_base( mono_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( mbase1c, value='Eff:')
 mono_eff_text = widget_text( mbase1c, value=str_tidy((*p).modata.mono[2]), uname='mono-eff-text', /tracking, /editable, $
-					uvalue='Enter the transmission efficiency of the monochromator window (<1).', scr_xsize=pars_xsize)
+					uvalue='Enter the transmission efficiency of the monochromator (<1).', scr_xsize=pars_xsize)
 
 poly_mapbase2 = widget_base( opticsbase2, column=3, /base_align_right, ypad=0, xpad=0, space=3, /align_right, map=(*p).poly.mode)
 

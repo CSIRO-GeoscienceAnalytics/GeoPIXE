@@ -1135,7 +1135,17 @@ endif
 			src = read_source( F[0], error=err) 
 			if err eq 0 then (*(*p).source) = src
 		endif
+	endif else if (*p).beam.mode eq 7 then begin
+		source_file = ''
+		readu,2, source_file
+		F = file_requester(/read, filter = '*.pink', file=source_file, updir=3, /skip_if_exists, $
+			path=*(*pstate).path, title='Select the X-ray source parameter PINK beam file', /fix_filter)		; , group=(*pstate).lcm_file
+		if F[0] ne '' then begin
+			src = read_pink( F[0], error=err)
+			if err eq 0 then (*(*p).source) = src
+		endif
 	endif
+	
 	mono = ((*p).beam.mode le 5)
 	set_widget_text, (*pstate).source_text, (*(*p).source).file
 	widget_control, (*pstate).beam_mapbase_ZA, map=mono
@@ -1345,7 +1355,7 @@ endif
 	writeu,1, (*p).output_file
 	writeu,1, (*p).title
 	writeu,1, (*p).beam
-	if (*p).beam.mode eq 6 then writeu,1, (*(*p).source).file
+	if ((*p).beam.mode eq 6) or ((*p).beam.mode eq 7) then writeu,1, (*(*p).source).file
 	writeu,1, (*p).detector
 	writeu,1, (*p).target
 	writeu,1, (*p).emin, (*p).emax

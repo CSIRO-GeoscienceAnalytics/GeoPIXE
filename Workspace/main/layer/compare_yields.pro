@@ -1,34 +1,14 @@
-function sig_change, old, new, error=err
-
-; Flag a significant change in 'new' compared to 'old'
-; Assumes quantities should be positive.
-; Assumes "significance" is more than 1 ppm.
-
-	err = 1
-	if n_elements(old) eq 0 then return, 1
-	
-	sig = fix( old)
-	sig[*] = 1
-	if n_elements(new) ne n_elements(old) then return, sig
-	
-	err = 0
-	f = (new-old)/(old > 1.0e-35)
-	sig[*] = abs(f) gt 1.0e-6
-	return, sig
-end
-
-;------------------------------------------------------------------------------------
-
-pro compare_yields, files, output, error=err
+pro compare_yields, files, output, error=err, bad=bad
 
 ; Compare two yields files for consistency.
 ; Check input parameters first, such as beam, detector, layers.
 ; Compare 'yield' and 'intensity' results, but only for matching cases (Z, shell) with
 ; finite, non-zero yield results.
 ;
-; 'files' are input yield file names to compare. Prompts for these if missing.
+; 'files' are input yield file (2) names to compare. Prompts for these if missing.
 ; 'output' is a txt file report to create.
 ; 'err=1'	error reading yield files, or some crash.
+; 'bad=1'	an input parameter difference found.
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -42,7 +22,7 @@ pro compare_yields, files, output, error=err
 			n = n_elements(s)
 			c = 'Call stack: '
 			if n gt 2 then c = [c, s[1:n-2]]
-			warning,'Geo_yield2',['IDL run-time error caught.', '', $
+			warning,'compare_yields',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!Error_state.msg,'',c], /error
 			MESSAGE, /RESET
@@ -117,38 +97,30 @@ pro compare_yields, files, output, error=err
 		bad = 1
 	endif
 	if (*new).beam.continuum ne 0 then begin
-		if (*new).beam.model ne (*old).beam.model then begin
-			printf, lun,'	Beam continuum model changed (Ref=',(*old).beam.model,'    new=',(*new).beam.model,').'
-			bad = 1
-		endif
-		if (*new).beam.energy ne (*old).beam.energy then begin
-			printf, lun,'	Beam continuum energy changed (Ref=',(*old).beam.energy,'    new=',(*new).beam.energy,').'
-			bad = 1
-		endif
 		if strip_path((*new).beam.file) ne strip_path((*old).beam.file) then begin
 			printf, lun,'	Beam continuum file changed (Ref=',(*old).beam.file,'    new=',(*new).beam.file,').'
 			bad = 1
 		endif
-		if (*new).beam.modata.volts ne (*old).beam.modata.volts then begin
-			printf, lun,'	Beam continuum volts changed (Ref=',(*old).beam.modata.volts,'    new=',(*new).beam.modata.volts,').'
+		if strip_path((*new).beam.model) ne strip_path((*old).beam.model) then begin
+			printf, lun,'	Beam continuum model changed (Ref=',(*old).beam.model,'    new=',(*new).beam.model,').'
+			printf, lun,'		Therefore, cannot compare continuum beam parameters and spectra details.'
 			bad = 1
-		endif
-		if (*new).beam.modata.power ne (*old).beam.modata.power then begin
-			printf, lun,'	Beam continuum power changed (Ref=',(*old).beam.modata.power,'    new=',(*new).beam.modata.power,').'
-			bad = 1
-		endif
-		if (*new).beam.modata.phi ne (*old).beam.modata.phi then begin
-			printf, lun,'	Beam continuum phi changed (Ref=',(*old).beam.modata.phi,'    new=',(*new).beam.modata.phi,').'
-			bad = 1
-		endif
-		if (*new).beam.modata.eps ne (*old).beam.modata.eps then begin
-			printf, lun,'	Beam continuum eps changed (Ref=',(*old).beam.modata.eps,'    new=',(*new).beam.modata.eps,').'
-			bad = 1
-		endif
-		if (*new).beam.modata.anode.formula ne (*old).beam.modata.anode.formula then begin
-			printf, lun,'	Beam continuum anode formula changed (Ref=',(*old).beam.modata.anode.formula,'    new=',(*new).beam.modata.anode.formula,').'
-			bad = 1
-		endif
+		endif else begin
+			case (*new).beam.model of
+				1: begin
+					compare_source, [(*old).beam, (*new).beam], error=err, bad=bad1, lun=lun
+					bad = bad or bad1
+					end
+				2: begin
+					compare_pink, [(*old).beam, (*new).beam], error=err, bad=bad1, lun=lun
+					bad = bad or bad1
+					end
+				else: begin
+					printf, lun,'	Unknown beam continuum model (new=',(*new).beam.model,').'
+					end
+			endcase
+		endelse
+		
 	endif
 	if (*new).n_layers ne (*old).n_layers then begin
 		printf, lun,'	Layer number changed (Ref=',(*old).n_layers,'    new=',(*new).n_layers,').'
@@ -198,7 +170,7 @@ pro compare_yields, files, output, error=err
 				printf, lun,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+' not found in reference.'
 			endelse
 		endfor
-		sig = sig_change( x, y, error=err1)
+		sig = sig_change( x, y, tol=0.001, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			printf, lun,'Yields not consistent ...'
@@ -237,7 +209,7 @@ pro compare_yields, files, output, error=err
 				endfor
 			endif
 		endfor
-		sig = sig_change( x, y, error=err1)
+		sig = sig_change( x, y, tol=0.001, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			q_to_xy, q, n_lines_max, il,iz
@@ -279,7 +251,7 @@ pro compare_yields, files, output, error=err
 			endfor
 		endif
 	endfor
-	sig = sig_change( x, y, error=err1)
+	sig = sig_change( x, y, tol=0.001, error=err1)
 	q = where( sig ne 0, nq)
 	if nq gt 0 then begin
 		q_to_xy, q, n_lines_max, il,iz
@@ -310,7 +282,7 @@ pro compare_yields, files, output, error=err
 				endif
 			endif
 		endfor
-		sig = sig_change( x, y, error=err1)
+		sig = sig_change( x, y, tol=0.001, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			q_to_xy, q, n_dets, id,iz
@@ -355,7 +327,7 @@ pro compare_yields, files, output, error=err
 				endfor
 			endif
 		endfor
-		sig = sig_change( x, y, error=err1)
+		sig = sig_change( x, y, tol=0.001, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			q_to_xyz, q, n_dets,n_lines_max, id,il,iz
