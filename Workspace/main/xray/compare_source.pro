@@ -3,11 +3,13 @@ pro compare_source, files, output, error=err, bad=bad, lun=lun
 	; Compare two source files for consistency.
 	; Check input parameters first, such as source, continuum spectrum, filters.
 	;
-	; 'files' are input yield file names (2) to compare. Prompts for these if missing.
+	; 'files' are input source file names (2) to compare. 
+	; 			Prompts for these if missing.
+	; 			Can also pass source structures
 	; 'output' is a txt file report to create.
 	; 'lun=lun'	if a logical unit is input, then ignore 'output' and write/append to that file.
 	; 
-	; 'err=1'	error reading yield files, or some crash.
+	; 'err=1'	error reading source files, or some crash.
 	; 'bad=1'	an input parameter difference found.
 
 	COMPILE_OPT STRICTARR

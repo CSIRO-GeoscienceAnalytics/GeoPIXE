@@ -7,6 +7,11 @@ pro plot_maia_parameter, id, par, cgm=cgm, ps=ps, white=white, bw=bw, title=titl
 ;			show axes only for /true
 ; layout	layout file (e.g. "Maia_384C.csv")
 ; min, max	set display range
+; /cgm		CGM plot output
+; /ps		postscript output
+; /screen	screen output 
+;			else defaults to printer output, which will fallback to screen
+; /white	on white background, else black
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
