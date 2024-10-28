@@ -4,6 +4,8 @@
 ;	shell 'Shell' and at energies (MeV) 'E'.
 ;
 ;	Only E can be a vector (for Spline efficiency)
+;
+;	Cohen, D. D. and Harrigan, M., At. Data Nucl. Data Tables 33, 255 (1985)
 
 	if n_elements(gamma) eq 0 then gamma=0
 

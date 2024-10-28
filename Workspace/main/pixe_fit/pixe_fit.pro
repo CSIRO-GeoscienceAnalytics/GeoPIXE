@@ -888,8 +888,8 @@ start_fit:
 						emax:		(*peaks).emax, $		; max X-ray energy
 						z1:			(*peaks).z1, $			; beam Z1
 						a1:			(*peaks).a1, $			; beam A1
-						state:		(*peaks).state, $		; beam charge state
 						e_beam:		(*peaks).e_beam, $		; beam energy
+						state:		(*peaks).state, $		; beam charge state
 						theta:		(*peaks).theta, $		; detector angle (in plane)
 						phi:		(*peaks).phi, $			; detector angle (out of plane)
 						alpha:		(*peaks).alpha, $		; target rotation
@@ -950,6 +950,8 @@ start_fit:
 							shape:	beam_shape }, $			; beam shape options
 						norm:		replicate(1.0,n_els) }	; shape norm factors (calc in results-properties)
 
+;			order in struct to match that in 'read_fit_results' ...
+
 			ryield = { title:		(*peaks).title, $		; yield title
 						file:		(*peaks).file, $		; file name
 						yield:		(*peaks).yield, $		; yield for elements present (after multiphase loops)
@@ -957,8 +959,8 @@ start_fit:
 						emax:		(*peaks).emax, $		; max X-ray energy
 						z1:			(*peaks).z1, $			; beam Z1
 						a1:			(*peaks).a1, $			; beam A1
-						state:		(*peaks).state, $		; beam charge state
 						e_beam:		(*peaks).e_beam, $		; beam energy
+						state:		(*peaks).state, $		; beam charge state
 						theta:		(*peaks).theta, $		; detector angle (in plane)
 						phi:		(*peaks).phi, $			; detector angle (out of plane)
 						alpha:		(*peaks).alpha, $		; target rotation

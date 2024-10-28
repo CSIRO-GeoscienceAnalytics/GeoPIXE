@@ -180,6 +180,8 @@ cont:
 			readu,1, flux
 		endif
 
+;		order in struct to match that in 'pixe_fit' ...
+
 		yield= { title:		'', $					; yield title
 				file:		'', $					; file name
 				yield:		fltarr(n_els,n_layers), $	; yield for elements present

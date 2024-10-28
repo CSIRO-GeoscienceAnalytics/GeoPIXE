@@ -1,6 +1,7 @@
 	pro init_xsect
 ;
 ;	Read in PIXE cross-section data
+;	Cohen, D. D. and Harrigan, M., At. Data Nucl. Data Tables 33, 255 (1985)
 ;
 ;	The cross-section tables are based on 1 AMU.
 ;	Need to divide by A1 before interpolating.
