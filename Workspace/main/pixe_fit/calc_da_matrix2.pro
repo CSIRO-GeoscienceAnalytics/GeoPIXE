@@ -147,6 +147,7 @@ COMPILE_OPT STRICTARR
 
 ;print,'a=',a
 
+; Test scenarios (some ideas tested)
 ; enable_DA3: 
 ;	To set a threshold (minimum) value for element peaks, to make sure 
 ;	other elements (and Back1, Back2) keep clear of them (i.e DA matrix rows show
@@ -178,7 +179,7 @@ COMPILE_OPT STRICTARR
 			enable_DA5 = 0
 			end
 		3: begin									; use spectrum for 'f' weights
-			enable_DA4 = 0
+			enable_DA4 = 0							; this option set by "Single DA matrix (w/ Master Weights)"
 			enable_DA3 = 0							; Test DA6 uses this too, with a 
 			enable_DA5 = 1							; 'MPDA master weights' from plugin.
 			end
@@ -204,6 +205,8 @@ COMPILE_OPT STRICTARR
 	t = dfa[x,*]
 	df = t[*,q]
 	f = fit[x]
+
+;	This option set by "Single DA matrix (w/ Master Weights)" selection to 'Generate DA matrix'
 
 	if enable_DA5 then begin
 ;		file = file_requester( /read, filter='*.spec', path=extract_path((*pspec).file), title='Load "master" DA weight spectrum')
@@ -297,10 +300,10 @@ COMPILE_OPT STRICTARR
 		q2 = where( pq ge 0, nq2)
 		shell = ['','','L','M']
 		el = element_name( (*peaks).z[pq[q2]] ) + shell[ (*peaks).shell[pq[q2]]]
-		t = where( (*peaks).z[pq[q2]] eq 0)
+		t = where( (*peaks).z[pq[q2]] le 0)									;@10-24
 		if t[0] ne -1 then el[t] = name[org+pq[q2[t]]]
 		if back_mask then begin
-			if back2_non_zero then begin					;@9-19
+			if back2_non_zero then begin									;@9-19
 				el = ['Back1','Back2',el]
 				if use_mu_zero then mu_zero = [0.0,0.0, reform((*peaks).mu_zero[0,pq[q2]]) ]
 			endif else begin

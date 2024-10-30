@@ -1,6 +1,8 @@
 pro calc_da_merge_scatter, pars, peaks
 
 ;	Merge "Compton" and "elastic", if low 'eb', return as "scatter"
+;	This is for synchrotron case (both 'elastic' and 'Compton' peaks), but
+;	with a low beam energy, which cannot resolve these peaks properly.
 ;	
 ; Arguments:
 ; 	pars		pointer to saved DA pars struct from fit1

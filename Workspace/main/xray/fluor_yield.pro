@@ -1,6 +1,5 @@
 	FUNCTION FLUOR_YIELD, Zi, Ni, photo=photo
-
-
+;
 ;	Returns the fluorescent yield of the K, Li, Lii, Liii and Miv
 ;	subshells for Z= 15 - 92 from the parameterization of
 ;	M.O. Krause J. Phys. Chem. Ref Data 8 (1979) pp307

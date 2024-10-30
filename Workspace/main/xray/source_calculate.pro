@@ -18,8 +18,6 @@ pro source_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressu
 	if (*p).continuum eq 0 then return
 	error = 1
 
-	try_compton = 0										; test a Compton component
-
 	bin = 0.02											; energy bin (keV) for 0.1% bandwidth?
 	if (*p).mono.mode eq 0 then (*p).modata.mono[0] = 0.0
 	trans_thick = (*p).beam.thick
@@ -65,22 +63,18 @@ pro source_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressu
 
 		spec = 1.0e-3 * solid * spec * gain				; for 'ph/s/0.1%bandwidth' units
 		char = 1.0e-3 * solid * char * gain
+		
+		q3 = where( lines.e gt 0.)						;@10-24
+		lines.rel[q3] = lines.rel[q3] * interpol( (*p).poly.trans[q2] > 0.0, (*p).poly.etrans[q2], lines.E[q3])
+		for j=0, n_elements(lines.z)-1 do begin
+			lines.rel[*,j] = lines.rel[*,j] / lines.rel[0,j]
+		endfor		
 	endif else begin
 		solid = (*p).acceptance							; acceptance output solid-angle (msr) of system	
 		spec = 1.0e-3 * solid * spec					; for 'ph/s/0.1%bandwidth' units
 		char = 1.0e-3 * solid * char
 	endelse
 	
-	if try_compton then begin							; see what Compton scattered component looks like
-		compton = spec
-		compton_rayliegh = 3.							; ratio of Compton to elastic (e.g. light matrix)
-		noff = fix(3.0 / bin)							; but source anode will be heavy Z usually
-		nc = n_elements(spec)
-		compton[0:nc-1-noff] = compton[noff:nc-1]
-		compton[nc-noff:*] = 0.
-		spec = 0.5 * (spec + compton_rayliegh * gauss_smooth(compton,noff))
-	endif
-
 	spec2 = spec										; keep original at 20 eV 0.1% bandwidth bin
 	E2 = E
 	

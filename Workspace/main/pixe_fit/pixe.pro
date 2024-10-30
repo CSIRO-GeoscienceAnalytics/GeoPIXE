@@ -127,7 +127,7 @@ COMPILE_OPT STRICTARR
 
 ;	K beta enhancement ...
 
-	q = where( ((*peaks).z lt 50) and ((((*peaks).lines ge 4) and ((*peaks).lines le 8))  or  $
+	q = where( ((*peaks).z ge 1) and ((*peaks).z lt 50) and ((((*peaks).lines ge 4) and ((*peaks).lines le 8))  or  $
 						 (((*peaks).lines ge 10) and ((*peaks).lines le 12))) )
 	if q[0] ne -1 then beta_tail[q] = 2.
 

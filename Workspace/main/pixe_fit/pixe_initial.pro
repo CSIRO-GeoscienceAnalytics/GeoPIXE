@@ -84,7 +84,11 @@ COMPILE_OPT STRICTARR
 		if (*peaks).lines[0,k] eq line_index('elastic') then begin
 			name[org+k] = 'elastic'
 		endif else if (*peaks).lines[0,k] eq line_index('Compton') then begin
-			name[org+k] = 'Compton'
+			if (*peaks).z[k] lt 0 then begin									;@10-24
+				name[org+k] = 'c' + element_name( -(*peaks).z[k])				;@10-24
+			endif else begin
+				name[org+k] = 'Compton'
+			endelse
 		endif else begin
 			name[org+k] = element_name( (*peaks).z[k]) + ' ' + shells[ (*peaks).shell[k]]
 		endelse

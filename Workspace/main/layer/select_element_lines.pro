@@ -2,7 +2,11 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 			no_extras=no_extras
 
 ;	Prune down the full 'pyield' list to only include elements given by 'z'
-;	and 'shelli'. Add extra lines for XRF for Elastic and Compton.
+;	and 'shelli'. 
+;	
+;	Add extra lines for mono XRF for 'Elastic' and 'Compton'.
+;	Add 'Compton' peaks for beam.lines in Continuum source case.
+;	
 ;	Pass on 'el_free' to the peaks.free parameters.
 ;
 ;	use_m =	0		Detect shell=3 to mean 'K+L' (both shell=1 and 2), for 4 state buttons.
@@ -99,34 +103,12 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 			if nqc gt 0 then begin
 				nlc = n_elements( (*pyield).beam.lines.e[*,0]) < nk
 
-;				z2c = intarr(2*nqc)
-;;				z2c = [(*pyield).beam.lines.z[qc],(*pyield).beam.lines.z[qc]]
-;				shellc = [(*pyield).beam.lines.shell[qc],(*pyield).beam.lines.shell[qc]]
-;				freec = replicate(1,2*nqc)
-;				n_linesc = [(*pyield).beam.lines.n_lines[qc],(*pyield).beam.lines.n_lines[qc]]
-;				nk2 = n_elements((*pyield).beam.lines.e[*,0])
-;				linesc = transpose([replicate(line_index('Compton'),nqc,nlc),replicate(line_index('elastic'),nqc,nlc)])
-;				ec = transpose([transpose(energy_compton( (*pyield).beam.lines.e[0:nlc-1,qc], (*pyield).theta)),transpose((*pyield).beam.lines.e[0:nlc-1,qc])])
-;				intensityc = transpose([transpose((*pyield).beam.lines.rel[0:nlc-1,qc]),transpose((*pyield).beam.lines.rel[0:nlc-1,qc])])
-;				if (*pyield).array then begin
-;					ratio_yieldc = replicate( 1.0, n_det, 2*nqc)
-;					if tag_present('ratio_intensity', *pyield) then begin
-;						ratio_intensityc = replicate( 1.0, n_det, nk, 2*nqc)
-;					endif
-;				endif
-;				if use_mu_zero then begin
-;					mu_zeroc = replicate(0.1, nk, 2*nqc)
-;				endif	
-;				if n_layers gt 1 then begin
-;					yieldc = replicate(1.0, 2*nqc,n_layers)
-;				endif else begin
-;					yieldc = replicate(1.0, 2*nqc)
-;				endelse	
+;				Add only the Compton lines for now (main lines can be fitted in normal way) ...
+;				But change their intensity to match source lines, if 'match_source_intensity' set below.
+				match_source_intensity = 1						;@10-24, match intensities to source values
 
-;				Add only the Compton lines for now ...
-
-				z2c = intarr(nqc)
-;				z2c = [(*pyield).beam.lines.z[qc]]
+;				z2c = intarr(nqc)								; why are these set to zero, as they relate to an element?
+				z2c = -[(*pyield).beam.lines.z[qc]]				;@10-24, use negative Z for the added Comptons. Allows them being named in 'pixe_initial'
 				shellc = [(*pyield).beam.lines.shell[qc]]
 				freec = replicate(1,nqc)
 				n_linesc = [(*pyield).beam.lines.n_lines[qc]]
@@ -135,20 +117,32 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 				ec = transpose([transpose(energy_compton( (*pyield).beam.lines.e[0:nlc-1,qc], (*pyield).theta))])
 				intensityc = transpose([transpose((*pyield).beam.lines.rel[0:nlc-1,qc])])
 
-				if (*pyield).beam.poly.mode eq 1 then begin
-					if (*pyield).beam.poly.model eq 'XOS default' then begin
-;						intensityc = intensityc * xos_transmission(ec)				; @3-23
-						q1 = where( (ec le max((*pyield).beam.poly.etrans)) and (ec ge min((*pyield).beam.poly.etrans)) and (ec gt 0.), nq1)
-						q2 = where( (*pyield).beam.poly.etrans gt 0., nq2)
-						if (nq1 eq 0) or (nq2 eq 0) then begin
-							warning,'select_element_lines', ['Polycapillary table does not overlap with desired energies.', $
-											'Table spans energies: '+str_tidy(min((*pyield).beam.poly.etrans))+' to '+str_tidy(max((*pyield).beam.poly.etrans)), $
-											'Desired energies: '+str_tidy(min(ec))+' to '+str_tidy(max(ec))]
-						endif else begin
-							intensityc[q1] = intensityc[q1] * interpol( (*pyield).beam.poly.trans[q2], (*pyield).beam.poly.etrans[q2], ec[q1])
-						endelse
-					endif
+;				For any elements in source list, change the intensity for their lines found in normal list ...
+;				This assumes that lines in spectrum dominated by scattering from the source, rather than fluorescence of the target.
+
+				if match_source_intensity then begin
+					for j=0,nqc-1 do begin
+						qt = where( z2 eq abs(z2c[j]), nqt)
+						if nqt ge 1 then begin
+							(*pyield).intensity[0:n_linesc[j]-1,q[qt[0]]] = intensityc[0:n_linesc[j]-1,j]
+						endif
+					endfor
 				endif
+								
+;				if (*pyield).beam.poly.mode eq 1 then begin							;@10-24 commented out (done in 'source_calculate' now)
+;					if (*pyield).beam.poly.model eq 'XOS default' then begin
+;;						intensityc = intensityc * xos_transmission(ec)				;@3-23
+;						q1 = where( (ec le max((*pyield).beam.poly.etrans)) and (ec ge min((*pyield).beam.poly.etrans)) and (ec gt 0.), nq1)
+;						q2 = where( (*pyield).beam.poly.etrans gt 0., nq2)
+;						if (nq1 eq 0) or (nq2 eq 0) then begin
+;							warning,'select_element_lines', ['Polycapillary table does not overlap with desired energies.', $
+;											'Table spans energies: '+str_tidy(min((*pyield).beam.poly.etrans))+' to '+str_tidy(max((*pyield).beam.poly.etrans)), $
+;											'Desired energies: '+str_tidy(min(ec))+' to '+str_tidy(max(ec))]
+;						endif else begin
+;							intensityc[q1] = intensityc[q1] * interpol( (*pyield).beam.poly.trans[q2], (*pyield).beam.poly.etrans[q2], ec[q1])
+;						endelse
+;					endif
+;				endif
 
 				if (*pyield).array then begin
 					ratio_yieldc = replicate( 1.0, n_det, nqc)
@@ -171,7 +165,7 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 				endfor
 			endif else add_lines=0
 		endif else begin
-			z2c = [0,0]
+			z2c = [0,0]								; These zero to zero as they relate to the beam, not an element.
 			shellc = [2,3]
 			freec = [1,1]
 			n_linesc = [1,1]
@@ -202,7 +196,7 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 		endelse
 
 		if add_lines then begin
-			n1 = n_elements(z2)
+			n1 = n_elements(z2)							; z2, shell, n_lines already filtered by 'q'
 			n2 = n_elements(z2c)
 			z2 = [z2, z2c]
 			n_els = n1+n2
@@ -234,7 +228,7 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 				mu_zero[*,0:n1-1] = (*pyield).mu_zero[*,q]
 				mu_zero[0:nlm-1,n1:n1+n2-1] = mu_zeroc[0:nlm-1,*]
 			endif
-			yield = [yield,yieldc]		
+			yield = [yield,yieldc]	
 		endif
 	endif
 

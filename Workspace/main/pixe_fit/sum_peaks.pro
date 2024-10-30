@@ -52,7 +52,7 @@ pro sum_peaks, a, mask, name, note, do_tail, org, na, peaks, new=new, $
 			x = indgen(n_lines[i])
 			ar[k+x] = area[i] * (*peaks).intensity[0:n_lines[i]-1,i]
 			e[k+x] = (*peaks).e[0:n_lines[i]-1,i]
-			el[k+x] = element_name( (*peaks).z[i]) + ' ' + line_id( (*peaks).lines[0:n_lines[i]-1,i])
+			el[k+x] = element_name( abs((*peaks).z[i])) + ' ' + line_id( (*peaks).lines[0:n_lines[i]-1,i])		;10-24
 			id[k+x] =(*peaks).lines[0:n_lines[i]-1,i]
 			k = k + n_lines[i]
 		endif
