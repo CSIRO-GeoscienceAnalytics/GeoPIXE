@@ -1,14 +1,15 @@
-pro compare_pink, files, output, error=err, bad=bad, lun=lun
+pro compare_pink, files, output, error=err, bad=bad, lun=lun, tol=tol
 
-	; Compare two pink beam files for consistency.
-	; Check input parameters first, such as source, continuum spectrum, filters.
-	;
-	; 'files' are input yield file names (2) to compare. Prompts for these if missing.
-	; 'output' is a txt file report to create.
-	; 'lun=lun'	if a logical unit is input, then ignore 'output' and write/append to that file.
-	; 
-	; 'err=1'	error reading yield files, or some crash.
-	; 'bad=1'	an input parameter difference found.
+; Compare two pink beam files for consistency.
+; Check input parameters first, such as source, continuum spectrum, filters.
+;
+; 'files' are input yield file names (2) to compare. Prompts for these if missing.
+; 'output' is a txt file report to create.
+; 'lun=lun'	if a logical unit is input, then ignore 'output' and write/append to that file.
+; 
+; 'err=1'	error reading yield files, or some crash.
+; 'bad=1'	an input parameter difference found.
+; 'tol'		fractional tolerance to use for yiel
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -31,6 +32,10 @@ pro compare_pink, files, output, error=err, bad=bad, lun=lun
 		endif
 	endif
 	local = 1
+
+; Use tol = 0.001 as default for model value tests
+
+	if n_elements(tol) eq 0 then tol = 0.001
 	if n_elements(lun) ne 0 then local=0
 	
 	err = 1
@@ -234,7 +239,7 @@ pro compare_pink, files, output, error=err, bad=bad, lun=lun
 			printf, lun,'PINK beam Parameters consistent.'
 		endelse
 
-		sig = sig_change( old.spectrum.e, new.spectrum.e, tol=0.001, error=err1)
+		sig = sig_change( old.spectrum.e, new.spectrum.e, tol=tol, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			printf, lun,'	Derived Pink beam spectrum E not consistent ...'
@@ -244,7 +249,7 @@ pro compare_pink, files, output, error=err, bad=bad, lun=lun
 					format='(6x,I7,3x,G10.3,G10.3)'
 			endfor
 		endif
-		sig = sig_change( old.spectrum.data, new.spectrum.data, tol=0.001, error=err1)
+		sig = sig_change( old.spectrum.data, new.spectrum.data, tol=tol, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			printf, lun,'	Derived Pink beam spectrum Data not consistent ...'

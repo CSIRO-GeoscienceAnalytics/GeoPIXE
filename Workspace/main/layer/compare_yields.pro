@@ -1,4 +1,4 @@
-pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=pel
+pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=pel, tol=tol
 
 ; Compare two yields files for consistency.
 ; Check input parameters first, such as beam, detector, layers.
@@ -15,6 +15,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 ; el		vector of pointers to El names for /basic mode
 ; 'err=1'	error reading yield files, or some crash.
 ; 'bad=1'	an input parameter difference found.
+; 'tol'		fractional tolerance to use for yields
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -39,6 +40,10 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 	err = 1
 	local = 1
 	bad = 0
+
+; Use tol=0.001 as default for model value tests
+
+	if n_elements(tol) eq 0 then tol = 0.001
 	if n_elements(lun) ne 0 then local=0
 	if n_elements(basic) eq 0 then basic=0
 	if basic then begin
@@ -239,7 +244,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 					printf, lun,'	Element ='+new_el[i]+' not found in reference.'
 				endelse
 			endfor
-			sig = sig_change( x, y, tol=0.001, error=err1)
+			sig = sig_change( x, y, tol=tol, error=err1)
 			q = where( sig ne 0, nq)
 			if nq gt 0 then begin
 				printf, lun,'Yields not consistent ...'
@@ -275,7 +280,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 					printf, lun,'	Element Z='+str_tidy((*new).z[i])+' ('+element_name((*new).z[i])+'), shell='+str_tidy((*new).shell[i])+' not found in reference.'
 				endelse
 			endfor
-			sig = sig_change( x, y, tol=0.001, error=err1)
+			sig = sig_change( x, y, tol=tol, error=err1)
 			q = where( sig ne 0, nq)
 			if nq gt 0 then begin
 				printf, lun,'Yields not consistent ...'
@@ -314,7 +319,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 					endfor
 				endif
 			endfor
-			sig = sig_change( x, y, tol=0.001, error=err1)
+			sig = sig_change( x, y, tol=tol, error=err1)
 			q = where( sig ne 0, nq)
 			if nq gt 0 then begin
 				q_to_xy, q, n_lines_max, il,iz
@@ -357,7 +362,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 				endfor
 			endif
 		endfor
-		sig = sig_change( x, y, tol=0.001, error=err1)
+		sig = sig_change( x, y, tol=tol, error=err1)
 		q = where( sig ne 0, nq)
 		if nq gt 0 then begin
 			q_to_xy, q, n_lines_max, il,iz
@@ -388,7 +393,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 					endif
 				endif
 			endfor
-			sig = sig_change( x, y, tol=0.001, error=err1)
+			sig = sig_change( x, y, tol=tol, error=err1)
 			q = where( sig ne 0, nq)
 			if nq gt 0 then begin
 				q_to_xy, q, n_dets, id,iz
@@ -433,7 +438,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 					endfor
 				endif
 			endfor
-			sig = sig_change( x, y, tol=0.001, error=err1)
+			sig = sig_change( x, y, tol=tol, error=err1)
 			q = where( sig ne 0, nq)
 			if nq gt 0 then begin
 				q_to_xyz, q, n_dets,n_lines_max, id,il,iz
