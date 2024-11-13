@@ -76,13 +76,17 @@ pro build_database, lun, from
 	common c_working_dir, geopixe_root
 	common c_working_dir3, workspace_root
 
-	cd, current=now
+	current_path = !path			; current !path
+	cd, '../main'					; move from project or 'geopixe' to 'main' dir, if necessary
+	cd, current=now					; current working dir
+
 	fp = file_search( workspace_root + from)
 	nfp = n_elements(fp)
 	if nfp gt 0 then begin
 		printf, lun, 'print,"------------------------------------------------------------------"'
 		printf, lun, 'print,"Project: Database build"'
 		printf, lun, '.full_reset_session'
+		printf, lun, '!path = "' + current_path + '"'
 		printf, lun, '!path = !path + ";' + expand_path('+'+now) + ';'+fp[0]+'"'
 ;		printf, lun, 's = strsplit(!path,";",/extract)'
 ;		printf, lun, 'for i=0,n_elements(s)-1 do print,s[i]'
