@@ -93,7 +93,7 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 	
 	if local then begin
 		printf, lun,'-------------------------------------------------------------------------------------'
-		printf, lun,'Setup parameters ...'
+		printf, lun,'Yield Setup parameters ...'
 	endif
 	bad = 0
 	

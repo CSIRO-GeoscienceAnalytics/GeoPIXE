@@ -99,11 +99,11 @@ pro compare_fits, files, output, error=err, bad=bad
 		bad = 1
 	endif
 	if (*new[k]).tweek.el ne -1 then begin
-		printf, lun,'	New "tweek" active. Warning.'
+		printf, lun,'	New "tweek" active. Warning *****.'
 		bad = 1
 	endif
 	if (*old[k]).tweek.el ne -1 then begin
-		printf, lun,'	Ref "tweek" active. Warning.'
+		printf, lun,'	Ref "tweek" active. Warning *****.'
 		bad = 1
 	endif
 	
@@ -251,7 +251,8 @@ pro compare_fits, files, output, error=err, bad=bad
 		shell = (*new[k]).el.shell
 		name = (*new[k]).el.name
 		for i=0,(*new[k]).n_els-1 do begin
-			q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]), nq)
+			q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]) $
+							and ((*new[k]).el.name ne 'Compton') and ((*new[k]).el.name ne 'elastic') and ((*new[k]).el.name ne 'sum'), nq)
 			if nq ge 1 then begin
 				x[*,i] = (*old[k]).array.rgamma[*,q[0]]
 				y[*,i] = (*new[k]).array.rgamma[*,i]
@@ -328,14 +329,15 @@ pro compare_fits, files, output, error=err, bad=bad
 	x = fltarr( (*new[k]).n_els)
 	y = fltarr( (*new[k]).n_els)
 	for i=0,(*new[k]).n_els-1 do begin
-		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]), nq)
+		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]) $
+					and ((*new[k]).el.name ne 'Compton') and ((*new[k]).el.name ne 'elastic') and ((*new[k]).el.name ne 'sum'), nq)
 		if nq ge 1 then begin
 			x[i] = (*old[k]).counts_per_ppm_uc[q[0]]
 			y[i] = (*new[k]).counts_per_ppm_uc[i]
-		endif else begin
+		endif else if ((*new[k]).el.name[i] ne 'Compton') and ((*new[k]).el.name[i] ne 'elastic') and ((*new[k]).el.name[i] ne 'sum') then begin
 ;			warning,'compare_yields','Element Z='+str_tidy((*new[k]).el.z[i])+', shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
 			printf, lun,'	Element Z='+str_tidy((*new[k]).el.z[i])+' ('+(*new[k]).el.name[i]+'), shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
-		endelse
+		endif
 	endfor
 	sig = sig_change( x, y, tol=tol_model, error=err1)
 	q = where( sig ne 0, nq)
@@ -350,19 +352,45 @@ pro compare_fits, files, output, error=err, bad=bad
 		printf, lun,'counts_per_ppm_uc all consistent.'
 	endelse
 
+	if bad then begin
+;		return
+	endif else begin
+		printf, lun,'Fit Parameters consistent.'
+	endelse
+
 	printf, lun,'-------------------------------------------------------------------------------------'
+
+	if sig_change( (*old[k]).fit.rms, (*new[k]).fit.rms, tol=tol_fits, error=err1) then begin
+		printf, lun,'fit.rms not consistent: ref=',(*old[k]).fit.rms, ' new=',(*new[k]).fit.rms
+	endif
+	if sig_change( (*old[k]).spectrum.cal.a, (*new[k]).spectrum.cal.a, tol=tol_fits, error=err1) then begin
+		printf, lun,'spectrum.cal.a not consistent: ref=',(*old[k]).spectrum.cal.a, ' new=',(*new[k]).spectrum.cal.a
+	endif
+	if sig_change( (*old[k]).spectrum.cal.b, (*new[k]).spectrum.cal.b, tol=tol_fits, error=err1) then begin
+		printf, lun,'spectrum.cal.b not consistent: ref=',(*old[k]).spectrum.cal.b, ' new=',(*new[k]).spectrum.cal.b
+	endif
+	if sig_change( (*old[k]).spectrum.fwhm.w0, (*new[k]).spectrum.fwhm.w0, tol=tol_fits, error=err1) then begin
+		printf, lun,'spectrum.fwhm.w0 not consistent: ref=',(*old[k]).spectrum.fwhm.w0, ' new=',(*new[k]).spectrum.fwhm.w0
+	endif
+	if sig_change( (*old[k]).spectrum.fwhm.w1, (*new[k]).spectrum.fwhm.w1, tol=tol_fits, error=err1) then begin
+		printf, lun,'spectrum.fwhm.w1 not consistent: ref=',(*old[k]).spectrum.fwhm.w1, ' new=',(*new[k]).spectrum.fwhm.w1
+	endif
+	if sig_change( (*old[k]).nlinear.pileup, (*new[k]).nlinear.pileup, tol=tol_fits, error=err1) then begin
+		printf, lun,'spectrum.nlinear.pileup not consistent: ref=',(*old[k]).nlinear.pileup, ' new=',(*new[k]).nlinear.pileup
+	endif
 
 	x = fltarr( (*new[k]).n_els)
 	y = fltarr( (*new[k]).n_els)
 	for i=0,(*new[k]).n_els-1 do begin
-		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]), nq)
+		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i])$
+					and ((*new[k]).el.name ne 'Compton') and ((*new[k]).el.name ne 'elastic') and ((*new[k]).el.name ne 'sum'), nq)
 		if nq ge 1 then begin
 			x[i] = (*old[k]).conc[q[0]]
 			y[i] = (*new[k]).conc[i]
-		endif else begin
+		endif else if ((*new[k]).el.name[i] ne 'Compton') and ((*new[k]).el.name[i] ne 'elastic') and ((*new[k]).el.name[i] ne 'sum') then begin
 ;			warning,'compare_yields','Element Z='+str_tidy((*new[k]).el.z[i])+', shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
 			printf, lun,'	Element Z='+str_tidy((*new[k]).el.z[i])+' ('+(*new[k]).el.name[i]+'), shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
-		endelse
+		endif
 	endfor
 	sig = sig_change( x, y, tol=tol_fits, error=err1)
 	q = where( sig ne 0, nq)
@@ -380,14 +408,15 @@ pro compare_fits, files, output, error=err, bad=bad
 	x = fltarr( (*new[k]).n_els)
 	y = fltarr( (*new[k]).n_els)
 	for i=0,(*new[k]).n_els-1 do begin
-		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]), nq)
+		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i])$
+						and ((*new[k]).el.name ne 'Compton') and ((*new[k]).el.name ne 'elastic') and ((*new[k]).el.name ne 'sum'), nq)
 		if nq ge 1 then begin
 			x[i] = (*old[k]).error[q[0]]
 			y[i] = (*new[k]).error[i]
-		endif else begin
+		endif else if ((*new[k]).el.name[i] ne 'Compton') and ((*new[k]).el.name[i] ne 'elastic') and ((*new[k]).el.name[i] ne 'sum') then begin
 			;			warning,'compare_yields','Element Z='+str_tidy((*new[k]).el.z[i])+', shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
 			printf, lun,'	Element Z='+str_tidy((*new[k]).el.z[i])+' ('+(*new[k]).el.name[i]+'), shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
-		endelse
+		endif
 	endfor
 	sig = sig_change( x, y, tol=tol_fits, error=err1)
 	q = where( sig ne 0, nq)
@@ -405,14 +434,15 @@ pro compare_fits, files, output, error=err, bad=bad
 	x = fltarr( (*new[k]).n_els)
 	y = fltarr( (*new[k]).n_els)
 	for i=0,(*new[k]).n_els-1 do begin
-		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]), nq)
+		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i])$
+						and ((*new[k]).el.name ne 'Compton') and ((*new[k]).el.name ne 'elastic') and ((*new[k]).el.name ne 'sum'), nq)
 		if nq ge 1 then begin
 			x[i] = (*old[k]).mdl[q[0]]
 			y[i] = (*new[k]).mdl[i]
-		endif else begin
+		endif else if ((*new[k]).el.name[i] ne 'Compton') and ((*new[k]).el.name[i] ne 'elastic') and ((*new[k]).el.name[i] ne 'sum') then begin
 			;			warning,'compare_yields','Element Z='+str_tidy((*new[k]).el.z[i])+', shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
 			printf, lun,'	Element Z='+str_tidy((*new[k]).el.z[i])+' ('+(*new[k]).el.name[i]+'), shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
-		endelse
+		endif
 	endfor
 	sig = sig_change( x, y, tol=tol_fits, error=err1)
 	q = where( sig ne 0, nq)
@@ -430,14 +460,15 @@ pro compare_fits, files, output, error=err, bad=bad
 	x = fltarr( (*new[k]).n_els)
 	y = fltarr( (*new[k]).n_els)
 	for i=0,(*new[k]).n_els-1 do begin
-		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i]), nq)
+		q = where( ((*old[k]).el.z eq (*new[k]).el.z[i]) and ((*old[k]).el.shell eq (*new[k]).el.shell[i])$
+						and ((*new[k]).el.name ne 'Compton') and ((*new[k]).el.name ne 'elastic') and ((*new[k]).el.name ne 'sum'), nq)
 		if nq ge 1 then begin
 			x[i] = (*old[k]).area[q[0]]
 			y[i] = (*new[k]).area[i]
-		endif else begin
+		endif else if ((*new[k]).el.name[i] ne 'Compton') and ((*new[k]).el.name[i] ne 'elastic') and ((*new[k]).el.name[i] ne 'sum') then begin
 			;			warning,'compare_yields','Element Z='+str_tidy((*new[k]).el.z[i])+', shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
 			printf, lun,'	Element Z='+str_tidy((*new[k]).el.z[i])+' ('+(*new[k]).el.name[i]+'), shell='+str_tidy((*new[k]).el.shell[i])+' not found in reference.'
-		endelse
+		endif
 	endfor
 	sig = sig_change( x, y, tol=tol_fits, error=err1)
 	q = where( sig ne 0, nq)
@@ -452,12 +483,6 @@ pro compare_fits, files, output, error=err, bad=bad
 		printf, lun,'Area all consistent.'
 	endelse
 
-	if bad then begin
-;		return
-	endif else begin
-		printf, lun,'Parameters consistent.'
-	endelse
-			
   endfor					;==================================================
 	
 	err = 0
