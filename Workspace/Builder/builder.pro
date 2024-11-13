@@ -95,10 +95,11 @@ pro builder, options=options
 ; Build GeoPIXE SAV files selectively or in bulk.
 ;
 ; Builds a script "build.spro" with commands to perform the build of GeoPIXE components.
-; The compiled routines are saved to a SAV file ("build.spro") in the "geopixe" runtime directory
-; (or to "main" if run from IDLDE).
+; The compiled routines are saved to a file ("build.spro") in the "geopixe" runtime directory,
+; if builder is run by double clicking on 'builder.sav', or to "main" if run by name from IDLDE.
 ;
-; To complete the build, the script needs to be run at the IDL command line using "@build.spro".
+; To complete the build, the script needs to be run at the IDL command line using "@build.spro". First,
+; use the "cd" command at the IDL prompt to set the working directory to where 'build.spro' is located.
 ; We use the extension ".spro" here as this cannot be compiled inadvertently as a normal procedure.
 ;
 ; Use options (string array) to select from the following:
@@ -114,7 +115,7 @@ pro builder, options=options
 ;	main		build main GeoPIXE program and library (to geopixe)
 ;	browse		build all data browser projects (to geopixe)
 ;	misc		build miscellaneous tools, such as geopixe_index, idl_query, ... (to geopixe)
-;	database	build GeoPIXE database from files, stored in common, saved in SAV file (to geopixe)
+;	database	build GeoPIXE database from files (stored as 'common' in SAV file "geopixe2.sav") (to geopixe)
 ;
 ; If no 'options' is provided, you will be prompted for them.
 
@@ -237,14 +238,12 @@ pro builder, options=options
 	if enable['all'] or enable['device'] then begin
 		build_project, lun, 'Device *', 'device__define', 'interface'
 	endif
-	warning,'builder',['Build script output written to file:,','"'+now+path_sep()+'build.spro".', $
-			'','Use "@build.spro" at the IDL command line to perform the build, ' + $
-			'after a "cd" to the directory: '+now+path_sep(),'', $
-			'NOTE: Close this popup first.'],/info	
-
-done:
 	printf, lun, 'print,"All done."'
 	close_file, lun
+
+	warning,'builder',['Build script output written to file:,','"'+now+path_sep()+'build.spro".', $
+			'','Use "@build.spro" at the IDL command line to perform the build, ' + $
+			'after a "cd" to the directory: '+now+path_sep() ],/info	
 	return
 
 bad_open:
@@ -253,4 +252,9 @@ bad_open:
 bad_write:
 	warning,'builder','error writing to "build.spro" file.'
 	goto, done
+
+done:
+	printf, lun, 'print,"Error return."'
+	close_file, lun
+	return
 end

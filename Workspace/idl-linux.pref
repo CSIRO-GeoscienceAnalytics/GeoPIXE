@@ -22,6 +22,6 @@
 ####################################################################
 
 IDL_PATH : <IDL_DEFAULT>
-IDL_STARTUP : /src/GeoPIXE-open-source/Workspace/GeoPIXE/startup.spro
-IDL_START_DIR : /src/GeoPIXE-open-source/Workspace/GeoPIXE
+IDL_STARTUP : /src/GeoPIXE-open-source/Workspace/main/startup.spro
+IDL_START_DIR : /src/GeoPIXE-open-source/Workspace/main
 IDL_PROMPT : "IDL open>"
