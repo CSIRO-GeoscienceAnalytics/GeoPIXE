@@ -1099,6 +1099,18 @@ endif
        Image_Blog_Browser, event
        end
 
+	'Compare_yields_Menu': begin
+		compare_yields
+		end
+		
+	'Compare_sources_Menu': begin
+		compare_source
+		end
+
+	'Compare_fits_Menu': begin
+		compare_fits
+		end
+
    'Help_User': begin
 	   	warning,'image',['','GeoPIXE Information (see the "Help" directory):', $
 	   		'','   Reference and users guide:', $
@@ -2272,6 +2284,14 @@ endif else wizard_menus=0L
 	
 	  W_MENU_69f = Widget_Button(W_MENU_60, UNAME='Blog_Browser_Menu' ,VALUE='Blog Browser (unlinked)')
 	endif
+
+; Test menus
+
+  W_MENU_80 = Widget_Button(Image_TLB_MBAR, UNAME='W_MENU_80', /MENU ,VALUE='Tests')
+
+  W_MENU_81 = Widget_Button(W_MENU_80, UNAME='Compare_yields_Menu' ,VALUE='Compare Yields')
+  W_MENU_82 = Widget_Button(W_MENU_80, UNAME='Compare_sources_Menu' ,VALUE='Compare Sources')
+  W_MENU_83 = Widget_Button(W_MENU_80, UNAME='Compare_fits_Menu' ,VALUE='Compare Fits')
 
 ; Help menus
 
