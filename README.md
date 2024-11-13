@@ -26,7 +26,7 @@ source, you will need an IDL license.
 ### Running GeoPIXE from the compiled 'geopixe' directory
 
 Once IDL is installed, you can run GeoPIXE simply by double clicking on "GeoPIXE.sav" in the
-'geopixe' folder within the 'workspace' tree. It will note the absence of a 'geopixe.conf' file,
+'geopixe' folder within the 'Workspace' tree. It will note the absence of a 'geopixe.conf' file,
 but will then create one for you in your [home]/.geopixe directory. For Linux, there is a bash 
 script in the 'Workspace/geopixe/bin/' directory to launch GeoPIXE. Just add 'bin' to your path.
 After downloading, you will need to enable execution of these scripts (chmod a+x bin/*).
@@ -77,11 +77,11 @@ However, this does not import project setting for building, etc. Building can be
 (see section “Building GeoPIXE”). But there are some settings that must be set now. For just the 
 “geopixe” and “Fortran” projects, right click and select “Properties” for each. For the “IDL project 
 properties” group, uncheck the option “update IDL path when project is opened or closed”, so that 
-these are never added to the IDL path. If these projects are open, close them using the right-click
+these are never added to the IDL path. If these projects are open, **close** them using the right-click
 "Close Project" option. Make sure they remain **closed**. You can also do that for the “Default” project, 
 if you are not using that. Check that the paths were set correctly (from your edited "idl-linux.pref" 
 file) by using menu "***Window->Preferences***" and select the "IDL" group from the tree on the left. 
-Check that the "Initial working directory" points to your Workspace/main path and that "Startup file" 
+Check that the "Initial working directory" points to your 'Workspace/main' path and that "Startup file" 
 points to "startup.spro" in this directory.
 
 ### Obtaining IDL

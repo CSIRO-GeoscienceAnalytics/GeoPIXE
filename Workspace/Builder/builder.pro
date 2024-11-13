@@ -15,7 +15,10 @@ pro build_project, lun, from, to, dir, resolve_all=resolve_all
 	common c_working_dir3, workspace_root
 	if n_elements(resolve_all) eq 0 then resolve_all=0
 
-	cd, current=now
+	current_path = !path			; current !path
+	cd, '../main'					; move from project or 'geopixe' to 'main' dir, if necessary
+	cd, current=now					; current working dir
+	
 	fp = file_search( workspace_root + from)
 	nfp = n_elements(fp)
 	if nfp gt 0 then begin
@@ -45,6 +48,7 @@ pro build_project, lun, from, to, dir, resolve_all=resolve_all
 				printf, lun, 'print,"------------------------------------------------------------------"'
 				printf, lun, 'print,"Project: '+fp[i]+'"'
 				printf, lun, '.full_reset_session'
+				printf, lun, '!path = ' + current_path
 				printf, lun, '!path = !path + ";' + expand_path('+'+now) + ';'+fp[i]+'"'
 ;				printf, lun, 's = strsplit(!path,";",/extract)'
 ;				printf, lun, 'for i=0,n_elements(s)-1 do print,s[i]'
@@ -176,7 +180,10 @@ pro builder, options=options
 		endif
 	endelse
 
-	cd, current=now
+	current_path = !path			; current !path
+	cd, '../main'					; move from project or 'geopixe' to 'main' dir, if necessary
+	cd, current=now					; current working dir
+
 	print,'Build from workspace root: '+workspace_root
 	print,'Create "build.spro" script: '+now+path_sep()+'build.spro'
 	print,'To build using this script use command: "@build.spro" from IDL command line.'
@@ -238,6 +245,7 @@ pro builder, options=options
 	if enable['all'] or enable['device'] then begin
 		build_project, lun, 'Device *', 'device__define', 'interface'
 	endif
+	
 	printf, lun, 'print,"All done."'
 	close_file, lun
 
@@ -247,10 +255,10 @@ pro builder, options=options
 	return
 
 bad_open:
-	warning,'builder','error opening "build.spro" file.'
+	warning,'builder','error opening "'+now+path_sep()+'"build.spro" file.'
 	goto, done
 bad_write:
-	warning,'builder','error writing to "build.spro" file.'
+	warning,'builder','error writing to "'+now+path_sep()+'"build.spro" file.'
 	goto, done
 
 done:
