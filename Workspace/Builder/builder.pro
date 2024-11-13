@@ -48,7 +48,7 @@ pro build_project, lun, from, to, dir, resolve_all=resolve_all
 				printf, lun, 'print,"------------------------------------------------------------------"'
 				printf, lun, 'print,"Project: '+fp[i]+'"'
 				printf, lun, '.full_reset_session'
-				printf, lun, '!path = ' + current_path
+				printf, lun, '!path = "' + current_path + '"'
 				printf, lun, '!path = !path + ";' + expand_path('+'+now) + ';'+fp[i]+'"'
 ;				printf, lun, 's = strsplit(!path,";",/extract)'
 ;				printf, lun, 'for i=0,n_elements(s)-1 do print,s[i]'
