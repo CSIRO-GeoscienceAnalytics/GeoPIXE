@@ -379,39 +379,46 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 ;		Check ratio_yield for non zero yields
 
 		n_dets = n_elements( (*new).ratio_yield[*,0])
+		old_array = 0
+		if n_elements( (*old).ratio_yield[*,0]) gt 1 then old_array=1
+		
 		if n_dets gt 1 then begin
-			x = fltarr( n_dets, (*new).n_els)
-			y = fltarr( n_dets, (*new).n_els)
-			z = (*new).z
-			shell = (*new).shell
-			for i=0,(*new).n_els-1 do begin
-				q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
-				if nq ge 1 then begin
-					if (*old).yield[q[0],0] gt 1.0e-19 then begin
-						x[*,i] = (*old).ratio_yield[*,q[0]]
-						y[*,i] = (*new).ratio_yield[*,i]
+			if old_array then begin
+				x = fltarr( n_dets, (*new).n_els)
+				y = fltarr( n_dets, (*new).n_els)
+				z = (*new).z
+				shell = (*new).shell
+				for i=0,(*new).n_els-1 do begin
+					q = where( ((*old).z eq (*new).z[i]) and ((*old).shell eq (*new).shell[i]), nq)
+					if nq ge 1 then begin
+						if (*old).yield[q[0],0] gt 1.0e-19 then begin
+							x[*,i] = (*old).ratio_yield[*,q[0]]
+							y[*,i] = (*new).ratio_yield[*,i]
+						endif
 					endif
-				endif
-			endfor
-			sig = sig_change( x, y, tol=tol, error=err1)
-			q = where( sig ne 0, nq)
-			if nq gt 0 then begin
-				q_to_xy, q, n_dets, id,iz
-				printf, lun,'ratio_yield not consistent ...'
-				printf, lun,'  Index    Z    Name   Shell  Detector   Ref        New'
-				for j=0,nq-1 do begin
-					printf, lun, q[j], z[iz[j]], element_name(z[iz[j]]), shell[iz[j]], id[j], x[id[j],iz[j]], y[id[j],iz[j]], $
-						format='(I6,I6,3x,A4,I7,I7,G11.4,G11.4)'
 				endfor
+				sig = sig_change( x, y, tol=tol, error=err1)
+				q = where( sig ne 0, nq)
+				if nq gt 0 then begin
+					q_to_xy, q, n_dets, id,iz
+					printf, lun,'ratio_yield not consistent ...'
+					printf, lun,'  Index    Z    Name   Shell  Detector   Ref        New'
+					for j=0,nq-1 do begin
+						printf, lun, q[j], z[iz[j]], element_name(z[iz[j]]), shell[iz[j]], id[j], x[id[j],iz[j]], y[id[j],iz[j]], $
+							format='(I6,I6,3x,A4,I7,I7,G11.4,G11.4)'
+					endfor
+				endif else begin
+					printf, lun,'ratio_yield all consistent.'
+				endelse
 			endif else begin
-				printf, lun,'ratio_yield all consistent.'
+				printf, lun,'"New" is an array detector, but "Ref" is not.'
 			endelse
 		endif
 
 ;		Check ratio_intensity for non zero yields
 
 		n_dets = n_elements( (*new).ratio_intensity[*,0,0])
-		if n_dets gt 1 then begin
+		if n_dets gt 1 and old_array then begin
 			n_lines_max = n_elements( (*new).ratio_intensity[0,*,0])
 			x = fltarr( n_dets, n_lines_max, (*new).n_els)
 			y = fltarr( n_dets, n_lines_max, (*new).n_els)
