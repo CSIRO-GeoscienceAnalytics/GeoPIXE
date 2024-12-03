@@ -8,7 +8,8 @@ The .metadata directory, which normally holds config for the IDL projects in Wor
 included in this archive. However, documentation is provided for setup of the Eclipse environment
 if so desired. At least some minimal setup will be required. It assumes at least IDL 8.8 is used.
 
-See the documentation "**doc/GeoPIXE Software Organization - open.pdf**" for Eclipse setup, an 
+See the documentation "**doc/Getting started with GeoPIXE.pdf**" to get started and
+"**doc/GeoPIXE Software Organization - open.pdf**" for Eclipse setup, an 
 overview of the program, its main areas of application for X-ray spectral analysis and imaging 
 using PIXE and synchtotron and laboratory X-ray beams, the software users guide, the organization 
 of the core software and its extensions (plugins and device objects) and building GeoPIXE and 
