@@ -1,5 +1,5 @@
 pro plot_corr, pstate, cgm=cgm, ps=ps, wmf=wmf, eps=eps, screen=screen, $
-		file=file, options=options
+		file=file, options=options, jpeg=jpeg, png=png
 
 ; Plot corr association within axes.
 ;
@@ -52,6 +52,8 @@ COMPILE_OPT STRICTARR
 			goto, cont
 		endif
 	endif
+	common c_window_12, window_12_open
+	if n_elements(window_12_open) lt 1 then window_12_open = 0
 
 	if ptr_valid((*pstate).p) eq 0 then return
 	p = (*pstate).p
@@ -61,11 +63,15 @@ COMPILE_OPT STRICTARR
 	if n_elements(ps) lt 1 then ps = 0
 	if n_elements(wmf) lt 1 then wmf = 0
 	if n_elements(eps) lt 1 then eps = 0
+	if n_elements(jpeg) lt 1 then jpeg = 0
+	if n_elements(png) lt 1 then png = 0
 	if n_elements(screen) lt 1 then screen = 0
 	if n_elements(file) lt 1 then begin
 		if cgm then file = 'Corr.cgm'
 		if wmf then file = 'Corr.wmf'
 		if eps then file = 'Corr.eps'
+		if jpeg then file = 'Corr.jpg'
+		if png then file = 'Corr.png'
 	endif
 
 	used_non_screen = 0
@@ -80,7 +86,7 @@ COMPILE_OPT STRICTARR
 	el1 = el_names[(*pstate).corr_x]
 	el2 = el_names[(*pstate).corr_y]
 
-	if (cgm or wmf or eps) then begin
+	if (cgm or wmf or eps or jpeg or png) then begin
 		F = file
 		ext = extract_extension(file)
 		F = strip_file_ext(file) + '-' + el1 + '-' + el2 + '.'+ext
@@ -98,6 +104,16 @@ COMPILE_OPT STRICTARR
 		used_non_screen = 1
 		set_device, 'PS', white=options.white, /landscape, /small, file=F, error=error
 		if error then goto, cont
+	endif else if png then begin
+		used_non_screen = 0
+		set_device, 'Z', white=options.white, aspect=(float(sy)/float(sx)), error=error
+		if error then goto, cont
+		screen = 1
+	endif else if jpeg then begin
+		used_non_screen = 0
+		set_device, 'Z', /true, white=options.white, aspect=(float(sy)/float(sx)), error=error
+		if error then goto, cont
+		screen = 1
 	endif else begin
 		if screen eq 0 then begin
 			if new_dialog_printersetup(/portrait) then begin
@@ -106,17 +122,35 @@ COMPILE_OPT STRICTARR
 		endif
 
 		if (used_non_screen eq 0) then begin
-			if (screen eq 1) then begin
+;			if (screen eq 1) then begin
 				xsize = 700
 				ysize = 600
+				
 				set_device, xwin, white=options.white
 				if !d.name eq xwin then begin
-					window,0, xsize=xsize, ysize=ysize
+;					window,0, xsize=xsize, ysize=ysize
+					if !d.name eq xwin then begin
+						Catch, ErrorNo
+						if (ErrorNo ne 0) then begin
+							Catch, /cancel
+							window_12_open = 0
+						endif
+						if window_12_open eq 0 then begin
+							r = sqrt( (float(sx)/float(sy)) / (float(xsize)/float(ysize)) )
+							xsize = xsize * r
+							ysize = ysize / r
+							window, 12, xsize=xsize, ysize=ysize, retain=retain
+							window_12_open = 1
+						endif
+						wset, 12
+						xsize = !d.x_size
+						ysize = !d.y_size
+					endif
 				endif
-			endif else begin
-				xsize = !d.x_size
-				ysize = !d.y_size
-			endelse
+;			endif else begin
+;				xsize = !d.x_size
+;				ysize = !d.y_size
+;			endelse
 		endif
 	endelse
 
@@ -133,6 +167,8 @@ COMPILE_OPT STRICTARR
 
 	x_ch_size = !d.x_ch_size * csize				; default character dimensions
 	y_ch_size = !d.y_ch_size * csize				; in device units
+
+	if (!d.name eq 'METAFILE') then y_ch_size=y_ch_size/1.6	; fix flaw in metadata device
 
 ;----------------------------------------------------------------------------
 
@@ -260,6 +296,9 @@ back:
 
 		steps = intarr(100)
 		tvlct, r,g,b, /get
+		red = r
+		green = g
+		blue = b
 		ns = count_steps( r[16:115], steps=q)
 		steps[q] = 1
 		ns = count_steps( g[16:115], steps=q)
@@ -452,13 +491,30 @@ back:
 
 	if used_non_screen then begin
 		device,/close								; a file was open
-		device, file='null'
+		on_ioerror, cont1
+		if !d.name ne 'PRINTER' then device, file='null'
+cont1:
+;		if wmf then begin
+;			on_ioerror, cont2
+;			set_plot, xwin
+;cont2:
+;			on_ioerror, cont
+;			file_move, Ftemp, F, /overwrite, /verbose
+;		endif
+	endif
+
+	if png then begin
+		c = tvrd()
+		write_png, F, c, red,green,blue
+	endif else if jpeg then begin
+		c = tvrd( /true)
+		write_jpeg, F, c, /true, quality=100
 	endif
 
 ;-------------------------------------------------------------------------------------------
 
 cont:
-	if used_non_screen then set_plot, xwin
+	if used_non_screen or png or jpeg then set_plot, xwin
 	!p.charsize = 1.0
 	!p.title = ''
 	!x.title = ''

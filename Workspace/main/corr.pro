@@ -137,7 +137,7 @@ endif
 		end
 
 	'Export_Menu': begin
-		corr_export, Event, /cgm
+		corr_export, Event, /jpeg
 		end
 
 	'Clear_Spline_Menu': begin

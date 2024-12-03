@@ -169,7 +169,7 @@ end
 
 ;-----------------------------------------------------------------
 
-pro Corr_Export, Event, cgm=cgm, wmf=wmf, eps=eps
+pro Corr_Export, Event, cgm=cgm, wmf=wmf, eps=eps, jpeg=jpeg
 
 COMPILE_OPT STRICTARR
 child = widget_info( event.top, /child)
@@ -178,6 +178,7 @@ widget_control, child, get_uvalue=pstate
 if n_elements(cgm) eq 0 then cgm=0
 if n_elements(wmf) eq 0 then wmf=0
 if n_elements(eps) eq 0 then eps=0
+if n_elements(jpeg) eq 0 then jpeg=0
 if ptr_valid( (*pstate).p) eq 0 then goto, done
 
 p = (*pstate).p
@@ -185,7 +186,7 @@ if ptr_good( p) eq 0 then return
 xanes_stack_test, p, xanes, n_el, el, el_xanes, z_found=z_found
 
 select = plot_corr_select( event.top, cgm=cgm, wmf=wmf, eps=eps, old_select=*(*pstate).pexport, $
-					path=*(*pstate).path, corr_pstate=pstate )
+					jpeg=jpeg, path=*(*pstate).path, corr_pstate=pstate )
 if select.error then goto, done
 
 ;goto, done     ; use this bypass if testing plot_image_select without /modal, etc.
@@ -219,6 +220,34 @@ endif else if select.plot.type eq 'METAFILE' then begin
     file = strip_file_m( file, /element)
 
     plot_corr, pstate, /wmf, file=file, options=select.plot
+
+endif else if select.plot.type eq 'JPEG' then begin
+   	file = find_file2( (*p).file)
+   	path = extract_path( file[0])
+   	if lenchr(path) eq 0 then path = *(*pstate).path
+   	file = strip_path( strip_file_ext( (*p).file)) + '-corr' + '.jpg'
+
+   	file = file_requester( /write, filter='*.jpg', path=*(*pstate).path, $
+   		file=file, title=name+'JPEG', group=event.top, /fix_filter)
+   	if strlen(file) lt 1 then goto, done
+   	file = strip_file_ext(file) + '.jpg'
+   	file = strip_file_m( file, /element)
+
+   	plot_corr, pstate, /jpeg, file=file, options=select.plot
+
+   endif else if select.plot.type eq 'PNG' then begin
+   	file = find_file2( (*p).file)
+   	path = extract_path( file[0])
+   	if lenchr(path) eq 0 then path = *(*pstate).path
+   	file = strip_path( strip_file_ext( (*p).file)) + '-corr' + '.png'
+
+   	file = file_requester( /write, filter='*.png', path=*(*pstate).path, $
+   		file=file, title=name+'PNG', group=event.top, /fix_filter)
+   	if strlen(file) lt 1 then goto, done
+   	file = strip_file_ext(file) + '.png'
+   	file = strip_file_m( file, /element)
+
+   	plot_corr, pstate, /png, file=file, options=select.plot
 
 endif else if select.plot.type eq 'PS' then begin
 	file = find_file2( (*p).file)

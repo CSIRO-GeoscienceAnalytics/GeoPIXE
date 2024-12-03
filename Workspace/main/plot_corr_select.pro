@@ -363,7 +363,7 @@ end
 ;-----------------------------------------------------------------
 
 function plot_corr_select, group, path=path, old_select=old_select, $
-		cgm=cgm, wmf=wmf, eps=eps, csv=csv, corr_pstate=corr_pstate
+		cgm=cgm, wmf=wmf, eps=eps, csv=csv, jpeg=jpeg, png=png, corr_pstate=corr_pstate
 
 ;	Select plot options, and elements.
 ;
@@ -407,6 +407,8 @@ function plot_corr_select, group, path=path, old_select=old_select, $
 	if n_elements(wmf) lt 1 then wmf=0
 	if n_elements(eps) lt 1 then eps=0
 	if n_elements(csv) lt 1 then csv=0
+	if n_elements(jpeg) lt 1 then jpeg=0
+	if n_elements(png) lt 1 then png=0
 	if n_elements(corr_pstate) lt 1 then corr_pstate=ptr_new()
 	n_els = n_elements(el_names)
 
@@ -420,15 +422,17 @@ function plot_corr_select, group, path=path, old_select=old_select, $
 	if wmf then plot_options.type = 'METAFILE'
 	if eps then plot_options.type = 'PS'
 	if csv then plot_options.type = 'CSV'
+	if jpeg then plot_options.type = 'JPEG'
+	if png then plot_options.type = 'PNG'
 
 	select = {plot:plot_options, error:0 }
 
 	output_titles = ['Computer Graphics Metafile (CGM)','Windows Metafile (WMF)', 'Encapsulated PostScript', $
-					'Default Printer','Spreadsheet CSV File']
+					'Default Printer','Spreadsheet CSV File','JPEG Graphics Image','PNG Graphics Image']
 	char_sizes = 0.4 + 0.2*findgen(19)
 	line_thicknesses = 0.4 + 0.2*findgen(19)
 	char_thicknesses = 0.4 + 0.2*findgen(19)
-	plot_types = ['CGM','METAFILE','PS','PRINTER','CSV']
+	plot_types = ['CGM','METAFILE','PS','PRINTER','CSV','JPEG','PNG']
 
 	xsize = 300
 	ysize = 500
