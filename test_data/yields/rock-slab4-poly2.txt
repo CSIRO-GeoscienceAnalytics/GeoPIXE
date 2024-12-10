@@ -1,0 +1,14 @@
+-------------------------------------------------------------------------------------
+Yield Setup parameters ...
+Source Parameters consistent.
+Yield Parameters consistent.
+-------------------------------------------------------------------------------------
+Layer        0 ...
+Yields all consistent.
+Intensities all consistent.
+-------------------------------------------------------------------------------------
+mu_zero all consistent.
+ratio_yield all consistent.
+ratio_intensity all consistent.
+All done.
+-------------------------------------------------------------------------------------

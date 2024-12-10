@@ -1,0 +1,15 @@
+=======================================================================================
+Setup parameters (results row        0) ...
+Yield Parameters consistent.
+-------------------------------------------------------------------------------------
+Layer        0 ...
+Yields all consistent.
+counts_per_ppm_uc all consistent.
+Fit Parameters consistent.
+-------------------------------------------------------------------------------------
+Conc all consistent.
+Error all consistent.
+MDL all consistent.
+Area all consistent.
+All done.
+-------------------------------------------------------------------------------------
