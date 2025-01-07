@@ -100,6 +100,7 @@ endif
 ;----------------------------------------------------------------------------
 
 path1 = extract_path( file1)
+file1 = file_requester(/read, filter='*.csv', updir=2, file=file1, /skip_if_exists)
 d = read_detector_layout( file1, maia=maia, error=error)
 if error or (maia eq 0) then return
 
