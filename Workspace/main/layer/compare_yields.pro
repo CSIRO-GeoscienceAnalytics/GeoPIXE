@@ -381,7 +381,9 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 		n_dets = n_elements( (*new).ratio_yield[*,0])
 		old_array = 0
 		if n_elements( (*old).ratio_yield[*,0]) gt 1 then old_array=1
-		
+		if old_array and (n_dets lt 2) then begin
+			printf, lun,'"Ref" is an array detector, but "New" is not.'		
+		endif
 		if n_dets gt 1 then begin
 			if old_array then begin
 				x = fltarr( n_dets, (*new).n_els)

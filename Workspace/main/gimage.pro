@@ -1107,6 +1107,10 @@ endif
 		compare_source
 		end
 
+	'Compare_pink_Menu': begin
+		compare_pink
+		end
+
 	'Compare_fits_Menu': begin
 		compare_fits
 		end
@@ -1362,7 +1366,8 @@ endif
 if n_elements(test) lt 1 then test=c_test
 
 ErrorNo = 0
-debug_line = 'start'
+debug_line = 'start'					; helps to see how far we got when a fatal crash occurs
+										; as it gets displayed in the error catch warning popup.
 if catch_errors_on then begin
     Catch, ErrorNo
     if (ErrorNo ne 0) then begin
@@ -1383,7 +1388,7 @@ endif else on_error,0
 if (clone eq 0) and (realtime eq 0) then splash, title='GeoPIXE - Quantitative PIXE/SXRF Imaging and Analysis', timeout=4
 
 lib = geopixe_library(version=lib_ver)
-print,'Startup GeoPIXE "image" version = ',version + ' (Library version:' +str_tidy(lib_ver) + ')'
+print,'Startup GeoPIXE "gimage" version = ',version + ' (Library version:' +str_tidy(lib_ver) + ')'
 
 note_on = 0
 if note_on and debug then warning,'GeoPIXE',['Hey! You wanted to remember this:', $
@@ -2291,7 +2296,8 @@ endif else wizard_menus=0L
 
   W_MENU_81 = Widget_Button(W_MENU_80, UNAME='Compare_yields_Menu' ,VALUE='Compare Yields')
   W_MENU_82 = Widget_Button(W_MENU_80, UNAME='Compare_sources_Menu' ,VALUE='Compare Sources')
-  W_MENU_83 = Widget_Button(W_MENU_80, UNAME='Compare_fits_Menu' ,VALUE='Compare Fits')
+  W_MENU_83 = Widget_Button(W_MENU_80, UNAME='Compare_pink_Menu' ,VALUE='Compare Pink Beam Sources')
+  W_MENU_84 = Widget_Button(W_MENU_80, UNAME='Compare_fits_Menu' ,VALUE='Compare Fits')
 
 ; Help menus
 
