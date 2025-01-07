@@ -1,4 +1,4 @@
-pro check_plist_nsls_xfm_h5, plist
+pro check_plist_petra_p06_h5, plist
 
 ; Need to keep the PreSlit as the first two to keep the 'index'
 ; correct.
