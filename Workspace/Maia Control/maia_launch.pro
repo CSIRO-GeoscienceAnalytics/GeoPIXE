@@ -3815,7 +3815,7 @@ case !version.os_family of
 		heart_space = 2
 		rspace = 4
 		space1 = 1
-		tspace5 = 3
+		tspace5 = 5
 		stats_xsize = 7.5*button_xsize
 		help_xsize = 13.5*(button_xsize + 3) - 3 - 98 		; 238
 		end
@@ -3839,7 +3839,7 @@ case !version.os_family of
 		heart_space = 2
 		rspace = 4
 		space1 = 1
-		tspace5 = 3
+		tspace5 = 5
 		stats_xsize = 7.5*button_xsize
 		help_xsize = 13.5*(button_xsize + 3) - 3 - 98		; 238
 		end
@@ -4009,13 +4009,13 @@ button = state_button( control_base2, value='Clear', uname='clear-button', /trac
 ;					uvalue='Pause event flow: disable "events".')
 run_stats = widget_list( control_base2, scr_xsize=stats_xsize, uname='control-stats', /tracking, value=strarr(3), $
 				uvalue='Display Blog run number and segment and Blog received data rate in bytes. Click on "Group" to change blog data Group.', $
-				frame=0, scr_ysize=2*button_ysize+tspace5)
+				frame=1, scr_ysize=2*button_ysize+tspace5)
 
 hbase = widget_base( rbase, /row, xpad=0, ypad=0, space=rspace, /base_align_center, /align_center)
-status = widget_text( hbase, scr_xsize=0.2*help_xsize-rspace, ysize=3, /wrap, uname='status', /tracking, $
-				uvalue='Detector status field.', frame=0)
+status = widget_text( hbase, scr_xsize=0.2*help_xsize-rspace, ysize=3, wrap=0, uname='status', /tracking, $
+				uvalue='Detector status field.', frame=1)
 help = widget_text( hbase, scr_xsize=0.8*help_xsize-4, ysize=3, /wrap, uname='help', /tracking, $
-				uvalue='Context sensitive help: Move cursor over object for help.', frame=0)
+				uvalue='Context sensitive help: Move cursor over object for help.', frame=1)
 
 picpath = geopixe_root + 'maia' + slash()
 pic = picture_button( hbase, picpath + 'Maia-Logo2.png', tracking=0, pushbutton_events=0)	;, xsize=144, ysize=48
