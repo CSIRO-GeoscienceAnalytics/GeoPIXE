@@ -104,7 +104,7 @@ bad_addr:
 ;	warning,'lmgr2',['Error using O/S "spawn".','Failed to run "/sbin/ifconfig" to find Physical Addresses.','',err]
 	
 next:
-	if try_spawn then begin
+	if try_spawn and (strmid(!version.release,0,1) eq '8') then begin
 		case !version.os of
 			'Win32': begin
 				code = expand_path('<IDL_DIR>\' + 'license_utils\' + '<IDL_BIN_DIRNAME>') + '\'
