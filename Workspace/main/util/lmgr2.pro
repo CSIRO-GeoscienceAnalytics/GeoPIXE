@@ -12,14 +12,24 @@ COMPILE_OPT STRICTARR
 	if n_elements(free_install) lt 1 then free_install = 0
 	try_spawn = 0
 	if arg_present(install_num) or arg_present(lmhostid) or arg_present(site_notice) then try_spawn=1
-
 	r = 0
-	if vm then r=lmgr(/vm)
-	if runtime then r=lmgr(/runtime)
-
 	install_num = '?'
 	site_notice = 'Unknown'
 	lmhostid = ''
+
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		warning,'lmgr2',['','IDL run-time error caught.', '', $
+			'Error:  '+strtrim(!error_state.name,2), $
+			!Error_state.msg], /error
+		MESSAGE, /RESET
+		return, r
+	endif
+
+	if vm then r=lmgr(/vm)
+	if runtime then r=lmgr(/runtime)
 
 	if try_spawn then begin
 		case !version.os_family of

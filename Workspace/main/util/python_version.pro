@@ -12,15 +12,11 @@ if catch_errors_on then begin
 	if (ErrorNo ne 0) then begin
 		Catch, /cancel
 		on_error, 1
-		help, calls = s
-		n = n_elements(s)
-		c = 'Call stack: '
-		if n gt 2 then c = [c, s[1:n-2]]
-;		warning,'python_version',['IDL run-time error caught.', '', $
-;				'Error:  '+strtrim(!error_state.name,2), $
-;				!Error_state.msg,'',c], /error
+		warning,'python_version',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!Error_state.msg], /error
 		MESSAGE, /RESET
-		return,'?'
+		return, version
 	endif
 endif
 

@@ -46,8 +46,8 @@ if (ErrorNo ne 0) then begin
 	warning,'IDL_Query',['','IDL run-time error caught.', '', $
 			'Error:  '+strtrim(!error_state.name,2), $
 			!Error_state.msg], /error
-;	MESSAGE, /RESET
-	exit, /no_confirm
+	MESSAGE, /RESET
+	return
 endif
 
 	file = 'GeoPIXE.sav'
