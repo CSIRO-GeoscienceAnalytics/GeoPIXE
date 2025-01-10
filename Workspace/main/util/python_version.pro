@@ -1,4 +1,4 @@
-function python_version, revision=revision
+function python_version, revision=revision, error=error
 
 ; Return the version of python across IDL-python bridge
 ;
@@ -22,6 +22,7 @@ endif
 
 	revision = '?'
 	version = '?'
+	error = 1
 
 	sys = python.import('sys')
 	s = strsplit( sys.version, ' ', /extract)
@@ -31,5 +32,6 @@ endif
 	revision = s1[0]
 	if n gt 1 then revision = revision+'.'+s1[1]
 
+	error = 0
 	return, version
 end
