@@ -139,9 +139,15 @@ case tag_names( event,/structure) of
 					alarm_popup, group=event.top, tlb=atlb, title='Maia: Alarm Condition', message=mess
 					(*pstate).alarm_temp_popup = atlb
 				endif
-				if maia_launch_overleak( pm, mess=mess) and (widget_info( (*pstate).alarm_leakage_popup, /valid) eq 0) then begin
-					alarm_popup, group=event.top, tlb=atlb, title='Maia: Alarm Condition', message=mess
-					(*pstate).alarm_leakage_popup = atlb
+				over_leak = maia_launch_overleak( pm, mess=mess)
+				if over_leak then begin
+					(*pm).control.bias = (*pm).control.bias_min
+					socket_command_set, ps, 'bias.voltage', (*pm).control.bias, class='detector'
+
+					if (widget_info( (*pstate).alarm_leakage_popup, /valid) eq 0) then begin
+						alarm_popup, group=event.top, tlb=atlb, title='Maia: Alarm Condition', message=mess
+						(*pstate).alarm_leakage_popup = atlb
+					endif
 				endif
 				if maia_launch_overloss( pm, mess=mess) and (widget_info( (*pstate).alarm_loss_popup, /valid) eq 0) then begin
 					alarm_popup, group=event.top, tlb=atlb, title='Maia: Alarm Condition', message=mess
@@ -1667,18 +1673,18 @@ if n_elements(pshrmem) eq 0 then pshrmem=0L		; pars shrmem from 'maia_update_par
 					if err eq 0 then begin
 						(*pm).IC0.remote = 1
 						(*pm).IC0.pv.val = v[0]
-					endif else (*pl)[2]++
+					endif ;else (*pl)[2]++
 					v = socket_command_get( ps, 'name', class='flux.chan', chip=0, /string, error=err)
 					if err eq 0 then begin
 						(*pm).IC0.pv.name = v[0]
-					endif else (*pl)[2]++
+					endif ;else (*pl)[2]++
 					v = socket_command_get( ps, 'unit', class='flux.chan', chip=0, /string, error=err)
 					if err eq 0 then begin
 						sens = charge_sensitivity( (*pm).IC0.pv.val, v[0])
 						val = charge_gain_units( sens, unit=vunit)
 						(*pm).IC0.pv.val = val
 						(*pm).IC0.pv.unit = vunit
-					endif else (*pl)[2]++
+					endif ;else (*pl)[2]++
 				endif
 				if v1[1] ne '' then begin			; Maia:scaler.FC1
 					(*pm).IC1.remote = 0
@@ -1686,18 +1692,18 @@ if n_elements(pshrmem) eq 0 then pshrmem=0L		; pars shrmem from 'maia_update_par
 					if err eq 0 then begin
 						(*pm).IC1.remote = 1
 						(*pm).IC1.pv.val = v[0]
-					endif else (*pl)[2]++
+					endif ;else (*pl)[2]++
 					v = socket_command_get( ps, 'name', class='flux.chan', chip=1, /string, error=err)
 					if err eq 0 then begin
 						(*pm).IC1.pv.name = v[0]
-					endif else (*pl)[2]++
+					endif ;else (*pl)[2]++
 					v = socket_command_get( ps, 'unit', class='flux.chan', chip=1, /string, error=err)
 					if err eq 0 then begin
 						sens = charge_sensitivity( (*pm).IC1.pv.val, v[0])
 						val = charge_gain_units( sens, unit=vunit)
 						(*pm).IC1.pv.val = val
 						(*pm).IC1.pv.unit = vunit
-					endif else (*pl)[2]++
+					endif ;else (*pl)[2]++
 				endif
 			endif
 		endif

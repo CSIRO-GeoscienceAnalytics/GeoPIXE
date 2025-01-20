@@ -17,6 +17,7 @@ build.spro
 *.clf
 equip*.*
 Rio*
+Workspace/Rio?Equip/
 crunch*.*
 stand.csv
 good.spec

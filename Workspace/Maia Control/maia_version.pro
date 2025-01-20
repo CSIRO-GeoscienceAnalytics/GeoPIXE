@@ -7,7 +7,7 @@ COMPILE_OPT STRICTARR
 ;	which also gets used for update dir name
 ;	followed by a SINGLE alphabet letter if needed.
 
-maia_ver='8.8q'
+maia_ver='8.8r'
 
 return, maia_ver
 end
