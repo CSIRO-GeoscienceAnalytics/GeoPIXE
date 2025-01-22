@@ -1690,7 +1690,7 @@ endif
 	rows = string(indgen(n>1))
 	columns = ['#','O file','I file','O Area','O Err','I Area','I Err','Ratio','eRatio','Depth','eDepth']
 	nc = n_elements(columns)
-	widths = [3, replicate(7,nc-1)] * !d.x_ch_size
+	widths = [4, replicate(9,nc-1)] * !d.x_ch_size
 	t = strarr(nc,15)
 	
 	for i=0,n-1 do begin
