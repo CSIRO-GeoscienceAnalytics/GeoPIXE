@@ -21,12 +21,13 @@ if n_elements(array) lt 1 then array=0
 	count = 0
 	if arg_present(detector_title) or (array eq 1) then read_dets=1
 	
-	detector_list = find_file2(geopixe_root+'*.detector')
+	path1 = geopixe_root
+	detector_list = find_file2( path1+'*.detector')
 	
 	prefs = geopixe_defaults( source='detector_update')
-	path = fix_path( prefs.path.config)
-	path = fix_path( path + 'detectors')
-	detector_list2 = file_search( path, '*.detector')
+	path2 = fix_path( prefs.path.config)
+	path2 = fix_path( path2 + 'detectors')
+	detector_list2 = file_search( path2, '*.detector')
 	if detector_list2[0] ne '' then detector_list = [detector_list, detector_list2]
 	
 	detector_title = detector_list
@@ -69,11 +70,26 @@ if n_elements(array) lt 1 then array=0
 	new = -1
 	file = ''
 	if size( present, /tname) eq 'STRING' then begin
-		q = where( detector_list eq present)				; assumes filename without path
+		q = where( detector_list eq strip_path(present))	
 		if q[0] ne -1 then begin
 			new = q[0]
 			file = detector_files[q[0]]
-		endif
+		endif else begin
+			F = file_requester(/read, filter='*.detector', path=path2, file=present, $		; group=group
+				title='Select detector file', /fix_filter, /skip_if_exists, updir=3)
+			if F eq '' then return
+			
+			pf = read_detector( F, error=error)
+			if error eq 0 then begin
+				detector_title = [detector_title, (*pf)[0].crystal.name]
+				detector_list = [detector_list, strip_path(F)]
+				detector_files = [detector_files, F]
+				count = ns+1
+				if ptr_valid(pf) then ptr_free, pf
+				new = ns-1
+				file = F
+			endif
+		endelse
 	endif
 	return
 end

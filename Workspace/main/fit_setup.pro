@@ -2377,9 +2377,9 @@ pro load_pcm_parameters, pstate, file
 ;	NOTE:	Any changes to PCM file format will also effect the
 ;			'Crunch' PCM reading routine in \contracts.
 
+COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 
-COMPILE_OPT STRICTARR
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if catch_errors_on then begin
@@ -2412,6 +2412,7 @@ endif
 	on_ioerror, bad_file
 	close, 2
 	openr, 2, file, /xdr
+	path = extract_path(file)
 
 	on_ioerror, bad_io
 	s1 = ''
@@ -2477,50 +2478,21 @@ endif
 		(*p).filter = filter
 	endelse
 
-	readu,2, s1
-	s = strip_path(s1)
-	detector_update, list=list, title=title, present=s, new=i, file=F
+	pending_detector = 0
+	readu,2, s
+	detector_file = path + strip_path(s)
+	detector_update, list=list, title=title, present=detector_file, new=i, file=F
 	*(*p).detector_list = list
 	widget_control, (*pstate).detector_mode, set_value=title
-
-;	if lenchr( (*(*p).detector_list)[0]) gt 0 then begin
-;		q = where( s eq *(*p).detector_list)
-;		if q[0] ne -1 then begin
-;			n = q[0]
-;		endif else begin
-;			*(*p).detector_list = [*(*p).detector_list,s]
-;			n = n_elements(*(*p).detector_list)-1
-;		endelse
-;	endif else begin
-;		*(*p).detector_list = [s]
-;	endelse
-	if i eq -1 then begin
-		warning,'load_pcm_parameters','Detector not found: '+s
-;		F = file_requester(/read, filter='*.detector', path=*(*pstate).path, group=(*pstate).tlb, file=geopixe_root+s, $
-;					title='select detector file', /fix_filter, /skip_if_exists)
-	endif else begin
+	if i ne -1 then begin
 		widget_control, (*pstate).detector_mode, set_combobox_select=i
 		(*p).detector_mode = i
-	endelse
+	endif
+	
 	if F[0] ne '' then begin
 		detector_file = F[0]
-		detector = read_detector(F[0], error=error)
-		if error then begin
-			warning, 'load_pcm_parameters',['Error in DETECTOR file:',s], /error
-			*(*p).detector = 0
-		endif else begin
-			*(*p).detector = *detector
-			*(*p).save_detector = *detector
-	
-			FWHM_Mn = 1000.*sqrt(abs( (*(*p).detector).w1 * 5.898 + (*(*p).detector).w0 ))
-	
-			widget_control, (*pstate).width_slider, set_value=FWHM_Mn
-			widget_control, (*pstate).tail_amp_slider, set_value=(*(*p).detector).tail.amp
-			widget_control, (*pstate).tail_F_slider, set_value=(*(*p).detector).tail.F
-			widget_control, (*pstate).tail_B_slider, set_value=(*(*p).detector).tail.B
-			widget_control, (*pstate).tail_L_slider, set_value=(*(*p).detector).tail.L
-			widget_control, (*pstate).tail_S_slider, set_value=(*(*p).detector).tail.S
-		endelse
+		path = extract_path( detector_file)
+		pending_detector = 1
 	endif
 
 	readu,2, s
@@ -2565,27 +2537,19 @@ endif
 			dud = 0
 			n = n_elements(*(*p).detector_list)
 			if (*yields).array and (n ge 1) then begin
-				fdets = strip_path((*yields).detector_file)
-				detector_update, list=list, title=title, present=fdets, new=i, file=f
+				detector_file = path + strip_path( (*yields).detector_file)
+				detector_update, list=list, title=title, present=detector_file, new=i, file=F
 				*(*p).detector_list = list
 				widget_control, (*pstate).detector_mode, set_value=title
 				if i ne -1 then begin
+					widget_control, (*pstate).detector_mode, set_combobox_select=i
 					(*p).detector_mode = i
-					detector_file = f	
-					detector = read_detector( f, error=error)
-					if error then begin
-						warning, 'fit_setup','Error reading Detectors file '+f, /error
-					endif else begin
-						*(*p).detector = *detector
-						*(*p).save_detector = *(*p).detector
-	
-						widget_control, (*pstate).detector_mode, set_combobox_select=(*p).detector_mode, sensitive=1-(*(*p).detector).array
-						widget_control, (*pstate).tail_amp_slider, set_value=(*(*p).detector).tail.amp
-						widget_control, (*pstate).tail_F_slider, set_value=(*(*p).detector).tail.F
-						widget_control, (*pstate).tail_B_slider, set_value=(*(*p).detector).tail.B
-						widget_control, (*pstate).tail_L_slider, set_value=(*(*p).detector).tail.L
-						widget_control, (*pstate).tail_S_slider, set_value=(*(*p).detector).tail.S
-					endelse
+				endif
+				
+				if F[0] ne '' then begin
+					detector_file = F[0]
+					path = extract_path( detector_file)
+					pending_detector = 1
 				endif
 			endif else begin
 				widget_control, (*pstate).detector_mode, sensitive=1-(*yields).array
@@ -2601,19 +2565,45 @@ endif
 	(*p).ambient.on = 0
 
 	det_ok = 0
+	if pending_detector then begin
+		detector = read_detector( detector_file, error=error)
+		if error then begin
+			warning, 'load_pcm_parameters',['Error in DETECTOR file:',detector_file], /error
+			*(*p).detector = 0
+		endif else begin
+			*(*p).detector = *detector
+			*(*p).save_detector = *detector
+
+			FWHM_Mn = 1000.*sqrt(abs( (*(*p).detector).w1 * 5.898 + (*(*p).detector).w0 ))
+
+			widget_control, (*pstate).width_slider, set_value=FWHM_Mn
+			widget_control, (*pstate).tail_amp_slider, set_value=(*(*p).detector).tail.amp
+			widget_control, (*pstate).tail_F_slider, set_value=(*(*p).detector).tail.F
+			widget_control, (*pstate).tail_B_slider, set_value=(*(*p).detector).tail.B
+			widget_control, (*pstate).tail_L_slider, set_value=(*(*p).detector).tail.L
+			widget_control, (*pstate).tail_S_slider, set_value=(*(*p).detector).tail.S
+			det_ok = 1
+		endelse
+	endif else begin
+		warning,'load_pcm_parameters','Detector not found: '+detector_file
+	endelse
+
 	if ptr_valid((*p).detector) then begin
-		if size(*(*p).detector, /tname) eq 'STRUCT' then det_ok=1
-	endif
+		if size(*(*p).detector, /tname) ne 'STRUCT' then det_ok=0
+	endif else det_ok=0
 
 	if det_ok then begin
 		if (*(*p).detector).array and (strlen((*(*p).detector).layout) gt 0) then begin
-			F = file_requester( /read, filter='*.csv', path=extract_path(detector_file), group=(*pstate).tlb, file=(*(*p).detector).layout, /translate, updir=3, $
-						title='Select Detector Layout file', fix_filter=1, /skip_if_exists)
+			F = file_requester( /read, filter='*.csv', path=geopixe_root, group=(*pstate).tlb, file=path+strip_path((*(*p).detector).layout), /translate, $
+						title='Select Detector Layout file', fix_filter=1, updir=3, /skip_if_exists)
 			d = read_detector_layout( F, error=error)
 			if error eq 0 then begin
 				*(*p).playout = d
 				(*(*p).detector).layout = F
-			endif
+			endif else begin
+				warning,'load_pcm_parameters','Detector Layout not found: '+(*(*p).detector).layout
+				*(*p).playout = 0
+			endelse
 		endif
 	endif
 

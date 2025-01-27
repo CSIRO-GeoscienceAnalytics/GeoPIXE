@@ -1646,7 +1646,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 			last = paths
 			paths = fix_path( dir_up(paths))
 			k = k+1
-		endrep until (k ge updir) or ( total(last eq paths, /integer) eq n_paths)
+		endrep until (k gt updir) or ( total(last eq paths, /integer) eq n_paths)
 	
 ;		Try using the translation tables ...
 
