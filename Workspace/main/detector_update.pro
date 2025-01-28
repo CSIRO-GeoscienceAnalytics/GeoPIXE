@@ -75,7 +75,7 @@ if n_elements(array) lt 1 then array=0
 			new = q[0]
 			file = detector_files[q[0]]
 		endif else begin
-			F = file_requester(/read, filter='*.detector', path=path2, file=present, $		; group=group
+			F = file_requester(/read, filter='*.detector', path=[path1,path2], file=present, $		; group=group
 				title='Select detector file', /fix_filter, /skip_if_exists, updir=3)
 			if F eq '' then return
 			
