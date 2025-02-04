@@ -3114,63 +3114,16 @@ if err eq 0 then begin
 	if strlen(prefs.path.data) gt 0 then dpath = prefs.path.data
 
 	if prefs.kvs.enable then begin
-		pver = python_version( revision=prev)
-		iver = idl_version( revision=irev)
-		print, 'Python rev=',prev,' IDL rev=',irev
-		pmain = fix(strmid(prev,0,1))
-		pfrac = fix(strmid(prev,2))
-		case irev of
-			'8.5': begin
-				if (prev eq '2.7') then begin										; IDL 8.5.1 works with python 2.7
-
-				endif else begin
-					goto, kill_kvs
-				endelse
-				end
-			'8.8': begin
-				if (pmain eq 3) and (pfrac ge 6) and (pfrac le 8) then begin		; IDL 8.8 works with python 3.6-3.8
-
-				endif else begin
-					goto, kill_kvs
-				endelse
-				end
-			'8.9': begin
-				if (pmain eq 3) and (pfrac ge 8) and (pfrac le 10) then begin		; IDL 8.9 works with python 3.8-3.10
-
-				endif else begin
-					goto, kill_kvs
-				endelse
-				end
-			'9.0': begin
-				if (pmain eq 3) and (pfrac ge 8) and (pfrac le 11) then begin		; IDL 9.0 works with python 3.8-3.11
-
-				endif else begin
-					goto, kill_kvs
-				endelse
-				end
-			'9.1': begin
-				if (pmain eq 3) and (pfrac ge 9) and (pfrac le 12) then begin		; IDL 9.1 works with python 3.9-3.12
-
-				endif else begin
-					goto, kill_kvs
-				endelse
-				end
-			else: begin
-				goto, kill_kvs
-				end
-		endcase
+		if python_valid( message=mess) eq 0 then begin
+			warning,'maia_launch',['KVS has been enabled for Maia Mapper in your "geopixe.conf" file.', $
+				'However, python version found is not compatible with IDL.', $
+				'Maia Mapper Libs need python 2.7 with IDL 8.5.1, or '+ mess, $
+				'so configure for correct IDL + python combination or disable KVS in the "geopixe.conf" file.','', $
+				'Continue without KVS and MM Libs ...']
+			prefs.kvs.enable = 0
+		endif
 	endif
-	goto, skip_kill_kvs
-	
-kill_kvs:
-	warning,'maia_launch',['KVS has been enabled for Maia Mapper in your "geopixe.conf" file.', $
-		'However, python version found = ' + pver, ' which is not compatible with IDL ' + iver+'.', '', $
-		'Maia Mapper Libs need python 2.7 with IDL 8.5.1, or python {3.6-3.8, 3.8-3.10, 3.8-3.11, 3.9-3.12} with IDL {8.8, 8.9, 9.0, 9.1},', $
-		'so configure for correct IDL + python combination or disable KVS in the "geopixe.conf" file.','', $
-		'Continue without KVS and MM Libs ...']
-	prefs.kvs.enable = 0
 
-skip_kill_kvs:
 	if prefs.kvs.enable then begin
 		print,'Open KVS using endpoint: ', prefs.kvs.endpoint
 		server = prefs.logging.server
