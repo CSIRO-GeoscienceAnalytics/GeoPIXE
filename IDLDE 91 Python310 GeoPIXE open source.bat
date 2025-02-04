@@ -10,3 +10,4 @@ PATH=C:\Program Files\nv5\IDL91\bin\bin.x86_64;C:\Anaconda3;C:\Anaconda3\Scripts
 SET PYTHONPATH=C:\Program Files\nv5\IDL91\bin\bin.x86_64;C:\Program Files\nv5\IDL91\lib\bridges;C:\Anaconda3;C:\software\python\SVN-Maia-Mapper\src\main\python;C:\software\python\SVN-Maia-Mapper\src\test\python;%PYTHONPATH%
 
 "C:\Program Files\nv5\IDL91\bin\bin.x86_64\idlde.exe" -data "C:\Software\IDL\GeoPIXE-open-source\Workspace" -pref="C:\Software\IDL\GeoPIXE-open-source\Workspace\idl91-py310.pref"
+
