@@ -49,8 +49,8 @@ This uses a simple dir structure, aimed at a single user.
 
 If you plan to host a GeoPIXE analysis workshop of many users, and would like organize the data
 on disk to avoid multiple copies of the raw data (but have a separate copy of working files
-for each user), then download from this DOI:  https://doi.org/10.25919/3yrz-7x38
-But first, check out the notes in the "Read me - Linux.txt" file in this archive.
+for each user), then download from this DOI:  https://doi.org/10.25919/3yrz-7x38.
+Then check out the notes in the "Read me - Linux.txt" file in this download.
 
 ### Opening GeoPIXE using the Eclipse IDLDE environment
 
