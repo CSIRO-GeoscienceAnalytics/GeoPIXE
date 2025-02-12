@@ -1498,20 +1498,14 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 		endif
 
 		if prefs.kvs.enable then begin
-			pver = python_version( revision=prev)
-			iver = idl_version( revision=irev)
-			if ((float2(prev) ge 3.6) and (float2(irev) ge 8.8)) then begin		; IDL 8.8 works with python 3.6+
-
-			endif else if ((prev eq '2.7') and (irev eq '8.5')) then begin		; IDL 8.5.1 works with python 2.7
-
-			endif else begin
-				warning,'image',['KVS has been enabled for Maia Mapper in your "geopixe.conf" file.', $
-						'However, python version found = ' + pver, ' which is not compatible with IDL ' + iver+'.', '', $
-						'Maia Mapper Libs need python 2.7 with IDL 8.5.1, or python 3.6+ with IDL 8.8+,', $
-						'so configure for correct IDL + python combination or disable KVS in the "geopixe.conf" file.','', $
-						'Continue without KVS and MM Libs ...']
+			if python_valid( message=mess) eq 0 then begin
+				warning,'gimage',['KVS has been enabled for Maia Mapper in your "geopixe.conf" file.', $
+					'However, python version found is not compatible with IDL.', $
+					'Maia Mapper Libs need python 2.7 with IDL 8.5.1, or '+ mess, $
+					'so configure for correct IDL + python combination or disable KVS in the "geopixe.conf" file.','', $
+					'Continue without KVS and MM Libs ...']
 				prefs.kvs.enable = 0
-			endelse
+			endif
 		endif
 
 		if prefs.kvs.enable then begin

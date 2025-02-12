@@ -24,9 +24,36 @@ if catch_errors_on then begin
 	   return, 0
    endif
 endif
+common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
 error = 1
 
 	stat = fstat( unit)
+	
+; File points to actual detector data (e.g. "Sativa_hydroponics\scan_00088\xspress3_mini_189\scan_00088_00000.nxs")
+; These will be extracted elsewhere from the open xspress3 file in the 'read_buffer' method ...
+; 	entry/instrument/detector/sequence_number
+; 	entry/instrument/xspress3/channel00/histogram/
+; 	entry/instrument/xspress3/channel00/scaler/deadtimeticks, totalticks
+;
+; Will search here for related H5 files for:
+; Trigger files:						(e.g. "Sativa_hydroponics\scan_00088\pilctriggergenerator_03\scan_00088_00000.nxs")
+; 	entry/data/encoder1, encoder2
+;	entry/data/position_trigger_start, position_trigger_step_size, position_trigger_stop
+;
+; ADC files:							(e.g. "Sativa_hydroponics\scan_00088\adc_01\scan_00088_00000.nxs")
+;	/entry/data/exposuretime
+;	/entry/data/value1, value2, ...		flux counters?
+;
+; QBPM files:							(e.g. "Sativa_hydroponics\scan_00088\qbpm_02\scan_00088_00000.nxs")
+;	/entry/data/value1, value2, ...		flux counters?
+;
+; Context file:							(e.g. "Sativa_hydroponics\scan_00088.nxs")
+;	/scan/data/energy
+;	/scan/instrument/name
+;	/scan/instrument/keithley1, keithley2, ...
+;	/scan/sample/name
+;
+
 	file_id = H5F_OPEN(stat.name)
 
 	version = '0.0.0'									; can't read attribute below!
@@ -37,155 +64,215 @@ error = 1
 	pv_names = ''
 	cal = replicate( {cal_devicespec, on:0, a:0.0, b:0.0, units:''}, n_adcs)
 
-	timebase = 1000L			; for ms
+;	timebase = 1000L			; for ms?
 	mp = 0
 	error = 1
 
-	base_id = H5G_OPEN(file_id,'entry')
-	n = H5A_get_num_attrs( base_id)
-	for i=0,n-1 do begin
-		attr_id = H5A_open_idx(base_id, i)
-		case H5A_get_name( attr_id) of
-			'Version': begin
-;				attr = H5A_read( attr_id)				; errors?
-;				version = attr
-				end
-			else:
-		endcase
-		H5A_close, attr_id
-	endfor
-	H5G_close, base_id
+;	Find start, stop, step and encoder1, encoder2
 
-	nm = H5G_get_nmembers(file_id,'entry/instrument')	
-	name = strarr(nm)
-	for i=0,nm-1 do begin
-		name[i] = H5G_get_member_name(file_id,'entry/instrument',i)
-	endfor
-
-;	q = where( name eq 'scalars', nq)
-;	if nq eq 0 then begin
-;		warning,'read_petra_p06_h5_header','No "xrmmap/scalars" group found.'
-;		goto, finish
-;	endif
-;
-;	nm = H5G_get_nmembers(file_id,'xrmmap/scalars')	
-;	headings = strarr(nm)
-;	for i=0,nm-1 do begin
-;		headings[i] = H5G_get_member_name(file_id,'xrmmap/scalars',i)
-;	endfor
-;	pv_names = headings
-
-	q = where( name eq 'xspress3', nq)
+	path = dir_up( extract_path( stat.name))
+	file = strip_path( stat.name)
+	dirs = find_file2( path + '*')
+	q = where( strmid( strip_path( dirs),0,strlen('pilctriggergenerator_')) eq 'pilctriggergenerator_', nq)
 	if nq eq 0 then begin
-		warning,'read_petra_p06_h5_header','No "entry/instrument/xspress3" dataset found.'
+		warning,'read_petra_p06_h5_header','No "pilctriggergenerator_..." sub directory found.'
 		goto, finish
 	endif
-
-	nm = H5G_get_nmembers(file_id,'entry/instrument/xspress3')	
-	name2 = strarr(nm)
-	for i=0,nm-1 do begin
-		name2[i] = H5G_get_member_name(file_id,'entry/instrument/xspress3',i)
-	endfor
-
-	q = where( name2 eq 'channel00', nq)
-	if nq eq 0 then begin
-		warning,'read_petra_p06_h5_header','No "entry/instrument/xspress3/channel00" data found.'
-		goto, finish
-	endif
-
-	nm = H5G_get_nmembers(file_id,'entry/instrument/xspress3/channel00')
-	name3 = strarr(nm)
-	for i=0,nm-1 do begin
-		name3[i] = H5G_get_member_name(file_id,'entry/instrument/xspress3/channel00',i)
-	endfor
-
-	q = where( name3 eq 'histogram', nq)
-	if nq eq 0 then begin
-		warning,'read_petra_p06_h5_header','No "entry/instrument/xspress3/channel00/histogram" data found.'
+	base = strmid( file, 0, locate_last( '_', file))
+	afile = fix_path(dirs[q]) + base + '_*.nxs'
+	afiles = find_file2( afile)
+	na = n_elements(afiles)
+	if (na eq 0) or (afiles[0] eq '') then begin
+		warning,'read_petra_p06_h5_header','No "'+afile+'" files found.'
 		goto, finish
 	endif
 	
-	det_id = H5D_OPEN(file_id,'entry/instrument/xspress3/channel00/histogram')
-	dspace = H5D_get_space(det_id)
-	dims = H5S_get_simple_extent_dims(dspace)
-	H5S_close, dspace
-	
-	nx = dims[0]
-	ny = dims[1]
+	for i=0,na-1 do begin
+		afile_id = H5F_OPEN( afiles[i])
 
-;	det = H5D_read(det_id)
-;	dwell = det[*,*] / float(timebase)		; for ms ???
-	H5D_close, det_id
-;
-;	q = where( name eq 'positions', nq)
-;	if nq eq 0 then begin
-;		warning,'read_petra_p06_h5_header','No "xrmmap/positions" group found.'
-;		goto, finish
-;	endif 
-;
-;	nm = H5G_get_nmembers(file_id,'xrmmap/positions')	
-;	name2 = strarr(nm)
-;	for i=0,nm-1 do begin
-;		name2[i] = H5G_get_member_name(file_id,'xrmmap/positions',i)
-;	endfor
-;
-;	q = where( name2 eq 'pos', nq)
-;	if nq eq 0 then begin
-;		warning,'read_petra_p06_h5_header','No "xrmmap/positions/pos" data found.'
-;		goto, finish
-;	endif
-;
-;	axis_id = H5D_OPEN(file_id,'xrmmap/positions/pos')
-;	pos = H5D_read(axis_id)
-;	axisx = reform(pos[0,*,0])					; assumes was mm
-;	use_x = 1
-;	axisy = reform(pos[1,0,*])					; assumes was mm
-;	use_y = 1
-;	H5D_close, axis_id			
-;
-;	q = where( name eq 'config', nq)
-;	if nq eq 0 then begin
-;		warning,'read_petra_p06_h5_header','No "xrmmap/config" group found.'
-;		goto, finish
-;	endif
-;
-;	nm = H5G_get_nmembers(file_id,'xrmmap/config')	
-;	name2 = strarr(nm)
-;	for i=0,nm-1 do begin
-;		name2[i] = H5G_get_member_name(file_id,'xrmmap/config',i)
-;	endfor
-;
-;	q = where( name2 eq 'mca_calib', nq)
-;	if nq eq 0 then begin
-;		warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib" group found.'
-;		goto, finish
-;	endif
-;
-;	nm = H5G_get_nmembers(file_id,'xrmmap/config/mca_calib')	
-;	name3 = strarr(nm)
-;	for i=0,nm-1 do begin
-;		name3[i] = H5G_get_member_name(file_id,'xrmmap/config/mca_calib',i)
-;	endfor
-;
-;	q = where( name3 eq 'offset', nq)
-;	if nq eq 0 then begin
-;		warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib/offset" data found.'
-;		goto, finish
-;	endif
-;
-;	axis_id = H5D_OPEN(file_id,'xrmmap/config/mca_calib/offset')
-;	doff = H5D_read(axis_id)
-;	H5D_close, axis_id			
-;
-;	q = where( name3 eq 'slope', nq)
-;	if nq eq 0 then begin
-;		warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib/slope" data found.'
-;		goto, finish
-;	endif
-;
-;	axis_id = H5D_OPEN(file_id,'xrmmap/config/mca_calib/slope')
-;	dslope = H5D_read(axis_id)
-;	H5D_close, axis_id			
+		nm = H5G_get_nmembers( afile_id,'entry/data')
+		name7 = strarr(nm)
+		for j=0,nm-1 do begin
+			name7[j] = H5G_get_member_name(afile_id,'entry/data',j)
+		endfor
+
+		if i eq 0 then begin
+			q = where( name7 eq 'position_trigger_start', nq)
+			if nq eq 0 then begin
+				warning,'read_petra_p06_h5_header','No "entry/data/position_trigger_start" dataset found.'
+				H5F_close, afile_id
+				goto, finish
+			endif
+			rec_id = H5D_OPEN(afile_id,'entry/data/position_trigger_start')
+			start = H5D_read(rec_id)
+			H5D_close, rec_id
+	
+			q = where( name7 eq 'position_trigger_stop', nq)
+			if nq eq 0 then begin
+				warning,'read_petra_p06_h5_header','No "entry/data/position_trigger_stop" dataset found.'
+				H5F_close, afile_id
+				goto, finish
+			endif
+			rec_id = H5D_OPEN(afile_id,'entry/data/position_trigger_stop')
+			stop = H5D_read(rec_id)
+			H5D_close, rec_id
+			
+			q = where( name7 eq 'position_trigger_step_size', nq)
+			if nq eq 0 then begin
+				warning,'read_petra_p06_h5_header','No "entry/data/position_trigger_step_size" dataset found.'
+				H5F_close, afile_id
+				goto, finish
+			endif
+			rec_id = H5D_OPEN(afile_id,'entry/data/position_trigger_step_size')
+			step = H5D_read(rec_id)
+			H5D_close, rec_id
+		endif
+
+		q = where( name7 eq 'encoder_1', nq)
+		if nq eq 0 then begin
+			warning,'read_petra_p06_h5_header','No "entry/data/encoder_1" dataset found.'
+			H5F_close, afile_id
+			goto, finish
+		endif
+		rec_id = H5D_OPEN(afile_id,'entry/data/encoder_1')
+
+		vals = H5D_read(rec_id)
+		encoder1 = (i eq 0) ? vals : [encoder1, vals]
+		H5D_close, rec_id
+
+		q = where( name7 eq 'encoder_2', nq)
+		if nq eq 0 then begin
+			warning,'read_petra_p06_h5_header','No "entry/data/encoder_2" dataset found.'
+			H5F_close, afile_id
+			goto, finish
+		endif
+		rec_id = H5D_OPEN(afile_id,'entry/data/encoder_2')
+
+		vals = H5D_read(rec_id)
+		encoder2 = (i eq 0) ? vals : [encoder2, vals]
+		H5D_close, rec_id
+
+		H5F_close, afile_id
+	endfor
+	
+	pixel_x = round( (encoder1 - min(encoder1)) / abs(step) )
+	pixel_y = round( (encoder2 - min(encoder2)) / abs(step) )
+	step_x = step
+	min_x = min( pixel_x)
+	min_y = min( pixel_y)
+	nx = max(pixel_x) + 1
+	ny = max(pixel_y) + 1
+				
+;	Find exposure time
+;	 
+	path = dir_up( extract_path( stat.name))
+	file = strip_path( stat.name)
+	dirs = find_file2( path + '*')
+	q = where( strmid( strip_path( dirs),0,strlen('adc_')) eq 'adc_', nq)
+	if nq eq 0 then begin
+		warning,'read_petra_p06_h5_header','No "adc_..." sub directory found.'
+		goto, finish
+	endif
+	base = strmid( file, 0, locate_last( '_', file))
+	afile = fix_path(dirs[q]) + base + '_*.nxs'
+	afiles = find_file2( afile)
+	na = n_elements(afiles)
+	if (na eq 0) or (afiles[0] eq '') then begin
+		warning,'read_petra_p06_h5_header','No "'+afile+'" files found.'
+		goto, finish
+	endif
+
+	for i=0,na-1 do begin
+		afile_id = H5F_OPEN( afiles[i])
+
+		nm = H5G_get_nmembers( afile_id,'entry/data')
+		name8 = strarr(nm)
+		for j=0,nm-1 do begin
+			name8[j] = H5G_get_member_name(afile_id,'entry/data',j)
+		endfor
+
+		q = where( name8 eq 'exposuretime', nq)
+		if nq eq 0 then begin
+			warning,'read_petra_p06_h5_header','No "entry/data/exposuretime" dataset found.'
+			H5F_close, afile_id
+			goto, finish
+		endif
+		rec_id = H5D_OPEN(afile_id,'entry/data/exposuretime')
+		vals = H5D_read(rec_id)
+		dwell_array = (i eq 0) ? vals : [dwell_array, vals]
+		H5D_close, rec_id
+
+		H5F_close, afile_id
+	endfor
+
+	h = histogram( dwell_array, /NaN, locations=tx)
+	q2 = reverse(sort(h))
+	common_dwell = tx[q2[0]]
+
+;	Find energy, sample, instrument name
+
+	path = dir_up( path)
+	cfile = base + '.nxs'
+	cfiles = find_file2( path + cfile)
+	na = n_elements(cfiles)
+	if (na eq 0) or (cfiles[0] eq '') then begin
+		warning,'read_petra_p06_h5_header','No "'+cfile+'" file found.'
+		goto, finish
+	endif
+
+	cfile_id = H5F_OPEN( cfiles[0])
+
+	nm = H5G_get_nmembers( cfile_id,'scan/data')
+	name9 = strarr(nm)
+	for j=0,nm-1 do begin
+		name9[j] = H5G_get_member_name(cfile_id,'scan/data',j)
+	endfor
+
+	q = where( name9 eq 'energy', nq)
+	if nq eq 0 then begin
+		warning,'read_petra_p06_h5_header','No "scan/data/energy" dataset found.'
+		H5F_close, cfile_id
+		goto, finish
+	endif
+	rec_id = H5D_OPEN(cfile_id,'scan/data/energy')
+	energy = H5D_read(rec_id)
+	H5D_close, rec_id
+	
+	nm = H5G_get_nmembers( cfile_id,'scan/sample')
+	name10 = strarr(nm)
+	for j=0,nm-1 do begin
+		name10[j] = H5G_get_member_name(cfile_id,'scan/sample',j)
+	endfor
+
+	q = where( name10 eq 'name', nq)
+	if nq eq 0 then begin
+		warning,'read_petra_p06_h5_header','No "scan/sample/name" dataset found.'
+		H5F_close, cfile_id
+		goto, finish
+	endif
+	rec_id = H5D_OPEN(cfile_id,'scan/sample/name')
+	sample = H5D_read(rec_id)
+	H5D_close, rec_id
+
+	nm = H5G_get_nmembers( cfile_id,'scan/instrument')
+	name11 = strarr(nm)
+	for j=0,nm-1 do begin
+		name11[j] = H5G_get_member_name(cfile_id,'scan/instrument',j)
+	endfor
+
+	q = where( name11 eq 'name', nq)
+	if nq eq 0 then begin
+		warning,'read_petra_p06_h5_header','No "scan/instrument/name" dataset found.'
+		H5F_close, cfile_id
+		goto, finish
+	endif
+	rec_id = H5D_OPEN(cfile_id,'scan/instrument/name')
+	endstation = H5D_read(rec_id)
+	H5D_close, rec_id
+
+	H5F_close, cfile_id
+
+;	We don't have any embedded energy calibration so far
 
 	for i=0,n_adcs-1 do begin
 		cal[i].a = 0.0					; dslope[i]
@@ -198,29 +285,28 @@ error = 1
 
 	error = 0
 
-;	Setting the nominal pixel dwell to the mean(dwell map) below. If there are long dwell
-;	pixels, you might need to exclude them, or set nominal dwell another way.
+;	Setting the nominal pixel dwell to the most common (dwell map) below. 
 ;
 ;	Missing from header info at the moment is (also see other possibles in 'update_header_info'):
-;		energy				beam energy
+;		cal					energy calibration
 ;		comment				comment string for this run
 ;		IC_name				ion chamber PV name (e.g. from "Detectors")
-;		IC_sensitivity		ion chamber preamp sensitivity (relative to 1.0 = nA/V)
-
-	h = histogram( dwell, /NaN, locations=x)
-	q2 = reverse(sort(h))
-	maia_fixed_dwell = x[q2[0]]
+;		IC_sensitivity		ion chamber preamp sensitivity (relative to 1.0 = nA/V). Is this "/scan/instrument/keithley1, keithley2, ..."
 
 	mp = {	version:	version, $					; version (float)
 ;			timebase:	timebase, $					; timebase count?
 ;			headings:	headings, $				`	; "Detector" names
 			nx:			nx, $						; X pixels
 			ny:			ny, $						; Y pixels
-;			axisx:		axisx, $					; X coords
-;			axisy:		axisy, $					; Y coords
-;			dwell:		maia_fixed_dwell, $			; mean dwell 
+			axisx:		encoder1, $					; X coords
+			axisy:		encoder2, $					; Y coords
+			dwell:		common_dwell, $				; mean dwell 
+			energy:		energy[0], $				; beam energy
+			sample:		sample, $					; sample name
+			facility:	'Petra III', $
+			endstation:	endstation, $				; endstation
 			cal:		cal, $						; energy calibrations
-			pv_names:	pv_names $					; PV names
+			pv_names:	'' $					; PV names
 			}
 	error = 0
 

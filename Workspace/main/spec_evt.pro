@@ -496,11 +496,6 @@ loop_file:
     on_ioerror, bad_file
     close,1
     openr, 1, evt_file[j], bufsiz=1500*1024L
-	if dfile(1, 5481, dt=dt) ne -3175 then begin
-		warning, output=cluster_debug,'spec_evt',['Platform ERROR 71','Please consult CSIRO.','Delta = '+string(dt)], /error
-;		probe_time, 1
-		exit, /no_confirm
-	endif
     on_ioerror, next		
 	
     device_specific, obj,1, xrange,yrange, n_guide,progress_file,progress_size=progress_size, first=first, $

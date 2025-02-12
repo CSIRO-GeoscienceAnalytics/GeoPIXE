@@ -9,7 +9,7 @@ function python_valid, message=message
 ;
 ;							Python version
 ; IDL version    2.7  3.4  3.5  3.6  3.7  3.8  3.9  3.10  3.11  3.12
-;	8.5           y    y
+;	8.5           y    x
 ;	8.6           y    y    y
 ;	8.7           y    y    y    y
 ;	8.8                          y    y    y

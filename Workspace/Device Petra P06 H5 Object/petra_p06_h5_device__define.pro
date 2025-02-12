@@ -462,10 +462,10 @@ endif
 	self.header.scan.y_on = 1
 	nx = (*pmp).nx 
 	ny = (*pmp).ny 
-	self.header.scan.x_mm = (*pmp).axisx[nx-1] - (*pmp).axisx[0]
-	self.header.scan.y_mm = (*pmp).axisy[ny-1] - (*pmp).axisy[0]
-	self.header.scan.x = (*pmp).axisx[0]
-	self.header.scan.y = (*pmp).axisy[0]
+	self.header.scan.x_mm = max((*pmp).axisx) - min((*pmp).axisx)
+	self.header.scan.y_mm = max((*pmp).axisy) - min((*pmp).axisy)
+	self.header.scan.x = min((*pmp).axisx)
+	self.header.scan.y = min((*pmp).axisy)
 	self.header.detector[*] = 7								; SXRF default
 
 	if n_elements((*pmp).axisx) gt 1 then begin
@@ -484,16 +484,16 @@ endif
 	self.header.IC_name = (*pmp).pv_names[0]				; PV name for ion chamber
 ;	self.header.sensitivity = (*pmp).IC_sensitivity			; IC preamp sensitivity (relative to 1.0 = nA/V)
 
-;	self.header.energy = (*pmp).energy
+	self.header.energy = (*pmp).energy
 ;	self.header.title = (*pmp).comment
-;	self.header.sample = (*pmp).sample
+	self.header.sample = (*pmp).sample
 ;	self.header.grain = (*pmp).grain
 	
 ;	self.header.metadata.sample_type = (*pmp).sample_type
 ;	self.header.metadata.sample_serial = (*pmp).sample_serial
 ;	self.header.metadata.detector_identity = (*pmp).detector_identity
-;	self.header.metadata.facility = (*pmp).facility
-;	self.header.metadata.endstation = (*pmp).endstation
+	self.header.metadata.facility = (*pmp).facility
+	self.header.metadata.endstation = (*pmp).endstation
 
 	self.header.error = 0
 	error = 0
@@ -708,171 +708,259 @@ common c_maia_13, maia_dwell
 common c_maia_11, maia_hw_scaler, maia_fixed_dwell
 common c_pnc_cat_11, i_spectra, q_spectra, name_spectra
 common c_nsls_5, nsls_IC_value_index, nsls_flux_scale
+common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
+common c_petra_3, n_sequence_buffer, p06_file_id
+common c_petra_4, n_petra_channel, i_petra_channel
 
 	n_guide = 50000L
-	progress_file = 2						; progress indicator will be rough (see updated below)
-	stat = fstat(unit)
+	progress_file = 1					; progress indicator will be rough (see updated below)
+	stat = fstat(unit)						
+	
+; File points to actual detector data (e.g. "Sativa_hydroponics\scan_00088\xspress3_mini_189\scan_00088_00000.nxs")
+; These will be extracted here:
+; 	entry/instrument/detector/sequence_number
+; 	entry/instrument/xspress3/channel00/histogram/
+; 	entry/instrument/xspress3/channel00/scaler/deadtimeticks, totalticks
+; 	 
+; Will search here also for related H5 files for:
+; ADC files:							(e.g. "Sativa_hydroponics\scan_00088\adc_01\scan_00088_00000.nxs")
+;	/entry/data/exposuretime
+;	/entry/data/value1, value2, ...		flux counters?
+;
+; QBPM files:							(e.g. "Sativa_hydroponics\scan_00088\qbpm_02\scan_00088_00000.nxs")
+;	/entry/data/value1, value2, ...		flux counters?
+;
+; These are extracted already in the header info routine 'read_petra_p06_h5_header'
+; Trigger files:						(e.g. "Sativa_hydroponics\scan_00088\pilctriggergenerator_03\scan_00088_00000.nxs")
+; 	entry/data/encoder1, encoder2
+;	entry/data/position_trigger_start, position_trigger_step_size, position_trigger_stop
+;
+; Context file:							(e.g. "Sativa_hydroponics\scan_00088.nxs")
+;	/scan/data/energy
+;	/scan/instrument/name
+;	/scan/instrument/keithley1, keithley2, ...
+;	/scan/sample/name
 
 	self.spectrum_mode = 1
 	if (n_elements(flux) ge 2) then self.spectrum_mode=0
 
-	hdf5_id = H5F_OPEN(stat.name)
+	file_id = H5F_OPEN(stat.name)
+	p06_file_id = file_id				; save to use in 'read_buffer'
 	version = '2.1.0'
-	timebase = 1000L			; for ms
-	use_x = 0
-	use_y = 0
+	timebase = 1000L					; for ms?
 	dwell = 0.0
 	i_buffer = 0L
 
-	base_id = H5G_OPEN(hdf5_id,'xrmmap')
-	n = H5A_get_num_attrs( base_id)
-	for i=0,n-1 do begin
-		attr_id = H5A_open_idx(base_id, i)
-		case H5A_get_name( attr_id) of
-			'VERSION': begin
-;				attr = H5A_read( attr_id)
-;				version = attr
-				end
-			else:
-		endcase
-		H5A_close, attr_id
-	endfor
-	H5G_close, base_id
-
-	nm = H5G_get_nmembers(hdf5_id,'xrmmap')	
-	name_spectra = strarr(nm)
-	for i=0,nm-1 do begin
-		name_spectra[i] = H5G_get_member_name(hdf5_id,'xrmmap',i)
-	endfor
-
-	q = where( name_spectra eq 'scalars', nq)
-	if nq eq 0 then begin
-		warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/scalars" dataset found.'
-		goto, bad_io
-	endif
-
-	nm = H5G_get_nmembers(hdf5_id,'xrmmap/scalars')	
-	headings = strarr(nm)
-	for i=0,nm-1 do begin
-		headings[i] = H5G_get_member_name(hdf5_id,'xrmmap/scalars',i)
-	endfor
-	pv_names = headings
-
-	q = where( name_spectra eq 'mca1', nq)
-	if nq eq 0 then begin
-		warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/mca1" dataset found.'
-		goto, bad_io
-	endif
-
-	nm = H5G_get_nmembers(hdf5_id,'xrmmap/mca1')	
+;	Get sequence numbers 
+	
+	nm = H5G_get_nmembers(file_id,'entry/instrument')
 	name = strarr(nm)
 	for i=0,nm-1 do begin
-		name[i] = H5G_get_member_name(hdf5_id,'xrmmap/mca1',i)
+		name[i] = H5G_get_member_name(file_id,'entry/instrument',i)
 	endfor
-
-	q = where( name eq 'realtime', nq)
+	
+	q = where( name eq 'detector', nq)
 	if nq eq 0 then begin
-		warning,'read_petra_p06_h5_header','No "xrmmap/mca1/realtime" data found.'
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/detector" dataset found.'
 		goto, bad_io
 	endif
-	det_id = H5D_OPEN(hdf5_id,'xrmmap/mca1/realtime')
-	dspace = H5D_get_space(det_id)
-	dims = H5S_get_simple_extent_dims(dspace)
-	H5S_close, dspace
-
-	nx = dims[0]
-	ny = dims[1]
-
-	det = H5D_read(det_id) / float(timebase)		; for ms ???
-	dwell = det[*,*]
+	
+	nm = H5G_get_nmembers(file_id,'entry/instrument/detector')
+	name1 = strarr(nm)
+	for i=0,nm-1 do begin
+		name1[i] = H5G_get_member_name(file_id,'entry/instrument/detector',i)
+	endfor
+	
+	q = where( name1 eq 'sequence_number', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/detector/sequence_number" data found.'
+		goto, bad_io
+	endif
+	
+	det_id = H5D_OPEN(file_id,'entry/instrument/detector/sequence_number')
+	sequence = H5D_read(det_id)
+	
+	x = pixel_x[ (sequence-1)>0]			; from x,y read in by header read
+	y = pixel_y[ (sequence-1)>0]
 	H5D_close, det_id
 
-	maia_dwell = det
-	h = histogram( det, /NaN, locations=x)
+;	Get histgram/spectra data size ...
+
+	q = where( name eq 'xspress3', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/xspress3" dataset found.'
+		goto, bad_io
+	endif
+
+	nm = H5G_get_nmembers(file_id,'entry/instrument/xspress3')	
+	name2 = strarr(nm)
+	for i=0,nm-1 do begin
+		name2[i] = H5G_get_member_name(file_id,'entry/instrument/xspress3',i)
+	endfor
+
+	q = where( name2 eq 'channel00', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/xspress3/channel00" dataset found.'
+		goto, bad_io
+	endif
+	
+	nm = H5G_get_nmembers(file_id,'entry/instrument/xspress3/channel00')
+	name3 = strarr(nm)
+	for i=0,nm-1 do begin
+		name3[i] = H5G_get_member_name(file_id,'entry/instrument/xspress3/channel00',i)
+	endfor
+	
+	q = where( name3 eq 'histogram', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/xspress3/channel00/histogram" data found.'
+		goto, bad_io
+	endif
+
+	spectra_id = H5D_OPEN(file_id,'entry/instrument/xspress3/channel00/histogram')
+	dspace = H5D_get_space(spectra_id)
+	dims = H5S_get_simple_extent_dims(dspace)
+	H5D_close, spectra_id		
+	
+	q = where( strmid(name2,0,strlen('channel')) eq 'channel', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No multiple "channel" found.'
+		goto, bad_io
+	endif
+	n_petra_channel = nq
+	i_petra_channel = 0
+
+;	Extract deadtime information - deadtimeticks, totalticks ...
+;		...
+
+	pnc_hdf_dets = n_petra_channel				; will loop on det in read_buffer
+	pnc_hdf_chans = dims[0]						; channels in spectra
+	n_sequence_buffer = dims[1]					; number of sequence steps in each file
+	pnc_hdf_x_range = self.header.scan.x_pixels
+	pnc_hdf_y_range = self.header.scan.y_pixels
+	pnc_hdf_x = 0								; not used this time
+	pnc_hdf_y = 0								; use this to flag a fresh file open in 'read_buffer'
+
+	;	Set up various vectors to use to construct X,Y,E events in 'read_buffer'
+
+	ramp = indgen(pnc_hdf_chans)
+	pnc_hdf_e = uintarr( pnc_hdf_chans, n_sequence_buffer)
+	pnc_hdf_x1 = pnc_hdf_e
+	pnc_hdf_y1 = pnc_hdf_e
+	pnc_hdf_ste = pnc_hdf_e
+	for i=0L,n_sequence_buffer-1 do begin
+		pnc_hdf_e[*,i] = ramp
+		pnc_hdf_x1[*,i] = x[i]
+		pnc_hdf_y1[*,i] = y[i]
+	endfor
+
+	pnc_hdf_e = reform( pnc_hdf_e, pnc_hdf_chans*n_sequence_buffer)
+	pnc_hdf_ste = reform( pnc_hdf_ste, pnc_hdf_chans*n_sequence_buffer)
+	pnc_hdf_x1 = reform( pnc_hdf_x1, pnc_hdf_chans*n_sequence_buffer)
+	pnc_hdf_y1 = reform( pnc_hdf_y1, pnc_hdf_chans*n_sequence_buffer)
+
+;	Get 'dwell', ... from adc_... files
+
+	path = dir_up( extract_path( stat.name))
+	file = strip_path( stat.name)
+	dirs = find_file2( path + '*')
+	q = where( strmid( strip_path( dirs),0,strlen('adc_')) eq 'adc_', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "adc_..." sub directory found.'
+		goto, bad_io
+	endif
+	base = strmid( file, 0, locate_last( '_', file))
+	afile = fix_path(dirs[q]) + base + '_*.nxs'
+	afiles = find_file2( afile)
+	na = n_elements(afiles)
+	if (na eq 0) or (afiles[0] eq '') then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "'+afile+'" files found.'
+		goto, bad_io
+	endif
+
+	for i=0,na-1 do begin
+		afile_id = H5F_OPEN( afiles[i])
+
+		nm = H5G_get_nmembers( afile_id,'entry/data')
+		name8 = strarr(nm)
+		for j=0,nm-1 do begin
+			name8[j] = H5G_get_member_name(afile_id,'entry/data',j)
+		endfor
+
+		q = where( name8 eq 'exposuretime', nq)
+		if nq eq 0 then begin
+			warning,'petra_p06_h5_DEVICE::read_setup','No "entry/data/exposuretime" dataset found.'
+			H5F_close, afile_id
+			goto, bad_io
+		endif
+		rec_id = H5D_OPEN(afile_id,'entry/data/exposuretime')
+		vals = H5D_read(rec_id)
+		dwell = (i eq 0) ? vals : [dwell, vals]
+		H5D_close, rec_id
+
+		H5F_close, afile_id
+	endfor
+
+	maia_dwell = dwell
+	h = histogram( maia_dwell, /NaN, locations=x)
 	q = reverse(sort(h))
 	maia_fixed_dwell = x[q[0]]
 	if self.spectrum_mode then maia_dwell = maia_fixed_dwell
+
+;	Flux counters - Get 'value1', ... from adc_... and qbpm_... files
 
 	nsls_flux_scale = flux_ic.val * flux_ic.unit
 	if (self.spectrum_mode eq 0)  then begin
 		nsls_flux_scale = nsls_flux_scale * dwell*0.001				; Scale Epics scaler rates by dwell only for maps.
 	endif															; This assumes PV values are RATES not counts.
 
-	q = where( headings eq flux_ic.pv, nq)
-	if nq eq 0 then begin
-		warning,'read_petra_p06_h5_header','No "xrmmap/scalars/"'+flux_ic.pv+' data found.'
-		goto, bad_io
-	endif
-
-	det_id = H5D_OPEN(hdf5_id,'xrmmap/scalars/'+flux_ic.pv)
-	det = H5D_read(det_id)
-	H5D_close, det_id
-
-	flux = nsls_flux_scale * det									; flux PVs are rates
-	if self.spectrum_mode then flux = total(flux)
+;	q = where( headings eq flux_ic.pv, nq)
+;	if nq eq 0 then begin
+;		warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/scalars/"'+flux_ic.pv+' data found.'
+;		goto, bad_io
+;	endif
+;
+;	det_id = H5D_OPEN(hdf5_id,'xrmmap/scalars/'+flux_ic.pv)
+;	det = H5D_read(det_id)
+;	H5D_close, det_id
+;
+;	flux = nsls_flux_scale * det									; flux PVs are rates
+;	if self.spectrum_mode then flux = total(flux)
 
 ;	Assume we need to determine a 'dead_fraction' map here from 'inpcounts', 'outcounts' for each channel.
 ;	Take average of all detector channels for now. May need to move to a rate weighted average.
 
-	q_spectra = where( (strmid(name_spectra,0,3) eq 'mca') and (name_spectra ne 'mcasum'), n_det)
+;	q_spectra = where( (strmid(name_spectra,0,3) eq 'mca') and (name_spectra ne 'mcasum'), n_det)
+;
+;	tot = dead_fraction
+;	for i_spectra=0,n_det-1 do begin
+;		j = q_spectra[ i_spectra]
+;
+;		in_id = H5D_OPEN(hdf5_id,'xrmmap/'+name_spectra[j]+'/inpcounts')
+;		in = H5D_read(in_id)
+;		H5D_close, in_id
+;		out_id = H5D_OPEN(hdf5_id,'xrmmap/'+name_spectra[j]+'/outcounts')
+;		out = H5D_read(out_id)
+;		H5D_close, out_id
+;
+;		dead_fraction = dead_fraction + ( (in-out) > 0.)		; lost counts
+;		tot = tot + in											; all counts
+;	endfor
+;	dead_fraction = dwell * dead_fraction / (tot > 1.)
+;
+;	i_spectra = 0
+;	j = q_spectra[ i_spectra]
+;	if n_det eq 0 then begin
+;		warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/mca" datasets found in group.'
+;		goto, bad_io
+;	endif
+;	spectra_id = H5D_open(hdf5_id,'xrmmap/'+name_spectra[j]+'/counts')
+;	dspace = H5D_get_space(spectra_id)
+;	dims = H5S_get_simple_extent_dims(dspace)
+;	H5S_close, dspace
 
-	tot = dead_fraction
-	for i_spectra=0,n_det-1 do begin
-		j = q_spectra[ i_spectra]
-
-		in_id = H5D_OPEN(hdf5_id,'xrmmap/'+name_spectra[j]+'/inpcounts')
-		in = H5D_read(in_id)
-		H5D_close, in_id
-		out_id = H5D_OPEN(hdf5_id,'xrmmap/'+name_spectra[j]+'/outcounts')
-		out = H5D_read(out_id)
-		H5D_close, out_id
-
-		dead_fraction = dead_fraction + ( (in-out) > 0.)		; lost counts
-		tot = tot + in											; all counts
-	endfor
-	dead_fraction = dwell * dead_fraction / (tot > 1.)
-
-	i_spectra = 0
-	j = q_spectra[ i_spectra]
-	if n_det eq 0 then begin
-		warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/mca" datasets found in group.'
-		goto, bad_io
-	endif
-	spectra_id = H5D_open(hdf5_id,'xrmmap/'+name_spectra[j]+'/counts')
-	dspace = H5D_get_space(spectra_id)
-	dims = H5S_get_simple_extent_dims(dspace)
-	H5S_close, dspace
-
-	progress_file = 3						; progress indicator by specified size, will be better
-	progress_size = dims[2] * n_det
-
-  	pnc_hdf_x_range = dims[1]
-  	pnc_hdf_y_range = dims[2]
-  	pnc_hdf_dets = n_det
-  	pnc_hdf_chans = dims[0]
-  	pnc_hdf_x = 0
-	pnc_hdf_y = 0
-
-;	Set up various vectors to use to construct X,Y,E events in 'read_buffer'
-
-	ramp = indgen(pnc_hdf_chans)
-	pnc_hdf_e = uintarr( pnc_hdf_chans, pnc_hdf_x_range)
-	pnc_hdf_x1 = pnc_hdf_e
-	pnc_hdf_ste = pnc_hdf_e
-	for i=0L,pnc_hdf_x_range-1 do begin
-	 	 pnc_hdf_e[*,i] = ramp
-	 	 pnc_hdf_x1[*,i] = i
-	endfor
-
-	pnc_hdf_e = reform( pnc_hdf_e, pnc_hdf_chans*pnc_hdf_x_range)
-	pnc_hdf_ste = reform( pnc_hdf_ste, pnc_hdf_chans*pnc_hdf_x_range)
-	pnc_hdf_x1 = reform( pnc_hdf_x1, pnc_hdf_chans*pnc_hdf_x_range)
-	pnc_hdf_y1 = uintarr( pnc_hdf_chans*pnc_hdf_x_range)
-
-	return, 0						; hdf5_id will be closed in read_buffer later ...
+	return, 0						; file_id will be closed in read_buffer later ...
 	
 bad_io:
-	H5F_close, hdf5_id
 	return, 1
 end
 
@@ -889,12 +977,6 @@ function petra_p06_h5_DEVICE::read_buffer, unit, x1,y1,e, channel_on,n, xcompres
 		flux=flux, dead_fraction=dead_fraction, beam_energy=beam_energy, $
 		total_processed=processed, processed=count1, valid=good, total_bad_xy=bad_xy, raw_xy=raw_xy, $
 		by_odd=by_odd, by_even=by_even, support_even_odd=support_even_odd
-
-;       ecompress=ecompress, total_bad_xy=bad_xy, total_processed=processed, $
-;       station_e=ste, title=title, multiple=multiple, $
-;       processed=count1, valid=good, raw_xy=raw_xy, time=tot, $
-;       flux=flux, dead_fraction=dead_fraction, file=file, $
-;       xoffset=xoffset, yoffset=yoffset, error=error, beam_energy=beam_energy
 
 ;   Device specific list-mode (event-by-event) data file reading routine.
 ;   Remember, channel starts at 0 (-1 means any channel/ADC).
@@ -966,49 +1048,80 @@ common c_maia_13, maia_dwell
 common c_maia_11, maia_hw_scaler, maia_fixed_dwell
 common c_pnc_cat_11, i_spectra, q_spectra, name_spectra
 common c_nsls_5, nsls_IC_value_index, nsls_flux_scale
+common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
+common c_petra_2, dwell_array
+common c_petra_3, n_sequence_buffer, p06_file_id
+common c_petra_4, n_petra_channel, i_petra_channel
 
+	n = 0L
+	good = 0L
+	i_buffer = i_buffer+1
+	if i_petra_channel eq n_petra_channel then return, 1		; to force going to next file rather than returning here again
+	
 	on_ioerror, bad_io
 	nc = n_elements(channel_on)
+	file_id = p06_file_id					; remember to close 'file_id' after last "channelxx"
 
-	if (pnc_hdf_y ge pnc_hdf_y_range) then begin
-		if i_spectra ge n_elements(q_spectra)-1 then begin
-			H5D_close, spectra_id
-			H5F_close, hdf5_id
-	  		skip_lun, unit, /EOF
-			goto, bad_io
-		endif else begin
-			H5D_close, spectra_id
-			i_spectra++
-			pnc_hdf_y = 0
-			spectra_id = H5D_open(hdf5_id,'xrmmap/'+name_spectra[q_spectra[i_spectra]]+'/counts')
-		endelse
+;	Read spectra data (just for "channel00" for now)
+	
+	nm = H5G_get_nmembers(file_id,'entry/instrument')
+	name = strarr(nm)
+	for i=0,nm-1 do begin
+		name[i] = H5G_get_member_name(file_id,'entry/instrument',i)
+	endfor
+	
+	q = where( name eq 'xspress3', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/xspress3" dataset found.'
+		goto, bad_io
 	endif
 
-	dataspace_id = H5D_get_space(spectra_id)
-	start = [0,0,pnc_hdf_y]
-	count = [pnc_hdf_chans,pnc_hdf_x_range,1]
-	H5S_select_hyperslab, dataspace_id, start, count, /RESET
+	nm = H5G_get_nmembers(file_id,'entry/instrument/xspress3')
+	name2 = strarr(nm)
+	for i=0,nm-1 do begin
+		name2[i] = H5G_get_member_name(file_id,'entry/instrument/xspress3',i)
+	endfor
 
-	mem_space_id = H5S_create_simple(count)
-	hdf5_spectra = H5D_read(spectra_id, FILE_SPACE=dataspace_id, MEMORY_SPACE=mem_space_id)
-	H5S_close, mem_space_id
-	H5S_close, dataspace_id
+	channels = ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20']
+	i_chan = i_petra_channel
+	channel = 'channel' + channels[i_petra_channel++]
+	
+	q = where( name2 eq channel, nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/xspress3/'+channel+' data found.'
+		goto, bad_io
+	endif
+
+	nm = H5G_get_nmembers(file_id,'entry/instrument/xspress3/'+channel)
+	name3 = strarr(nm)
+	for i=0,nm-1 do begin
+		name3[i] = H5G_get_member_name(file_id,'entry/instrument/xspress3/'+channel,i)
+	endfor
+
+	q = where( name3 eq 'histogram', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "entry/instrument/xspress3/'+channel+'/histogram" data found.'
+		goto, bad_io
+	endif
+
+	spectra_id = H5D_OPEN(file_id,'entry/instrument/xspress3/'+channel+'/histogram')
+
+	spectra = H5D_read(spectra_id)
+	H5D_close, spectra_id
+	if i_petra_channel eq n_petra_channel then H5F_close, file_id
 
 ;	Define E, X, Y event vectors
 ;	Return events for a single Y line in each buffer, cycle through Y and detectors.
 
 	e = pnc_hdf_e
-	ste = pnc_hdf_ste
 	x1 = pnc_hdf_x1
 	y1 = pnc_hdf_y1
-	ste[*] = i_spectra
-	y1[*] = uint(pnc_hdf_y)
-	i_buffer++
-	pnc_hdf_y++
+	ste = pnc_hdf_ste
+	ste[*] = i_chan					; i_spectra
 
 ;	Spectum count per pixel/channel used to set a 'multiplicity' for each 'event'.
 
-	multiple = long( reform(hdf5_spectra, pnc_hdf_chans*pnc_hdf_x_range))
+	multiple = long( reform(spectra, pnc_hdf_chans*n_sequence_buffer))
 
 	q = where((multiple gt 0) and channel_on[ste], count)
 	if count gt 0 then begin
@@ -1036,11 +1149,13 @@ common c_nsls_5, nsls_IC_value_index, nsls_flux_scale
 		multiple = -1L
 	endelse
 	n = good
+	pnc_hdf_y = 1
 
     processed = processed + good
 	return, 0
 	
 bad_io:
+	pnc_hdf_y = 1
 	return, 1
 end
 
@@ -1369,25 +1484,30 @@ endif
 
 	error = 1
 
-	opt_41 = define(/import)			; XFM new HDF5 image file
-		opt_41.name =		'petra_p06_h5_spec'		; unique name of import
-		opt_41.title =		'Extract E from XFM map HDF5 file'
-		opt_41.in_ext =		'.h5'		; input file extension
-		opt_41.request =	'Select XFM map HDF file to scan for all spectra'
-		opt_41.spec_evt =	0			; uses direct HDF5 reads for spectra
-		opt_41.use_IC =		1			; pop-up the flux_select PV selection panel
-		opt_41.IC_mode = 	1			; default to using PV for IC
+;	opt_41 = define(/import)			; XFM new HDF5 image file
+;		opt_41.name =		'petra_p06_h5_spec'		; unique name of import
+;		opt_41.title =		'Extract E from P06 map HDF5 file'
+;		opt_41.in_ext =		'.h5'		; input file extension
+;		opt_41.request =	'Select P06 map HDF file to scan for all spectra'
+;		opt_41.spec_evt =	0			; uses direct HDF5 reads for spectra
+;		opt_41.use_IC =		1			; pop-up the flux_select PV selection panel
+;		opt_41.IC_mode = 	1			; default to using PV for IC
 	
 	opt_39 = define(/import)			; XFM new HDF5 file read as a list-mode
 		opt_39.name =		'petra_p06_h5_evt'	; unique name of import
-		opt_39.title =		'Extract E,X,Y from XFM map HDF5 file as list-mode'
-		opt_39.in_ext =		'.h5'		; input file extension
-		opt_39.request =	'Select XFM map HDF file to scan for all spectra, X,Y'
+		opt_39.title =		'Extract E,X,Y from P06 map HDF5 file as list-mode'
+		opt_39.in_ext =		'.nxs'		; input file extension
+		opt_39.request =	'Select P06 map HDF file to scan for all spectra, X,Y'
+		opt_39.preview =	0			; allow spectrum preview
+		opt_39.raw =		1			; flags use of separate Raw data path '(*pstate).dpath'
+		opt_39.multifile =	1			; denotes data in a series of more than one file
+		opt_39.separate =	'_'			; char between file and run #
 		opt_39.spec_evt =	1			; uses a call to spec_evt to extract from EVT data
 		opt_39.use_IC =		1			; pop-up the flux_select PV selection panel
 		opt_39.IC_mode = 	1			; default to using PV for IC
 	
-	opt = [opt_41, opt_39]
+;	opt = [opt_41, opt_39]
+	opt = [ opt_39]
 	for i=0L,n_elements(opt)-1 do opt[i].device_name = self.name
 
 	self.import_list = ptr_new(opt)
