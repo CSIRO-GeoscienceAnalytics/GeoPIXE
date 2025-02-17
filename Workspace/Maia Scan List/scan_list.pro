@@ -5399,7 +5399,7 @@ if n_elements(test) lt 1 then test=0
 if n_elements(kvs_endpoint) lt 1 then kvs_endpoint = 'tcp://mm-mel-1-cl.it.csiro.au:29320'
 if n_elements(per) lt 1 then per=0
 
-version = '8.6o'
+version = '8.8r'
 enable_interlace = 0							; enable the interlace raster option
 clayton_wrong_left_right = 1					; wrong end-stations (1=Left, 2=Right) in Clayton only
 startupp										; load GeoPIXE libraries
