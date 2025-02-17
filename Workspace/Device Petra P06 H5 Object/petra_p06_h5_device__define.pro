@@ -858,8 +858,56 @@ common c_petra_4, n_petra_channel, i_petra_channel
 	pnc_hdf_x1 = reform( pnc_hdf_x1, pnc_hdf_chans*n_sequence_buffer)
 	pnc_hdf_y1 = reform( pnc_hdf_y1, pnc_hdf_chans*n_sequence_buffer)
 
-;	Get 'dwell', ... from adc_... files
+;	Get 'value1', ... from qbpm_... files
 
+	q = where( strmid( dir_up(flux_ic.pv),0,strlen('qbpm_')) eq 'qbpm_', nq)
+	use_adc_flux = (nq eq 0)
+	if use_adc_flux then goto, find_dwell
+	
+	path = dir_up( extract_path( stat.name))
+	file = strip_path( stat.name)
+	dirs = find_file2( path + '*')
+	q = where( strmid( strip_path( dirs),0,strlen('qbpm_')) eq 'qbpm_', nq)
+	if nq eq 0 then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "qbpm_..." sub directory found.'
+		goto, find_dwell
+	endif
+	base = strmid( file, 0, locate_last( '_', file))
+	afile = fix_path(dirs[q]) + base + '_*.nxs'
+	afiles = find_file2( afile)
+	na = n_elements(afiles)
+	if (na eq 0) or (afiles[0] eq '') then begin
+		warning,'petra_p06_h5_DEVICE::read_setup','No "'+afile+'" files found.'
+		goto, find_dwell
+	endif
+
+	for i=0,na-1 do begin
+		afile_id = H5F_OPEN( afiles[i])
+
+		nm = H5G_get_nmembers( afile_id,'entry/data')
+		name8 = strarr(nm)
+		for j=0,nm-1 do begin
+			name8[j] = H5G_get_member_name(afile_id,'entry/data',j)
+		endfor
+
+		q = where( name8 eq strip_path(flux_ic.pv), nq)
+		if nq eq 0 then begin
+			warning,'petra_p06_h5_DEVICE::read_setup','No "'+flux_ic.pv+'" data found.'
+			H5F_close, afile_id
+			goto, find_dwell
+		endif else begin
+			rec_id = H5D_OPEN(afile_id,'entry/data/'+strip_path(flux_ic.pv))
+			vals = H5D_read(rec_id)
+			values = (n_elements(values) eq 0) ? vals : [values, vals]
+			H5D_close, rec_id
+		endelse
+
+		H5F_close, afile_id
+	endfor
+
+	;	Get 'dwell','value1', ... from adc_... files
+
+find_dwell:
 	path = dir_up( extract_path( stat.name))
 	file = strip_path( stat.name)
 	dirs = find_file2( path + '*')
@@ -897,16 +945,19 @@ common c_petra_4, n_petra_channel, i_petra_channel
 		dwell = (i eq 0) ? vals : [dwell, vals]
 		H5D_close, rec_id
 
-		q = where( name8 eq strip_path(flux_ic.pv), nq)
-		if nq eq 0 then begin
-			warning,'petra_p06_h5_DEVICE::read_setup','No "'+flux_ic.pv+'" data found.'
-			goto, bad_io
-		endif else begin
-			rec_id = H5D_OPEN(afile_id,'entry/data/'+strip_path(flux_ic.pv))
-			vals = H5D_read(rec_id)
-			values = (i eq 0) ? vals : [values, vals]
-			H5D_close, rec_id
-		endelse
+		if use_adc_flux then begin
+			q = where( name8 eq strip_path(flux_ic.pv), nq)
+			if nq eq 0 then begin
+				warning,'petra_p06_h5_DEVICE::read_setup','No "'+flux_ic.pv+'" data found.'
+				H5F_close, afile_id
+				continue
+			endif else begin
+				rec_id = H5D_OPEN(afile_id,'entry/data/'+strip_path(flux_ic.pv))
+				vals = H5D_read(rec_id)
+				values = (n_elements(values) eq 0) ? vals : [values, vals]
+				H5D_close, rec_id
+			endelse
+		endif
 
 		H5F_close, afile_id
 	endfor

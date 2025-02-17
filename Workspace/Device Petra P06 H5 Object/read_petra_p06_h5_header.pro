@@ -313,6 +313,8 @@ find_sample:
 		for j=0,nq-1 do pv_names = [pv_names, name_qbpm+'/'+name12[q[j]]]
 	endif
 
+	H5F_close, qfile_id
+
 ;	We don't have any embedded energy calibration so far
 
 find_cals:
