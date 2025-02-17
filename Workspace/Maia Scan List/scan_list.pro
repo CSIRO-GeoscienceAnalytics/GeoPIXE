@@ -5407,7 +5407,7 @@ startupp										; load GeoPIXE libraries
 prefs = geopixe_defaults( error=err, source='mm_scan_list')
 if err eq 0 then begin
 	kvs_endpoint = prefs.kvs.endpoint
-	case prefs.prefix of
+	case prefs.kvs.prefix of
 		'MM.Mel.': begin
 			config_key = prefs.kvs.prefix + 'SL.1.config
 			end
