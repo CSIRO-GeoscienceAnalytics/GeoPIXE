@@ -39,8 +39,8 @@ case $script in
     geopixe)
         sav=GeoPIXE.sav
         ;;
-    mm_scan_list)
-        sav=maia_scan_list.sav
+    maia_scan_list)
+        sav=maia/maia_scan_list.sav
         ;;
 esac
 

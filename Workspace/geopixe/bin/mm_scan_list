@@ -40,7 +40,7 @@ case $script in
         sav=GeoPIXE.sav
         ;;
     mm_scan_list)
-        sav=maia_scan_list.sav
+        sav=maia/maia_scan_list.sav
         ;;
 esac
 
