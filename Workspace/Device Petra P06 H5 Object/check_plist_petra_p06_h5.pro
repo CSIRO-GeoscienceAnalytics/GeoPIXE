@@ -13,8 +13,6 @@ if size( plist, /tname) eq 'POINTER' then begin
 	ptr_mode = 1
 endif else list = plist
 
-;	list = ['PreSlit','PreKB','slow diode','IT','CalDiode','Bent Laue','08', list]
-	
 	q = where( strmid(list,0,4) eq 'none', nq)
 	if nq eq 0 then begin
 		list = [list, 'none']

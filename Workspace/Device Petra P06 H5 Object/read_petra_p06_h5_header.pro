@@ -101,7 +101,7 @@ error = 1
 			if nq eq 0 then begin
 				warning,'read_petra_p06_h5_header','No "entry/data/position_trigger_start" dataset found.'
 				H5F_close, afile_id
-				goto, finish
+				goto, find_encoder
 			endif
 			rec_id = H5D_OPEN(afile_id,'entry/data/position_trigger_start')
 			start = H5D_read(rec_id)
@@ -111,7 +111,7 @@ error = 1
 			if nq eq 0 then begin
 				warning,'read_petra_p06_h5_header','No "entry/data/position_trigger_stop" dataset found.'
 				H5F_close, afile_id
-				goto, finish
+				goto, find_encoder
 			endif
 			rec_id = H5D_OPEN(afile_id,'entry/data/position_trigger_stop')
 			stop = H5D_read(rec_id)
@@ -121,13 +121,14 @@ error = 1
 			if nq eq 0 then begin
 				warning,'read_petra_p06_h5_header','No "entry/data/position_trigger_step_size" dataset found.'
 				H5F_close, afile_id
-				goto, finish
+				goto, find_encoder
 			endif
 			rec_id = H5D_OPEN(afile_id,'entry/data/position_trigger_step_size')
 			step = H5D_read(rec_id)
 			H5D_close, rec_id
 		endif
 
+find_encoder:
 		q = where( name7 eq 'encoder_1', nq)
 		if nq eq 0 then begin
 			warning,'read_petra_p06_h5_header','No "entry/data/encoder_1" dataset found.'
@@ -169,17 +170,18 @@ error = 1
 	file = strip_path( stat.name)
 	dirs = find_file2( path + '*')
 	q = where( strmid( strip_path( dirs),0,strlen('adc_')) eq 'adc_', nq)
+	name_adc = strip_path(dirs[q[0]])
 	if nq eq 0 then begin
 		warning,'read_petra_p06_h5_header','No "adc_..." sub directory found.'
-		goto, finish
+		goto, find_sample
 	endif
 	base = strmid( file, 0, locate_last( '_', file))
-	afile = fix_path(dirs[q]) + base + '_*.nxs'
+	afile = fix_path(dirs[q[0]]) + base + '_*.nxs'
 	afiles = find_file2( afile)
 	na = n_elements(afiles)
 	if (na eq 0) or (afiles[0] eq '') then begin
 		warning,'read_petra_p06_h5_header','No "'+afile+'" files found.'
-		goto, finish
+		goto, find_sample
 	endif
 
 	for i=0,na-1 do begin
@@ -191,11 +193,16 @@ error = 1
 			name8[j] = H5G_get_member_name(afile_id,'entry/data',j)
 		endfor
 
+		q = where( strmid( strip_path( name8),0,strlen('value')) eq 'value', nq)
+		if (i eq 0) and (nq gt 0) then begin
+			for j=0,nq-1 do pv_names = [pv_names, name_adc+'/'+name8[q[j]]]
+		endif
+
 		q = where( name8 eq 'exposuretime', nq)
 		if nq eq 0 then begin
 			warning,'read_petra_p06_h5_header','No "entry/data/exposuretime" dataset found.'
 			H5F_close, afile_id
-			goto, finish
+			goto, find_sample
 		endif
 		rec_id = H5D_OPEN(afile_id,'entry/data/exposuretime')
 		vals = H5D_read(rec_id)
@@ -211,6 +218,7 @@ error = 1
 
 ;	Find energy, sample, instrument name
 
+find_sample:
 	path = dir_up( path)
 	cfile = base + '.nxs'
 	cfiles = find_file2( path + cfile)
@@ -272,8 +280,42 @@ error = 1
 
 	H5F_close, cfile_id
 
+;	Find other 'value1, ...'
+;
+	path = dir_up( extract_path( stat.name))
+	file = strip_path( stat.name)
+	dirs = find_file2( path + '*')
+	q = where( strmid( strip_path( dirs),0,strlen('qbpm_')) eq 'qbpm_', nq)
+	name_qbpm = strip_path(dirs[q[0]])
+	if nq eq 0 then begin
+		warning,'read_petra_p06_h5_header','No "qbpm_..." sub directory found.'
+		goto, find_cals
+	endif
+	base = strmid( file, 0, locate_last( '_', file))
+	qfile = fix_path(dirs[q[0]]) + base + '_*.nxs'
+	qfiles = find_file2( qfile)
+	na = n_elements(qfiles)
+	if (na eq 0) or (qfiles[0] eq '') then begin
+		warning,'read_petra_p06_h5_header','No "'+qfile+'" files found.'
+		goto, find_cals
+	endif
+
+	qfile_id = H5F_OPEN( qfiles[0])
+
+	nm = H5G_get_nmembers( qfile_id,'entry/data')
+	name12 = strarr(nm)
+	for j=0,nm-1 do begin
+		name12[j] = H5G_get_member_name(qfile_id,'entry/data',j)
+	endfor
+
+	q = where( strmid( strip_path( name12),0,strlen('value')) eq 'value', nq)
+	if (nq gt 0) then begin
+		for j=0,nq-1 do pv_names = [pv_names, name_qbpm+'/'+name12[q[j]]]
+	endif
+
 ;	We don't have any embedded energy calibration so far
 
+find_cals:
 	for i=0,n_adcs-1 do begin
 		cal[i].a = 0.0					; dslope[i]
 		cal[i].b = 0.0					; doff[i]
@@ -283,6 +325,7 @@ error = 1
 		endif
 	endfor
 
+	pv_names = pv_names[1:*]
 	error = 0
 
 ;	Setting the nominal pixel dwell to the most common (dwell map) below. 
@@ -306,7 +349,7 @@ error = 1
 			facility:	'Petra III', $
 			endstation:	endstation, $				; endstation
 			cal:		cal, $						; energy calibrations
-			pv_names:	'' $					; PV names
+			pv_names:	pv_names $					; PV names
 			}
 	error = 0
 

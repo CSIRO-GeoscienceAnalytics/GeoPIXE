@@ -897,6 +897,17 @@ common c_petra_4, n_petra_channel, i_petra_channel
 		dwell = (i eq 0) ? vals : [dwell, vals]
 		H5D_close, rec_id
 
+		q = where( name8 eq strip_path(flux_ic.pv), nq)
+		if nq eq 0 then begin
+			warning,'petra_p06_h5_DEVICE::read_setup','No "'+flux_ic.pv+'" data found.'
+			goto, bad_io
+		endif else begin
+			rec_id = H5D_OPEN(afile_id,'entry/data/'+strip_path(flux_ic.pv))
+			vals = H5D_read(rec_id)
+			values = (i eq 0) ? vals : [values, vals]
+			H5D_close, rec_id
+		endelse
+
 		H5F_close, afile_id
 	endfor
 
@@ -910,21 +921,10 @@ common c_petra_4, n_petra_channel, i_petra_channel
 
 	nsls_flux_scale = flux_ic.val * flux_ic.unit
 	if (self.spectrum_mode eq 0)  then begin
-		nsls_flux_scale = nsls_flux_scale * dwell*0.001				; Scale Epics scaler rates by dwell only for maps.
-	endif															; This assumes PV values are RATES not counts.
-
-;	q = where( headings eq flux_ic.pv, nq)
-;	if nq eq 0 then begin
-;		warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/scalars/"'+flux_ic.pv+' data found.'
-;		goto, bad_io
-;	endif
-;
-;	det_id = H5D_OPEN(hdf5_id,'xrmmap/scalars/'+flux_ic.pv)
-;	det = H5D_read(det_id)
-;	H5D_close, det_id
-;
-;	flux = nsls_flux_scale * det									; flux PVs are rates
-;	if self.spectrum_mode then flux = total(flux)
+		nsls_flux_scale = nsls_flux_scale * flux_ic.dwell*0.001			; Scale Epics scaler rates by dwell only for maps.
+	endif																; This assumes PV values are RATES not counts.
+	flux = nsls_flux_scale * values									; flux PVs are rates
+	if self.spectrum_mode then flux = total(flux)
 
 ;	Assume we need to determine a 'dead_fraction' map here from 'inpcounts', 'outcounts' for each channel.
 ;	Take average of all detector channels for now. May need to move to a rate weighted average.
