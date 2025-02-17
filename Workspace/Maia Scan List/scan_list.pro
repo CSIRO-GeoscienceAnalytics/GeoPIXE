@@ -5404,6 +5404,11 @@ enable_interlace = 0							; enable the interlace raster option
 clayton_wrong_left_right = 1					; wrong end-stations (1=Left, 2=Right) in Clayton only
 startupp										; load GeoPIXE libraries
 
+if per then begin
+	kvs_endpoint = 'tcp://mm-per-1-kf.it.csiro.au:29320'
+	config_key = 'MM.Per.SL.2.config'
+endif
+
 prefs = geopixe_defaults( error=err, source='mm_scan_list')
 if err eq 0 then begin
 	kvs_endpoint = prefs.kvs.endpoint
@@ -5416,10 +5421,6 @@ if err eq 0 then begin
 			end
 		else:
 	endcase
-endif
-if per then begin
-	kvs_endpoint = 'tcp://mm-per-1-kf.it.csiro.au:29320'
-	config_key = 'MM.Per.SL.2.config'
 endif
 state_key = strip_file_ext(config_key) + '.state.hash'
 
