@@ -3931,9 +3931,9 @@ label = widget_label( lr2base, value='Maia to Blog', /tracking, uvalue='Status L
 ; Note that the LED[3] value needs to reflect all background processes that access BLOG ...
 
 lr3base = widget_base( led_base, /row, xpad=0, ypad=0, space=2, /base_align_center, /align_left)
-if (*pm).number.spectra gt 0 then begin
-	led[3] = 1 + (enable_blog and (((*pshrmem_spectra).error or (*pshrmem_ET_spectra).error or (*pshrmem_activity).error or (*pshrmem_da).error) eq 0))
-endif
+enable_spec = ((*pm).number.spectra gt 0) ? ((*pshrmem_spectra).error eq 0) : 1
+led[3] = 1 + (enable_blog and enable_spec and (((*pshrmem_ET_spectra).error or (*pshrmem_activity).error or (*pshrmem_da).error) eq 0))
+
 led3 = picture_button( lr3base, lnames, uname='led3', value=led[3], /tracking, uvalue='Status LED3: Launch panel blog clients appear to be running.')
 label = widget_label( lr3base, value='Blog clients', /tracking, uvalue='Status LED3: Launch panel blog clients appear to be running.')
 
