@@ -788,9 +788,9 @@ common c_nsls_5, nsls_IC_value_index, nsls_flux_scale
 	H5D_close, det_id
 
 	maia_dwell = det
-	h = histogram( det, /NaN, locations=x)
+	h = histogram( [maia_dwell] *300./(max(maia_dwell)>0.001), /NaN, locations=tx)
 	q = reverse(sort(h))
-	maia_fixed_dwell = x[q[0]]
+	maia_fixed_dwell = tx[q[0]] *(max(maia_dwell)>0.001)/300.
 	if self.spectrum_mode then maia_dwell = maia_fixed_dwell
 
 	nsls_flux_scale = flux_ic.val * flux_ic.unit

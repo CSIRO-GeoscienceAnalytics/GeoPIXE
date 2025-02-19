@@ -748,7 +748,6 @@ common c_petra_4, n_petra_channel, i_petra_channel
 	p06_file_id = file_id				; save to use in 'read_buffer'
 	version = '2.1.0'
 	timebase = 1000L					; for ms?
-	dwell = 0.0
 	i_buffer = 0L
 
 ;	Get sequence numbers 
@@ -782,6 +781,8 @@ common c_petra_4, n_petra_channel, i_petra_channel
 	
 	x = pixel_x[ (sequence-1)>0]			; from x,y read in by header read
 	y = pixel_y[ (sequence-1)>0]
+	nx = max(pixel_x) + 1
+	ny = max(pixel_y) + 1
 	H5D_close, det_id
 
 ;	Get histgram/spectra data size ...
@@ -837,8 +838,6 @@ common c_petra_4, n_petra_channel, i_petra_channel
 	n_sequence_buffer = dims[1]					; number of sequence steps in each file
 	pnc_hdf_x_range = self.header.scan.x_pixels
 	pnc_hdf_y_range = self.header.scan.y_pixels
-	pnc_hdf_x = 0								; not used this time
-	pnc_hdf_y = 0								; use this to flag a fresh file open in 'read_buffer'
 
 	;	Set up various vectors to use to construct X,Y,E events in 'read_buffer'
 
@@ -881,7 +880,8 @@ common c_petra_4, n_petra_channel, i_petra_channel
 		goto, find_dwell
 	endif
 
-	for i=0,na-1 do begin
+	i = where( strip_path(afiles) eq trip_path(stat.name), nq)
+	if nq ne 0 then begin
 		afile_id = H5F_OPEN( afiles[i])
 
 		nm = H5G_get_nmembers( afile_id,'entry/data')
@@ -897,15 +897,14 @@ common c_petra_4, n_petra_channel, i_petra_channel
 			goto, find_dwell
 		endif else begin
 			rec_id = H5D_OPEN(afile_id,'entry/data/'+strip_path(flux_ic.pv))
-			vals = H5D_read(rec_id)
-			values = (n_elements(values) eq 0) ? vals : [values, vals]
+			values = H5D_read(rec_id)
 			H5D_close, rec_id
 		endelse
 
 		H5F_close, afile_id
-	endfor
+	endif
 
-	;	Get 'dwell','value1', ... from adc_... files
+	;	Get 'value1', ... from adc_... files
 
 find_dwell:
 	path = dir_up( extract_path( stat.name))
@@ -925,58 +924,48 @@ find_dwell:
 		goto, bad_io
 	endif
 
-	for i=0,na-1 do begin
+	i = where( strip_path(afiles) eq strip_path(stat.name), nq)
+	if nq ne 0 then begin
 		afile_id = H5F_OPEN( afiles[i])
-
 		nm = H5G_get_nmembers( afile_id,'entry/data')
 		name8 = strarr(nm)
 		for j=0,nm-1 do begin
 			name8[j] = H5G_get_member_name(afile_id,'entry/data',j)
 		endfor
 
-		q = where( name8 eq 'exposuretime', nq)
-		if nq eq 0 then begin
-			warning,'petra_p06_h5_DEVICE::read_setup','No "entry/data/exposuretime" dataset found.'
-			H5F_close, afile_id
-			goto, bad_io
-		endif
-		rec_id = H5D_OPEN(afile_id,'entry/data/exposuretime')
-		vals = H5D_read(rec_id)
-		dwell = (i eq 0) ? vals : [dwell, vals]
-		H5D_close, rec_id
-
 		if use_adc_flux then begin
 			q = where( name8 eq strip_path(flux_ic.pv), nq)
 			if nq eq 0 then begin
 				warning,'petra_p06_h5_DEVICE::read_setup','No "'+flux_ic.pv+'" data found.'
 				H5F_close, afile_id
-				continue
+				goto, set_flux
 			endif else begin
 				rec_id = H5D_OPEN(afile_id,'entry/data/'+strip_path(flux_ic.pv))
-				vals = H5D_read(rec_id)
-				values = (n_elements(values) eq 0) ? vals : [values, vals]
+				values = H5D_read(rec_id)
 				H5D_close, rec_id
 			endelse
 		endif
 
 		H5F_close, afile_id
-	endfor
+	endif
 
-	maia_dwell = dwell
-	h = histogram( maia_dwell, /NaN, locations=x)
+set_flux:
+	h = histogram( [maia_dwell] *300./(max(maia_dwell)>0.001), /NaN, locations=tx)
 	q = reverse(sort(h))
-	maia_fixed_dwell = x[q[0]]
+	maia_fixed_dwell = tx[q[0]] *(max(maia_dwell)>0.001)/300.
 	if self.spectrum_mode then maia_dwell = maia_fixed_dwell
 
 ;	Flux counters - Get 'value1', ... from adc_... and qbpm_... files
 
 	nsls_flux_scale = flux_ic.val * flux_ic.unit
-	if (self.spectrum_mode eq 0)  then begin
-		nsls_flux_scale = nsls_flux_scale * flux_ic.dwell*0.001			; Scale Epics scaler rates by dwell only for maps.
-	endif																; This assumes PV values are RATES not counts.
-	flux = nsls_flux_scale * values									; flux PVs are rates
-	if self.spectrum_mode then flux = total(flux)
-
+	tflux = nsls_flux_scale * values					; flux PVs are counts
+	if self.spectrum_mode then begin
+		flux = flux + total(tflux)
+	endif else begin
+		flux[x,y] = tflux			 					; distribute flux by sequence # into flux by x,y
+	endelse
+;	print,'Flux: ',total(flux)
+	
 ;	Assume we need to determine a 'dead_fraction' map here from 'inpcounts', 'outcounts' for each channel.
 ;	Take average of all detector channels for now. May need to move to a rate weighted average.
 
@@ -1200,13 +1189,11 @@ common c_petra_4, n_petra_channel, i_petra_channel
 		multiple = -1L
 	endelse
 	n = good
-	pnc_hdf_y = 1
 
     processed = processed + good
 	return, 0
 	
 bad_io:
-	pnc_hdf_y = 1
 	return, 1
 end
 
@@ -1271,213 +1258,213 @@ endif
 common c_geopixe_adcs, geopixe_max_adcs
 
 case name of
-	'petra_p06_h5_spec': begin						; 41
-		p2 = 0L
-		if H5F_is_hdf5( file) eq 0 then begin 
-			warning,'petra_p06_h5_DEVICE::get_import_list','Not a valid HDF5 file: '+file
-			goto, petra_p06_h5_evt_done
-		endif
-		file_id = H5F_open(file)
-		hdf5_id = file_id
-
-		version = '2.1.0'
-		timebase = 1000L			; for ms
-
-		base_id = H5G_open(file_id,'xrmmap')
-		n = H5A_get_num_attrs( base_id)
-		for i=0,n-1 do begin
-			attr_id = H5A_open_idx(base_id, i)
-			case H5A_get_name( attr_id) of
-				'VERSION': begin
-;					attr = H5A_read( attr_id)
-;					version = attr
-					end
-				else:
-			endcase
-			H5A_close, attr_id
-		endfor
-		H5G_close, base_id
-
-		nm = H5G_get_nmembers(file_id,'xrmmap')	
-		name = strarr(nm)
-		for i=0,nm-1 do begin
-			name[i] = H5G_get_member_name(file_id,'xrmmap',i)
-		endfor
-
-		q = where( name eq 'scalars', nq)
-		if nq eq 0 then begin
-			warning,'read_petra_p06_h5_header','No "xrmmap/scalars" group found.'
-			goto, petra_p06_h5_evt_done
-		endif
-
-		nm = H5G_get_nmembers(file_id,'xrmmap/scalars')	
-		headings = strarr(nm)
-		for i=0,nm-1 do begin
-			headings[i] = H5G_get_member_name(file_id,'xrmmap/scalars',i)
-		endfor
-		pv_names = headings
-
-		q = where( name eq 'mca1', nq)
-		if nq eq 0 then begin
-			warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/mca1" dataset found.'
-			goto, petra_p06_h5_evt_done
-		endif
-	
-		nm = H5G_get_nmembers(hdf5_id,'xrmmap/mca1')	
-		name2 = strarr(nm)
-		for i=0,nm-1 do begin
-			name2[i] = H5G_get_member_name(hdf5_id,'xrmmap/mca1',i)
-		endfor
-	
-		q = where( name2 eq 'realtime', nq)
-		if nq eq 0 then begin
-			warning,'read_petra_p06_h5_header','No "xrmmap/mca1/realtime" data found.'
-			goto, petra_p06_h5_evt_done
-		endif
-		det_id = H5D_OPEN(hdf5_id,'xrmmap/mca1/realtime')
-		dspace = H5D_get_space(det_id)
-		dims = H5S_get_simple_extent_dims(dspace)
-		H5S_close, dspace
-	
-		nx = dims[0]
-		ny = dims[1]
-	
-		det = H5D_read(det_id) / float(timebase)		; for ms ???
-		dwell = det[*,*]
-		H5D_close, det_id
-
-		q = where( (strmid(name,0,3) eq 'mca') and (name ne 'mcasum'), n_det)
-		if nq eq 0 then begin
-			warning,'petra_p06_h5_DEVICE::get_import_list','No "xrmmap/mca" datasets found in group.'
-			goto, petra_p06_h5_evt_done
-		endif
-
-		cal = replicate( {cal_devicespec, on:0, a:0.0, b:0.0, units:''}, n_det)
-	
-		q2 = where( name eq 'config', nq2)
-		if nq2 eq 0 then begin
-			warning,'read_petra_p06_h5_header','No "xrmmap/config" group found.'
-			goto, petra_p06_h5_evt_done
-		endif
-
-		nm = H5G_get_nmembers(file_id,'xrmmap/config')	
-		name2 = strarr(nm)
-		for i=0,nm-1 do begin
-			name2[i] = H5G_get_member_name(file_id,'xrmmap/config',i)
-		endfor
-
-		q3 = where( name2 eq 'mca_calib', nq3)
-		if nq3 eq 0 then begin
-			warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib" group found.'
-			goto, petra_p06_h5_evt_done
-		endif
-
-		nm = H5G_get_nmembers(file_id,'xrmmap/config/mca_calib')	
-		name3 = strarr(nm)
-		for i=0,nm-1 do begin
-			name3[i] = H5G_get_member_name(file_id,'xrmmap/config/mca_calib',i)
-		endfor
-
-		q4 = where( name3 eq 'offset', nq4)
-		if nq4 eq 0 then begin
-			warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib/offset" data found.'
-			goto, petra_p06_h5_evt_done
-		endif
-
-		axis_id = H5D_OPEN(file_id,'xrmmap/config/mca_calib/offset')
-		doff = H5D_read(axis_id)
-		H5D_close, axis_id			
-
-		q4 = where( name3 eq 'slope', nq4)
-		if nq4 eq 0 then begin
-			warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib/slope" data found.'
-			goto, petra_p06_h5_evt_done
-		endif
-
-		axis_id = H5D_OPEN(file_id,'xrmmap/config/mca_calib/slope')
-		dslope = H5D_read(axis_id)
-		H5D_close, axis_id			
-
-		for i=0,n_det-1 do begin
-			cal[i].a = dslope[i]
-			cal[i].b = doff[i]
-			if cal[i].a gt 1.0e-10 then begin
-				cal[i].on = 1
-				cal[i].units = 'keV'
-			endif
-		endfor
-
-		q = where( name eq 'positions', nq)
-		if nq eq 0 then begin
-			warning,'read_petra_p06_h5_header','No "xrmmap/positions" group found.'
-			goto, petra_p06_h5_evt_done
-		endif else begin
-			nm = H5G_get_nmembers(file_id,'xrmmap/positions')	
-			name2 = strarr(nm)
-			for i=0,nm-1 do begin
-				name2[i] = H5G_get_member_name(file_id,'xrmmap/positions',i)
-			endfor
-	
-			q = where( name2 eq 'pos', nq)
-			if nq eq 0 then begin
-				warning,'read_petra_p06_h5_header','No "xrmmap/positions/pos" data found.'
-				goto, petra_p06_h5_evt_done
-			endif else begin
-				axis_id = H5D_OPEN(file_id,'xrmmap/positions/pos')
-				pos = H5D_read(axis_id)
-				axisx = reform(pos[0,*,0])					; assumes was mm
-				use_x = 1
-				axisy = reform(pos[1,0,*])					; assumes was mm
-				use_y = 1
-				H5D_close, axis_id			
-			endelse
-		endelse
-
-		q = where( (strmid(name,0,3) eq 'mca') and (name ne 'mcasum'), n_det)
-		if nq eq 0 then begin
-			warning,'petra_p06_h5_DEVICE::get_import_list','No "xrmmap/mca" datasets found in group.'
-			goto, petra_p06_h5_evt_done
-		endif
-
-		h = histogram( dwell, /NaN, locations=x)
-		q2 = reverse(sort(h))
-		maia_fixed_dwell = x[q2[0]]
-
-		p2 = ptrarr(n_det)
-		for i=0,n_det-1 do begin
-			spec_id = H5D_open(file_id,'xrmmap/'+name[q[i]]+'/counts')
-			space = H5D_get_space(spec_id)
-			dims = H5S_get_simple_extent_dims(space)
-			spec1 = H5D_read(spec_id)
-			spec2 = fltarr(dims[0])
-			for j=0,dims[0]-1 do begin
-				spec2[j] = total( spec1[j,*,*])
-			endfor
-
-			spec = define(/spectrum)
-			spec.size = dims[0]
-			spec.data = ptr_new(spec2, /no_copy)
-			spec.label = file + ' [' + name[q[i]] + ']'
-			spec.station = i+1
-			spec.channel = i
-			spec.detector = 7
-			spec.cal.order = 1
-			spec.cal.poly[0] = cal[i].b
-			spec.cal.poly[1] = cal[i].a
-			spec.cal.units = cal[i].units
-;			spec.comment = 
-			spec.dwell = {on:1, val: maia_fixed_dwell}
-;			spec.px_coords = ptr_new(axisx)
-;			spec.x_coords_units = 'mm'
-			p2[i] = ptr_new(spec)
-			
-			H5S_close, space
-			H5D_close, spec_id
-		endfor
-
-petra_p06_h5_evt_done:
-		H5F_close, file_id
-		end
+;	'petra_p06_h5_spec': begin						; 41
+;		p2 = 0L
+;		if H5F_is_hdf5( file) eq 0 then begin 
+;			warning,'petra_p06_h5_DEVICE::get_import_list','Not a valid HDF5 file: '+file
+;			goto, petra_p06_h5_evt_done
+;		endif
+;		file_id = H5F_open(file)
+;		hdf5_id = file_id
+;
+;		version = '2.1.0'
+;		timebase = 1000L			; for ms
+;
+;		base_id = H5G_open(file_id,'xrmmap')
+;		n = H5A_get_num_attrs( base_id)
+;		for i=0,n-1 do begin
+;			attr_id = H5A_open_idx(base_id, i)
+;			case H5A_get_name( attr_id) of
+;				'VERSION': begin
+;;					attr = H5A_read( attr_id)
+;;					version = attr
+;					end
+;				else:
+;			endcase
+;			H5A_close, attr_id
+;		endfor
+;		H5G_close, base_id
+;
+;		nm = H5G_get_nmembers(file_id,'xrmmap')	
+;		name = strarr(nm)
+;		for i=0,nm-1 do begin
+;			name[i] = H5G_get_member_name(file_id,'xrmmap',i)
+;		endfor
+;
+;		q = where( name eq 'scalars', nq)
+;		if nq eq 0 then begin
+;			warning,'read_petra_p06_h5_header','No "xrmmap/scalars" group found.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;
+;		nm = H5G_get_nmembers(file_id,'xrmmap/scalars')	
+;		headings = strarr(nm)
+;		for i=0,nm-1 do begin
+;			headings[i] = H5G_get_member_name(file_id,'xrmmap/scalars',i)
+;		endfor
+;		pv_names = headings
+;
+;		q = where( name eq 'mca1', nq)
+;		if nq eq 0 then begin
+;			warning,'petra_p06_h5_DEVICE::read_setup','No "xrmmap/mca1" dataset found.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;	
+;		nm = H5G_get_nmembers(hdf5_id,'xrmmap/mca1')	
+;		name2 = strarr(nm)
+;		for i=0,nm-1 do begin
+;			name2[i] = H5G_get_member_name(hdf5_id,'xrmmap/mca1',i)
+;		endfor
+;	
+;		q = where( name2 eq 'realtime', nq)
+;		if nq eq 0 then begin
+;			warning,'read_petra_p06_h5_header','No "xrmmap/mca1/realtime" data found.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;		det_id = H5D_OPEN(hdf5_id,'xrmmap/mca1/realtime')
+;		dspace = H5D_get_space(det_id)
+;		dims = H5S_get_simple_extent_dims(dspace)
+;		H5S_close, dspace
+;	
+;		nx = dims[0]
+;		ny = dims[1]
+;	
+;		det = H5D_read(det_id) / float(timebase)		; for ms ???
+;		dwell = det[*,*]
+;		H5D_close, det_id
+;
+;		q = where( (strmid(name,0,3) eq 'mca') and (name ne 'mcasum'), n_det)
+;		if nq eq 0 then begin
+;			warning,'petra_p06_h5_DEVICE::get_import_list','No "xrmmap/mca" datasets found in group.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;
+;		cal = replicate( {cal_devicespec, on:0, a:0.0, b:0.0, units:''}, n_det)
+;	
+;		q2 = where( name eq 'config', nq2)
+;		if nq2 eq 0 then begin
+;			warning,'read_petra_p06_h5_header','No "xrmmap/config" group found.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;
+;		nm = H5G_get_nmembers(file_id,'xrmmap/config')	
+;		name2 = strarr(nm)
+;		for i=0,nm-1 do begin
+;			name2[i] = H5G_get_member_name(file_id,'xrmmap/config',i)
+;		endfor
+;
+;		q3 = where( name2 eq 'mca_calib', nq3)
+;		if nq3 eq 0 then begin
+;			warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib" group found.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;
+;		nm = H5G_get_nmembers(file_id,'xrmmap/config/mca_calib')	
+;		name3 = strarr(nm)
+;		for i=0,nm-1 do begin
+;			name3[i] = H5G_get_member_name(file_id,'xrmmap/config/mca_calib',i)
+;		endfor
+;
+;		q4 = where( name3 eq 'offset', nq4)
+;		if nq4 eq 0 then begin
+;			warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib/offset" data found.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;
+;		axis_id = H5D_OPEN(file_id,'xrmmap/config/mca_calib/offset')
+;		doff = H5D_read(axis_id)
+;		H5D_close, axis_id			
+;
+;		q4 = where( name3 eq 'slope', nq4)
+;		if nq4 eq 0 then begin
+;			warning,'read_petra_p06_h5_header','No "xrmmap/config/mca_calib/slope" data found.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;
+;		axis_id = H5D_OPEN(file_id,'xrmmap/config/mca_calib/slope')
+;		dslope = H5D_read(axis_id)
+;		H5D_close, axis_id			
+;
+;		for i=0,n_det-1 do begin
+;			cal[i].a = dslope[i]
+;			cal[i].b = doff[i]
+;			if cal[i].a gt 1.0e-10 then begin
+;				cal[i].on = 1
+;				cal[i].units = 'keV'
+;			endif
+;		endfor
+;
+;		q = where( name eq 'positions', nq)
+;		if nq eq 0 then begin
+;			warning,'read_petra_p06_h5_header','No "xrmmap/positions" group found.'
+;			goto, petra_p06_h5_evt_done
+;		endif else begin
+;			nm = H5G_get_nmembers(file_id,'xrmmap/positions')	
+;			name2 = strarr(nm)
+;			for i=0,nm-1 do begin
+;				name2[i] = H5G_get_member_name(file_id,'xrmmap/positions',i)
+;			endfor
+;	
+;			q = where( name2 eq 'pos', nq)
+;			if nq eq 0 then begin
+;				warning,'read_petra_p06_h5_header','No "xrmmap/positions/pos" data found.'
+;				goto, petra_p06_h5_evt_done
+;			endif else begin
+;				axis_id = H5D_OPEN(file_id,'xrmmap/positions/pos')
+;				pos = H5D_read(axis_id)
+;				axisx = reform(pos[0,*,0])					; assumes was mm
+;				use_x = 1
+;				axisy = reform(pos[1,0,*])					; assumes was mm
+;				use_y = 1
+;				H5D_close, axis_id			
+;			endelse
+;		endelse
+;
+;		q = where( (strmid(name,0,3) eq 'mca') and (name ne 'mcasum'), n_det)
+;		if nq eq 0 then begin
+;			warning,'petra_p06_h5_DEVICE::get_import_list','No "xrmmap/mca" datasets found in group.'
+;			goto, petra_p06_h5_evt_done
+;		endif
+;
+;		h = histogram( dwell, /NaN, locations=x)
+;		q2 = reverse(sort(h))
+;		maia_fixed_dwell = x[q2[0]]
+;
+;		p2 = ptrarr(n_det)
+;		for i=0,n_det-1 do begin
+;			spec_id = H5D_open(file_id,'xrmmap/'+name[q[i]]+'/counts')
+;			space = H5D_get_space(spec_id)
+;			dims = H5S_get_simple_extent_dims(space)
+;			spec1 = H5D_read(spec_id)
+;			spec2 = fltarr(dims[0])
+;			for j=0,dims[0]-1 do begin
+;				spec2[j] = total( spec1[j,*,*])
+;			endfor
+;
+;			spec = define(/spectrum)
+;			spec.size = dims[0]
+;			spec.data = ptr_new(spec2, /no_copy)
+;			spec.label = file + ' [' + name[q[i]] + ']'
+;			spec.station = i+1
+;			spec.channel = i
+;			spec.detector = 7
+;			spec.cal.order = 1
+;			spec.cal.poly[0] = cal[i].b
+;			spec.cal.poly[1] = cal[i].a
+;			spec.cal.units = cal[i].units
+;;			spec.comment = 
+;			spec.dwell = {on:1, val: maia_fixed_dwell}
+;;			spec.px_coords = ptr_new(axisx)
+;;			spec.x_coords_units = 'mm'
+;			p2[i] = ptr_new(spec)
+;			
+;			H5S_close, space
+;			H5D_close, spec_id
+;		endfor
+;
+;petra_p06_h5_evt_done:
+;		H5F_close, file_id
+;		end
 
 	'petra_p06_h5_evt': begin							; 9
 		warning,'petra_p06_h5_DEVICE::import_spec',['"petra_p06_h5_evt" spectrum import.','This import should use "spec_evt" elsewhere.']

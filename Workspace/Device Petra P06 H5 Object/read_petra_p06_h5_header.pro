@@ -25,6 +25,7 @@ if catch_errors_on then begin
    endif
 endif
 common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
+common c_maia_13, maia_dwell
 error = 1
 
 	stat = fstat( unit)
@@ -60,6 +61,7 @@ error = 1
 	use_x = 0
 	use_y = 0
 	dwell = 0.0
+	common_dwell = 0.0
 	n_adcs = 1					; 8
 	pv_names = ''
 	cal = replicate( {cal_devicespec, on:0, a:0.0, b:0.0, units:''}, n_adcs)
@@ -212,9 +214,12 @@ find_encoder:
 		H5F_close, afile_id
 	endfor
 
-	h = histogram( dwell_array, /NaN, locations=tx)
+	maia_dwell = fltarr(nx,ny)
+	maia_dwell[pixel_x,pixel_y] = dwell_array * 1000.			; ms dwell
+	
+	h = histogram( maia_dwell *300./(max(maia_dwell)>0.001), /NaN, locations=tx)
 	q2 = reverse(sort(h))
-	common_dwell = tx[q2[0]]
+	common_dwell = tx[q2[0]] *(max(maia_dwell)>0.001)/300.
 
 ;	Find energy, sample, instrument name
 
