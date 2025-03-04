@@ -34,6 +34,14 @@ if n_elements(true) lt 1 then true = 0
 if n_elements(file1) lt 1 then file1 = "Maia_384C.csv"
 if file1 eq '' then file1 = "Maia_384C.csv"
 
+; Note: 'file_search2' in 'file_requester' below may have set a draw id for progress bar.
+; So don't call 'file_requester' after opening window, before plotting to it.
+
+path1 = extract_path( file1)
+file1 = file_requester(/read, filter='*.csv', updir=2, file=file1, /skip_if_exists)
+d = read_detector_layout( file1, maia=maia, error=error)
+if error or (maia eq 0) then return
+
 case !version.os_family of
 	'MacOS': begin
 		retain = 2
@@ -53,25 +61,19 @@ endif else if ps then begin
 	set_device, 'PS', /portrait, file=strip_file_ext(file1)+'.eps', /square
 	used_printer = 1
 endif else if screen then begin
-;	set_device, 'WIN'
 	used_printer = 0
-;	if !d.name eq 'WIN' then begin
-		window,0, xsize=800, ysize=800, retain=retain
-;	endif
+	window, 0, xsize=800, ysize=800, retain=retain
 endif else begin
 	if new_dialog_printersetup() then begin
 		used_printer = 1
 		white = 1
 	endif else begin
-;		set_device, 'WIN'
 		used_printer = 0
-;		if !d.name eq 'WIN' then begin
-			window,0, xsize=800, ysize=800, retain=retain
-;		endif
+		window, 0, xsize=800, ysize=800, retain=retain
 	endelse
 endelse
 
-default_plot, thick, athick, csize, cthick, thick_scale=1.4
+default_plot, thick, athick, csize, cthick, thick_scale=1.2
 
 if true then begin
 	wlo = 0.10
@@ -98,11 +100,6 @@ if white then begin
 endif
 
 ;----------------------------------------------------------------------------
-
-path1 = extract_path( file1)
-file1 = file_requester(/read, filter='*.csv', updir=2, file=file1, /skip_if_exists)
-d = read_detector_layout( file1, maia=maia, error=error)
-if error or (maia eq 0) then return
 
 !p.title = title
 !x.title = 'X (mm)'

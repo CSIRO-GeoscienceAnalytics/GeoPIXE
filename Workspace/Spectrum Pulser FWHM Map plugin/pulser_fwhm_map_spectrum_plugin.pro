@@ -95,7 +95,7 @@ endif
 			do_energy = (label eq '/E')
 			if do_energy then begin
 				adc = (*pspec).station + adc_offset_device((*pspec).DevObj)
-				if adc eq 133 then begin
+				if adc eq 240 then begin
 					print,'debug ...'
 				endif
 				ns = (*pspec).size
@@ -153,7 +153,7 @@ endif
 		endif
 	endfor
 
-	window,0, xsize=500, ysize=500, retain=retain
+;	window,0, xsize=500, ysize=500, retain=retain		; not used in 'plot_maia_parameter' anymore
 	title = 'Pulser Noise FWHM Map (eV) ('+lab+')'
 	id = indgen(384)
 	plot_maia_parameter, id, fwhm, title=title, min=ymin,max=ymax, /white, /screen, layout=layout
