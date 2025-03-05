@@ -2933,6 +2933,11 @@ print,'          spectra	',(*pm).number.spectra
 print,'          timers	',(*pm).number.timer
 print,'bias: min, max = ',(*pm).control.bias_min, (*pm).control.bias_max
 print,'peltier: cool_max, bake_max = ',(*pm).control.peltier_cool_max, (*pm).control.peltier_bake_max
+
+; This was not routinely used in Maia-Control, and was added to Kandinski in 2021 (along with Linearise2 code in FPGA).
+; Set it here, once and for all.
+
+socket_command_set, ps, 'ENABLE', 1, class='antialias'
 return
 end
 
