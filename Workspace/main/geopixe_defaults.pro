@@ -306,6 +306,23 @@ cont:
 ;	print, 'geopixe_defaults: Close ...'
 	close_file, unit
 	error = 0
+	
+; 	Test for valid paths ...
+
+	test = file_test( geopixe.path.data, /dir)
+	if (test eq 0) or (geopixe.path.data eq '') then begin
+		warning,'geopixe_defaults',['Failed to find the default geopixe "data" path.', $
+						'Or, "path data" not setup in "geopixe.conf" file.','', $
+						'Setup paths in your ".geopixe/geopixe.conf" file.']
+	endif
+	test = file_test( geopixe.path.config, /dir)
+	if (test eq 0) or (geopixe.path.config eq '') then begin
+		warning,'geopixe_defaults',['Failed to find the default geopixe "config" path.', $
+			'Or, "path config" not setup in "geopixe.conf" file.','', $
+			'Setup a "path config" in your ".geopixe/geopixe.conf" file, ', $
+			'which is also used to store "detector" and "filter" ', $
+			'definition dirs.']
+	endif
 	return, geopixe
 	
 bad_find:	
