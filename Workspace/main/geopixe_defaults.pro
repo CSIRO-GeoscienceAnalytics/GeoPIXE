@@ -14,7 +14,9 @@ function geopixe_defaults, error=error, source=source
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
+common c_geopixe_defaults, geopixe_defaults_done
 if n_elements(geopixe_root) lt 1 then startupp
+if n_elements(geopixe_defaults_done) lt 1 then geopixe_defaults_done=0
 if n_elements(source) lt 1 then source='?'
 
 	error = 1
@@ -308,7 +310,8 @@ cont:
 	error = 0
 	
 ; 	Test for valid paths ...
-
+	if geopixe_defaults_done then goto, fin
+	
 	test = file_test( geopixe.path.data, /dir)
 	if (test eq 0) or (geopixe.path.data eq '') then begin
 		warning,'geopixe_defaults',['Failed to find the default geopixe "data" path.', $
@@ -323,6 +326,8 @@ cont:
 			'which is also used to store "detector" and "filter" ', $
 			'definition dirs.']
 	endif
+fin:
+	geopixe_defaults_done = 1
 	return, geopixe
 	
 bad_find:	
