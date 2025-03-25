@@ -645,9 +645,11 @@ case uname of
 		array = (*p).array
 		beam = (*(*p).source)
 
-		if (*p).beam.mode le 5 then begin
-			beam.continuum = 0
-			beam.energy = energy
+		if n_elements(beam) ne 0 then begin
+			if (*p).beam.mode le 5 then begin
+				beam.continuum = 0
+				beam.energy = energy
+			endif
 		endif
 
 ;;;		select = [26,28,30]

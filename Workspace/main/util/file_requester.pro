@@ -1434,6 +1434,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 ;				fixed offset jumping in Linux				2019	C.G. Ryan
 ;				used file_search2 to allow cancel			2019	C.G. Ryan
 ;				added "more" with file search				2022	C.G. Ryan
+;				added 'within_modal' option					2024	C.G. Ryan
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0

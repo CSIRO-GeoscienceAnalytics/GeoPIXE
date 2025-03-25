@@ -299,18 +299,18 @@ yield = 0
 	endelse
 	hlid = congrid(lid,2*n_elements(lid)+1)		; layer ID from half-slice index
 
-;	Normalize to 1 uC charge quivalent total beam flux? No, as "flux" is now dwell time (ms) for Maia
-;	Mapper, need to report counts/ms instead of counts/uC.
-
-	beam2 = beam
-;	beam2.spectrum.data = beam2.spectrum.data * 6.242e+12 / total(beam2.spectrum.data)			; uC
-	beam2.spectrum.data = beam2.spectrum.data * 1.0e-3											; ms
-
 ;	Harden the beam spectrum (for a continnum source of photons).
 ;	Build list of all X-ray lines, for all shells and elements, for the energy range 'e_min, e_max' ...
 ;	Note that 'get_lines' does not return a proper 'branch_ratio' result for the continuum case.
 
 	if continuum then begin
+
+;		Normalize to 1 uC charge quivalent total beam flux? No, as "flux" is now dwell time (ms) for Maia
+;		Mapper, need to report counts/ms instead of counts/uC.
+
+		beam2 = beam
+;		beam2.spectrum.data = beam2.spectrum.data * 6.242e+12 / total(beam2.spectrum.data)			; uC
+		beam2.spectrum.data = beam2.spectrum.data * 1.0e-3											; ms
 
 ;		Fudge to test falling source spectrum effect on yields ...
 ;		Not in 'xos_transmission', which would require all source models to be recalculated (and saved?).
