@@ -2867,6 +2867,12 @@ end
 
 pro map_help, pstate
 
+; Switch between help1 and help2 text widgets for help as the window is resized.
+; help1 is under window controls, help2 is to the right.
+; 
+; 'scr_xsize_off' and 'scr_ysize_off' provide offsets from window size x,y to
+; window scr_xsize, scr_ysize size (w,h) in 'OnSize_image'.
+
 	if (*pstate).w gt 600 then begin
 		if (*pstate).help eq (*pstate).help2 then goto, more
 
@@ -2884,7 +2890,7 @@ pro map_help, pstate
 		widget_control, (*pstate).help1_base, map=1
 	endelse
 
-	more:
+more:
 	if (*pstate).w gt 600 then begin
 		case !version.os_family of
 			'MacOS': begin
@@ -4207,10 +4213,10 @@ end
 ; If this is a clone, then assume that shapes already cleared.
 ; For zoom= and /full, don't change the tlb size, or the element.
 ;
-; /clone	for a clone
-; /full		for zoom to full image
-; zoom=+1,-1	for zoom in,out
-; /no_change	does not seem to be used anymore
+;	/clone		for a clone
+;	/full		for zoom to full image
+;	zoom=+1,-1	for zoom in,out
+;	/no_change	does not seem to be used anymore
 
 pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=no_change, $
 	realize=realize
@@ -4280,6 +4286,8 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 	       end
 	endcase
 
+;	Limit zoom for large images
+
 	zoom0 = 0
 	if (full eq 0) and (izoom eq 0) and (no_change eq 0) and ptr_valid(p) then begin
 		if n_elements( *p) gt 0 then begin
@@ -4304,9 +4312,14 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 	pixel_to_xy, pstate, xcentre,ycentre, xcentre0,ycentre0
 	print,'	View centre:',xcentre,ycentre,' pixmap centre:',xcentre0,ycentre0
 
+;	Enforce some max zooms for large images
+
 	zoom_max = 4
 	if long((*p).xsize)*long((*p).ysize) gt 1000*1000L then zoom_max = 2
 	if long((*p).xsize)*long((*p).ysize) gt 5000*5000L then zoom_max = 0
+
+;	'width', 'height' are the image sizes with zoom applied
+;	'w', 'h' are the viewport size to display (with scroll bars)
 
 	new = {zoom:(*pstate).zoom, width:(*pstate).width, height:(*pstate).height, w:(*pstate).w, h:(*pstate).h }
 	if clone eq 0 then begin
@@ -4336,9 +4349,15 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 	endelse
 	print, '	new width,height, w,h= ', new.width, new.height, new.w, new.h 
 
+;	Set draw widget viewport position, draw_size (pixmap size) to pixel size of image 'width','height'.
+;	Set draw widget "screen" size (viewport size) to 'w', 'h'.
+
 	widget_control, (*pstate).draw2, set_draw_view=[0,0]
 	widget_control, (*pstate).draw2, draw_xsize=new.width+draw_trim, $
 		draw_ysize=new.height+draw_trim, scr_xsize=new.w, scr_ysize=new.h
+
+;	If this fails, we have run out of memory and failed to make large draw widget.
+;	IDL can't seem to make a good error catch for this kind of thing, so we check by other means ...
 
 	if widget_info( (*pstate).draw2, /valid) eq 0 then begin
 		warning,'set_image_view',['Failed to allocate memory for larger image.','Draw ID has become undefined.', $
@@ -4361,6 +4380,8 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 	(*pstate).xlow = xlow2
 	(*pstate).ylow = ylow2
 	print, '	new xlow, ylow = ',xlow2,ylow2
+
+;	Allocate pixmaps for the foreground 'pix' and background/overlay 'pix2' pixmaps.
 
 	allocate_pixmap, new.width, new.height, new_wid=wid, old_wid=pix, error=error
 	if error then goto, bad_pix
@@ -4402,7 +4423,12 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 	(*pstate).xview = new.w - (*pstate).dw
 	(*pstate).yview = new.h - (*pstate).dh
 
+;	May need to reorganize the help widgets
+
 	if (realize eq 0) then map_help, pstate
+
+;	Forget why we need to do this again, nudge/wake up IDL
+
 	if ptr_valid( p) then begin
 		widget_control, (*pstate).draw2, set_draw_view=[0,0]
 		draw_images, pstate

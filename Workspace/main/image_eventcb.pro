@@ -6628,6 +6628,10 @@ if (event.x eq (*pstate).size_event_x) and (event.y eq (*pstate).size_event_y) t
 (*pstate).size_event_x = event.x
 (*pstate).size_event_y = event.y
 
+; The offsets 'scr_xsize_off', 'scr_ysize_off' get manipulated in 'map_help' as the window size
+; changes and we may switch between help1 and help2 text widgets for help.
+; Determine new scr size (w,h) for draw widget, save old in 'ow,oh'.
+
 w1 = (event.x - (*pstate).scr_xsize_off)
 h1 = (event.y - (*pstate).scr_ysize_off)
 w = (w1 > (376 + scr_trim)) 
@@ -6637,12 +6641,16 @@ oh = (*pstate).h
 (*pstate).w = w
 (*pstate).h = h
 
+; Check to see if we need to automatically zoom image in/out ...
+
 if (float(w1) / ow ge 2) and (float(h1) / oh ge 2) then begin
 	zx = round( alog( float(w1) / float(ow)) / alog(2.))
 	zy = round( alog( float(h1) / float(oh)) / alog(2.))
 	set_image_view, pstate, event.top, zoom = max([zx,zy]) > 1
-;	return			; commands below already done in 'set_image_view', but window size done below!
 endif
+
+; May need to switch between help1 and help2 if window size changes ...
+; The offsets 'scr_xsize_off', 'scr_ysize_off' get manipulated in 'map_help'.
 
 map_help, pstate
 
