@@ -6609,14 +6609,20 @@ case !version.os_family of
     'MacOS': begin
        draw_trim = 15
        scr_trim = 21
+       scr_xtrim = 0
+       scr_ytrim = 0
        end
     'unix': begin
        draw_trim = 0
-       scr_trim = 0		; 15
+       scr_trim = 0			; 15
+       scr_xtrim = 32
+       scr_ytrim = 3
        end
     else: begin
        draw_trim = 0
        scr_trim = 15		; 15
+       scr_xtrim = 0
+       scr_ytrim = 0
        end
 endcase
 ;print, 'Resize ... '
@@ -6654,8 +6660,8 @@ endif
 
 map_help, pstate
 
-w = ((event.x - (*pstate).scr_xsize_off) > (376 + scr_trim)) < ((*pstate).width + scr_trim)
-h = ((event.y - (*pstate).scr_ysize_off) > (64 + scr_trim)) < ((*pstate).height + scr_trim)
+w = ((event.x - (*pstate).scr_xsize_off) > (376 + scr_xtrim)) < ((*pstate).width + scr_xtrim)
+h = ((event.y - (*pstate).scr_ysize_off) > (64 + scr_ytrim)) < ((*pstate).height + scr_ytrim)
 
 ; Note that setting "draw_xsize=(*pstate).width, draw_ysize=(*pstate).height" is redundant,
 ; but necessary to keep the scrolling window working ...
