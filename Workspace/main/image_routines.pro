@@ -1721,6 +1721,7 @@ pro draw_images, pstate
 	b = make_tvb( pstate, i)
 	if n_elements(b) le 1 then goto, fin
 
+	erase
 	tv, b, 0,0								; plot image
 
 	if ptr_valid ((*pstate).b) then ptr_free, (*pstate).b
@@ -4275,14 +4276,20 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 	    'MacOS': begin
 	       draw_trim = 15
 	       scr_trim = 21
+	       scr_xtrim = 0
+	       scr_ytrim = 0
 	       end
 	    'unix': begin
 	       draw_trim = 0
 	       scr_trim = 0			; 15
+	       scr_xtrim = 32
+	       scr_ytrim = 3
 	       end
 	    else: begin
 	       draw_trim = 0
 	       scr_trim = 15		; 15
+	       scr_xtrim = 0
+	       scr_ytrim = 0
 	       end
 	endcase
 
@@ -4344,8 +4351,8 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 		new.w = (new.width + scr_trim) < 600
 		new.h = (new.height + scr_trim) < 600
 	endif else begin
-		new.w = (( new.w) > (376 + scr_trim)) < (new.width + scr_trim - 1)
-		new.h = (( new.h) > (64 + scr_trim)) < (new.height + scr_trim - 1)
+		new.w = (( new.w) > (376 + scr_xtrim)) < (new.width + scr_xtrim)
+		new.h = (( new.h) > (64 + scr_ytrim)) < (new.height + scr_ytrim)
 	endelse
 	print, '	new width,height, w,h= ', new.width, new.height, new.w, new.h 
 

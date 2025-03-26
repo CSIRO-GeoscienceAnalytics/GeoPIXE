@@ -6761,7 +6761,7 @@ widget_control, child, get_uvalue=pstate
 
 (*pstate).xlow = event.x
 (*pstate).ylow = event.y
-help,event
+;help,event
 print,'New View:', (*pstate).xlow, (*pstate).ylow
 
 pixel_to_xy, pstate, (*pstate).xlow, (*pstate).ylow, xorg,yorg
