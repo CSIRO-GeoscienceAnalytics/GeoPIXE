@@ -6660,8 +6660,8 @@ endif
 
 map_help, pstate
 
-w = ((event.x - (*pstate).scr_xsize_off) > (376 + scr_xtrim)) < ((*pstate).width + scr_xtrim)
-h = ((event.y - (*pstate).scr_ysize_off) > (64 + scr_ytrim)) < ((*pstate).height + scr_ytrim)
+w = ((event.x - (*pstate).scr_xsize_off) > (356 + scr_trim)) < ((*pstate).width + scr_xtrim)
+h = ((event.y - (*pstate).scr_ysize_off) > (64 + scr_trim)) < ((*pstate).height + scr_ytrim)
 
 ; Note that setting "draw_xsize=(*pstate).width, draw_ysize=(*pstate).height" is redundant,
 ; but necessary to keep the scrolling window working ...

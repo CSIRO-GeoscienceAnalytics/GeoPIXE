@@ -4351,7 +4351,7 @@ pro set_image_view, pstate, top, clone=clone, full=full, zoom=izoom, no_change=n
 		new.w = (new.width + scr_trim) < 600
 		new.h = (new.height + scr_trim) < 600
 	endif else begin
-		new.w = (( new.w) > (376 + scr_xtrim)) < (new.width + scr_xtrim)
+		new.w = (( new.w) > (356 + scr_xtrim)) < (new.width + scr_xtrim)
 		new.h = (( new.h) > (64 + scr_ytrim)) < (new.height + scr_ytrim)
 	endelse
 	print, '	new width,height, w,h= ', new.width, new.height, new.w, new.h 
