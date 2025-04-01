@@ -25,3 +25,4 @@ IDL_PATH : <IDL_DEFAULT>
 IDL_STARTUP : C:\software\IDL\GeoPIXE-open-source\workspace\main\startup.spro
 IDL_START_DIR : C:\software\IDL\GeoPIXE-open-source\workspace\main
 IDL_PROMPT : "python3.10 IDL 9.1 open> "
+IDL_MORE : 0

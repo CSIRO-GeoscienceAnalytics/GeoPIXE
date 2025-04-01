@@ -309,7 +309,7 @@ endif
 
   Get_button = Widget_Button(Button_base, UNAME='Get_button'  $
       ,/ALIGN_CENTER ,VALUE='Get', /tracking, $
-      uvalue='Get the calibration A,B parameters from a spectrum SPEC file.')
+      uvalue='Get the calibration A,B parameters from a spectrum SPEC file for selected ADC#.')
 
  	obj = obj_new('MAIA_DEVICE')
    svals = ['any',strtrim( adc_list_device(obj),2)]

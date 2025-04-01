@@ -110,6 +110,7 @@ readu, u, n
 spec.filter = n
 readu, u, n
 spec.station = n
+;print,'station=',n
 nn = intarr(2)
 readu, u, nn
 spec.sequence.num = nn[0]
@@ -189,7 +190,7 @@ if version le -26 then begin
 	spec.tube = tube
 endif
 
-if header and ((spec.station eq 0) or (spec.station eq find) or (find eq 0)) then goto, done
+if header and ((spec.station eq 0) or (spec.station eq find) or (find le 0)) then goto, done
 
 if (spec.size gt 0) then begin
 	readu, u, n

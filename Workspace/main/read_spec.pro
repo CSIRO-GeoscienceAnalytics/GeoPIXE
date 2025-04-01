@@ -103,6 +103,7 @@ if version le -23 then begin
 	readu,1, device_name
 	print,'version -23: device_name=',device_name
 endif else begin
+	device = 0
 	readu,1, device
 	print,'version old: device=',device
 	old = device_index_from_old_index( device, name=name, error=err)
@@ -115,6 +116,7 @@ obj = obj_new( device_name)
 if obj_valid(obj) eq 0 then begin
 	warning,'read_spec','Failed to create device object for: '+device_name
 endif
+if find ge 1 then print,'Find, offset: ', find, adc_offset_device(obj)
 
 readu, 1, source2
 
@@ -170,10 +172,23 @@ n = 0L
 readu,1, n
 if n lt 1 then goto, error
 
+; 'Find' may select a station to return. If not then find=0.
+; 
+; Want to make sure that the 'find_offset' matches the Display ADC number (as in Spectrum Select).
+; The input 'find' is usually from the "Get" button on the Cal window droplist, so found=0 means "any"
+; and the ADC number "0", "1", etc. start at find=1,2, etc. Hence, the "-1" in the fiormula for 
+; 'find_offset'. This is modified for device where ADC number start from "0", where 'adc_offset_device'
+; has the value "-1".
+
+if find ne 0 then begin
+	find_offset = find-1 - adc_offset_device(obj)			; equiv. to: find - start_ADC
+	print,'find_offset=',find_offset
+endif else find_offset=find
+
 p = 0L
 for j=0L,n-1 do begin
 	headerj = (j eq 0) ? 0 : header
-	pj = get_spec( 1, header=headerj, find=find, version=version)
+	pj = get_spec( 1, header=headerj, find=find_offset>0, version=version)
 	if ptr_valid(pj) eq 0 then goto, bad_get
 	(*pj).file = file
 
@@ -229,7 +244,7 @@ for j=0L,n-1 do begin
 	if np gt 0 then (*pj).plist = ptr_new(sic)
 	
 	if header then begin
-		if ((*pj).station eq 0) or ((*pj).station eq find) or (find eq 0) then begin
+		if ((*pj).station eq 0) or ((*pj).station eq find_offset) or (find eq 0) then begin
 			p = pj
 			error = 0
 			goto, finish
@@ -245,6 +260,7 @@ for j=0L,n-1 do begin
 endfor
 if header then begin
 ;	warning,'read_spec','failed to find selected station.'
+	print,'read_spec, failed to find selected station ',find
 endif
 error = 0
 

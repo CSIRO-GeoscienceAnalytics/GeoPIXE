@@ -95,8 +95,9 @@ if ptr_good((*p).pactive) then begin
 	List = [List,'   Detectors: '+strjoin(str_tidy( (*(*p).pactive)[0:16 < (n_elements(*(*p).pactive)-1) ]),', ')+' ...']
 	list = [list,'   Detector array (active detector multiplicity): ' + str_tidy(n_elements(*(*p).pactive))]
 endif else begin
-	List = [List,'   Detector: '+str_tidy((*p).station+adc_offset_device(obj))]
+	List = [List,'   Detector: '+str_tidy( (*p).station + adc_offset_device(obj))]
 endelse
+print,'Station, offset=', (*p).station, adc_offset_device(obj)
 
 if ptr_good((*p).px_coords) then begin
 	list = [list, '   X axis position array (' + str_tidy(n_elements(*(*p).px_coords)) + '), units: ' + (*p).x_coord_units]
