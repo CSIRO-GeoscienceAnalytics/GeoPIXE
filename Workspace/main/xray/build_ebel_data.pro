@@ -7,8 +7,8 @@ function build_ebel_data
 ntot=94
 
 for z=1,ntot do begin
-	name = strcompress( element_name(z)+'.mu', /remove_all)
-	name = geopixe_database_path+'ebel/'+name
+	name = strcompress( strupcase(element_name(z)+'.mu'), /remove_all)
+	name = geopixe_database_path+'Ebel/'+name
 
 ;	if z eq 92 then begin
 ;		print,'hello'
