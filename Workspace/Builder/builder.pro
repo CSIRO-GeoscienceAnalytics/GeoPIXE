@@ -20,6 +20,7 @@ pro build_project, lun, from, to, dir, resolve_all=resolve_all
 	cd, current=now					; current working dir
 	
 	fp = file_search( workspace_root + from)
+	if fp eq '' then return
 	nfp = n_elements(fp)
 	if nfp gt 0 then begin
 		for i=0,nfp-1 do begin
