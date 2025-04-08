@@ -95,7 +95,7 @@
 
 	xsect_m_OK = 0
 	on_ioerror, bad_m
-	openr, lun, geopixe_database_path+'dat/xsect_m.txt', /get_lun
+	openr, lun, geopixe_database_path+'dat/xsect_M.txt', /get_lun
 
 	nz = 0
 	readf, lun, nz
