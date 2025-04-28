@@ -28,7 +28,7 @@ pro save_plot_options, file, plot_options, error=error
 	openw, lun, file, /xdr, /get_lun
 
 	on_ioerror, bad_io
-	version = -5
+	version = -6
 	writeu,lun, version
 	writeu,lun, plot_options
 	error = 0

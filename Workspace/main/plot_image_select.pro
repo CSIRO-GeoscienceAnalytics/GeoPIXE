@@ -46,6 +46,7 @@
 ;			landscape:		0		Landscape orientation
 ;			Learn: { on:	0		to use a "Learn" RGB file for planes
 ;					file:	'' }}	"Learn" filename
+;			ShowALLregions:	0}		show ALL regions in plot
 ;		}
 ;
 ;	group		parent widget
@@ -142,6 +143,7 @@ pro plot_image_select_event, Event
 				6: (*(*pstate).p).plot.title.on = event.select
 				7: (*(*pstate).p).plot.absolute = event.select
 				8: (*(*pstate).p).plot.centroids.on = event.select
+				9: (*(*pstate).p).plot.showALLregions = event.select
 				else:
 			endcase
 			end
@@ -624,10 +626,11 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	d3base = widget_base( d2base0, /column, /base_align_left, xpad=1, ypad=2, space=2, /frame, scr_xsize=150)
 
 	options = cw_bgroup2( d1base, ['Label XY Axes','Z Axis Legend','Distance Legend','Show Shape','ppm Only','Crop Images',$
-					'Plot Title','Absolute','Centroids'], /column, $
+					'Plot Title','Absolute','Centroids','Show ALL Regions'], /column, $
 					xpad=0, ypad=0, space=0, /return_index, /tracking, $
 					uname='options', set_value=[select.plot.LabelAxes, select.plot.ZaxisLegend, select.plot.DistLegend, $
-					select.plot.ShowShape, select.plot.ppmOnly, select.plot.Crop, select.plot.title.on, select.plot.absolute,select.plot.centroids.on], /nonexclusive, $
+					select.plot.ShowShape, select.plot.ppmOnly, select.plot.Crop, select.plot.title.on, select.plot.absolute, $
+					select.plot.centroids.on, select.plot.showALLregions], /nonexclusive, $
 					uvalue=['Include labels on the X and Y axes.','Include a Z axis/pixel value legend.', $
 					'Include a distance size bar. The position of the size bar can be selected below.', $
 					'Draw the current outline shape on the output image plot.', $
@@ -635,7 +638,7 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 					'Crop images to the rectangle bounding the currently selected shape', $
 					'Include a title above the plot. The type of title can be selected in the box to the right.', $
 					'Plot absolute stage coordinates from XY origin of the scan.','Draw a circle around each XY centroid for the currently loaded regions ' + $
-					'(excluding region #0; intended to be used with the hot-spot function "*").'])
+					'(excluding region #0; intended to be used with the hot-spot function).', 'Draw ALL current regions on output plot.'])
 
 	lab = widget_label( d2base, value='TITLE',/align_center)
 	title_options = cw_bgroup2( d2base, ['File Name','Sample and Grain','User Text (below)'], /column, $

@@ -5376,13 +5376,17 @@ top = tlb_id( wWidget)
 child = widget_info( top, /child)
 widget_control, child, get_uvalue=pstate
 
-if n_elements(pstate) eq 0 then return
-if ptr_valid(pstate) eq 0 then return
-if size(*pstate,/tname) ne 'STRUCT' then return
+	if n_elements(pstate) eq 0 then return
+	if ptr_valid(pstate) eq 0 then return
+	if size(*pstate,/tname) ne 'STRUCT' then return
 
-free_image_state, pstate
+	if (*pstate).pix gt 0 then wdelete, (*pstate).pix
+	if (*pstate).pix2 gt 0 then wdelete, (*pstate).pix2
+	(*pstate).pix = -1
+	(*pstate).pix2 = -1
 
-return
+	free_image_state, pstate
+	return
 end
 
 ;-----------------------------------------------------------------

@@ -40,7 +40,9 @@ pro plot_images, pstate, cgm=cgm, wmf=wmf, eps=eps, screen=screen, file=file, pn
 ;			separate:		0		plot separate spectra, or common axes
 ;			landscape:		0		Landscape orientation
 ;			Learn: { on:	0		to use a "Learn" RGB file for planes
-;					file:	'' }}	"Learn" filename
+;					file:	'' }	"Learn" filename
+;			ShowALLregions:	0}		show ALL regions in plot
+;		}
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -573,14 +575,32 @@ back:
 		tv, b, xoff,yoff,  /device
 	endelse
 
-	if options.ShowShape and (options.crop eq 0) then begin
-		plot_mark, pstate, /wide, xoff=xoff,yoff=yoff, $
-			xscale=float(xpix)/zoom(pstate,sx0),yscale=float(ypix)/zoom(pstate,sy0)
-	endif
-
 	if options.Crop then begin
 		r = image_absolute( p, crop=crop, absolute=absolute, error=err)
 	endif else begin
+	
+		if options.ShowALLregions then begin
+			nreg = n_elements( *(*pstate).pregions)
+			if nreg ge 1 then begin
+				copy_pointer_data, pstate, ptemp, /init
+				pm = (*ptemp).pmark[0] 
+				for i=0,nreg-1 do begin
+					pr = (*(*(*pstate).pregions)[i]).pmark[0]
+					(*ptemp).analyze_type[0] = (*(*(*pstate).pregions)[i]).analyze_type[0]
+					t = *(*pm)[(*ptemp).analyze_type[0]]
+					struct_assign, *pr, t
+					*(*pm)[(*ptemp).analyze_type[0]] = t
+
+					plot_mark, ptemp, /wide, xoff=xoff,yoff=yoff, $
+						xscale=float(xpix)/zoom(ptemp,sx0), yscale=float(ypix)/zoom(ptemp,sy0)
+				endfor
+				free_image_state, ptemp
+			endif
+		endif else if options.ShowShape then begin
+			plot_mark, pstate, /wide, xoff=xoff,yoff=yoff, $
+				xscale=float(xpix)/zoom(pstate,sx0), yscale=float(ypix)/zoom(pstate,sy0)
+		endif
+
 		r = image_absolute( p, absolute=absolute, error=err)
 	endelse
 ;	pointer_display,r

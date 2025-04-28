@@ -1946,7 +1946,7 @@ endif else if plot_options ge 1 then begin
 
 ; plot set-up options struct (see "plot_image_select", "plot_images", "plot_corr", "plot_rgb_images", ...)
 ; Also used for spectra, just ignore irrelevant options.
-; Remember to update "load_plot_options".
+; Remember to update "load_plot_options" and "save_plot_options" for version.
 
 def_struct = {	$
 				Type:			'CGM', $	; CGM, METAFILE, PRINTER, ...
@@ -1982,7 +1982,8 @@ def_struct = {	$
 				separate:		0, $		; plot separate spectra, or common axes
 				landscape:		0, $		; Landscape orientation
 				Learn: { on:	0, $		; to use a "Learn" RGB file for planes
-					file:		'' }}		; "Learn" filename
+					file:		'' }, $		; "Learn" filename
+				ShowALLregions:	0}			; show ALL regions in plot
 
 ;--------------------------------------------------------------------------------------------
 

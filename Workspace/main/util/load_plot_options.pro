@@ -26,7 +26,7 @@ function load_plot_options, file, error=error
 	openr, lun, file, /xdr, /get_lun
 	on_ioerror, bad_io
 
-	valid = [-1,-2,-3,-4,-5]
+	valid = [-1,-2,-3,-4,-5,-6]
 
 	version = 0
 	readu,lun, version
@@ -156,6 +156,44 @@ function load_plot_options, file, error=error
 			end
 
 		-5: begin
+			plot_options = {	$
+				Type:			'CGM', $	; CGM, METAFILE, PRINTER, ...
+				Crop:			0, $		; Crop to shape
+				White:			0, $		; black background
+				SymSize:		0.5, $		; symbol size
+				CharSize:		1.4, $		; character size
+				CharThick:		1.2, $		; character line thickness
+				LineThick:		1.2, $		; drawing line thickness
+				ColourTable:	5, $		; colour table
+				Invert:			0, $		; no invert colour table
+				LabelAxes:		1, $		; yes, label XY axes
+				ZaxisLegend:	1, $		; yes, place a Z axis legend
+				DistLegend:		0, $		; for a distance legend
+				ppmOnly:		0, $		; ppm only, no wt%
+				Title: { on:	1, $		; for a title
+					mode:		0, $		; for filename
+					text:		'' }, $		; optional text
+				DistPos:		0, $		; for bottom distance position
+				DistColour:		0, $		; for bottom distance colour
+				LabelPos:		0, $		; for outside element label
+				LabelColour:	0, $		; for element label colour
+				ConcMaxMode:	0, $		; for auto range, 1-2-5 maxima with 10 step colours
+				ManualMax:		100., $		; max conc scale in manual mode
+				ShowShape:		1, $		; show the shape
+				Absolute:		0, $,		; absolute distance scales with origin
+				centroids: { on: 0, $		; plot region centroids for selected element ON
+					element:	''}, $		; select centroid element name
+				enhance: { $
+					spots: { on: 0, $		; enhance hot-spots
+						elements: ''}}, $	; select enhance element names (1 to 3, sep by spaces)
+				max_area: 0, $				; use a maximum display area, strip borders
+				separate:		0, $		; plot separate spectra, or common axes
+				landscape:		0, $		; Landscape orientation
+				Learn: { on:	0, $		; to use a "Learn" RGB file for planes
+					file:		'' }}		; "Learn" filename
+			end
+			
+		-6: begin
 			plot_options = define(/plot_options)
 			end
 	endcase

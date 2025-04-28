@@ -1884,11 +1884,6 @@ pro free_image_state, pstate
 	if ptr_valid(pstate) eq 0 then return
 	if size(*pstate,/tname) ne 'STRUCT' then return
 
-	if (*pstate).pix gt 0 then wdelete, (*pstate).pix
-	if (*pstate).pix2 gt 0 then wdelete, (*pstate).pix2
-	(*pstate).pix = -1
-	(*pstate).pix2 = -1
-
 	if ptr_valid( (*pstate).b) then ptr_free, (*pstate).b
 	if ptr_valid( (*pstate).ptype) then ptr_free, (*pstate).ptype
 	if ptr_valid( (*pstate).pmode) then ptr_free, (*pstate).pmode
