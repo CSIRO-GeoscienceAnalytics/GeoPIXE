@@ -5004,7 +5004,8 @@ update_button = widget_button( bbase, value='Update', uname='update_button', /tr
 ;					'Note that this file may be significantly larger than the original EVT file.')
 
 button = widget_button( bbase, value='C*', uname='command_file_button', /tracking, xsize=com_xsize, $
-					uvalue='Generate a "GeoPIXE Command File" (.gcf) to use as a template for execution by GeoPIXE in a processing pipeline. ')
+					uvalue='Generate a "GeoPIXE Command File" (.gcf) to use as a template for execution by GeoPIXE in a processing pipeline ' + $
+					'to process raw data into images.')
 
 button = widget_button( bbase, value='Close', uname='close_button', /tracking, $
 					uvalue='Exit the EVT sort popup window. All parameters will be recovered ' + $
