@@ -581,10 +581,10 @@ back:
 		if options.ShowALLregions then begin
 			nreg = n_elements( *(*pstate).pregions)
 			if nreg ge 1 then begin
-				copy_pointer_data, (*pstate).pmark[0], pmt, /init 
+				pm = (*pstate).pmark[0] 
+				copy_pointer_data, pm, pmt, /init 
 				ttype = (*pstate).analyze_type[0]
 
-				pm = (*pstate).pmark[0] 
 				for i=0,nreg-1 do begin
 					pr = (*(*(*pstate).pregions)[i]).pmark[0]
 					(*pstate).analyze_type[0] = (*(*(*pstate).pregions)[i]).analyze_type[0]
@@ -595,7 +595,7 @@ back:
 					plot_mark, pstate, /wide, xoff=xoff,yoff=yoff, $
 						xscale=float(xpix)/zoom(pstate,sx0), yscale=float(ypix)/zoom(pstate,sy0)
 				endfor
-				copy_pointer_data, pmt, (*pstate).pmark[0] 
+				copy_pointer_data, pmt, pm
 				(*pstate).analyze_type[0] = ttype
 			endif
 		endif else if options.ShowShape then begin
