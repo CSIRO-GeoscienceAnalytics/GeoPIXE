@@ -1253,7 +1253,7 @@ pro geopixe
 ;
 ; Read GCF command file and execute the enclosed command and arguments.
 ; 
-; argv[0]	command file
+; argv[0]	command file (.gcf), else a simple command
 ; argv[1]	optional file list to replace "files=" line in GCF file.
 ;			preceed with "@" to supply a file-name containing the file-list,
 ;			with one input file-name per line.
@@ -1263,6 +1263,11 @@ pro geopixe
 ; File list should be in stringify format. Will there be a character limit?
 ; If so, then may need the alternate approach (e.g. "@file", where "@" signifies
 ; reading the file list from this "file").
+;
+; If the first argument is not a GCF file (no “.gcf” extension found), 
+; then the argument will be interpreted as a GeoPIXE procedure and execute it, 
+; passing any supplied parameters.
+
 
 	argv = command_line_args( count=argc)
 	if argc ge 1 then begin

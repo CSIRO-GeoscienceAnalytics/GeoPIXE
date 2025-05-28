@@ -107,7 +107,11 @@ pro geopixe_do_commands, argc=argc, argv=argv, error=error, cluster=cluster_over
 ; or use a wild-card.
 ;
 ; cluster=0,1 to override setting in command file.
- 
+;
+; If the first argument is not a GCF file (no “.gcf” extension found), 
+; then the argument will be interpreted as a GeoPIXE procedure and execute it, 
+; passing any supplied parameters.
+
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
 	common c_errors_1, catch_errors_on

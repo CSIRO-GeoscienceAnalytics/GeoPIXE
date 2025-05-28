@@ -3,6 +3,9 @@ pro compare_source, files, output, error=err, bad=bad, lun=lun, tol=tol
 ; Compare two source files for consistency.
 ; Check input parameters first, such as source, continuum spectrum, filters.
 ;
+; NOTE: This command is suitable to execute directly using the callable GeoPIXE approach,
+;		passing the two file names to be compared.
+;
 ; 'files' are input source file names (2) to compare. 
 ; 			Prompts for these if missing.
 ; 			Can also pass source structures

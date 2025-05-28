@@ -5,6 +5,9 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 ; Compare 'yield' and 'intensity' results, but only for matching cases (Z, shell) with
 ; finite, non-zero yield results.
 ;
+; NOTE: This command is suitable to execute directly using the callable GeoPIXE approach,
+;		passing the two file names to be compared.
+;
 ; 'files' are input yield file names (2) to compare. 
 ; 			Prompts for these if missing.
 ; 			Can also pass yield structure pointers

@@ -3,6 +3,9 @@ pro compare_fits, files, output, error=err, bad=bad
 ; Compare two fits PFR files for consistency. Use tol=0.001 for model value tests
 ; and 0.03 for fitted areas, conc, etc.
 ;
+; NOTE: This command is suitable to execute directly using the callable GeoPIXE approach,
+;		passing the two file names to be compared.
+;
 ; 'files' are input PFR file (2) names to compare. Prompts for these if missing.
 ; 'output' is a txt file report to create.
 ; 'err=1'	error reading yield files, or some crash.

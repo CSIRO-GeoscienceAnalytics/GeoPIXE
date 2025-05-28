@@ -3,6 +3,9 @@ pro compare_pink, files, output, error=err, bad=bad, lun=lun, tol=tol
 ; Compare two pink beam files for consistency.
 ; Check input parameters first, such as source, continuum spectrum, filters.
 ;
+; NOTE: This command is suitable to execute directly using the callable GeoPIXE approach,
+;		passing the two file names to be compared.
+;
 ; 'files' are input yield file names (2) to compare. Prompts for these if missing.
 ; 'output' is a txt file report to create.
 ; 'lun=lun'	if a logical unit is input, then ignore 'output' and write/append to that file.
