@@ -2473,8 +2473,8 @@ child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 
 F = file_requester( filter='*.dam*', dialog_parent=event.top, fix_filter=0, $
-		title='Select DA matrix to Load as Spectra', path=*(*pstate).path)
-;		title='Select '+name[da_type]+' DA matrix to Load as Spectra', path=*(*pstate).path)
+		title='Select DA matrix to Load as Spectra', path=*(*pstate).path, $
+		preview_routine='image_DA_preview')
 if F ne '' then begin
     widget_control, /hourglass
 

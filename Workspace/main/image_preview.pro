@@ -5,6 +5,7 @@ pro image_preview, file, preview=preview
 COMPILE_OPT STRICTARR
 
 preview = 0L
+list = 'Not a valid image file'
 if n_elements(file) lt 1 then return
 R=0L
 G=0L

@@ -1829,7 +1829,8 @@ case uname of
 		path = *(*pstate).path
 		filt = file_ext[(*p).mode[(*p).station],(*p).sort_mode,(*p).type[(*p).station]]
 		F = file_requester( /read, filter=filt, path=path, group=event.top, file=file[0], $
-					title=file_title[(*p).mode[(*p).station],(*p).sort_mode], fix_filter=0)
+					title=file_title[(*p).mode[(*p).station],(*p).sort_mode], fix_filter=0, $
+					preview_routine='image_DA_preview')
 		if F ne '' then begin
 ;			*(*pstate).path = extract_path(F)			; often in config elsewhere now
 			evt_set_proj_file, pstate, F[0]
