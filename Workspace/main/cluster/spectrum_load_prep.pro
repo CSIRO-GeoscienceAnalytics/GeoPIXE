@@ -55,7 +55,8 @@ path = opt.raw ? *(*pstate).dpath : *(*pstate).path
 ; Select first data file (or multiply select several to append) ...
 
 F = file_requester(filter = '*'+opt.in_ext, title=opt.request, path=path, $	
-		dialog_parent=group, fix_filter=0, /multiple, preview_routine=(opt.preview ? 'spectrum_preview' : ''))
+		dialog_parent=group, fix_filter=0, /multiple, preview_routine=(opt.preview ? 'spectrum_preview' : ''), $
+		image=opt.preview )
 if F[0] eq '' then goto, finish
 
 ; Update paths (so far) ...
