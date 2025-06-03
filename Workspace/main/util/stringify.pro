@@ -106,7 +106,7 @@ case var_type(t) of
 	112: begin
 			t1 = strarr(n)
 			for i=0L, n-1 do begin
-				t2 = '{'												; Handle Ordrered Hash recursively.
+				t2 = '{'												; Handle Ordered Hash recursively.
 				key = t.keys()
 				for j=0L, n_elements(key)-1 do begin	
 					t3 = '%' + key[j] + '%' + ':' + stringify( t[key[j]],embed_ptr=embed_ptr)
@@ -155,7 +155,21 @@ function stringify, t, embed_ptr=embed_ptr
 
 ; Expand the contents of 't' as a single string scaler.
 ; Use recursion to dive into components
-; /embed_ptr	embed ptr_new() functions to create the pointers when used.
+; /embed_ptr	embed ptr_new() functions to create the pointers when used
+;				else place pointer contents in-line.
+;
+; Chris Ryan (CSIRO), 2009, revised 2012
+;		Added List, Hash (and orderedhash, dictionary)  2019
+;
+; examples:
+;	float 1.234							'1.234'
+;	array [1.2, 3.4]					'[1.2,3.4]'
+;	array ['fred','joe']				'["fred","joe"]'
+;	struct {a:1.2, b:['fred','joe']}	'{A:1.2,B:["fred","joe"]}'
+;	struct {p:ptr_new([1.2,3.4]), x:1}	'{P:ptr_new([1.2,3.4],/no_copy),X:1}'	(if /embed_ptr used)
+;
+;	nested structures and arrays and pointers, etc. are also supported
+;	see 'stringify_part()' for var_types supported
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
