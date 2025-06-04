@@ -216,7 +216,7 @@ endif else begin
 	zastate = 0
 endelse
 
-n_state = 2
+n_states = 2
 ptable = periodic_table( tbase, uname='periodic-table', n_states=n_states, n_alt_states=n_states, $
 			z_on=zon, z_state=zstate, /no_tiny, colours=colours, z_alt=zalt, z_astate=zastate, $
 			/start_Li, /right, legend=[' ','1',' ','2'])
