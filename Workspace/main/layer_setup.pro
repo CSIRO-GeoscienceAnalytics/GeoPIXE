@@ -263,9 +263,9 @@ case uname of
 				path = extract_path( file[0])
 				file = strip_path(file[0])
 				if lenchr(path) eq 0 then path = *(*pstate).path
-				F = file_requester( /read, filter = '*.source', file=file, $
-							path=path, group=event.top, $
-							title='Select the X-ray Lab SOURCE parameter file', /fix_filter)
+				F = file_requester( /read, filter = '*.source', file=file, path=path, group=event.top, $
+							title='Select the X-ray Lab SOURCE parameter file', /fix_filter, $
+							preview_routine='file_source_preview')
 				if F ne '' then begin
 					F = strip_file_ext(F) + '.source'
 					src = read_source( F, error=err)
@@ -284,7 +284,8 @@ case uname of
 				if lenchr(path) eq 0 then path = *(*pstate).path
 				F = file_requester( /read, filter = '*.pink', file=file, $
 							path=path, group=event.top, $
-							title='Select the X-ray PINK beam parameter file', /fix_filter)
+							title='Select the X-ray PINK beam parameter file', /fix_filter, $
+							preview_routine='file_source_preview')
 				if F ne '' then begin
 					F = strip_file_ext(F) + '.pink'
 					src = read_pink( F, error=err)
@@ -1132,7 +1133,8 @@ endif
 		source_file = ''
 		readu,2, source_file
 		F = file_requester(/read, filter = '*.source', file=source_file, updir=3, /skip_if_exists, $
-					path=*(*pstate).path, title='Select the X-ray source parameter SOURCE file', /fix_filter)		; , group=(*pstate).lcm_file
+					path=*(*pstate).path, title='Select the X-ray source parameter SOURCE file', /fix_filter, $
+					preview_routine='file_source_preview')		; , group=(*pstate).lcm_file
 		if F[0] ne '' then begin
 			src = read_source( F[0], error=err) 
 			if err eq 0 then (*(*p).source) = src
@@ -1141,7 +1143,8 @@ endif
 		source_file = ''
 		readu,2, source_file
 		F = file_requester(/read, filter = '*.pink', file=source_file, updir=3, /skip_if_exists, $
-			path=*(*pstate).path, title='Select the X-ray source parameter PINK beam file', /fix_filter)		; , group=(*pstate).lcm_file
+			path=*(*pstate).path, title='Select the X-ray source parameter PINK beam file', /fix_filter, $
+					preview_routine='file_source_preview')		; , group=(*pstate).lcm_file
 		if F[0] ne '' then begin
 			src = read_pink( F[0], error=err)
 			if err eq 0 then (*(*p).source) = src

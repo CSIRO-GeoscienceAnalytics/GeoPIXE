@@ -696,7 +696,8 @@ case uname of
 		file = find_file2( (*p).yield_file)
 		path = *(*pstate).path
 		F = file_requester( /read, filter = '*.'+yname, path=path, group=event.top, $
-					title='Select '+pname+' Yield file', file=file, /fix_filter)
+					title='Select '+pname+' Yield file', file=file, /fix_filter, $
+					preview_routine='file_yield_preview')
 		if F ne '' then begin
 			yields = read_yield(F, error=error)
 			if error then begin
@@ -2524,7 +2525,8 @@ endif
 	(*p).yield_file = s
 	
 	F = file_requester( /read, filter='*.yield', path=*(*pstate).path, group=(*pstate).tlb, file=s, /translate, updir=3, $
-				title='select YIELD file', fix_filter=1, /skip_if_exists)
+				title='select YIELD file', fix_filter=1, /skip_if_exists, $
+				preview_routine='file_yield_preview')
 	dud = 1
 	if F[0] ne '' then begin
 		(*p).yield_file = F[0]

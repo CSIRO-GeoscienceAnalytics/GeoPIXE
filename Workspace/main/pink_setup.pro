@@ -123,7 +123,8 @@ case uname of
 		path = *(*pstate).path
 		F = file_requester( /read, filter = '*.pink', $
 				/must_exist, path=path, group=event.top, $
-				title='Select the pink beam file', /fix_filter)
+				title='Select the pink beam file', /fix_filter, $
+					preview_routine='file_source_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.pink'
 			set_widget_text, (*pstate).pink_file, F
@@ -146,7 +147,8 @@ case uname of
 		path = *(*pstate).path
 		F = file_requester( /write, file=file, filter = '*.pink', $
 			/noconfirm, path=path, group=event.top, $
-			title='Save pink beam definitions and model spectrum to file', /fix_filter)
+			title='Save pink beam definitions and model spectrum to file', /fix_filter, $
+					preview_routine='file_source_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.pink'
 			*(*pstate).path = extract_path(F)

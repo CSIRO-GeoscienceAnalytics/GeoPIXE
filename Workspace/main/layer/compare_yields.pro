@@ -56,12 +56,14 @@ pro compare_yields, files, output, error=err, bad=bad, lun=lun, basic=basic, el=
 	endif
 
 	if n_elements(files) eq 0 then begin
-		fold = file_requester( /read, filter='*.yield', /fix_filter, title='Reference YIELD file.')
+		fold = file_requester( /read, filter='*.yield', /fix_filter, title='Reference YIELD file.', $
+					preview_routine='file_yield_preview')
 		if fold eq '' then return
 	endif else fold=files[0]
 	if n_elements(files) lt 2 then begin
 		path = extract_path(fold)
-		fnew = file_requester( /read, path=path, filter='*.yield', /fix_filter, title='New YIELD file to check.')
+		fnew = file_requester( /read, path=path, filter='*.yield', /fix_filter, title='New YIELD file to check.', $
+					preview_routine='file_yield_preview')
 		if fnew eq '' then return
 	endif else fnew=files[1]
 	

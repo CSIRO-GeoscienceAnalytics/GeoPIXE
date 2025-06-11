@@ -123,9 +123,9 @@ case uname of
 		file = find_file2( (*p).file)
 		path = extract_path( file[0])
 		if lenchr(path) eq 0 then path = geopixe_root
-		F = file_requester( /read, filter = '*.source', $
-				/must_exist, path=path, group=event.top, $
-				title='Select the source file', /fix_filter)
+		F = file_requester( /read, filter = '*.source', /must_exist, path=path, group=event.top, $
+					title='Select the source file', /fix_filter, $
+					preview_routine='file_source_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.source'
 			*(*pstate).path = extract_path(F)
@@ -149,7 +149,8 @@ case uname of
 		if lenchr(path) eq 0 then path = geopixe_root
 		F = file_requester( /write, file=file, filter = '*.source', $
 			/noconfirm, path=path, group=event.top, $
-			title='Save source definitions and model spectrum to file', /fix_filter)
+			title='Save source definitions and model spectrum to file', /fix_filter, $
+			preview_routine='file_source_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.source'
 			*(*pstate).path = extract_path(F)
@@ -502,11 +503,12 @@ update:
 	source_update_pars, pstate
 	source_calculate, p, /convert, Energy=E, spec=spec, error=error
 
-	norm = 7.e+15									; norm spec*cross to ~counts (see plot_tube_yields3)
-	crossa = photo_subshell( 79, 4, E)				; Au L3 subshell cross-section across spectrum
-	print,'Total spec = ', total( spec)
-	print,'Total Au L3 yield = ', total( norm * spec * crossa)
-
+	if error eq 0 then begin
+		norm = 7.e+15									; norm spec*cross to ~counts (see plot_tube_yields3)
+		crossa = photo_subshell( 79, 4, E)				; Au L3 subshell cross-section across spectrum
+		print,'Total spec = ', total( spec)
+		print,'Total Au L3 yield = ', total( norm * spec * crossa)
+	endif
 
 ;	To overlay another source ...
 	

@@ -46,13 +46,15 @@ pro compare_source, files, output, error=err, bad=bad, lun=lun, tol=tol
 	err = 1
 	if n_elements(files) eq 0 then begin
 		if local eq 0 then goto, bad_input
-		fold = file_requester( /read, filter='*.source', /fix_filter, title='Reference SOURCE file.')
+		fold = file_requester( /read, filter='*.source', /fix_filter, title='Reference SOURCE file.', $
+						preview_routine='file_source_preview')
 		if fold eq '' then return
 	endif else fold=files[0]
 	if n_elements(files) lt 2 then begin
 		if local eq 0 then goto, bad_input
 		path = extract_path(fold)
-		fnew = file_requester( /read, path=path, filter='*.source', /fix_filter, title='New SOURCE file to check.')
+		fnew = file_requester( /read, path=path, filter='*.source', /fix_filter, title='New SOURCE file to check.', $
+						preview_routine='file_source_preview')
 		if fnew eq '' then return
 	endif else fnew=files[1]
 

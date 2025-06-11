@@ -1967,6 +1967,7 @@ OnCellSelect_Image_Table2, pstate, event.top, i
 	p = (*(*pstate).p)[i]
 	if ptr_good( (*p).el) eq 0 then goto, done
 	el = *(*p).el
+	if (n_elements(el) lt 3) then goto, done
 	if (fnumeric(el[1]) eq 0) or (fnumeric(el[2]) eq 0) then goto, done
 
 ; Plot the XANES spectrum
