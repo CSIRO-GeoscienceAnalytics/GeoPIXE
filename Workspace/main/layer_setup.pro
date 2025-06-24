@@ -177,7 +177,8 @@ case uname of
 		file = strip_path(file[0])
 		if lenchr(path) eq 0 then path = *(*pstate).path
 		F = file_requester( /write, filter = '*.'+yname, path=path, group=event.top, $
-					title='Select the yields output file name', file=file, /fix_filter)
+					title='Select the yields output file name', file=file, /fix_filter, $
+					preview_routine='file_yield_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.'+yname
 			*(*pstate).path = extract_path(F)

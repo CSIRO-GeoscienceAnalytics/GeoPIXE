@@ -40,9 +40,10 @@ define_devices
 			'Energy: ' + str_tidy((*p).beam.energy) + '  (Beam for "mono" and maximum for "contuinuum")', '']
 	endif else begin
 		list = [list, 'Beam: Z1 = ' + str_tidy((*p).z1) + ', A1 = ' + str_tidy((*p).a1)]
-		list = [list, 'Energy: ' + str_tidy((*p).e_beam)]
+		list = [list, 'Energy: ' + str_tidy((*p).e_beam), '']
 	endelse
-	list = [list, 'Theta: ' + str_tidy((*p).theta), 'Phi: ' + str_tidy((*p).phi),'']
+	list = [list, 'Theta: ' + str_tidy((*p).theta) + ', Phi: ' + str_tidy((*p).phi)]
+	list = [list, 'Alpha: ' + str_tidy((*p).alpha) + ', Beta: ' + str_tidy((*p).beta),'']
 
 	if (*p).array eq 1 then begin
 		list = [list, 'Array detector: ' + str_tidy((*p).detector_file), '']
