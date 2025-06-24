@@ -93,7 +93,7 @@ case tag_names( event,/structure) of
 	'WIDGET_TIMER': begin
 		(*pstate).windows_veto = ((*pstate).windows_veto-1) > 0	; decrement count-down, to give time to close some windows
 		if ((*pstate).windows_veto eq 0) then begin
-			wizard_test_windows, 'standards', pstate				; periodically check which GeoPIXE windows are
+			wizard_test_windows, 'standards', pstate			; periodically check which GeoPIXE windows are
 		endif													; currently open (not if warning open [windows_veto])
 		widget_control, event.id, timer=8.0	
 		goto, finish
@@ -2109,7 +2109,7 @@ tracking = 1				; enable tracking and context help for widgets
 xoffset = 0					; and Help field to shows these help comments
 yoffset = 0
 		
-left_resize = 0.7			; fracion of resize changes to use for left and right column widgets
+left_resize = 0.7			; fraction of resize changes to use for left and right column widgets
 right_resize = 0.3
  
 ; 	top-level base

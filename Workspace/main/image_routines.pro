@@ -32,6 +32,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 	endif
 
 	aerror = 1
+	fcharge = 0.0
 	p = (*pstate).p
 	if ptr_valid( p) eq 0 then return
 	if n_elements(throttle) lt 1 then throttle=0
@@ -206,7 +207,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 		if nq1 gt 0 then begin
 			nq = n_elements(q)
 			q2 = uniformity_mask( p, q, q1[0], /reject)
-			q = veto( q2, q)											; veto non-uniform pixels
+			q = veto( q2, q)										; veto non-uniform pixels
 			print,'analyze_image: Uniformity: Use '+str_tidy(n_elements(q))+' of '+str_tidy(nq)+' pixels.
 		endif
 	endif
@@ -252,7 +253,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 
 		q_to_xy, q, (*p).xsize, x,y
 
-		if ((*pstate).analyze_type[0] eq 3) then begin							; spline curve 8
+		if ((*pstate).analyze_type[0] eq 3) then begin								; spline curve 8
 			z = curve_projection( pstate, x,y, nc=n)
 			nq = n_elements(x)
 		endif else if ((*pstate).analyze_type[0] eq 4) then begin					; traverse
@@ -299,6 +300,9 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 		endif
 		;	hcharge = nhist * charge_per_pixel * scale_charge
 
+		hcharge0 = float(nhist)
+		misc_special = strlowcase( special_elements(/counts))				; av counts for these
+
 		if ((*p).type eq 1) or ((*p).type eq 3) then hcharge = float(nhist)
 
 		n_el_none_blank = 1
@@ -315,13 +319,15 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 			has_mdl = 1
 			nmdl = n_elements(*(*p).matrix.mdl) - 1
 			for i=0L,n_el-1 do begin
+				qel1 = where( strlowcase(el[i]) eq misc_special, nqel1)
 				xmdl = xanes ? (*(*p).matrix.mdl)[(*p).ixanes] : (*(*p).matrix.mdl)[i<nmdl]
-				hmdl[*,i] = sqrt((*p).matrix.charge / hcharge) * xmdl
+				hmdl[*,i] = sqrt((*p).matrix.charge / (nqel1 ne 0 ? hcharge0 : hcharge) * xmdl)
 				hmdl[*,i] = smooth2( hmdl[*,i], 4)
 			endfor
 		endif
 		for i=0L,n_el-1 do begin
-			hist[*,i] = hist[*,i] / hcharge
+			qel1 = where( strlowcase(el[i]) eq misc_special, nqel1)
+			hist[*,i] = hist[*,i] / (nqel1 ne 0 ? hcharge0 : hcharge)
 		endfor
 
 		has_errors = 0
@@ -380,7 +386,8 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 					endfor															; which is 'variance' or 'yield', ...
 				endif else begin
 					for i=0L,n_elements(ehist[0,*])-1 do begin
-						ehist[*,i] = sqrt( ehist[*,i]) / hcharge[*]
+						qel1 = where( strlowcase(el[i]) eq misc_special, nqel1)
+						ehist[*,i] = sqrt( ehist[*,i]) / (nqel1 ne 0 ? hcharge0 : hcharge)
 					endfor
 				endelse
 				n = min( [n, n_elements(ehist[*,0]) ])
@@ -399,7 +406,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 				xmdl[0:(nm<n_el)-1] = (*(*p).matrix.mdl)[0:(nm<n_el)-1]
 			endelse
 		endif
-		mdl = xmdl * sqrt((*p).matrix.charge / hcharge[0])
+		mdl = xmdl * sqrt((*p).matrix.charge / hcharge[0])			; ??
 
 		if strmid(el[0],0,4) eq 'Back' then hist[*,0] = 100000.0 * hist[*,0]
 		if has_errors then begin

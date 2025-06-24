@@ -131,9 +131,9 @@ case uname of
 		path = extract_path( file[0])
 		file = strip_path(file[0])
 		if lenchr(path) eq 0 then path = *(*pstate).path
-		F = file_requester( /read, filter = '*.lcm', file=file, $
-					path=path, group=event.top, $
-					title='Select the source LCM parameter file', /fix_filter)
+		F = file_requester( /read, filter = '*.lcm', file=file, path=path, group=event.top, $
+					title='Select the source LCM parameter file', /fix_filter, $
+					preview_routine='file_lcm_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.lcm'
 			*(*pstate).path = extract_path(F)
@@ -149,7 +149,8 @@ case uname of
 		file = strip_path(file[0])
 		if lenchr(path) eq 0 then path = *(*pstate).path
 		F = file_requester( /write, file=file, filter = '*.lcm', path=path, group=event.top, $
-					title='Save the layer setup parameters to a LCM file', /fix_filter)
+					title='Save the layer setup parameters to a LCM file', /fix_filter, $
+					preview_routine='file_lcm_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.lcm'
 			*(*pstate).path = extract_path(F)
@@ -1049,6 +1050,7 @@ end
 pro load_lcm_parameters, pstate, file
 
 ;	Load the parameters into '(*pstate).p' from 'file' (.lcm)
+;	Changes here may also effect 'file_lcm_preview'
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root

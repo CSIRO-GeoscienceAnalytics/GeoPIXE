@@ -13,7 +13,7 @@ if n_elements(time) eq 0 then time=0
 if n_elements(maia) eq 0 then maia=0
 
 if counts then begin
-	return, ['Flux','Flux0','Flux1','NNPU','NN','TT','Dwell','DT','PU','rFlux','Rate']
+	return, ['Flux','Flux0','Flux1','NNPU','NN','TT','Dwell','DT','PU','rFlux','Rate','c/s']
 endif
 if arb then begin
 	return, ['Back','Compton','elastic','sum','Back1','Back2','Back3','Back4','Back5','Back6','scatter']
@@ -29,5 +29,5 @@ if maia then begin
 endif
 
 return, ['Back','Flux','Flux0','Flux1','NNPU','NN','TT','Dwell','Compton','elastic','sum','DT','PU','rFlux','Rate', $
-			'Back1','Back2','Back3','Back4','Back5','Back6','scatter']
+			'c/s','Back1','Back2','Back3','Back4','Back5','Back6','scatter']
 end

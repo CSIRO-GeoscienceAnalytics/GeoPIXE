@@ -1,6 +1,6 @@
 pro file_yield_preview, file, preview=preview
 
-; Provide preview of Source/Pink beam details for 'file_requester' from 'file'.
+; Provide preview of Yield file details for 'file_requester' from 'file'.
 ; Return preview data in 'preview' struct.
 
 COMPILE_OPT STRICTARR
