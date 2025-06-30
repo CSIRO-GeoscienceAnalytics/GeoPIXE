@@ -1807,7 +1807,7 @@ case uname of
 	'getcal_button': begin
 		path = *(*pstate).path
 		F = file_requester( /read, filter = '*.spec', path=path, group=event.top, $
-					title='Load spectrum calibration from a SPEC file', fix_filter=0)
+					title='Load spectrum calibration from a SPEC file', fix_filter=0, preview_routine='spectrum_preview')
 		if F ne '' then begin
 			evt_getcal, pstate, F
 		endif

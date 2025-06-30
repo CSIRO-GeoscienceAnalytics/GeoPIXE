@@ -347,7 +347,8 @@ case uname of
 		file = (*p).pcm_file
 		path = *(*pstate).path
 		F = file_requester( /read, filter = '*.pcm', path=path, file=file,  dialog_parent=event.top, $
-					title='Select the source PCM parameter file', /fix_filter)
+					title='Select the source PCM parameter file', /fix_filter, $
+					preview_routine='file_pcm_preview')
 		if F ne '' then begin
 			F = strip_file_ext(F) + '.pcm'
 			*(*pstate).path = extract_path(F)
