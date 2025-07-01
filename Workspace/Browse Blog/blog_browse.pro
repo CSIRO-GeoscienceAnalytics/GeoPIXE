@@ -1383,7 +1383,41 @@ k = 0
 							runtime, tbytes, format=sformat
 					back = [back,i]
 					end
+				57: begin										; report
+					b = (*(*pr[i]).b)[0:min([n_bytes,(*pr[i]).length])-1]
+					free = ulong64(b,0,4)
+					swap_bytes, free, /big_endian_data
+					cpu = ulong(b,32,13)
+					swap_bytes, cpu, /big_endian_data
+					load = float(b,84,3)
+					swap_bytes, load, /big_endian_data
+					time = double(b,96,2)
+					swap_bytes, time, /big_endian_data
+					fs1 = ulong(b,112,2)
+					swap_bytes, fs1, /big_endian_data
+					off = 120
+					fsb = byte(b,off,100)
+					qt = where( fsb eq 0, nqt)
+					off = off + (qt[0]+1)
+					fs2 = ulong(b,off,11)
+					off = off + 11*4
+					swap_bytes, fs2, /big_endian_data
+					blogd = ulong(b,off,8)
+					off = off + 8*4
+					swap_bytes, blogd, /big_endian_data
+					blogdt = double(b,off,2)
+					off = off + 2*8
+					swap_bytes, blogdt, /big_endian_data
+					blog2 = ulong(b,off,8)
+					off = off + 8*4
+					swap_bytes, blog2, /big_endian_data
+					n_clients = blog2[7]
 
+					sformat = '(I7,I4,1x, A8, I7, I11, I11, 2x, "Ave. Load=",G10.3,1x,", Outputs=",I12,1x,", Clients=",I6)'
+					printf, 2, (*pr[i]).index, (*pr[i]).tag, (*pstate).tags[(*pr[i]).tag], (*pr[i]).length, (*pr[i]).seq, (*pr[i]).tseq, $
+							load[0], blog2[3], n_clients, format=sformat
+					back = [back,i]
+					end
 				else: begin
 					tags = [(*pstate).tags, '??']
 					ntgs = n_elements(tags)
@@ -1561,7 +1595,7 @@ more:
 ;	54	  name				  name used (set by client) to identify a client
 ;	55	  metadata			  metadata records (key/value pairs, separated by newlines \n)
 ;	56    summary 4			  summary, version 4
-;	57    report   			  detailed report summary
+;	57    report   			  detailed blogd report summary
 
  	    if (*pd).length eq 0 then begin
 	    	case (*pd).tag of
@@ -3418,7 +3452,65 @@ more:
 					endif
 					n = n+3
 					end
-					
+				57: begin										; report
+					b = (*(*pr[i]).b)[0:min([n_bytes,(*pr[i]).length])-1]
+					free = ulong64(b,0,4)
+					swap_bytes, free, /big_endian_data
+					cpu = ulong(b,32,13)
+					swap_bytes, cpu, /big_endian_data
+					load = float(b,84,3)
+					swap_bytes, load, /big_endian_data
+					time = double(b,96,2)
+					swap_bytes, time, /big_endian_data
+					fs1 = ulong(b,112,2)
+					swap_bytes, fs1, /big_endian_data
+					off = 120
+					fsb = byte(b,off,100)
+					qt = where( fsb eq 0, nqt)
+					fsname = string( fsb[0:qt[0]])
+					off = off + (qt[0]+1)
+					fs2 = ulong(b,off,11)
+					off = off + 11*4
+					swap_bytes, fs2, /big_endian_data
+					blogd = ulong(b,off,8)
+					off = off + 8*4
+					swap_bytes, blogd, /big_endian_data
+					blogdt = double(b,off,2)
+					off = off + 2*8
+					swap_bytes, blogdt, /big_endian_data
+					blog2 = ulong(b,off,8)
+					off = off + 8*4
+					swap_bytes, blog2, /big_endian_data
+					n_clients = blog2[7]
+					printf, 2, free[1], free[0], load[0], format='(T8,"Host memory: ",I10,"/",I10,", Load: ",G10.3)'
+					n = n+1
+					printf, 2, blogdt, format='(T8,"CPU (user,system): ",G11.4,", ",G11.4)'
+					n = n+1
+
+					for j=0,n_clients-1 do begin
+						serial = ulong(b,off,1)
+						off = off + 1*4
+						swap_bytes, serial, /big_endian_data
+						hb = byte(b,off,100)
+						qt = where( hb eq 0, nqt)
+						host = string( hb[0:qt[0]])
+						off = off + (qt[0]+1)
+						hb = byte(b,off,min([100,(*pr[i]).length-off]))
+						qt = where( hb eq 0, nqt)
+						port = string( hb[0:qt[0]])
+						off = off + (qt[0]+1)
+						hb = byte(b,off,min([100,(*pr[i]).length-off]))
+						qt = where( hb eq 0, nqt)
+						name = string( hb[0:qt[0]])
+						off = off + (qt[0]+1)
+						blocks = ulong64(b,off,8)
+						off = off + 8*8
+						swap_bytes, blocks, /big_endian_data
+
+						printf, 2, name, host, blocks[0], format='(T8,"Client: ",A,", IP: ",A,", Blocks: ",I12)'
+						n = n+1
+					endfor
+					end					
 				else: begin
 					tags = [(*pstate).tags, '??']
 					ntgs = n_elements(tags)
