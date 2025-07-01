@@ -253,6 +253,8 @@ endif
 
 bad:
 	warning,'geo_array_yield',['Error in calculation parameters.','Abort yield calculation.'],/error
+	error = 1
+	yield = 0.0
 
 done:
 	if do_progress then progress, /ending, progress_tlb

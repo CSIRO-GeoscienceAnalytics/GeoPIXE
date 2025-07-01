@@ -14,14 +14,25 @@
 	if count gt 0 then begin
 		warning, 'experiment_angles', ['Extreme glancing geometry for some detectors.', $
 					'Detector view is along target surface.', $
-					'','For detector back-angles, ensure theta-alpha greater than 90 degrees.']
+					'','For detector back-angles, ensure theta-alpha greater ', $
+					'than 90 degrees. For wide arrays, you may need more.']
+		return, 1
+	endif
+
+	q = where( 	cos_detector LT -1.0E-6, count)
+	if count gt 0 then begin
+		warning, 'experiment_angles', ['Some detectors look at the "back" of the sample.', $
+					'Is that what is desired?', '', $
+					'For detector back-angles, ensure theta-alpha greater ', $
+					'than 90 degrees. For wide arrays, you may need more.']
 		return, 1
 	endif
 
 	q = where( cos_beam LT 1.0E-6, count)
 	if count gt 0 then begin
-		warning, 'experiment_angles', ['Beam hitting back of target?', '', $
-					'Use target rotation "alpha"','and tilt "beta" less than 90 degrees.']
+		warning, 'experiment_angles', ['Beam hitting back of target?', $
+					'Is that what is desired?', '', $
+					'If, not, use target rotation "alpha" and','tilt "beta" less than 90 degrees.']
 		return, 1
 	endif
 
