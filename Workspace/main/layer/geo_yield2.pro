@@ -236,7 +236,7 @@ yield = 0
 		endelse
 	endelse
 
-;	Calculate cosines for beam and detector based on experimental angles ...
+;	Calculate cosines for beam and (individual) detector based on experimental angles ...
 
 	aerror = experiment_angles( theta, phi, alpha, beta, cos_beam, cos_detector)
 	if aerror then goto, bad
@@ -245,7 +245,7 @@ yield = 0
 
 ;-----------------------------------------------------------------------------------------------
 
-;	Build layer structs from input data ...
+;	Build layer structs from input data, loop over layers ...
 
 	for i=0L,n-1 do begin
 		if lenchr(formula[i]) lt 1 then goto, bad_layer
@@ -484,9 +484,11 @@ bad_layer:
 	warning,'geo_yield2',['Error in layer definition parameters.', '',$
 			'Check for zero thickness or blank formula.', $
 			'Check details for all layers.','','Abort yield calculation.'],/error
+	error = 1
 	goto, done
 bad:
 	warning,'geo_yield2',['Error in calculation parameters.','Abort yield calculation.'],/error
+	error = 1
 
 done:
 	if do_progress then progress, /ending, progress_tlb

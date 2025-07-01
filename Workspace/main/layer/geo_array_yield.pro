@@ -151,19 +151,19 @@ if n_elements(array) eq 0 then array=0
 		endif
 	endelse
 
-if n_elements(do_progress) lt 1 then do_progress=0
-progress_tlb = 0L
-if array then begin
-	if ptr_valid(pdetector) and ptr_valid(playout) then begin
-		if (size(*pdetector, /tname) eq 'STRUCT') and (size(*playout, /tname) eq 'STRUCT') then begin
-			array = (*pdetector).array
+	if n_elements(do_progress) lt 1 then do_progress=0
+	progress_tlb = 0L
+	if array then begin
+		if ptr_valid(pdetector) and ptr_valid(playout) then begin
+			if (size(*pdetector, /tname) eq 'STRUCT') and (size(*playout, /tname) eq 'STRUCT') then begin
+				array = (*pdetector).array
+			endif else array = 0
 		endif else array = 0
-	endif else array = 0
-endif
+	endif
 
 ;	Show progress here in first "geo_yield2", which includes sec. fluor.
 
-;	Calculate cosines for beam and detector based on experimental angles ...
+;	Calculate cosines for beam and detector (array centre) based on experimental angles ...
 
 	aerror = experiment_angles( theta, phi, alpha, beta, cos_beam, cos_detector)
 	if aerror then goto, bad
@@ -211,6 +211,8 @@ endif
 	rY = fltarr((*playout).N, n_els)
 	rIntensity = fltarr( (*playout).N, linmax, n_els)
 	
+;	Loop over all detectors in an array, passing individual detector angles into 'geo_yield2' ...
+
 	for i=0L,(*playout).N-1 do begin
 		cancel = 0
 		if do_progress then progress, /update, progress_tlb, {unit:0, value:0, current:i, size:(*playout).N}, cancel=cancel
@@ -254,7 +256,7 @@ endif
 bad:
 	warning,'geo_array_yield',['Error in calculation parameters.','Abort yield calculation.'],/error
 	error = 1
-	yield = 0.0
+	yield = 0
 
 done:
 	if do_progress then progress, /ending, progress_tlb

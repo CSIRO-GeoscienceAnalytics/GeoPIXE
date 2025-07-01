@@ -1,6 +1,7 @@
 	function experiment_angles, theta, phi, alpha, beta, cos_beam, cos_detector
 
-;	Calculate the cosine factors
+;	Calculate the vector cosine factors for sample normal relative to beam and detector(s).
+;	Use the geometry viewer in 'layer_setup' ("?" button) to visualize these vectors.
 
 	RAD = !radeg
 
@@ -32,7 +33,8 @@
 	if count gt 0 then begin
 		warning, 'experiment_angles', ['Beam hitting back of target?', $
 					'Is that what is desired?', '', $
-					'If, not, use target rotation "alpha" and','tilt "beta" less than 90 degrees.']
+					'If, not, use target rotation "alpha" and', $
+					'tilt "beta" less than 90 degrees.']
 		return, 1
 	endif
 
