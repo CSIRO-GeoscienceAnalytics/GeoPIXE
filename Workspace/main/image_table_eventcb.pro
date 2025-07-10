@@ -145,6 +145,19 @@ npx = nc-1
 widths = replicate(10,nc) * !d.x_ch_size
 
 for i=0L,n-1 do begin
+
+	if i eq (n-1) then begin
+		present = 0
+		for k=0,(*p[i]).n_el-1 do begin
+			present = present or ((where( (*(*p[i]).el)[k] eq (*(*p[0]).el)[qe]))[0] ne -1)
+		endfor
+		if not present then begin
+			warning,'Load_image_table_table',['No elements in new region sum are present in the table.','', $
+				'You always need to "Update: All" to apply loaded regions', $
+				'to the current image data BEFORE adding new regions.']
+		endif
+	endif
+
 	pc = (*p[i]).conc
 	pe = (*p[i]).error
 	pm = (*p[i]).mdl

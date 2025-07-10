@@ -62,6 +62,7 @@ close, 1
 
 on_ioerror, bad_open
 openr, 1, file, /XDR			;, /compress
+on_ioerror, bad_io
 
 if xanes then begin
 	image = define(/stack)
