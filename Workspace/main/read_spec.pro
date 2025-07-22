@@ -214,7 +214,8 @@ for j=0L,n-1 do begin
 	(*pj).toggle_station = toggle_station
 	(*pj).events = events
 	(*pj).type = type
-	(*pj).channel = channel
+	(*pj).channel = channel						;	-1
+												;	(*pj).station--
 	(*pj).detector = detector
 	(*pj).xcompress = xcompress
 

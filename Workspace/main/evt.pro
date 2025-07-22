@@ -2303,13 +2303,14 @@ endif
 	for j=0L,npp-1 do begin
 		if ptr_good(pp[j]) then n[j] = (*pp[j]).station + adc_offset_device((*pp[j]).DevObj)
 	endfor
+	print,'evt_getcal: n=',n
 
 	use_station = 1
 	if size(pp[0],/tname) eq 'POINTER' then begin
 		for i=0L,(*pstate).max_adcs-1 do begin
 			j = i < (npp-1)
 			if use_station then begin
-				q = where( i eq n)
+				q = where( i + (*pp[0]).DevObj->start_adc() eq n)
 				j = q[0]
 			endif
 			if j ge 0 then begin
