@@ -144,6 +144,16 @@ t = strarr(nc,n)
 npx = nc-1
 widths = replicate(10,nc) * !d.x_ch_size
 
+pold = p[0]
+pnew = p[n-1]
+
+if strip_path( (*pold).file) ne strip_path( (*pnew).file) then begin
+	warning,'Load_image_table_table',['New region sum seems to be from a different image', $
+				'than the image used to form the regions in this table.','', $
+				'You always need to "Update: All" to apply loaded regions', $
+				'to the current image data BEFORE adding new regions.']
+endif
+ 
 for i=0L,n-1 do begin
 
 	if i eq (n-1) then begin
@@ -2214,7 +2224,7 @@ snap_done:
 		on_ioerror, null
 		end
 
-	'image-results': begin
+	'image-results': begin										; main image window has already added a region
 
 		if ptr_good( (*pstate).p) eq 0 then goto, finish
 		p = *(*pstate).p
