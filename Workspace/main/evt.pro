@@ -2305,6 +2305,9 @@ endif
 	endfor
 	print,'evt_getcal: n=',n
 
+;	Note that "(*pp[0]).DevObj->start_adc()" is equivalent
+;	to "1 + adc_offset_device((*pp[0]).DevObj)".
+
 	use_station = 1
 	if size(pp[0],/tname) eq 'POINTER' then begin
 		for i=0L,(*pstate).max_adcs-1 do begin

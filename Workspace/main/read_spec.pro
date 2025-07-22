@@ -8,6 +8,10 @@ function read_spec, file, header=header, find=find, error=error
 ;
 ;	If /header then only read header stuff for spectrum 'find',
 ;	where 'find' is the station number (1,2,3,...), 0 means any.
+;
+; Want to make sure that the 'find_offset' matches the Display ADC number (as in Spectrum Select).
+; The input 'find' is usually from the "Get" button on the Cal window droplist, so found=0 means "any"
+; and the ADC number "0", "1", etc. start at find=1,2, etc. 
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -176,12 +180,13 @@ if n lt 1 then goto, error
 ; 
 ; Want to make sure that the 'find_offset' matches the Display ADC number (as in Spectrum Select).
 ; The input 'find' is usually from the "Get" button on the Cal window droplist, so found=0 means "any"
-; and the ADC number "0", "1", etc. start at find=1,2, etc. Hence, the "-1" in the fiormula for 
-; 'find_offset'. This is modified for device where ADC number start from "0", where 'adc_offset_device'
-; has the value "-1".
+; and the ADC number "0", "1", etc. start at find=1,2, etc. 
+;
+; Hence, the "-1" in the formula for 'find_offset'. This is modified for device where ADC number start
+; from "0", where 'adc_offset_device' has the value "-1".
 
 if find ne 0 then begin
-	find_offset = find-1 - adc_offset_device(obj)			; equiv. to: find - start_ADC
+	find_offset = find-1 - adc_offset_device(obj)			; equiv. to: 'find - start_ADC'
 	print,'find_offset=',find_offset
 endif else find_offset=find
 

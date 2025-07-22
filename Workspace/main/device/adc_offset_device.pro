@@ -9,11 +9,12 @@ function adc_offset_device, obj
 ; 	channel		is ADC number as read in from raw data.
 ; 	station		is this plus 1 (e.g. 1 for channel=0)
 ; 	
-; channel	station		start_adc	offset		station+offset
-; 	0		  1			  0			 -1				0
+; channel	station		start_adc	offset		station+offset	e.g.
+; 	0		  1			  0			 -1				0			Maia
 ;	1		  2			  0			 -1				1
-; 	0		  1			  1			  0				1
-;	1		  2			  1			  0				2
+; 	0		  1			  1			  0				1			MPA3, MPA4
+;	1		  2			  1			  0				2			
+;	0		  1			  3			  2				3			Lund VME
 ; 	
 ; Offset from 0 to start of real ADCs.
 ; The offsets for ADC numbers are to their "start_adc" init value.
