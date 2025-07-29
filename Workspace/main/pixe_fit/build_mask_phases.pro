@@ -14,6 +14,9 @@ pro build_mask_phases, mask, org, mask_phase, n_phases, mask_legend, mask_title,
 		stail_length = 'tail lengths'
 	endelse
 
+;	Parameters:	0 Noise		2 cal B		4 pileup	5 tail amp		7  backgnd 1	8 Compton tail amp
+;				1 Fano		3 cal A					6 tail length	10 backgnd 2	9 Compton tail length
+
 	na = n_elements(mask)
 	mask_phase = intarr(na,5)
 	mask_legend = strarr(5)

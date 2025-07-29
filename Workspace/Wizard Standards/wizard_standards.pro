@@ -1,7 +1,7 @@
 
 ; Wizard to determine the 'conv' calibration factors for standards foils.
 ; 
-;	For a selected blog dir, find all blog files (of 'standard_type' = "standard"),
+;	For a selected raw dir, find all raw files (of 'standard_type' = "standard"),
 ;	and calculate the IC conversion calibration factor 'conv' by using a
 ;	region over most of the foil image.
 
@@ -70,7 +70,7 @@ if ptr_good(p) eq 1 then begin
 		no_data = 0
 	endif
 endif
-obj = (*pstate).DevObj
+obj = *(*pstate).pDevObj
 
 case tag_names( event,/structure) of
 	'WIDGET_TRACKING': begin
@@ -226,8 +226,14 @@ case uname of
 ;		endcase
 		end
 	
+	'device-mode': begin
+		(*pstate).device = event.index
+		DevObj = (*(*pstate).pDevObjList)[(*pstate).device]			; current device object
+		*(*pstate).pDevObj = DevObj
+		end
+
 	'blog-dir-button': begin
-		F = file_requester( /read, title='Select the "standards" blog dir', path=(*pstate).blog_dir, $
+		F = file_requester( /read, title='Select the "standards" raw dir', path=(*pstate).blog_dir, $
 							/dir, group=event.top )
 		if F[0] ne '' then begin
 			(*pstate).blog_dir = F[0]
@@ -291,6 +297,10 @@ case uname of
 	'resource-dir-text': begin
 		widget_control, event.id, get_value=s
 		(*pstate).resource_dir = s
+
+		config = wizard_standards_read_config( fix_path((*pstate).resource_dir)+'standards'+path_sep()+'standards.csv', error=error)
+		if error then goto, finish
+		*(*pstate).pconfig = config
 		end
 					
 	'scan-blog-button': begin
@@ -298,7 +308,7 @@ case uname of
 
 		table = wizard_standards_scan_dir( pstate, title=title, type=type, error=error)
 		if error then begin
-			warning,'wizard_standards_event','No blog files found.'		
+			warning,'wizard_standards_event','No raw files found.'		
 			goto, finish
 		endif
 		*(*pstate).presults = table
@@ -545,7 +555,7 @@ done:
 	goto, kill
 
 bad_state:
-	warning,'wizard_standards_event',['STATE variable has become ill-defined.','Abort Maia setup.'],/error
+	warning,'wizard_standards_event',['STATE variable has become ill-defined.','Abort Wizard.'],/error
 	goto, kill
 bad_ptr:
 	warning,'wizard_standards_event',['Parameter structure variable has become ill-defined.','Abort Wizard.'],/error
@@ -851,7 +861,7 @@ end
 function wizard_standards_output_file, pstate, blog, error=err
 	
 ; Determine the matching output file or path appropriate for 'blog'.
-; If 'blog' is a path, return the new path. If a file, return new DAI file name.
+; If 'blog' is a raw path, return the new path. If a file, return new DAI file name.
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -968,7 +978,7 @@ end
 
 function wizard_standards_scan_dir, pstate, title=title, type=type, error=error
 
-; Scan selected blog dir for standards runs to populate the Table.
+; Scan selected raw dir for standards runs to populate the Table.
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1026,19 +1036,19 @@ if n_elements(silent) eq 0 then silent=0
 	if rmax eq 0 then rmax = 10000000L
 
 cont:
-	p = scan_dir_evt( (*pstate).blog_dir, (*pstate).DevObj, ppath=(*pstate).path, proot=(*pstate).root, rmin=rmin, rmax=rmax, error=err)
+	p = scan_dir_evt( (*pstate).blog_dir, *(*pstate).pDevObj, ppath=(*pstate).path, proot=(*pstate).root, rmin=rmin, rmax=rmax, error=err)
 	if err then return, 0
 
 	nb = n_elements(p)
 	if nb eq 0 then begin
-		warning,'wizard_standards_scan_dir','No standards blog files found in - '+(*pstate).blog_dir
+		warning,'wizard_standards_scan_dir','No standards raw files found in - '+(*pstate).blog_dir
 		return, 0
 	endif
 	blog = strarr(nb)
 	for i=0,nb-1 do blog[i] = (*p[i]).file
 	
 	for i=0,nb-1 do begin
-		mp = get_header_info( (*pstate).DevObj, blog[i], error=err)	; output=output, silent=silent
+		mp = get_header_info( *(*pstate).pDevObj, blog[i], error=err)	; output=output, silent=silent
 		if err then begin
 			warning,'wizard_standards_scan_dir','Error in header read for file: '+blog[i]
 			return, 0
@@ -1080,7 +1090,7 @@ cont:
 ;		It must match the order of entries in the row struct of the table.
 ;		This is NOT the selection of the columns as shown. See "wizard_standards_update_table" for that.
 
-		title = ['On','Blog','Name','Serial','Detector','Energy','Xsize','Ysize','PV name','IC Gain','El','Pileup','Throttle', $
+		title = ['On','Raw','Name','Serial','Detector','Energy','Xsize','Ysize','PV name','IC Gain','El','Pileup','Throttle', $
 				'Conv','Mean','Error','Std.Dev','SD/Error']
 		type = ['toggle','file','string','string','string','float','int','int','string','float','string','file','file', $
 				'float','float','float','float','float']
@@ -1148,7 +1158,7 @@ end
 
 pro wizard_standards_process_blog, pstate, error=error
 
-; For a single blog file, do the following:
+; For a single raw file, do the following:
 ;	1. Form DAI image file for standard 
 ;			Update pileup, throttle file paths
 ;			(done in "wizard_standards_callback_image_done" on reply)
@@ -1196,11 +1206,11 @@ endif
 	if i ge n then return
 	j = q[i]
 	(*pstate).index = j
-	print,'	process_blog: process index, blog =',j,'  ',(*p)[j].blog
+	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
 	
 	output = wizard_standards_output_file( pstate, (*p)[j].blog, error=err)
 	if err then begin
-		warning,'wizard_standards_process_blog','Unable to form output file for blog: '+ strip_file_ext(strip_path((*p)[j].blog))
+		warning,'wizard_standards_process_blog','Unable to form output file for raw: '+ strip_file_ext(strip_path((*p)[j].blog))
 		return
 	endif
 	
@@ -1208,7 +1218,7 @@ endif
 	if err then begin
 		s = ['Check for the following in the "standards.csv" file: ','Name = '+(*p)[j].name, 'Serial number = '+(*p)[j].serial, $
 				'Energy = '+str_tidy((*p)[j].energy), 'Detector = '+(*p)[j].detector,'Note that name matches are case-sensitive.']
-		warning,'wizard_standards_process_blog',['No match found in config file for blog: '+ strip_file_ext(strip_path((*p)[j].blog)),'',s]
+		warning,'wizard_standards_process_blog',['No match found in config file for raw: '+ strip_file_ext(strip_path((*p)[j].blog)),'',s]
 		return
 	endif
 	
@@ -1223,7 +1233,7 @@ endif
 	wz.window = 'Sort EVT'								; Sort image
 	wz.command = 'sort-image'
 	wz.pdata = ptr_new( {	$
-		device:			(*pstate).DevObj->name(), $		; device name
+		device:			(*(*pstate).pDevObj)->name(), $		; device name
 		image_mode:		0, $							; sort mode (images)
 		type:			7, $							; SXRF data type
 		array:			1, $							; array detector
@@ -1382,7 +1392,7 @@ endif
 	
 	on_ioerror, bad
 	openw, 1, output
-	printf, 1, 'Blog, Name, Serial, Detector, Energy, Xsize, Ysize, IC Gain, El, Conv, Pileup, Throttle, Mean, Error, Std.Dev, SD/Error'
+	printf, 1, 'Raw, Name, Serial, Detector, Energy, Xsize, Ysize, IC Gain, El, Conv, Pileup, Throttle, Mean, Error, Std.Dev, SD/Error'
 	for i=0,n-1 do begin
 		printf, 1, (*p)[i].blog, (*p)[i].name, (*p)[i].serial, (*p)[i].detector, str_tidy((*p)[i].energy), $
 				str_tidy((*p)[i].Xsize), str_tidy((*p)[i].Ysize), str_tidy((*p)[i].gain), (*p)[i].el, $
@@ -1604,7 +1614,7 @@ endcase
 ;	row struct of the results table (see 'wizard_standards_scan_dir'), except "#", which is the row index.
 
 	rows = string(indgen(n>1))
-	headings = ['#', 'Blog','Name','Serial', 'Energy','El', 'Mean','Error','Std.Dev','SD/Error']
+	headings = ['#', 'Raw','Name','Serial', 'Energy','El', 'Mean','Error','Std.Dev','SD/Error']
 	nc = n_elements(headings)
 	widths = [3, 7,5,9, 7,4, replicate(10,nc-6)] * !d.x_ch_size * ch_scale
 	t = strarr(nc,256)
@@ -1706,7 +1716,7 @@ endcase
 ;	row struct of the results table (see 'wizard_standards_scan_dir'), except "#", which is the row index.
 
 	rows = string(indgen(n>1))
-	headings = ['#','On', 'Blog','Name','Serial', 'Detector','Energy', 'Xsize','Ysize', 'IC Gain','El','Conv', 'Pileup','Throttle']
+	headings = ['#','On', 'Raw','Name','Serial', 'Detector','Energy', 'Xsize','Ysize', 'IC Gain','El','Conv', 'Pileup','Throttle']
 	nc = n_elements(headings)
 	widths = [3,5, 7,8,7, replicate(7,2), replicate(5,2), 7,4,12, 10,10] * !d.x_ch_size * ch_scale
 	t = strarr(nc,256)
@@ -1756,6 +1766,23 @@ endcase
 end
 
 ;----------------------------------------------------------------------
+
+pro OnRealize_wizard_standards_device_mode, wWidget
+
+COMPILE_OPT STRICTARR
+top = tlb_id( wWidget)
+child = widget_info( top, /child)
+widget_control, child, get_uvalue=pstate
+
+if ptr_valid( pstate) then begin
+	widget_control, wWidget, set_combobox_select=(*pstate).device
+
+	DevObj = (*(*pstate).pDevObjList)[(*pstate).device]			; current device object
+	*(*pstate).pDevObj = DevObj
+endif
+end
+
+;------------------------------------------------------------------------------------------
 
 pro OnRealize_wizard_standards_draw1, wWidget
 
@@ -1961,7 +1988,7 @@ pro wizard_standards, debug=debug
 ; An exception is the 'wizard-return' to the 'open-test' Notify. To test the possibility that
 ; there are multiple windows of a type open, all windows MUST make a copy of the pointer
 ; contents, set (*pw).top to event.top and return this copy. Otherwise, they trample each
-; other's 'top' setting it in the same source pointer struct.
+; other's 'top' setting if in the same source pointer struct.
 ; 
 ; Only the Wizard with the right "wizard name" will respond to the return event. It will
 ; execute the callback routine and then if 'pnext' is set, send a notify with 'pnext' as the
@@ -2000,7 +2027,7 @@ if (ErrorNo ne 0) then begin
 		geopixe
 	endif else begin
 		a = dialog_message(['GeoPIXE is not loaded in memory.','No "GeoPIXE.sav" file found locally.','Abort Wizard.','', $
-				'Check that your working directory is the "geopixe" or "main" dir.'], /error)
+				'Check that your working directory is the main "geopixe" dir.'], /error)
 		return
 	endelse
 endif
@@ -2041,7 +2068,7 @@ detector_update, list=detector_list, title=detector_title
 ; List the names of the windows needed, in the format of their 'wizard-action' Notify
 ; window name. The "open-test" Notify message will be sent to these windows periodically
 ; to check on their 'open' status. They MUST make a copy of the Notify pointer contents,
-; set (*pw).top of the copy to 'event.top' and return pw. 
+; set (*pw).top of the copy to 'event.top' and return the new pw. 
 
 windows_needed = ['Image','Sort EVT']
 
@@ -2111,7 +2138,24 @@ yoffset = 0
 		
 left_resize = 0.7			; fraction of resize changes to use for left and right column widgets
 right_resize = 0.3
- 
+
+;	Device object list ...
+
+define_devices, titles=device_titles, names=device_names
+DevObjList = instance_device_objects( device_names, error=err)
+if err then begin
+	warning,'wizard_standards',['Failed to open Device Objects.','Missing "xxx_device__define.sav" files in "/interface" ?']
+	return
+endif
+if obj_valid(DevObjList[0]) eq 0 then begin
+	warning,'wizard_standards',['Failed to open Device Objects.','Obj array invalid.']
+	return
+endif
+device_initial = "MAIA_DEVICE"
+device = 0
+q = where( device_initial eq device_names, nq)
+if nq ne 0 then device = q[0]
+
 ; 	top-level base
 
 tlb = widget_base( /column, title='Standards Calibration Wizard ' + wversion + ' (GeoPIXE '+version+')', /TLB_KILL_REQUEST_EVENTS, $
@@ -2128,11 +2172,24 @@ tab_names = ['input','table','stats','plots']
 
 file_base = widget_base( tab_panel, title='  1. User Input    ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
-label = widget_label( file_base, value='Select blog data directory for standards')
+label = widget_label( file_base, value='Select raw data directory for standards')
 file_text = widget_text( file_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
-				value=['Select the blog data directory to scan for all "standards" analyses. These need to be collected as image scans and flagged as "standards" in the metadata. ' + $
-					'Alternatively, you can edit some parameters in the Table on tab two.'], $
+				value=['Select the raw data directory to scan for all "standard" analyses. These need to be collected as image scans and flagged as "standard" in the metadata. ' + $
+					'You can edit some parameters in the Table on tab two.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the User Input panel.'}, frame=1)
+
+
+file_base0 = widget_base( file_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, $
+				uvalue={xresize:left_resize}, scr_xsize=left_xsize)
+label = widget_label( file_base0, value='Select Raw Data File Device')
+file_base0b = widget_base( file_base0, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
+
+file_base0c = widget_base( file_base0b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
+lab = widget_label( file_base0c, value='Device:')
+device_mode = widget_combobox( file_base0c, value=device_titles, uname='device-mode', /tracking, xsize=text_xsize, $
+					notify_realize='OnRealize_wizard_standards_device_mode', $
+					uvalue='Select input device driver for the raw data file(s).')
+
 
 file_base1 = widget_base( file_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, $
 				uvalue={xresize:left_resize}, scr_xsize=left_xsize)
@@ -2140,10 +2197,10 @@ label = widget_label( file_base1, value='Select Files and Paths')
 file_base1b = widget_base( file_base1, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
 file_base1c = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
-button = widget_button( file_base1c, value='Blog dir:', uname='blog-dir-button', tracking=tracking, $
-						uvalue='Click to browse for the raw blog data directory for any "standards". ', scr_xsize=button_xsize )
+button = widget_button( file_base1c, value='Raw dir:', uname='blog-dir-button', tracking=tracking, $
+						uvalue='Click to browse for the raw data directory for any "standard". ', scr_xsize=button_xsize )
 blog_dir_text = widget_text( file_base1c, uname='blog-dir-text', value=default.path.data, tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for the raw blog data directory for "standards", or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
+						uvalue={xresize:left_resize, help:'Enter file-name for the raw data directory for any "standard", or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_standards_blog_dir_text')
 
 file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
@@ -2160,13 +2217,14 @@ output_dir_text = widget_text( file_base1e, uname='output-dir-text', value=defau
 						uvalue={xresize:left_resize, help:'Enter the directory tree for image and region output, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_standards_output_dir_text')
 
+
 file_base2 = widget_base( file_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize, uvalue={xresize:left_resize})
 label = widget_label( file_base2, value='Resource Files')
 file_base2b = widget_base( file_base2, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
 file_base2c = widget_base( file_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base2c, value='Resources:', uname='resource-dir-button', tracking=tracking, $
-						uvalue='Click to browse for the GeoPIXE Resources directory. This tree contains all the files needed for processing these "standards". ' + $
+						uvalue='Click to browse for the GeoPIXE Resources directory. This tree contains all the files needed for processing these "standard" data. ' + $
 						'The key files are the DA matrix files, stored according to detector and energy (e.g. "384C14/standards/18500eV/Pt_MM15931_384C14_18500eV.damx"). ' + $
 						'Defaults to the "path config" on your home "~/.geopixe/geopixe.conf" file.', scr_xsize=button_xsize )
 resource_dir_text = widget_text( file_base2c, uname='resource-dir-text', value=default.path.config, tracking=tracking, $
@@ -2178,9 +2236,9 @@ resource_dir_text = widget_text( file_base2c, uname='resource-dir-text', value=d
 file_base3 = widget_base( file_base, /row, xpad=1, ypad=0, space=20, /align_center, /base_align_center)
 
 button = widget_button( file_base3, value='Reload "standards.csv"', uname='reload-standards-button', tracking=tracking, $
-						uvalue='Click to reload the "standards.csv" file. Use this during testing. Later we will hide this button.', scr_xsize=2*button_xsize )
-button = widget_button( file_base3, value='Scan Blog Dir', uname='scan-blog-button', tracking=tracking, $
-						uvalue='Click to scan the selected blog dir and populate the table (on the next tab page). Click on "Next" to move to the next page, or use the tabs on the left.', scr_xsize=2*button_xsize )
+						uvalue='Click to reload the "standards.csv" file from Resources. Use this during testing. Later we will hide this button as it is automatic after selecting Resources.', scr_xsize=2*button_xsize )
+button = widget_button( file_base3, value='Scan Raw Dir', uname='scan-blog-button', tracking=tracking, $
+						uvalue='Click to scan the selected raw dir for all "standard" data and populate the table (on the next tab page). Click on "Next" to move to the next page, or use the tabs on the left.', scr_xsize=2*button_xsize )
 
 ; Results table  -----------------------------------------
 
@@ -2188,7 +2246,7 @@ table_base = widget_base( tab_panel, title='  2. Results Table    ', /column, xp
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( table_base, value='Work Table and Results')
 results_text = widget_text( table_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='table-explanation', tracking=tracking, $
-				value=['Table showing the details of the blog files scanned, and parameters needed for the calculation of the calibration factor "conv". ' + $
+				value=['Table showing the details of the raw files scanned, and parameters needed for the calculation of the calibration factor "conv". ' + $
 				'Missing values lacking metadata need to be entered. See more detailed instructions in the info panel (right). When ready click "Process" to start processing.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the Results panel.'}, frame=1)
 
@@ -2213,7 +2271,7 @@ results_table = Widget_Table(table1_base, UNAME='results-table', /all_events, /e
 table_base2 = widget_base( table_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
 
 ;button = widget_button( table_base2, value='Scan Blog Dir', uname='scan-blog-button', tracking=tracking, $
-;						uvalue='Click to scan the selected blog dir (previous Tab page), if this was not done already, and populate the table. Missing values may need to be added manually after the scan.', scr_xsize=1.5*button_xsize )
+;						uvalue='Click to scan the selected raw dir (previous Tab page), if this was not done already, and populate the table. Missing values may need to be added manually after the scan.', scr_xsize=1.5*button_xsize )
 button = widget_button( table_base2, value='Enable', uname='table-enable-button', tracking=tracking, $
 						uvalue='Click to toggle the "On/off" state of selected rows. Click in a cell and drag down to select multiple rows.', scr_xsize=button_xsize )
 button = widget_button( table_base2, value='Fill', uname='table-fill-button', tracking=tracking, $
@@ -2263,7 +2321,7 @@ plot_base = widget_base( tab_panel, title='  4. Plots    ', /column, xpad=1, ypa
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( plot_base, value='Calibration Results Plots')
 plot_text = widget_text( plot_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='plots-explanation', tracking=tracking, $
-				value=['Results for "conv" calibration factors plotted against "blog" run or line energy.'], frame=1)
+				value=['Results for "conv" calibration factors plotted against "raw" run or line energy.'], frame=1)
 
 ptab_panel = widget_tab( plot_base, location=3, /align_center, uname='wizard-standards-ptab-panel')
 ptab_names = ['run','energy']
@@ -2344,7 +2402,10 @@ state = { $
 		tlb_xsize:				0L, $							; TLB X size
 		tlb_ysize:				0L, $							; TLB Y size
 		
-		DevObj:					obj_new('MAIA_DEVICE'), $		; Maia device object
+;		DevObj:					obj_new('MAIA_DEVICE'), $		; Device object
+		pDevObj:				ptr_new( DevObjList[device]), $	; current Device object
+		device:					device, $						; device index
+		pDevObjList:			ptr_new( DevObjList), $			; device object list
 		sel: {left:-1, top:-1, right:-1, bottom:-1, edit:0 }, $	; use "(*pstate).sel.top" as current region
 
 		blog_dir:	 			default.path.data, $			; blog data dir tree

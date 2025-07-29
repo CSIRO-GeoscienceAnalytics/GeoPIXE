@@ -165,7 +165,7 @@ function select_element_lines, pyield, z, shelli, el_free, use_m=use_m, $
 				endfor
 			endif else add_lines=0
 		endif else begin
-			z2c = [0,0]								; These zero to zero as they relate to the beam, not an element.
+			z2c = [0,0]								; These set to zero as they relate to the beam, not an element.
 			shellc = [2,3]
 			freec = [1,1]
 			n_linesc = [1,1]

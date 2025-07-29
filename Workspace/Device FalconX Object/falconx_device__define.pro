@@ -961,7 +961,7 @@ end
 ; Is the flip (swap) ICR-RAW on?
 ; Use in tests: if obj->flip_icr_raw() 
 
-function maia_device::flip_icr_raw
+function falconx_device::flip_icr_raw
 
 COMPILE_OPT STRICTARR
 		
