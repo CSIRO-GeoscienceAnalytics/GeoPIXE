@@ -156,6 +156,7 @@ endif
 
 common c_fit_model_6,  a, org, rorg, na, cpeaks, n_channels, x, cdetector, mask, name, note, $
 			e_low, e_high, do_tail, ccompton
+common c_fit_model_7, new_sxrf_mode
 
 	linear_fit_initial = 0				; do one iteration of linear fit for initial
 
@@ -264,6 +265,16 @@ common c_fit_model_6,  a, org, rorg, na, cpeaks, n_channels, x, cdetector, mask,
 		pileup = map_spec( (*ppileup).data, cal2, (*pspec).cal, error=err)
 	endif else pileup = 0.0
 
+	sxrf = 0
+	sxrf_mono = 0
+	if ptr_valid((*p).yields) then begin
+		sxrf = (((*(*p).yields).z1 eq 0) and ((*(*p).yields).a1 eq 0))
+		sxrf_mono = 1
+		if typevar( (*(*p).yields).beam) eq 'STRUCT' then begin
+			if sxrf and ((*(*p).yields).beam.continuum eq 1) then sxrf_mono = 0
+		endif
+	endif
+
 	if (*pspec).type eq 0 then begin
 		if ((*(*p).peaks).Z1 eq 0) and ((*(*p).peaks).A1 eq 0) then (*pspec).type=7			; SXRF
 	endif
@@ -281,6 +292,11 @@ common c_fit_model_6,  a, org, rorg, na, cpeaks, n_channels, x, cdetector, mask,
 		message = 'Too few spectrum channels (<50)'
 		goto, bad_exit
 	endif
+
+	if sxrf_mono and (fix_cal eq 0) and new_sxrf_mode then begin
+		e_high = e_high < 0.85 * (*(*p).yields).e_beam
+	endif
+
 	if size(*(*p).detector,/tname) ne 'STRUCT' then goto, bad
 	w0 = (*(*p).detector).w0
 	w1 = (*(*p).detector).w1

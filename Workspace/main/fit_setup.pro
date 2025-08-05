@@ -1920,6 +1920,9 @@ end
 
 ;------------------------------------------------------------------------------------------
 
+; Do the fit, or simply update the spectrum overlay based on changes to settings.
+
+
 pro fit_setup_do_fit, pstate, p, do_fit=do_fit, loop_on=loop_on, update_background=update_background, $
 		first_pass=first_pass, i_loop=i_loop, n_loop=n_loop, update_initial=update_initial, $
 		refit=refit, save_da=save_da, xanes_DA=xanes_DA, python=python, tweak_par=tweak_par, error=error
@@ -1943,6 +1946,8 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+common c_fit_model_7, new_sxrf_mode
+new_sxrf_mode = 1
 
 	if n_elements(pstate) eq 0 then goto, bad_state
 	if ptr_valid(pstate) eq 0 then goto, bad_state
@@ -2009,6 +2014,15 @@ endif
 		progress, tlb=progress_tlb, title='GeoPIXE: Spectrum Fit All'
 	endif
 	silent = 0
+	sxrf = 0
+	sxrf_mono = 0
+	if ptr_valid((*p).yields) then begin
+		sxrf = (((*(*p).yields).z1 eq 0) and ((*(*p).yields).a1 eq 0))
+		sxrf_mono = 1
+		if typevar( (*(*p).yields).beam) eq 'STRUCT' then begin
+			if sxrf and ((*(*p).yields).beam.continuum eq 1) then sxrf_mono = 0
+		endif
+	endif
 	
 loop:
 	if ptr_valid((*pstate).pspec) then begin
@@ -2035,10 +2049,6 @@ loop:
 			endif else begin
 				if (*p).background gt n_elements((*(*pstate).plugins).list) then (*p).background=0
 			endelse
-			sxrf = 0
-			if ptr_valid((*p).yields) then begin
-				sxrf = ((*(*p).yields).z1 eq 0) and ((*(*p).yields).a1 eq 0)
-			endif
 			case (*p).background of
 				0: begin
 					pback = strip_clip( (*pstate).pspec, (*p).e_low, (*p).e_high, $
@@ -2086,7 +2096,7 @@ loop:
 			if cancel then goto, finish
 		endif
 
-		if (update_initial or do_fit or tweak_par) and (bad_cal eq 0) then begin			; do the fit
+		if (update_initial or do_fit or tweak_par) and (bad_cal eq 0) then begin			; do the fit or initial display
 			initial = 1
 			if do_fit then initial=0
 
@@ -2103,7 +2113,12 @@ loop:
 				tweek_lines = (*p).tweek.lines
 			endif
 
-			if (loop_on) then begin											;@29-3-16
+;			Free	0	Cal
+;					1	Widths
+;					2	Tails
+;					3	No tails
+
+			if (loop_on) then begin											;@29-3-16 (reuse Widths from previous fit)
 				if ((*p).free[1] eq 1) and ptr_good( (*p).save_detector) then begin
 					(*(*p).detector).w0  =  (*(*p).save_detector).w0
 					(*(*p).detector).w1  =  (*(*p).save_detector).w1
@@ -2113,8 +2128,29 @@ loop:
 
 ;			Do the fit. 'use_last' means use geometry factors from last fit, not fitting parameters.
 
+			fix_cal = 1-(*p).free[0]
+			fix_width = 1-(*p).free[1]
+
+			if sxrf_mono and (fix_cal eq 0) and new_sxrf_mode then begin
+				
+				pfit = pixe_fit( p, (*pstate).pspec, (*pstate).pback, ppileup=ppileup, $
+					fix_cal=fix_cal, fix_fano=1-(*p).free_fano, fix_width=fix_width, $
+					fix_gain=1-(*p).free_gain, fix_tail=1-(*p).free[2], no_tail=(*p).free[3], dynamic=2, $
+					back_mode=(*p).background, pileup_mode=(*p).pileup_mode, sum_deficit=(*p).sum_deficit, gamma=(*pstate).gamma, $
+					progress=0, initial=initial, refit=refit, use_last=use_last, $
+					silent=silent, pcm=(*p).pcm_file, old=old, last_a=(*p).old_a, use_m=(*pstate).use_m, $
+					show_df=(*pstate).show_df, scale_df=[(*pstate).scale_df,(*pstate).offset_df], $
+					tweek_el=tweek_el, tweek_lines=tweek_lines, mp_loop=0, correct=(*p).pcorrect, $
+					results=results, da_pars=da_pars, pressure=pressure, temp=temp, tweak_par=tweak_par, $
+					cancel=cancel, python=python, do_split=((*p).background2 eq 1), $
+					emid = (*p).back2_split_energy, error=error )
+
+				fix_cal = 1
+				fix_width = 1
+			endif
+
 			pfit = pixe_fit( p, (*pstate).pspec, (*pstate).pback, ppileup=ppileup, $
-				fix_cal=1-(*p).free[0], fix_fano=1-(*p).free_fano, fix_width=1-(*p).free[1], $
+				fix_cal=fix_cal, fix_fano=1-(*p).free_fano, fix_width=fix_width, $
 				fix_gain=1-(*p).free_gain, fix_tail=1-(*p).free[2], no_tail=(*p).free[3], dynamic=2, $
 				back_mode=(*p).background, pileup_mode=(*p).pileup_mode, sum_deficit=(*p).sum_deficit, gamma=(*pstate).gamma, $
 				progress=(loop_on eq 0), initial=initial, refit=refit, use_last=use_last, $
