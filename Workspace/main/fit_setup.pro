@@ -2131,22 +2131,35 @@ loop:
 			fix_cal = 1-(*p).free[0]
 			fix_width = 1-(*p).free[1]
 
-			if sxrf_mono and (fix_cal eq 0) and new_sxrf_mode then begin
+			if ((*p).e_high ge (*(*p).yields).e_beam) and new_sxrf_mode then begin
+				if sxrf_mono and (fix_cal eq 0) then begin
 				
-				pfit = pixe_fit( p, (*pstate).pspec, (*pstate).pback, ppileup=ppileup, $
-					fix_cal=fix_cal, fix_fano=1-(*p).free_fano, fix_width=fix_width, $
-					fix_gain=1-(*p).free_gain, fix_tail=1-(*p).free[2], no_tail=(*p).free[3], dynamic=2, $
-					back_mode=(*p).background, pileup_mode=(*p).pileup_mode, sum_deficit=(*p).sum_deficit, gamma=(*pstate).gamma, $
-					progress=0, initial=initial, refit=refit, use_last=use_last, $
-					silent=silent, pcm=(*p).pcm_file, old=old, last_a=(*p).old_a, use_m=(*pstate).use_m, $
-					show_df=(*pstate).show_df, scale_df=[(*pstate).scale_df,(*pstate).offset_df], $
-					tweek_el=tweek_el, tweek_lines=tweek_lines, mp_loop=0, correct=(*p).pcorrect, $
-					results=results, da_pars=da_pars, pressure=pressure, temp=temp, tweak_par=tweak_par, $
-					cancel=cancel, python=python, do_split=((*p).background2 eq 1), $
-					emid = (*p).back2_split_energy, error=error )
+;					A common problem with fitting SXRF spectra is the effect of the strong scatter peaks. 
+;					The elastic peak may not be accurate (some beamlines have errors in known beam energy).
+;					The Compton peak may be poorly fitted initially until parameters are adjusted. These 
+;					both skew the fit to the energy Cal parameters and often the Width parameters too 
+;					(if enabled). To avoid the fit to the elastic peak and Compton skewing the fit to 
+;					the energy cal of a spectrum, ‘pixe_fit’ now limits ‘e_high’ to 85% of e_beam (internally), 
+;					if the yield is for SXRF (z1=0,a1=0), a mono beam (beam.continuum=0) and Cal is free.
+;
+;					This prelim call to 'pixe_fit' (in which e_high will be limited) is triggered for 
+;					these mono SXRF, Cal free cases only ...
 
-				fix_cal = 1
-				fix_width = 1
+					pfit = pixe_fit( p, (*pstate).pspec, (*pstate).pback, ppileup=ppileup, $
+						fix_cal=fix_cal, fix_fano=1-(*p).free_fano, fix_width=fix_width, $
+						fix_gain=1-(*p).free_gain, fix_tail=1-(*p).free[2], no_tail=(*p).free[3], dynamic=2, $
+						back_mode=(*p).background, pileup_mode=(*p).pileup_mode, sum_deficit=(*p).sum_deficit, gamma=(*pstate).gamma, $
+						progress=0, initial=initial, refit=refit, use_last=use_last, $
+						silent=silent, pcm=(*p).pcm_file, old=old, last_a=(*p).old_a, use_m=(*pstate).use_m, $
+						show_df=(*pstate).show_df, scale_df=[(*pstate).scale_df,(*pstate).offset_df], $
+						tweek_el=tweek_el, tweek_lines=tweek_lines, mp_loop=0, correct=(*p).pcorrect, $
+						results=results, da_pars=da_pars, pressure=pressure, temp=temp, tweak_par=tweak_par, $
+						cancel=cancel, python=python, do_split=((*p).background2 eq 1), $
+						emid = (*p).back2_split_energy, error=error )
+	
+					fix_cal = 1
+					fix_width = 1
+				endif
 			endif
 
 			pfit = pixe_fit( p, (*pstate).pspec, (*pstate).pback, ppileup=ppileup, $

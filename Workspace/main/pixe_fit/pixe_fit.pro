@@ -293,8 +293,24 @@ common c_fit_model_7, new_sxrf_mode
 		goto, bad_exit
 	endif
 
-	if sxrf_mono and (fix_cal eq 0) and new_sxrf_mode then begin
-		e_high = e_high < 0.85 * (*(*p).yields).e_beam
+;	A common problem with fitting SXRF spectra is the effect of the strong scatter peaks. 
+;	The elastic peak may not be accurate (some beamlines have errors in known beam energy).
+;	The Compton peak may be poorly fitted initially until parameters are adjusted. These 
+;	both skew the fit to the energy Cal parameters and often the Width parameters too 
+;	(if enabled). To avoid the fit to the elastic peak and Compton skewing the fit to 
+;	the energy cal of a spectrum, ‘pixe_fit’ now limits ‘e_high’ to 85% of e_beam, if 
+;	the yield is for SXRF (z1=0,a1=0), a mono beam (beam.continuum=0) and Cal is free.
+;
+;	Where 'pixe_fit' is called elsewhere, it should be called as a prelim pass and then
+;	'pixe_fit' should be called again, but with Cal OFF.
+;
+;	Note: This change to e_high requires a second call, as it effects the 'x' vector below,
+;	which is outside the fitting loop, and hence inaccessible to the phases mechanism.
+
+	if (e_high ge (*(*p).yields).e_beam) and new_sxrf_mode then begin
+		if sxrf_mono and (fix_cal eq 0) then begin
+			e_high = e_high < 0.85 * (*(*p).yields).e_beam
+		endif
 	endif
 
 	if size(*(*p).detector,/tname) ne 'STRUCT' then goto, bad
