@@ -639,13 +639,10 @@ case uname of
 		if lenchr(F) eq 0 then begin
 			if ptr_valid((*p).cuts) then ptr_free, (*p).cuts
 			(*p).cuts = ptr_new()
-			widget_control, (*pstate).cuts_file, set_value=''
+			set_widget_text, (*pstate).cuts_file, ''
 		endif else begin
 			*(*pstate).path = extract_path(F)
-			n = lenchr(F)
-			k = lenchr(strip_path(F))
-			widget_control, (*pstate).cuts_file, set_value=F, set_text_select=[n-k,k]
-			widget_control, (*pstate).cuts_file, set_value=F, set_text_select=[n-1,0]
+			set_widget_text, (*pstate).cuts_file, F
 			cuts = read_cuts(F, error=error)
 			if error then begin
 				warning, 'fit_setup','Error reading CUTS file: '+F, /error
@@ -2018,9 +2015,9 @@ new_sxrf_mode = 1
 	sxrf_mono = 0
 	if ptr_valid((*p).yields) then begin
 		sxrf = (((*(*p).yields).z1 eq 0) and ((*(*p).yields).a1 eq 0))
-		sxrf_mono = 1
+		sxrf_mono = sxrf
 		if typevar( (*(*p).yields).beam) eq 'STRUCT' then begin
-			if sxrf and ((*(*p).yields).beam.continuum eq 1) then sxrf_mono = 0
+			if ((*(*p).yields).beam.continuum eq 1) then sxrf_mono = 0
 		endif
 	endif
 	
@@ -2150,7 +2147,7 @@ loop:
 						fix_gain=1-(*p).free_gain, fix_tail=1-(*p).free[2], no_tail=(*p).free[3], dynamic=2, $
 						back_mode=(*p).background, pileup_mode=(*p).pileup_mode, sum_deficit=(*p).sum_deficit, gamma=(*pstate).gamma, $
 						progress=0, initial=initial, refit=refit, use_last=use_last, $
-						silent=silent, pcm=(*p).pcm_file, old=old, last_a=(*p).old_a, use_m=(*pstate).use_m, $
+						silent=1, pcm=(*p).pcm_file, old=old, last_a=(*p).old_a, use_m=(*pstate).use_m, $
 						show_df=(*pstate).show_df, scale_df=[(*pstate).scale_df,(*pstate).offset_df], $
 						tweek_el=tweek_el, tweek_lines=tweek_lines, mp_loop=0, correct=(*p).pcorrect, $
 						results=results, da_pars=da_pars, pressure=pressure, temp=temp, tweak_par=tweak_par, $
@@ -2562,8 +2559,8 @@ endif
 						'Check that the path to the file is correct.'], /error
 			endif
 		endif else dud=0
-		set_widget_text, (*pstate).cuts_file, (*p).cuts_file
 	endif
+	set_widget_text, (*pstate).cuts_file, (*p).cuts_file
 	if ptr_valid((*p).cuts) then ptr_free, (*p).cuts
 	if dud then begin
 		(*p).cuts = ptr_new()

@@ -10,7 +10,7 @@ COMPILE_OPT STRICTARR
 ;	which also gets used for update dir name
 ;	followed by a SINGLE alphabet letter if needed.
 
-geo_ver='8.8y'
+geo_ver='8.8z'
 
 if n_elements(major) eq 0 then major=0
 if major then begin

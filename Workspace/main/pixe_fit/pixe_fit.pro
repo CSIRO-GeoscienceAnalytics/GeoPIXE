@@ -269,9 +269,9 @@ common c_fit_model_7, new_sxrf_mode
 	sxrf_mono = 0
 	if ptr_valid((*p).yields) then begin
 		sxrf = (((*(*p).yields).z1 eq 0) and ((*(*p).yields).a1 eq 0))
-		sxrf_mono = 1
+		sxrf_mono = sxrf
 		if typevar( (*(*p).yields).beam) eq 'STRUCT' then begin
-			if sxrf and ((*(*p).yields).beam.continuum eq 1) then sxrf_mono = 0
+			if ((*(*p).yields).beam.continuum eq 1) then sxrf_mono = 0
 		endif
 	endif
 
