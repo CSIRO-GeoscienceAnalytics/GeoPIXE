@@ -78,6 +78,8 @@ COMPILE_OPT STRICTARR
 
 ;---- Names of elements -----------------------------------------------------------------
 
+;		Use negative Z for the added Comptons from continuum sources.
+
 	shells = ['','K','L','M']
 	n_els = (*peaks).n_els
 	for k=0L,n_els-1 do begin

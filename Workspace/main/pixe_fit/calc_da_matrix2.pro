@@ -297,6 +297,8 @@ COMPILE_OPT STRICTARR
 			print,'calc_da_matrix2: fixed ',cq,' NaN matrix elements'
 		endif
 
+;		Use negative Z for the added Comptons from continuum sources.
+
 		q2 = where( pq ge 0, nq2)
 		shell = ['','','L','M']
 		el = element_name( (*peaks).z[pq[q2]] ) + shell[ (*peaks).shell[pq[q2]]]

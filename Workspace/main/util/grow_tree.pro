@@ -63,5 +63,6 @@ for i=0L,n_elements(dirs)-1 do begin
 	endif
 endfor
 
+widget_control, root, /set_tree_visible
 return
 end
