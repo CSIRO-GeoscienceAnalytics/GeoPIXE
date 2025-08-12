@@ -859,13 +859,13 @@ COMPILE_OPT STRICTARR
 		endif
 	endif
 
-	if (*pstate).show_list then file_requester_update_list, pstate
+	if (*pstate).show_list then file_requester_update_list, pstate, pattern=pattern
 	return
 end
 
 ;--------------------------------------------------------------------------
 
-pro file_requester_update_list, pstate
+pro file_requester_update_list, pstate, pattern=pattern
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -904,7 +904,7 @@ if (nle ge 1) or ((*pstate).path eq '') then begin
 	return
 endif
 
-s = *(*pstate).pfilter
+s = (n_elements(pattern) gt 0) ? pattern : *(*pstate).pfilter
 if s eq '' then s='*'
 str = strsplit( strtrim(s,2),' ",',/extract)
 n = n_elements(str)
@@ -1926,7 +1926,7 @@ f1base = widget_base( pbase, /row, /base_align_center, /align_right, xpad = 1, y
 label = widget_label( f1base, value='Find:')
 find_text = widget_text( f1base, value='', uname='find-text', tracking=tracking, /editable, sensitive=(within_modal eq 0), $
 					uvalue='Find a match:  Will set "Path" to the location of a file specified by a search pattern. ' + $
-					'First, select start for search in "Path", pattern to search for in "Find" and hit <return> to start search. ' + $
+					'First, select start for search in "Path" or click in the dir Tree. Type a pattern to search for here in "Find" and hit <return> to start search. ' + $
 					'Returns first match(es). Click "More" for next matches.', scr_xsize=text_xsize2-35-5)
 button = widget_button( f1base, value='More', uname='find-more', tracking=tracking, scr_xsize=35, $
 					uvalue='More: Find the next matches to "Find" pattern.')
