@@ -109,8 +109,14 @@ case tag_names( event,/structure) of
 			if event.enter eq 1 then begin
 				widget_control, (*pstate).help, set_value=s
 			endif else begin
-				widget_control, (*pstate).help, set_value='Select a path from the directory tree on the left, or by using the "path" field, and select files to open in the file list on the right, or using the "files" field. ' + $
-						'Open a new directory tree by specifying a new "Root" or by selecting a new "bookmark" from the list on the right.
+				if (*pstate).dir then begin
+					widget_control, (*pstate).help, set_value='Select a path from the directory tree on the left, or by using the "Path" field. ' + $
+						'Open a new directory tree by specifying a new "Root" (bottom-left) or by selecting a new "Bookmark" from the list on the right.
+				endif else begin
+					widget_control, (*pstate).help, set_value='Select a path from the directory tree on the left, or by using the "Path" field, ' + $
+						'and select files to open in the file list on the bottom-right, or using the "Files" field. ' + $
+						'Open a new directory tree by specifying a new "Root" (bottom-left) or by selecting a new "Bookmark" from the list on the top-right.
+				endelse
 			endelse
 		endif
 		goto, finish
@@ -1841,13 +1847,13 @@ tree_base = widget_base( ttbase, /column, xpad=0, ypad=0, space=2, /base_align_c
 if dir then begin
 	list_title = 'Directory Files'
 	query_title = ['Numeric', 'Latest first', 'Numeric part']
-	tree_help = 'Tree: Click on a path in the directory tree to select the path. Click "+", to expand a directory, ' + $
+	tree_help = 'Tree: Click on a path in the directory tree to expand it and select the path. Click "+", to expand a directory, ' + $
 		'and "-" to collapse it; "Double click" toggles expanded state. Use "Root" to select a new directory tree, or select a new path from the bookmark list'
 	book_help = 'Bookmarks: "Double click" on a path to open it in the directory Tree and select the path. ' + $
 		'Single click paths to use "Del" to delete. "Add" will bookmark the current "Path". Use "Save" to save bookmarks for next time. ' + $
 		'Enter a Path of "$HOME" to specify your home directory.'
 	path_help = 'Path: Enter a new directory path. Hit <return> to activate it and open it in the directory Tree. ' + $
-		'Use this field to also create a new directory. Remember to hit <return> to create it. ' + $
+		'Use this field to also create a new directory (if FileRequester open for /write). Remember to hit <return> to create it. ' + $
 		'Enter a Path of "$HOME" to specify your home directory.'
 	trans_help = 'Translation table: Convert original path stubs referenced in data files to local path stubs.' + $
 		'Single click path pairs to use "Del" to delete entry. "Add" will include the current "From/To" path pair in the table. ' + $
@@ -1858,13 +1864,13 @@ if dir then begin
 endif else begin
 	list_title = 'Files satisfying filter'
 	query_title = ['Numeric ext', 'Latest first', 'Numeric part']
-	tree_help = 'Tree: Click on a path in the directory tree to view its files. Click "+", to expand a directory, ' + $
+	tree_help = 'Tree: Click on a path in the directory tree to expand it and view its files. Click "+", to expand a directory, ' + $
 		'and "-" to collapse it; "Double click" toggles expanded state. Use "Root" to select a new directory tree, or select a new path from the bookmark list'
 	book_help = 'Bookmarks: "Double click" on a path to open it in the directory Tree and view its files. ' + $
 		'Single click paths to use "Del" to delete. "Add" will bookmark the current "Path". Use "Save" to save bookmarks for next time. ' + $
 		'Enter a Path of "$HOME" to specify your home directory.'
 	path_help = 'Path: Enter a new directory path. Hit <return> to activate it and open it in the directory Tree. ' + $
-		'Use this field to also create a new directory. Remember to hit <return> to create it. ' + $
+		'Use this field to also create a new directory (if FileRequester open for /write). Remember to hit <return> to create it. ' + $
 		'Enter a Path of "$HOME" to specify your home directory.'
 	trans_help = 'Translation table: Convert original path stubs referenced in data files to local path stubs.' + $
 		'Single click path pairs to use "Del" to delete entry. "Add" will include the current "From/To" path pair in the table. ' + $
@@ -1880,7 +1886,7 @@ rbase = widget_base( ttbase, /row, /base_align_center, /align_right, xpad = 1, y
 label = widget_label( rbase, value='Root:')
 root_text = widget_text( rbase, value=path, uname='root-text', tracking=tracking, /editable, $
 					NOTIFY_REALIZE='OnRealize_file_requester_root', scr_xsize=text_xsize, $
-					uvalue='Root: Enter a new root absolute directory path to build a new directory tree. Hit <return> to activate and open the new tree.')
+					uvalue='Root: Enter a new root absolute directory path to display a new directory tree. Hit <return> to activate and open the new tree.')
 
 if preview and (dir eq 0) then begin
 	preview_base = widget_base( lbase, /column, /base_align_center, /align_center, xpad = 0, ypad=0, space=0, map=1)
@@ -1937,7 +1943,7 @@ button = widget_button( b1base, value='Add', uname='add-button', tracking=tracki
 button = widget_button( b1base, value='Del', uname='del-button', tracking=tracking, $		;, scr_xsize=35, $
 					uvalue='Del: Delete the selected bookmark. Single click to select a bookmark.')
 button = widget_button( b1base, value='Save', uname='save-button', tracking=tracking, $		;, scr_xsize=35, $
-					uvalue='Save: Save bookmarks to disk to be available for future use of the file-requester.')
+					uvalue='Save: Save bookmarks to disk to be available for future use of the file-requester. Stored in your home .geopixe directory')
 label = widget_label( b1base, value=' ', scr_xsize=10)
 button = widget_button( b1base, value='Go', uname='go-button', tracking=tracking, $		;, scr_xsize=35, $
 					uvalue='Go: Set the current path to the selected bookmark and locate the path in the directory tree and open it. ' + $
@@ -1996,7 +2002,7 @@ if show_list then begin
 		fhelp = 'File List: Select a file to open. "Double click" the file to open it immediately. Filter files using a "Filter". ' + $
 			'To sort files with numeric extensions or numeric final part of name check the "Numeric ext" or "Numeric part" check-boxes.'
 		fxhelp = 'File: Enter a file name, or select a file from the list above. ' + $
-						'Hit <return> to open the file immediately. For many files a preview of its contexts is displayed in the preview window.'
+						'Hit <return> to open the file immediately. For many files a preview of its contexts is displayed in the preview window (if available).'
 		fbtext = 'File:'
 	endelse
 	file_list = Widget_List( fbase, UNAME='file-list', value = files, multiple=multiple, $
@@ -2030,7 +2036,7 @@ if show_list then begin
 	filter = filters[0]
 	filter_list = widget_combobox( f2base, value=filters, editable=(fix_filter eq 0), $
 					uname='filter-mode', tracking=tracking, scr_xsize=text_xsize2, $
-					uvalue='Filter: Enter a file filter (e.g. "*.spec") or a list of filter specifications separated by commas (e.g. "*-m.dai,*-x.dai"), or select one from the list.')
+					uvalue='Filter: Enter a file filter (e.g. "*.spec") or a list of filter specifications separated by commas (e.g. "*-m.dai,*-x.dai"), or select one from the droplist.')
 
 endif else begin
 	file_list = 0L
