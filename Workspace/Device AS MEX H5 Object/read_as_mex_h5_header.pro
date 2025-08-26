@@ -106,16 +106,18 @@ error = 1
 	nx = max(pixel_x) + 1
 	ny = max(pixel_y) + 1
 				
-;	Find exposure time
+;	Find exposure time (from time-stamps on i0)
 
-	q = where( name7 eq 'x_ts', nq)
+	q = where( name7 eq 'i0_ts', nq)
 	if nq eq 0 then begin
-		warning,'read_as_mex_h5_header','No "x_ts" (dwell) dataset found.'
+		warning,'read_as_mex_h5_header','No "i0_ts" (dwell) dataset found.'
 		goto, finish
 	endif else begin
-		rec_id = H5D_OPEN(file_id, 'x_ts')
-		dwell_array = H5D_read(rec_id)
-		dwell_array = dwell_array * 1.0e-9		; s
+		rec_id = H5D_OPEN(file_id, 'i0_ts')
+		dw = H5D_read(rec_id)
+		t = dw - shift(dw,1)
+		t[0] = t[1]						; fix wrap
+		dwell_array = t 				; s
 		H5D_close, rec_id
 	endelse
 
@@ -138,69 +140,7 @@ error = 1
 		H5D_close, rec_id
 	endelse
 
-;find_sample:
-;	path = dir_up( path)
-;	cfile = base + '.nxs'
-;	cfiles = find_file2( path + cfile)
-;	na = n_elements(cfiles)
-;	if (na eq 0) or (cfiles[0] eq '') then begin
-;		warning,'read_as_mex_h5_header','No "'+cfile+'" file found.'
-;		goto, finish
-;	endif
-;
-;	cfile_id = H5F_OPEN( cfiles[0])
-;
-;	nm = H5G_get_nmembers( cfile_id,'scan/data')
-;	name9 = strarr(nm)
-;	for j=0,nm-1 do begin
-;		name9[j] = H5G_get_member_name(cfile_id,'scan/data',j)
-;	endfor
-;
-;	q = where( name9 eq 'energy', nq)
-;	if nq eq 0 then begin
-;		warning,'read_as_mex_h5_header','No "scan/data/energy" dataset found.'
-;		H5F_close, cfile_id
-;		goto, finish
-;	endif
-;	rec_id = H5D_OPEN(cfile_id,'scan/data/energy')
-;	energy = H5D_read(rec_id)
-;	H5D_close, rec_id
-;	
-;	nm = H5G_get_nmembers( cfile_id,'scan/sample')
-;	name10 = strarr(nm)
-;	for j=0,nm-1 do begin
-;		name10[j] = H5G_get_member_name(cfile_id,'scan/sample',j)
-;	endfor
-;
-;	q = where( name10 eq 'name', nq)
-;	if nq eq 0 then begin
-;		warning,'read_as_mex_h5_header','No "scan/sample/name" dataset found.'
-;		H5F_close, cfile_id
-;		goto, finish
-;	endif
-;	rec_id = H5D_OPEN(cfile_id,'scan/sample/name')
-;	sample = H5D_read(rec_id)
-;	H5D_close, rec_id
-;
-;	nm = H5G_get_nmembers( cfile_id,'scan/instrument')
-;	name11 = strarr(nm)
-;	for j=0,nm-1 do begin
-;		name11[j] = H5G_get_member_name(cfile_id,'scan/instrument',j)
-;	endfor
-;
-;	q = where( name11 eq 'name', nq)
-;	if nq eq 0 then begin
-;		warning,'read_as_mex_h5_header','No "scan/instrument/name" dataset found.'
-;		H5F_close, cfile_id
-;		goto, finish
-;	endif
-;	rec_id = H5D_OPEN(cfile_id,'scan/instrument/name')
-;	endstation = H5D_read(rec_id)
-;	H5D_close, rec_id
-;
-;	H5F_close, cfile_id
-
-;	Find other flux PVs
+;	Find flux PVs
 
 	q = where( name7 eq 'i0', nq)
 	if nq eq 0 then begin
@@ -230,39 +170,6 @@ error = 1
 ;		i2 = H5D_read(rec_id)
 ;		H5D_close, rec_id
 	endelse
-
-;	path = dir_up( extract_path( stat.name))
-;	file = strip_path( stat.name)
-;	dirs = find_file2( path + '*')
-;	q = where( strmid( strip_path( dirs),0,strlen('qbpm_')) eq 'qbpm_', nq)
-;	name_qbpm = strip_path(dirs[q[0]])
-;	if nq eq 0 then begin
-;		warning,'read_as_mex_h5_header','No "qbpm_..." sub directory found.'
-;		goto, find_cals
-;	endif
-;	base = strmid( file, 0, locate_last( '_', file))
-;	qfile = fix_path(dirs[q[0]]) + base + '_*.nxs'
-;	qfiles = find_file2( qfile)
-;	na = n_elements(qfiles)
-;	if (na eq 0) or (qfiles[0] eq '') then begin
-;		warning,'read_as_mex_h5_header','No "'+qfile+'" files found.'
-;		goto, find_cals
-;	endif
-;
-;	qfile_id = H5F_OPEN( qfiles[0])
-;
-;	nm = H5G_get_nmembers( qfile_id,'entry/data')
-;	name12 = strarr(nm)
-;	for j=0,nm-1 do begin
-;		name12[j] = H5G_get_member_name(qfile_id,'entry/data',j)
-;	endfor
-;
-;	q = where( strmid( strip_path( name12),0,strlen('value')) eq 'value', nq)
-;	if (nq gt 0) then begin
-;		for j=0,nq-1 do pv_names = [pv_names, name_qbpm+'/'+name12[q[j]]]
-;	endif
-;
-;	H5F_close, qfile_id
 
 ;	We don't have any embedded energy calibration so far
 

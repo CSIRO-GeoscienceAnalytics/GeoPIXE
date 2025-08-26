@@ -826,7 +826,7 @@ common c_petra_4, n_petra_channel, i_petra_channel
 ;		goto, bad_io
 	endif
 
-;	Get dwell
+;	Get dwell (from time-stamps on i0)
 
 	q = where( name7 eq 'i0_ts', nq)
 	if nq eq 0 then begin
@@ -837,7 +837,9 @@ common c_petra_4, n_petra_channel, i_petra_channel
 		dw = H5D_read(rec_id)
 		maia_dwell = flux
 		maia_dwell[*] = 0.0
-		maia_dwell[x,y] = dw * 1.0e-6			; ms
+		t = dw - shift(dw,1)
+		t[0] = t[1]							; fix wrap
+		maia_dwell[x,y] = t * 1000.			; ms
 		H5D_close, rec_id
 	endelse
 
@@ -849,6 +851,10 @@ common c_petra_4, n_petra_channel, i_petra_channel
 		goto, bad_io
 	endif
 	
+;	Spectra data
+;	dims over: channels in each spectrum, detector channel, sequence steps, energy steps (XANES maps)
+;	(Ignore XANES map case for now)
+
 	spectra_id = H5D_OPEN(file_id, 'spectrum')
 	dspace = H5D_get_space(spectra_id)
 	dims = H5S_get_simple_extent_dims(dspace)
@@ -997,6 +1003,9 @@ common c_petra_4, n_petra_channel, i_petra_channel
 ;	The sequence steps have an 'x' and 'y' each, which do not necessarily follow a perfect rectangle.
 ;	Will read all steps for one detector channel.
 	
+;	dims over: channels in each spectrum, detector channel, sequence steps, energy steps (XANES maps)
+;	(Ignore XANES map case for now)
+
 	dataspace_id = H5D_get_space(spectra_id)
 	start = [0, i_petra_channel, 0, 0]
 	count = [pnc_hdf_chans, 1, n_sequence_buffer, 1]
