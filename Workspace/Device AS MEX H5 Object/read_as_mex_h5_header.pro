@@ -23,13 +23,26 @@ if catch_errors_on then begin
    endif
 endif
 common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
+common c_mex_1, reference_ts
 common c_maia_13, maia_dwell
 error = 1
 
 	stat = fstat( unit)
 	
-;	Data is organized as spectra (4096) for each of detector channel (4), for each sequence step.
+;	Data is organized as spectra (4096) for each of detector channel (4), for each sequence step (41496),
+;	for each energy (1). The energy dimension is ignored for now.
 ;	The sequence steps have an 'x' and 'y' each, which do not necessarily follow a perfect rectangle.
+;
+;	Have ignored energy axis for now. Will need this for XANES maps. Will also need to test if E axis
+;	is actually the fast axis.
+;
+;	It is assumed below that the various parameters are not necessarily sampled at the same rate. Hence,
+;	the various time-stamps ('_ts' vectors) may have different steps and lengths. The logic is to first
+;	find the average step size in 'x', then determine an equi-spaced X grid for pixels based on this step
+;	and the starting value. Then determine the effective pixel-x time-stamp for each pixel. This becomes
+;	the 'reference_ts' (stored in common) that all other parameters are sampled to.
+;
+;	The main routines where all this is applied is 'read_as_mex_h5_header' and 'as_mex_h5_DEVICE::read_setup'.
 
 	file_id = H5F_OPEN(stat.name)
 
@@ -42,8 +55,10 @@ error = 1
 	n_adcs = 1					; 8
 	pv_names = ''
 	cal = replicate( {cal_devicespec, on:0, a:0.0, b:0.0, units:''}, n_adcs)
+	print,''
+	print,'AS MEX H5 device: read_as_mex_h5_header ...'
 
-;	timebase = 1000L			; for ms?
+	timebase = 1000L			; for ms?
 	mp = 0
 	error = 1
 
@@ -83,6 +98,16 @@ error = 1
 		H5D_close, rec_id
 	endelse
 
+	q = where( name7 eq 'x_ts', nq)
+	if nq eq 0 then begin
+		warning,'read_as_mex_h5_header','No "x_ts" dataset found.'
+		goto, finish
+	endif else begin	
+		rec_id = H5D_OPEN(file_id, 'x_ts')
+		x_ts = H5D_read(rec_id)
+		H5D_close, rec_id
+	endelse
+
 	q = where( name7 eq 'y', nq)
 	if nq eq 0 then begin
 		warning,'read_as_mex_h5_header','No "y" dataset found.'
@@ -94,39 +119,121 @@ error = 1
 	endelse
 	nxy = n_elements(y)
 	
-	step_x = x - shift(x,1)
-	step_x[0] = step_x[1]
-	step_x = mean( median( abs(step_x[nxy/10:*]),5))
-	step_y = step_x
-
-	pixel_x = round( (x - min(x)) / step_x )
-	pixel_y = round( (y - min(y)) / step_y )
-	min_x = min( pixel_x)
-	min_y = min( pixel_y)
-	nx = max(pixel_x) + 1
-	ny = max(pixel_y) + 1
-				
-;	Find exposure time (from time-stamps on i0)
-
-	q = where( name7 eq 'i0_ts', nq)
+	q = where( name7 eq 'y_ts', nq)
 	if nq eq 0 then begin
-		warning,'read_as_mex_h5_header','No "i0_ts" (dwell) dataset found.'
+		warning,'read_as_mex_h5_header','No "y_ts" dataset found.'
 		goto, finish
-	endif else begin
-		rec_id = H5D_OPEN(file_id, 'i0_ts')
-		dw = H5D_read(rec_id)
-		t = dw - shift(dw,1)
-		t[0] = t[1]						; fix wrap
-		dwell_array = t 				; s
+	endif else begin	
+		rec_id = H5D_OPEN(file_id, 'y_ts')
+		y_ts = H5D_read(rec_id)
 		H5D_close, rec_id
 	endelse
 
+	sx = x - shift(x,1)									; step change in x
+	sx[0] = sx[1]										; fix wrap
+	sy = y - shift(y,1)									; step change in y
+	sy[0] = sy[1]										; fix wrap
+	rx = abs(sx)/(max(sx)-min(sx))						; relative step changes
+	ry = abs(sy)/(max(sy)-min(sy))
+	qx = where(rx gt 0.1*max(rx), nqx)					; where significant step changes occur
+	qy = where(ry gt 0.1*max(ry), nqy)
+
+;	NOTE: The interpolations below do not require that the other tables have the same
+;	length as the reference 'reference_ts'.
+
+	if nqy gt nqx then begin
+		print,'	Fast axis = Y'
+		step_y = mean( median( abs(sy[qy]),5))				; average step sizes
+
+		q = where( qx eq (shift( qx,-1) -1), nq)			; pairs of moves together
+		while nq gt 0 do begin
+			sx[qx[q]] = sx[qx[q]] + sx[qx[q+1]]				; combine pairs
+			sx[qx[q+1]] = 0.0
+			qx[q+1] = -1
+			q = where( (qx eq (shift( qx,-1) -1)) and (qx ge 0) and ((shift( qx,-1) -1) ge 0), nq)
+		endwhile
+
+		q = where(qx ge 0, nq)
+		step_x = mean( median( abs(sx[qx[q]]),5))
+
+		pixel_y = round( (y - min(y)) / step_y )			; find middle of equi-spaced Y pixels
+		ny = max(pixel_y) + 1
+
+;		Think about effective time-stamp for pixellated y, as a basis for
+;		interpolating corresponding values in the other TS tables (e.g. x_ts, i0_ts).
+				
+		y_eff = float(pixel_y) * step_y + min(y)			; effective 'y' positions in pixels
+		nabs_y = y_eff + abs_y[0] - y[0]					; effective absolute 'y'
+	
+		offset = lindgen(nxy)								; offset (integer) to make all visit once
+															; works if ny > max(y)-min(y)
+		if ny le (max(y) - min(y)) then begin
+			offset = offset * (round((max(y) - min(y))/ny) > 1) 
+		endif
+	
+		reference_ts = interpol( y_ts, y+offset, y_eff+offset)	; effective time-stamp for each pixel, based on 'y'
+
+		x_at_y = interpol( x, x_ts, reference_ts)			; effective 'x' at time of effective 'y' time-stamps
+		nabs_x = x_at_y + abs_x[0] - x[0]					; effective absolute 'x'
+	
+		pixel_x = round( (x_at_y - min(x_at_y)) / step_x )	; effective middle of equi-spaced X pixels
+		nx = max(pixel_x) + 1
+
+	endif else begin	
+		print,'	Fast axis = X'
+		step_x = mean( median( abs(sx[qx]),5))				; average step sizes
+
+		q = where( qy eq (shift( qy,-1) -1), nq)			; pairs of moves together
+		while nq gt 0 do begin
+			sy[qy[q]] = sy[qy[q]] + sy[qy[q+1]]				; combine pairs
+			sy[qy[q+1]] = 0.0
+			qy[q+1] = -1
+			q = where( (qy eq (shift( qy,-1) -1)) and (qy ge 0) and ((shift( qy,-1) -1) ge 0), nq)
+		endwhile
+
+		q = where(qy ge 0, nq)
+		step_y = mean( median( abs(sy[qy[q]]),5))
+
+		pixel_x = round( (x - min(x)) / step_x )			; find middle of equi-spaced X pixels
+		nx = max(pixel_x) + 1
+
+;		Think about effective time-stamp for pixellated x, as a reference TS for
+;		interpolating corresponding values in the other TS tables (e.g. y_ts, i0_ts).
+				
+		x_eff = float(pixel_x) * step_x + min(x)			; effective 'x' positions in pixels
+		nabs_x = x_eff + abs_x[0] - x[0]					; effective absolute 'x'
+
+		offset = lindgen(nxy)								; offset (integer) to make all visit once
+															; works if nx > max(x)-min(x)
+		if nx le (max(x) - min(x)) then begin
+			offset = offset * (round((max(x) - min(x))/nx) > 1) 
+		endif
+	
+		reference_ts = interpol( x_ts, x+offset, x_eff+offset)	; effective time-stamp for each pixel, based on 'x'
+
+		y_at_x = interpol( y, y_ts, reference_ts)			; effective 'y' at time of effective 'x' time-stamps
+		nabs_y = y_at_x + abs_y[0] - y[0]					; effective absolute 'y'
+	
+		pixel_y = round( (y_at_x - min(y_at_x)) / step_y )	; effective middle of equi-spaced Y pixels
+		ny = max(pixel_y) + 1
+	endelse
+	print, '	Pixel counts X,Y =',nx,ny
+	print, '	Effective X,Y step size =', step_x, step_y
+
+;	Dwell time from steps in x_ts
+
+	t = reference_ts - shift(reference_ts,1)
+	t[0] = t[1]											; fix wrap
+	dwell_array = t 									; dwell time (s)
+
 	maia_dwell = fltarr(nx,ny)
-	maia_dwell[pixel_x,pixel_y] = dwell_array * 1000.			; ms dwell
+	maia_dwell[pixel_x,pixel_y] = dwell_array * 1000.	; ms dwell
 	
 	h = histogram( maia_dwell *300./(max(maia_dwell)>0.001), /NaN, locations=tx)
 	q2 = reverse(sort(h))
-	common_dwell = tx[q2[0]] *(max(maia_dwell)>0.001)/300.
+	q3 = where( tx[q2] ne 0.0, nq3)						; to avoid missed pixels with zero dwell
+	common_dwell = 0.0
+	if nq3 ne 0 then common_dwell = tx[q2[q3[0]]] *(max(maia_dwell)>0.001)/300.
 
 ;	Find energy, sample, instrument name
 
@@ -148,27 +255,18 @@ error = 1
 		goto, finish
 	endif else begin
 		pv_names = 'i0'
-;		rec_id = H5D_OPEN(file_id, 'i0')
-;		i0 = H5D_read(rec_id)
-;		H5D_close, rec_id
 	endelse
 	q = where( name7 eq 'i1', nq)
 	if nq eq 0 then begin
 		warning,'read_as_mex_h5_header','No "i1" dataset found.'
 	endif else begin
 		pv_names = n_elements(pv_names) gt 0 ? [pv_names,'i1'] : 'i1'
-;		rec_id = H5D_OPEN(file_id, 'i1')
-;		i1 = H5D_read(rec_id)
-;		H5D_close, rec_id
 	endelse
 	q = where( name7 eq 'i2', nq)
 	if nq eq 0 then begin
 		warning,'read_as_mex_h5_header','No "i2" dataset found.'
 	endif else begin
 		pv_names = n_elements(pv_names) gt 0 ? [pv_names,'i2'] : 'i2'
-;		rec_id = H5D_OPEN(file_id, 'i2')
-;		i2 = H5D_read(rec_id)
-;		H5D_close, rec_id
 	endelse
 
 ;	We don't have any embedded energy calibration so far
@@ -198,8 +296,8 @@ find_cals:
 ;			headings:	headings, $				`	; "Detector" names
 			nx:			nx, $						; X pixels
 			ny:			ny, $						; Y pixels
-			axisx:		abs_x, $					; X coords
-			axisy:		abs_y, $					; Y coords
+			axisx:		nabs_x, $					; X absolute coords
+			axisy:		nabs_y, $					; Y absolute coords
 			dwell:		common_dwell, $				; mean dwell 
 			energy:		energy[0], $				; beam energy
 			sample:		sample, $					; sample name

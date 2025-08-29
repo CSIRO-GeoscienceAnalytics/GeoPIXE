@@ -711,13 +711,26 @@ common c_nsls_5, nsls_IC_value_index, nsls_flux_scale
 common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
 common c_petra_3, n_sequence_buffer, p06_file_id
 common c_petra_4, n_petra_channel, i_petra_channel
+common c_mex_1, reference_ts
 
 	n_guide = 1000000L
 	progress_file = 3					; progress indicator will be rough (see updated below)
 	stat = fstat(unit)						
 	
-;	Data is organized as spectra (4096) for each of detector channel (4), for each sequence step.
+;	Data is organized as spectra (4096) for each of detector channel (4), for each sequence step (41496),
+;	for each energy (1). The energy dimension is ignored for now.
 ;	The sequence steps have an 'x' and 'y' each, which do not necessarily follow a perfect rectangle.
+;
+;	Have ignored energy axis for now. Will need this for XANES maps. Will also need to test if E axis
+;	is actually the fast axis.
+;
+;	It is assumed below that the various parameters are not necessarily sampled at the same rate. Hence,
+;	the various time-stamps ('_ts' vectors) may have different steps and lengths. The logic is to first
+;	find the average step size in 'x', then determine an equi-spaced X grid for pixels based on this step
+;	and the starting value. Then determine the effective pixel-x time-stamp for each pixel. This becomes
+;	the 'reference_ts' (stored in common) that all other parameters are sampled to.
+;
+;	The main routines where all this is applied is 'read_as_mex_h5_header' and 'as_mex_h5_DEVICE::read_setup'.
 
 	self.spectrum_mode = 1
 	if (n_elements(flux) ge 2) then self.spectrum_mode=0
@@ -746,78 +759,64 @@ common c_petra_4, n_petra_channel, i_petra_channel
 		H5D_close, rec_id
 	endelse
 
-;	Get x,y for each sequence step
+;	Need to read the header for each HDF5 file. This is not automatic if a sort is started (da_evt)
+;	without selecting new data files.
 
-	q = where( name7 eq 'abs_x', nq)
-	if nq eq 0 then begin
-		warning,'read_as_mex_h5_header','No "abs_x" dataset found.'
-		goto, bad_io
-	endif else begin	
-		rec_id = H5D_OPEN(file_id, 'abs_x')
-		abs_x = H5D_read(rec_id)
-		H5D_close, rec_id
-	endelse
+	if first then begin
+		head = read_as_mex_h5_header( unit, error=err32)
+		if err32 eq 0 then begin
+			self->save_header_data, head							; save raw device data 'mp' in self
+			self->update_header_info, error=error					; update self.header using saved 'mp'
+			
+			beam_energy = self.header.energy
+		endif
+	endif
 
-	q = where( name7 eq 'abs_y', nq)
-	if nq eq 0 then begin
-		warning,'read_as_mex_h5_header','No "abs_y" dataset found.'
-		goto, bad_io
-	endif else begin
-		rec_id = H5D_OPEN(file_id, 'abs_y')
-		abs_y = H5D_read(rec_id)
-		H5D_close, rec_id
-	endelse
+;	Get x,y for each sequence step (read by 'read_as_mex_h5_header'). This would allow multiple files,
+;	each continuing a sequence to be processed in future.
+;	It is assumed that the sequence steps parallel the 'x' steps.
 
-	q = where( name7 eq 'x', nq)
-	if nq eq 0 then begin
-		warning,'read_as_mex_h5_header','No "x" dataset found.'
-		goto, bad_io
-	endif else begin	
-		rec_id = H5D_OPEN(file_id, 'x')
-		x = H5D_read(rec_id)
-		H5D_close, rec_id
-	endelse
-
-	q = where( name7 eq 'y', nq)
-	if nq eq 0 then begin
-		warning,'read_as_mex_h5_header','No "y" dataset found.'
-		goto, bad_io
-	endif else begin
-		rec_id = H5D_OPEN(file_id, 'y')
-		y = H5D_read(rec_id)
-		H5D_close, rec_id
-	endelse
-	nseq = n_elements(y)
+	nseq = n_elements(pixel_x)
 	n_sequence_buffer = nseq
-
-	step_x = x - shift(x,1)
-	step_x[0] = step_x[1]
-	step_x = mean( median( abs(step_x[nseq/10:*]),5))			; best shot at step in X
-	step_y = step_x												; assume step in Y is the same as X
-
-	pixel_x = round( (x - min(x)) / step_x )
-	pixel_y = round( (y - min(y)) / step_y )
-	min_x = min( pixel_x)
-	min_y = min( pixel_y)
-	nx = max(pixel_x) + 1
-	ny = max(pixel_y) + 1
 
 	x = pixel_x[ (sequence-1)>0]
 	y = pixel_y[ (sequence-1)>0]
 
+	nx = max(pixel_x) + 1
+	ny = max(pixel_y) + 1
+
+;	Get dwell (from reference time-stamps on x pixels, stored in 'reference_ts')
+
+	t = reference_ts - shift(reference_ts,1)
+	t[0] = t[1]											; fix wrap
+	dwell_array = t 									; dwell time (s)
+	
+	h = histogram( dwell_array *300./(max(dwell_array)>0.001), /NaN, locations=tx)
+	q2 = reverse(sort(h))
+	q3 = where( tx[q2] ne 0.0, nq3)						; to avoid missed pixels with zero dwell
+	common_dwell = 0.0
+	if nq3 ne 0 then common_dwell = tx[q2[q3[0]]] *(max(dwell_array)>0.001)/300.
+
+	if self.spectrum_mode then begin
+		maia_dwell = common_dwell
+	endif else begin
+		maia_dwell = flux
+		maia_dwell[*] = 0.0
+		maia_dwell[x,y] = t * 1000.								; ms
+	endelse
+
 ;	Get flux
 
 	nsls_flux_scale = flux_ic.val * flux_ic.unit
-	if (self.spectrum_mode eq 0)  then begin
-		nsls_flux_scale = nsls_flux_scale * flux_ic.dwell*0.001			; Scale Epics scaler rates by dwell only for maps.
-	endif																; This assumes PV values are RATES not counts.
+;	if (self.spectrum_mode eq 0)  then begin
+;		nsls_flux_scale = nsls_flux_scale * flux_ic.dwell*0.001			; Scale Epics scaler rates by dwell only for maps.
+;	endif																; This assumes PV values are RATES not counts.
 
 	found = 0
 	q = where( name7 eq flux_ic.pv, nq)
 	if nq ne 0 then begin
 		rec_id = H5D_OPEN(file_id, flux_ic.pv)
 		i0 = H5D_read(rec_id)
-		flux[x,y] = nsls_flux_scale * i0
 		H5D_close, rec_id
 		found = 1
 	endif
@@ -826,21 +825,21 @@ common c_petra_4, n_petra_channel, i_petra_channel
 ;		goto, bad_io
 	endif
 
-;	Get dwell (from time-stamps on i0)
-
-	q = where( name7 eq 'i0_ts', nq)
+	q = where( name7 eq flux_ic.pv + '_ts', nq)
 	if nq eq 0 then begin
-		warning,'read_as_mex_h5_header','No "i0_ts" dataset found for dwell time.'
-;		goto, bad_io
+		warning,'read_as_mex_h5_header','No "'+flux_ic.pv+'_ts" dataset found.'
+		goto, bad_io
 	endif else begin
-		rec_id = H5D_OPEN(file_id, 'i0_ts')
-		dw = H5D_read(rec_id)
-		maia_dwell = flux
-		maia_dwell[*] = 0.0
-		t = dw - shift(dw,1)
-		t[0] = t[1]							; fix wrap
-		maia_dwell[x,y] = t * 1000.			; ms
+		rec_id = H5D_OPEN(file_id, flux_ic.pv + '_ts')
+		i0_ts = H5D_read(rec_id)
 		H5D_close, rec_id
+	endelse
+	flux_x_ts = interpol( i0, i0_ts, reference_ts)			; effective 'flux' at time of effective 'x' time-stamps
+
+	if (self.spectrum_mode eq 0)  then begin
+		flux[x,y] = nsls_flux_scale * flux_x_ts * t				; assume i0 is a rate, so scale by times 't'
+	endif else begin
+		flux = total( nsls_flux_scale * flux_x_ts * t)
 	endelse
 
 ;	Get histgram/spectra data size ...
@@ -864,6 +863,9 @@ common c_petra_4, n_petra_channel, i_petra_channel
 ;		warning,'as_mex_h5_DEVICE::read_setup','Sequence count does not match "nx*ny".'
 ;		goto, bad_io
 	endif
+
+;	Energy dimension is ignore for now. Later shoild step both detector channel and energy
+;	on each call to 'read_buffer' method.
 
 	n_petra_channel = dims[1]			; step through detector channel
 	i_petra_channel = 0
@@ -988,6 +990,7 @@ common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
 common c_petra_2, dwell_array
 common c_petra_3, n_sequence_buffer, p06_file_id
 common c_petra_4, n_petra_channel, i_petra_channel
+common c_mex_1, reference_ts
 
 	n = 0L
 	good = 0L
@@ -999,12 +1002,23 @@ common c_petra_4, n_petra_channel, i_petra_channel
 	nc = n_elements(channel_on)
 	file_id = p06_file_id					; remember to close 'file_id' after last "channelxx"
 
-;	Data is organized as spectra (4096) for each of detector channel (4), for each sequence step.
+;	Data is organized as spectra (4096) for each of detector channel (4), for each sequence step (41496),
+;	for each energy (1). The energy dimension is ignored for now.
 ;	The sequence steps have an 'x' and 'y' each, which do not necessarily follow a perfect rectangle.
-;	Will read all steps for one detector channel.
-	
-;	dims over: channels in each spectrum, detector channel, sequence steps, energy steps (XANES maps)
-;	(Ignore XANES map case for now)
+;
+;	Have ignored energy axis for now. Will need this for XANES maps. Will also need to test if E axis
+;	is actually the fast axis.
+;
+;	It is assumed below that the various parameters are not necessarily sampled at the same rate. Hence,
+;	the various time-stamps ('_ts' vectors) may have different steps and lengths. The logic is to first
+;	find the average step size in 'x', then determine an equi-spaced X grid for pixels based on this step
+;	and the starting value. Then determine the effective pixel-x time-stamp for each pixel. This becomes
+;	the 'reference_ts' (stored in common) that all other parameters are sampled to.
+;
+;	The main routines where all this is applied is 'read_as_mex_h5_header' and 'as_mex_h5_DEVICE::read_setup'.
+;
+;	Energy dimension is ignore for now. Later should step both detector channel and energy
+;	on each call to 'read_buffer' method.
 
 	dataspace_id = H5D_get_space(spectra_id)
 	start = [0, i_petra_channel, 0, 0]
