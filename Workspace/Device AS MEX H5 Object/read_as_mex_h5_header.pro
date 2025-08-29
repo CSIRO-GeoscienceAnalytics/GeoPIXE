@@ -145,6 +145,8 @@ error = 1
 		print,'	Fast axis = Y'
 		step_y = mean( median( abs(sy[qy]),5))				; average step sizes
 
+;		Need to check for clusters of X steps. These need to be treated together as a single move.
+
 		q = where( qx eq (shift( qx,-1) -1), nq)			; pairs of moves together
 		while nq gt 0 do begin
 			sx[qx[q]] = sx[qx[q]] + sx[qx[q+1]]				; combine pairs
@@ -182,6 +184,8 @@ error = 1
 	endif else begin	
 		print,'	Fast axis = X'
 		step_x = mean( median( abs(sx[qx]),5))				; average step sizes
+
+;		Need to check for clusters of Y steps. These need to be treated together as a single move.
 
 		q = where( qy eq (shift( qy,-1) -1), nq)			; pairs of moves together
 		while nq gt 0 do begin
