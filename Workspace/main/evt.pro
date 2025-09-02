@@ -333,6 +333,7 @@ snap_done:
 		goto, finish
 		end
 	'WIDGET_TRACKING': begin
+		if widget_info( event.id, /valid) eq 0 then return
 		widget_control, event.id, get_uvalue=s
 		if event.enter eq 1 then begin
 			if size(s,/tname) eq 'STRING' then begin

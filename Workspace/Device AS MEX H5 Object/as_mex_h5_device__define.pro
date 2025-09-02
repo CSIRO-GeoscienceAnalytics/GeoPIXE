@@ -159,11 +159,145 @@ end
 ; "render_options" and the parameters read/written from/to DISK using the "read_options",
 ; "write_options" methods. Keep a local copy of device parameters and set them using
 ; "set_options". The keywords here are only used internally in this device.
+;
+;-------------------------------------------------------------------------------
+; These routines are associated with the rendering of Sort Options widgets
+; in the Sort EVT window Sort tab options box.
+; 
+; Render options widgets in Sort Options box in Sort EVT window.
+; Parent is the framed container box. Its child must be a base that
+; all options widgets are attached to. This child is target of destroy
+; when switching devices.
 
-pro as_mex_h5_device::set_options, p, $
-				clear_x=clear_x, clear_y=clear_y, clear_z=clear_z, $			; x_margin=x_margin
-				source_x=source_x, source_y=source_y, source_z=source_z, $
-				slowest=slowest
+pro as_mex_h5_device::render_options, parent
+
+COMPILE_OPT STRICTARR
+common c_errors_1, catch_errors_on
+if n_elements(catch_errors_on) lt 1 then catch_errors_on=1
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'as_mex_h5_device::render_options',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+case !version.os_family of
+	'MacOS': begin
+		source_xsize = 45
+		axes_xsize = 365
+		end
+	'unix': begin
+		source_xsize = 45
+		axes_xsize = 365
+		end
+	else: begin
+		source_xsize = 45
+		axes_xsize = 305
+		end
+endcase
+
+; Call super-class to cleanup old display and set Y size of box first ...
+
+self->BASE_DEVICE::render_options, parent
+
+; The following will appear in the Device box on the Sort tab of the Sort EVT window, and elsewhere where
+; the device specific parameters are selected (e.g. spectra Import) ...
+
+as_mex_h5mode_base = widget_base( parent, /column,  space=3, xpad=0, ypad=0, /base_align_center, $
+		event_func='as_mex_h5_device_sort_option_event', uvalue=self, uname='obj-ref-here')
+lab = widget_label( as_mex_h5mode_base, value='AS MEX H5 Option Parameters')
+
+; Check-boxes to smooth the reference time-stamp
+
+as_mex_h5fbase = widget_base( as_mex_h5mode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
+lab = widget_label( as_mex_h5fbase, value='Smooth:')
+smooth_ref_ts_check = cw_bgroup2( as_mex_h5fbase, ['Reference time-stamp'], /row, xpad=0, ypad=0, space=0, /return_index, /tracking, $
+					uname='as_mex_h5-smooth-ref-ts', set_value=self.sort_options.smooth_ref_ts, /nonexclusive, $
+					uvalue=['Check box to smooth out errors in the Reference time-stamp (based on "x_ts").'])
+
+error = 0
+add_widget_vector, self.sort_id.smooth_ref_ts, smooth_ref_ts_check, error=err & error=error or err
+if error then begin
+	warning,'as_mex_h5_device::render_options','Error adding device object widget ID vectors.'
+endif
+return
+end
+
+;------------------------------------------------------------------------------------------
+
+function as_mex_h5_device_sort_option_event, event
+
+COMPILE_OPT STRICTARR
+common c_errors_1, catch_errors_on
+if n_elements(catch_errors_on) lt 1 then catch_errors_on=1
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'as_mex_h5_device_sort_option_event',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return, 0L
+	endif
+endif
+
+	if widget_info( event.handler, /valid) eq 0L then begin
+;		print,'as_mex_h5_device_sort_option_event: event.handler not valid.'
+		return, 0
+	endif
+	uname = widget_info( event.handler, /uname)
+	if uname ne 'obj-ref-here' then begin
+		print,'as_mex_h5_device_sort_option_event: Object base not found.'
+		return, 0
+	endif
+	widget_control, event.handler, get_uvalue=obj
+	if obj_valid(obj) eq 0L then begin
+		print,'as_mex_h5_device_sort_option_event: Device Object ref not found.'
+		return, 0
+	endif
+
+case tag_names( event,/structure) of
+	'WIDGET_TRACKING': begin
+		return, event						; pass context help up the line ...
+		end
+	else: begin
+		
+		uname = widget_info( event.id, /uname)
+		case uname of
+			'as_mex_h5-smooth-ref-ts': begin
+				obj->set_options, smooth_ref_ts = event.select
+				end
+		endcase		
+		end
+endcase
+return, 0L
+end
+
+;------------------------------------------------------------------------------------------
+
+; The "options" are widgets and parameters associated with the Sort tab
+; of the Sort EVT window. These are rendered in this class, using the method
+; "render_options" and the parameters read/written from/to DISK using the "read_options",
+; "write_options" methods. Keep a local copy of device parameters and set them using
+; "set_options". The keywords here are only used internally in AS MEX H5 device.
+
+pro as_mex_h5_device::set_options, p, smooth_ref_ts=smooth_ref_ts
 
 COMPILE_OPT STRICTARR
 common c_errors_1, catch_errors_on
@@ -195,9 +329,15 @@ endif
 
 	if n_elements(opt) eq 1 then begin
 		if tag_present('VERSION',opt) then self.sort_options.version = opt.version
+		if tag_present('SMOOTH_REF_TS',opt) then self.sort_options.smooth_ref_ts = opt.smooth_ref_ts
 	endif else begin
+		if n_elements(smooth_ref_ts) eq 1 then self.sort_options.smooth_ref_ts = smooth_ref_ts
 	endelse
 	
+	; Set value of widgets. There may be multiple sort option panels attached to this object, so
+	; we use 'widget_control_vector' to set all of them.
+	
+	widget_control_vector, self.sort_id.smooth_ref_ts, set_combobox_select = self.sort_options.smooth_ref_ts
 	return
 end
 
@@ -269,7 +409,8 @@ endif
 ; Get current defaults in this device
 
 	options = self->get_options()
-	version = options.version
+	version = 0L
+	smooth_ref_ts = options.smooth_ref_ts
 	
 ; Read options parameters from the file. Note this device will always use versioning, so
 ; we do not test for it. Note this 'version' is to cater for different options data written to
@@ -281,8 +422,13 @@ endif
 
 ; Use 'version' for conditional read statements here ....
 		
+	if version le -2 then begin
+		readu, unit, smooth_ref_ts
+	endif
 
 ; Write back these options parameters to the device ...
+
+	options.smooth_ref_ts = smooth_ref_ts
 
 	self->set_options, options
 	error = 0
@@ -344,13 +490,14 @@ endif
 ;	This is the version of the options write data. Do not confuse this with the listmode
 ;	version
 
-	version = -1L	
+	version = -2L	
 	on_ioerror, bad_io
 	writeu, unit, version
 
 ;	Write any new options parameters here. If you add to these change the version number
 ;	(e.g. decrement it) and add conditional code on 'version' for the matching read method.
 
+	writeu, unit, options.smooth_ref_ts
 	error = 0
 	return
 	
@@ -359,6 +506,48 @@ bad_io:
 	return
 end
 
+;-------------------------------------------------------------------------------
+
+; Return a string to display (e.g. in Image History window) to show the
+; state of this device's options. If 'p' present, then show this parameter set.
+
+function as_mex_h5_device::options_legend, p
+
+COMPILE_OPT STRICTARR
+common c_errors_1, catch_errors_on
+if n_elements(catch_errors_on) lt 1 then catch_errors_on=1
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'as_mex_h5_device::read_options',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return, ''
+	endif
+endif
+
+	if n_elements(p) ge 1 then begin
+		if size(p, /tname) eq 'STRUCT' then options = p
+		if ptr_good(p, /struct) then options = *p
+	endif
+	if n_elements(options) eq 0 then options = self.sort_options
+
+	on_off = ['Off','On']
+
+	list = ['as_mex_h5:' ] 
+	list = [list, '   Smooth reference time-stamp ("x_ts"): ' + str_tidy(options.smooth_ref_ts) ]
+
+	return, list
+end
+
+;-------------------------------------------------------------------
 ;-------------------------------------------------------------------
 
 ; This method is called when list-mode files are accessed (e.g. when a 
@@ -393,10 +582,12 @@ if catch_errors_on then begin
 	endif
 endif
 common c_geopixe_adcs, geopixe_max_adcs
+common c_mex_1, reference_ts, smooth_ref_time
 
 	if n_elements(silent) lt 1 then silent=0
 	error = 1
-	
+	smooth_ref_time = self.sort_options.smooth_ref_ts			; pass self variable for smooth to 'read_as_mex_h5_header'
+
 	if H5F_is_hdf5(file) eq 0 then begin
 		warning,'as_mex_h5_DEVICE::get_header_info','Not a valid HDF5 file: '+file
 		self.header.error = 1
@@ -409,7 +600,6 @@ common c_geopixe_adcs, geopixe_max_adcs
 		return, self.header
 	endif
 
-	self.sort_options.version = mp.version
 	self.header.error = 0
 
 	self->save_header_data, mp						; save raw device data 'mp' in self
@@ -711,7 +901,7 @@ common c_nsls_5, nsls_IC_value_index, nsls_flux_scale
 common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
 common c_petra_3, n_sequence_buffer, p06_file_id
 common c_petra_4, n_petra_channel, i_petra_channel
-common c_mex_1, reference_ts
+common c_mex_1, reference_ts, smooth_ref_time
 
 	n_guide = 1000000L
 	progress_file = 3					; progress indicator will be rough (see updated below)
@@ -731,6 +921,8 @@ common c_mex_1, reference_ts
 ;	the 'reference_ts' (stored in common) that all other parameters are sampled to.
 ;
 ;	The main routines where all this is applied is 'read_as_mex_h5_header' and 'as_mex_h5_DEVICE::read_setup'.
+
+	smooth_ref_time = self.sort_options.smooth_ref_ts			; pass self variable for smooth to 'read_as_mex_h5_header'
 
 	self.spectrum_mode = 1
 	if (n_elements(flux) ge 2) then self.spectrum_mode=0
@@ -834,7 +1026,7 @@ common c_mex_1, reference_ts
 		i0_ts = H5D_read(rec_id)
 		H5D_close, rec_id
 	endelse
-	flux_x_ts = interpol( i0, i0_ts, reference_ts)			; effective 'flux' at time of effective 'x' time-stamps
+	flux_x_ts = interpol( i0, i0_ts, reference_ts)				; effective 'flux' at time of effective 'x' time-stamps
 
 	if (self.spectrum_mode eq 0)  then begin
 		flux[x,y] = nsls_flux_scale * flux_x_ts * t				; assume i0 is a rate, so scale by times 't'
@@ -990,7 +1182,7 @@ common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
 common c_petra_2, dwell_array
 common c_petra_3, n_sequence_buffer, p06_file_id
 common c_petra_4, n_petra_channel, i_petra_channel
-common c_mex_1, reference_ts
+common c_mex_1, reference_ts, smooth_ref_time
 
 	n = 0L
 	good = 0L
@@ -1459,10 +1651,18 @@ endif
 
 ; Sort Option items appear as Scan setup options in the Sort EVT "Scan" tab
 
-	self.options.scan.on = 0		; scan sort options availability for this class
+	self.options.scan.on = 1		; scan sort options availability for this class
 									; these must be set-up in a render_options method
-;	self.options.scan.ysize = 75	; Y size of sort options box, when open
+	self.options.scan.ysize = 75	; Y size of sort options box, when open
 
+; Set default Sort Options local parameters ...
+
+	self.sort_options.smooth_ref_ts = 1							; Enable smoothing of Ref time-stamp as default
+
+; Initial heap allocation for sort_id widget vector pointers ...
+
+	self.sort_id.smooth_ref_ts = ptr_new(/allocate_heap)		; Smooth Ref checkbox ID array pointer
+	
 ;	Pass core device parameters to BASE DEVICE superclass
 ;	Note that 'name' must match the object's file-name:
 ;	"as_mex_h5_DEVICE" --> as_mex_h5_DEVICE_define.sav
@@ -1502,8 +1702,11 @@ maia = { as_mex_h5_DEVICE,  $
 ;		write and read of device options, which is defined in the 'write_options' method.
 
 		sort_options : {sort_options_devicespec_as_mex_h5, $	; Sort EVT window Sort options panel
-			version:	0.0 } $			; Listmode version number
+			version:		0.0,  $								; Listmode version number
+			smooth_ref_ts:	1},$								; smooth reference time-stamp
 
-		}								; see the base_device super-class for details.
+		sort_id: {sort_id_as_mex_h5, $							; pointers to vector of sort widget IDs
+			smooth_ref_ts:	ptr_new()} $						; smooth check-box ID array pointer
+		}														; see the base_device super-class for details.
 	return
 end

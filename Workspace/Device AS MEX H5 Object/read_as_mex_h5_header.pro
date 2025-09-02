@@ -23,7 +23,7 @@ if catch_errors_on then begin
    endif
 endif
 common c_petra_1, min_x, step_x, min_y, pixel_x, pixel_y
-common c_mex_1, reference_ts
+common c_mex_1, reference_ts, smooth_ref_time
 common c_maia_13, maia_dwell
 error = 1
 
@@ -175,6 +175,10 @@ error = 1
 	
 		reference_ts = interpol( y_ts, y+offset, y_eff+offset)	; effective time-stamp for each pixel, based on 'y'
 
+		if smooth_ref_time then begin						; smooth out errors/jitter in reference time-stamps
+			reference_ts = smooth( reference_ts, 50)
+		endif
+
 		x_at_y = interpol( x, x_ts, reference_ts)			; effective 'x' at time of effective 'y' time-stamps
 		nabs_x = x_at_y + abs_x[0] - x[0]					; effective absolute 'x'
 	
@@ -215,6 +219,10 @@ error = 1
 	
 		reference_ts = interpol( x_ts, x+offset, x_eff+offset)	; effective time-stamp for each pixel, based on 'x'
 
+		if smooth_ref_time then begin						; smooth out errors/jitter in reference time-stamps
+			reference_ts = smooth( reference_ts, 50)
+		endif
+
 		y_at_x = interpol( y, y_ts, reference_ts)			; effective 'y' at time of effective 'x' time-stamps
 		nabs_y = y_at_x + abs_y[0] - y[0]					; effective absolute 'y'
 	
@@ -223,6 +231,7 @@ error = 1
 	endelse
 	print, '	Pixel counts X,Y =',nx,ny
 	print, '	Effective X,Y step size =', step_x, step_y
+	print, '	Smooth reference time-stamp = ', smooth_ref_time
 
 ;	Dwell time from steps in x_ts
 
