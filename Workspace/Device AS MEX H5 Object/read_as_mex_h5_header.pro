@@ -167,11 +167,9 @@ error = 1
 		y_eff = float(pixel_y) * step_y + min(y)			; effective 'y' positions in pixels
 		nabs_y = y_eff + abs_y[0] - y[0]					; effective absolute 'y'
 	
-		offset = lindgen(nxy)								; offset (integer) to make all visit once
+		scale = 4*(max(x) - min(x))/nx
+		offset = scale*lindgen(nxy)							; offset (integer) to make all visit once
 															; works if ny > max(y)-min(y)
-		if ny le (max(y) - min(y)) then begin
-			offset = offset * (round((max(y) - min(y))/ny) > 1) 
-		endif
 	
 		reference_ts = interpol( y_ts, y+offset, y_eff+offset)	; effective time-stamp for each pixel, based on 'y'
 
@@ -211,11 +209,9 @@ error = 1
 		x_eff = float(pixel_x) * step_x + min(x)			; effective 'x' positions in pixels
 		nabs_x = x_eff + abs_x[0] - x[0]					; effective absolute 'x'
 
-		offset = lindgen(nxy)								; offset (integer) to make all visit once
+		scale = 4*(max(x) - min(x))/nx
+		offset = scale*lindgen(nxy)							; offset (integer) to make all visit once
 															; works if nx > max(x)-min(x)
-		if nx le (max(x) - min(x)) then begin
-			offset = offset * (round((max(x) - min(x))/nx) > 1) 
-		endif
 	
 		reference_ts = interpol( x_ts, x+offset, x_eff+offset)	; effective time-stamp for each pixel, based on 'x'
 
@@ -231,9 +227,9 @@ error = 1
 	endelse
 	print, '	Pixel counts X,Y =',nx,ny
 	print, '	Effective X,Y step size =', step_x, step_y
-	print, '	Smooth reference time-stamp = ', smooth_ref_time
+	print, '	Smooth reference time-stamps = ', smooth_ref_time
 
-;	Dwell time from steps in x_ts
+;	Dwell time from steps in x_ts (or y_ts if Y fast axis)
 
 	t = reference_ts - shift(reference_ts,1)
 	t[0] = t[1]											; fix wrap

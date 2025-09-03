@@ -221,7 +221,7 @@ lab = widget_label( as_mex_h5mode_base, value='AS MEX H5 Option Parameters')
 
 as_mex_h5fbase = widget_base( as_mex_h5mode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 lab = widget_label( as_mex_h5fbase, value='Smooth:')
-smooth_ref_ts_check = cw_bgroup2( as_mex_h5fbase, ['Reference time-stamp'], /row, xpad=0, ypad=0, space=0, /return_index, /tracking, $
+smooth_ref_ts_check = cw_bgroup2( as_mex_h5fbase, ['Reference time-stamps'], /row, xpad=0, ypad=0, space=0, /return_index, /tracking, $
 					uname='as_mex_h5-smooth-ref-ts', set_value=self.sort_options.smooth_ref_ts, /nonexclusive, $
 					uvalue=['Check box to smooth out errors in the Reference time-stamp (based on "x_ts").'])
 
@@ -1029,7 +1029,7 @@ common c_mex_1, reference_ts, smooth_ref_time
 	flux_x_ts = interpol( i0, i0_ts, reference_ts)				; effective 'flux' at time of effective 'x' time-stamps
 
 	if (self.spectrum_mode eq 0)  then begin
-		flux[x,y] = nsls_flux_scale * flux_x_ts * t				; assume i0 is a rate, so scale by times 't'
+		flux[x,y] = nsls_flux_scale * flux_x_ts * t				; assume i0 is a rate, so scale by delta times 't'
 	endif else begin
 		flux = total( nsls_flux_scale * flux_x_ts * t)
 	endelse
