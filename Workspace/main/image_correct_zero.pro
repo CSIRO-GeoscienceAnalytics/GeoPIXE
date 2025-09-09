@@ -50,9 +50,9 @@ if n_elements(q) lt 1 then return
 	sx2 = sx+4
 	sy2 = sy+4
 
-	a = fltarr(sx2*sy2,3,3)
+	a = fltarr(sx2*sy2,3,3)								; a bit memory expensive
 	m = bytarr(sx2*sy2,3,3)
-	for kx = 0,2 do begin								; shifted mask
+	for kx = 0,2 do begin								; shifted mask (-1, 0, +1) in both x,y
 		for ky = 0,2 do begin
 			m[*,kx,ky] = reform( shift( mask2, kx-1,ky-1), sx2*sy2)
 		endfor
@@ -61,7 +61,7 @@ if n_elements(q) lt 1 then return
 	for j=0L,n_el-1 do begin
 		img2 = extend_image( (*pimg)[*,*,j], 2)			; image data for this element
 	
-		for kx = 0,2 do begin							; shifted image
+		for kx = 0,2 do begin							; shifted image (-1, 0, +1) in both x,y
 			for ky = 0,2 do begin
 				a[*,kx,ky] = reform( shift( img2, kx-1,ky-1), sx2*sy2)
 			endfor

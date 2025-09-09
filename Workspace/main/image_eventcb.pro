@@ -4017,7 +4017,7 @@ for j=0L,n_el-1 do begin
 	endif
 endfor
 
-if (*pstate).display_mode eq 0 then begin   	   ; smooth errors as well
+if (*pstate).display_mode eq 0 then begin   	   ; correct variance as well
     (*pstate).display_mode = 1
     check_mode, pstate
     if (*pstate).display_mode eq 1 then begin
