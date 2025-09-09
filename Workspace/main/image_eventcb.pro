@@ -3998,8 +3998,15 @@ threshold = ((*opt)[i].bottom + 0.03 * ((*opt)[i].top - (*opt)[i].bottom)) * (*o
 q = where( img lt threshold)					; threshold at 3% of top slider
 if q[0] eq -1 then return
 
+if (*pstate).display_mode eq 0 then begin
+	Print, 'Image, first pass ...'
+endif else begin
+	Print, 'Variance, first pass ...'
+endelse
 image_correct_zero, q, pimg, (*p).flux, neighbours=2, remain=qz
+Print, '	Second pass ...'
 if qz[0] ne -1 then image_correct_zero, qz, pimg, (*p).flux, neighbours=2, remain=qz
+Print, '	Third pass ...'
 if qz[0] ne -1 then image_correct_zero, qz, pimg, (*p).flux, neighbours=2, remain=qz
 
 for j=0L,n_el-1 do begin

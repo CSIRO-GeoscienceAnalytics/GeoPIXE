@@ -43,75 +43,80 @@ if n_elements(q) lt 1 then return
 	n_el = n_elements( (*pimg)[0,0,*])
 	mask = bytarr(sx,sy)
 	mask[*] = 0
-	mask[q] = 1
-	
-	a = fltarr(sx*sy,3,3)
-	m = bytarr(sx*sy,3,3)
+	mask[q] = 1											; 'q' is where the zero pixels are
+
+	mask2 = extend_image( mask, 2)
+	q2 = where( mask2 eq 1, nq2)
+	sx2 = sx+4
+	sy2 = sy+4
+
+	a = fltarr(sx2*sy2,3,3)
+	m = bytarr(sx2*sy2,3,3)
 	for kx = 0,2 do begin								; shifted mask
 		for ky = 0,2 do begin
-			m[*,kx,ky] = reform( shift( mask, kx-1,ky-1), sx*sy)
+			m[*,kx,ky] = reform( shift( mask2, kx-1,ky-1), sx2*sy2)
 		endfor
 	endfor
 	
 	for j=0L,n_el-1 do begin
-		img = (*pimg)[*,*,j]							; image data for this element
+		img2 = extend_image( (*pimg)[*,*,j], 2)			; image data for this element
 	
 		for kx = 0,2 do begin							; shifted image
 			for ky = 0,2 do begin
-				a[*,kx,ky] = reform( shift( img, kx-1,ky-1), sx*sy)
+				a[*,kx,ky] = reform( shift( img2, kx-1,ky-1), sx2*sy2)
 			endfor
 		endfor
 		
-		sum = fltarr(nq)								; for each dud pixel sum all good
-		n = intarr(nq)									; nearby pixels to replace it
+		sum = fltarr(nq2)								; for each dud pixel sum all good
+		n = intarr(nq2)									; nearby pixels to replace it
 		for kx = 0,2 do begin
 			for ky = 0,2 do begin
-				qd = where( m[q,kx,ky] eq 0, nd)
+				qd = where( m[q2,kx,ky] eq 0, nd)		; use only non-zero pixels (mask = 0)
 				if nd gt 0 then begin
-					sum[qd] = sum[qd] + a[q[qd],kx,ky]	; 
+					sum[qd] = sum[qd] + a[q2[qd],kx,ky]	; 
 					n[qd] = n[qd] + 1					; 
 				endif
 			endfor
 		endfor
 		qn = where(n ge neighbours, nn)
 		if nn gt 0 then begin
-			img[q[qn]] = sum[qn]/float(n[qn])			; replace duds with average of neighbourhood
-			mask[q[qn]] = 0								; pixel fixed
+			img2[q2[qn]] = sum[qn]/float(n[qn])			; replace duds with average of neighbourhood
+			mask2[q2[qn]] = 0							; pixel fixed, so mask it off
 		endif
 		
-		(*pimg)[*,*,j] = img	
+		(*pimg)[*,*,j] = img2[2:sx2-2-1,2:sy2-2-1]		; use only central (un extended) part
 	endfor
-	qz = where( mask eq 1, nqz)
+	qz = where( mask2[2:sx2-2-1,2:sy2-2-1] eq 1, nqz)
 	print, 'After zero correct pass, zero pixels remain = ',nqz
 	
 	if ptr_good( pflux) then begin
 	
-		img = (*pflux)[*,*]								; image data for flux map
-		if (sx eq n_elements(img[*,0])) and (sy eq n_elements(img[0,*])) then begin
+		img2 = extend_image( (*pflux)[*,*], 2)			; image data for flux map
+		if (sx2 eq n_elements(img2[*,0])) and (sy2 eq n_elements(img2[0,*])) then begin
 		
 			for kx = 0,2 do begin						; shifted images and mask
 				for ky = 0,2 do begin
-					a[*,kx,ky] = reform( shift( img, kx-1,ky-1), sx*sy)
+					a[*,kx,ky] = reform( shift( img2, kx-1,ky-1), sx2*sy2)
 				endfor
 			endfor
 			
-			sum = fltarr(nq)							; for each dud pixel sum all good
-			n = intarr(nq)								; nearby pixels to replace it
+			sum = fltarr(nq2)							; for each dud pixel sum all good
+			n = intarr(nq2)								; nearby pixels to replace it
 			for kx = 0,2 do begin
 				for ky = 0,2 do begin
-					qd = where( m[q,kx,ky] eq 0, nd)
+					qd = where( m[q2,kx,ky] eq 0, nd)	; use only non-zero pixels (mask = 0)
 					if nd gt 0 then begin
-						sum[qd] = sum[qd] + a[q[qd],kx,ky]
+						sum[qd] = sum[qd] + a[q2[qd],kx,ky]
 						n[qd] = n[qd] + 1
 					endif
 				endfor
 			endfor
-			qn = where(n ge 5, nn)
+			qn = where(n ge neighbours, nn)				; use "neighbours" instead of old "5"
 			if nn gt 0 then begin
-				img[q[qn]] = sum[qn]/float(n[qn])		; replace duds with average of neighbourhood
+				img2[q2[qn]] = sum[qn]/float(n[qn])		; replace duds with average of neighbourhood
 			endif
 		
-			(*pflux)[*,*] = img
+			(*pflux)[*,*] = img2[2:sx2-2-1,2:sy2-2-1]	; use only central (un extended) part
 		endif
 	endif
 	

@@ -210,7 +210,7 @@ error = 1
 		nabs_x = x_eff + abs_x[0] - x[0]					; effective absolute 'x'
 
 		scale = 4*(max(x) - min(x))/nx
-		offset = scale*lindgen(nxy)							; offset (integer) to make all visit once
+		offset = scale*lindgen(nxy)							; offset to make all visit once/ monotonic
 															; works if nx > max(x)-min(x)
 	
 		reference_ts = interpol( x_ts, x+offset, x_eff+offset)	; effective time-stamp for each pixel, based on 'x'
