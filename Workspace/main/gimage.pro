@@ -607,19 +607,19 @@ endif
        end
 
     'Clear_Menu-sides-1': begin
-       Image_Process_Clear, Event, 1, /no_undo, select=-1, /sides
+       Image_Process_Clear_sides, Event, 1, /no_undo, select=-1
        end
 
     'Clear_Menu-sides-2': begin
-       Image_Process_Clear, Event, 2, /no_undo, select=-1, /sides
+       Image_Process_Clear_sides, Event, 2, /no_undo, select=-1
        end
 
     'Clear_Menu-sides-5': begin
-       Image_Process_Clear, Event, 5, /no_undo, select=-1, /sides
+       Image_Process_Clear_sides, Event, 5, /no_undo, select=-1
        end
 
     'Clear_Menu-sides-10': begin
-       Image_Process_Clear, Event, 10, /no_undo, select=-1, /sides
+       Image_Process_Clear_sides, Event, 10, /no_undo, select=-1
        end
 
     'Erode_Menu-2': begin
@@ -732,27 +732,27 @@ endif
        end
 
     'Shift+1': begin
-       Image_Process_Shift_rows, Event, +1, /x, /odd
+       Image_Process_Shift_rows, Event, +1.0, /x, /odd
        end
 
     'Shift+2': begin
-       Image_Process_Shift_rows, Event, +2, /x, /odd
+       Image_Process_Shift_rows, Event, +2.0, /x, /odd
        end
 
     'Shift+5': begin
-       Image_Process_Shift_rows, Event, +5, /x, /odd
+       Image_Process_Shift_rows, Event, +5.0, /x, /odd
        end
 
     'Shift-1': begin
-       Image_Process_Shift_rows, Event, -1, /x, /odd
+       Image_Process_Shift_rows, Event, -1.0, /x, /odd
        end
 
     'Shift-2': begin
-       Image_Process_Shift_rows, Event, -2, /x, /odd
+       Image_Process_Shift_rows, Event, -2.0, /x, /odd
        end
 
     'Shift-5': begin
-       Image_Process_Shift_rows, Event, -5, /x, /odd
+       Image_Process_Shift_rows, Event, -5.0, /x, /odd
        end
 
 
@@ -820,6 +820,14 @@ endif
 
     'Shift-all-5': begin
        Image_Process_Shift, Event, -5, /all
+       end
+
+    'Shift-columns+1': begin
+       Image_Process_Shift_rows, Event, +1.0, /y, /odd
+       end
+
+    'Shift-columns-1': begin
+       Image_Process_Shift_rows, Event, -1.0, /y, /odd
        end
 
 
@@ -2126,6 +2134,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   W_menu_531 = Widget_Button(W_menu_53c, UNAME='Shift-2', VALUE='odd rows -2' )
   W_menu_531 = Widget_Button(W_menu_53c, UNAME='Shift+5', VALUE='odd rows +5' )
   W_menu_531 = Widget_Button(W_menu_53c, UNAME='Shift-5', VALUE='odd rows -5' )
+
+  W_menu_531b = Widget_Button(W_menu_53c, UNAME='Shift-columns+1', VALUE='odd columns +1' )
+  W_menu_531c = Widget_Button(W_menu_53c, UNAME='Shift-columns-1', VALUE='odd columns -1' )
 
   W_menu_531 = Widget_Button(W_menu_53c, UNAME='Shift-all+1', VALUE='all rows +1', /separator )
   W_menu_531 = Widget_Button(W_menu_53c, UNAME='Shift-all-1', VALUE='all rows -1')

@@ -5,7 +5,7 @@
 ;	and calculate the IC conversion calibration factor 'conv' by using a
 ;	region over most of the foil image.
 
-pro wizard_standards_event, event
+pro wizard_batch_event, event
 
 ;	Event routine to process widget events and "Notify" events from other windows,
 ;	such as the "wizard-return" events from GeoPIXE windows, which are replies to 
@@ -47,7 +47,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'wizard_standards_event',['IDL run-time error caught.', '', $
+		warning,'wizard_batch_event',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -93,7 +93,7 @@ case tag_names( event,/structure) of
 	'WIDGET_TIMER': begin
 		(*pstate).windows_veto = ((*pstate).windows_veto-1) > 0	; decrement count-down, to give time to close some windows
 		if ((*pstate).windows_veto eq 0) then begin
-			wizard_test_windows, 'standards', pstate			; periodically check which GeoPIXE windows are
+			wizard_test_windows, 'batch', pstate				; periodically check which GeoPIXE windows are
 		endif													; currently open (not if warning open [windows_veto])
 		widget_control, event.id, timer=8.0	
 		goto, finish
@@ -128,10 +128,10 @@ case tag_names( event,/structure) of
 				if ptr_valid( event.pointer) then begin
 					pw = event.pointer
 
-					if (*pw).wizard ne 'standards' then begin
+					if (*pw).wizard ne 'batch' then begin
 						(*pstate).windows_veto = 5				; veto tests while this pop-up is open
 																; count down gives time to close somewindows
-						warning, 'wizard_standards_return', ['Another Wizard appears to be open ("'+(*pw).wizard+'").', '', $
+						warning, 'wizard_batch_return', ['Another Wizard appears to be open ("'+(*pw).wizard+'").', '', $
 								'This will cause many problems.','Only open one Wizard at a time.','Please close other Wizards.']
 						goto, finish
 					endif
@@ -146,7 +146,7 @@ case tag_names( event,/structure) of
 						if count gt 1 then begin
 							(*pstate).windows_veto = 4			; veto tests while this pop-up is open
 																; count down gives time to close somewindows
-							warning, 'wizard_standards_return', ['Multiple windows of types "'+strjoin((*pstate).windows_needed,', ')+'" may be open.', '', $
+							warning, 'wizard_batch_return', ['Multiple windows of types "'+strjoin((*pstate).windows_needed,', ')+'" may be open.', '', $
 								'This may cause problems.','Please close any duplicate windows.']
 						endif
 						goto, finish
@@ -154,7 +154,7 @@ case tag_names( event,/structure) of
 						
 					print, '*** Wizard return: from="'+(*pw).window+'", command="'+(*pw).command+'", error='+str_tidy((*pw).error)
 					if (*pw).error then begin
-						warning,'standards wizard',['Error in processing this data-set:', $
+						warning,'batch wizard',['Error in processing this data-set:', $
 								(*(*pw).pdata).output,'','"OK" to continue, "Cancel" to abort all.'], cancel=cancel
 						if cancel then goto, finish
 					endif
@@ -188,7 +188,7 @@ case tag_names( event,/structure) of
 		endcase
 		end
 	'WIDGET_KILL_REQUEST': begin
-		print,'Kill request wizard_standards ...'
+		print,'Kill request wizard_batch ...'
 		goto, kill
 		end
 	else:
@@ -200,7 +200,7 @@ endcase
 uname = widget_info( event.id, /uname)
 case uname of
 
-	'wizard-standards-tlb': begin
+	'wizard-batch-tlb': begin
 		case Tag_Names(Event, /STRUCTURE_NAME) of
 			'WIDGET_BASE': begin
 				wizard_resize, event.top, oldx=(*pstate).tlb_xsize, oldy=(*pstate).tlb_ysize, $
@@ -209,15 +209,15 @@ case uname of
 				(*pstate).tlb_xsize = geom.scr_xsize
 				(*pstate).tlb_ysize = geom.scr_ysize
 
-				wizard_standards_update_plots, pstate
+				wizard_batch_update_plots, pstate
 				end
 			else:
 		endcase
 		end
 
-	'wizard-standards-tab-panel': begin
+	'wizard-batch-tab-panel': begin
 		(*pstate).tab = clip( event.tab, 0, n_elements((*pstate).tab_names)-1)
-		wizard_standards_update_info, pstate
+		wizard_batch_update_info, pstate
 		
 ;		case (*pstate).tab_names[event.tab] of
 ;			'Summary': begin		; summary
@@ -233,7 +233,7 @@ case uname of
 		end
 
 	'blog-dir-button': begin
-		F = file_requester( /read, title='Select the "standards" raw dir', path=(*pstate).blog_dir, $
+		F = file_requester( /read, title='Select the "batch" raw dir', path=(*pstate).blog_dir, $
 							/dir, group=event.top )
 		if F[0] ne '' then begin
 			(*pstate).blog_dir = F[0]
@@ -271,7 +271,7 @@ case uname of
 		end
 					
 	'output-dir-button': begin
-		F = file_requester( /read, title='Select "standards" analysis output dir', path=(*pstate).output_dir, $
+		F = file_requester( /read, title='Select "batch" analysis output dir', path=(*pstate).output_dir, $
 							/dir, group=event.top )
 		if F[0] ne '' then begin
 			(*pstate).output_dir = F[0]
@@ -285,49 +285,92 @@ case uname of
 		(*pstate).output_dir = s
 		end
 					
-	'resource-dir-button': begin
-		F = file_requester( /read, title='Select GeoPIXE Resources dir', path=(*pstate).resource_dir, $
-							/dir, group=event.top )
+	'template-sort-button': begin
+		F = file_requester( /read, title='Select a template DAI', path=(*pstate).output_dir, file=(*pstate).template_sort_dai, $
+							filter='*.dai', group=event.top )
 		if F[0] ne '' then begin
-			(*pstate).resource_dir = F[0]
-			set_widget_text, (*pstate).resource_dir_text, F[0]
+			(*pstate).template_sort_dai = F[0]
+			set_widget_text, (*pstate).template_sort_text, F[0]
 		endif
+		wizard_batch_load_template, pstate, error=error
+		if error then begin
+;			warning,'wizard_batch_event','No raw files found.'		
+			goto, finish
+		endif
+		widget_control, (*pstate).corrections_element, set_value = *(*pstate).pcel	
+		widget_control, (*pstate).r_element, set_value = *(*pstate).pcel
+		widget_control, (*pstate).g_element, set_value = *(*pstate).pcel
+		widget_control, (*pstate).b_element, set_value = *(*pstate).pcel
 		end
 		
-	'resource-dir-text': begin
+	'template-sort-text': begin
 		widget_control, event.id, get_value=s
-		(*pstate).resource_dir = s
-
-		config = wizard_standards_read_config( fix_path((*pstate).resource_dir)+'standards'+path_sep()+'standards.csv', error=error)
-		if error then goto, finish
-		*(*pstate).pconfig = config
+		(*pstate).template_sort_dai = s
 		end
 					
 	'scan-blog-button': begin
 		s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 
-		table = wizard_standards_scan_dir( pstate, title=title, type=type, error=error)
+		table = wizard_batch_scan_dir( pstate, title=title, type=type, error=error)
 		if error then begin
-			warning,'wizard_standards_event','No raw files found.'		
+			warning,'wizard_batch_event','No raw files found.'		
 			goto, finish
 		endif
 		*(*pstate).presults = table
 		*(*pstate).ptitle = title
 		*(*pstate).ptype = type
-		wizard_standards_update_table, pstate
-		wizard_standards_update_stats, pstate
-		
-		(*pstate).tab = clip( (*pstate).tab+1, 0, n_elements((*pstate).tab_names)-1)
-		widget_control, (*pstate).tab_panel, set_tab_current=(*pstate).tab
-		wizard_standards_update_info, pstate
+		wizard_batch_update_table, pstate
 		end
 	
-	'reload-standards-button': begin
-		config = wizard_standards_read_config( fix_path((*pstate).resource_dir)+'standards'+path_sep()+'standards.csv', error=error)
-		if error then goto, finish
-		*(*pstate).pconfig = config
+;	'reload-standards-button': begin
+;		config = wizard_batch_read_config( fix_path((*pstate).resource_dir)+'standards'+path_sep()+'standards.csv', error=error)
+;		if error then goto, finish
+;		*(*pstate).pconfig = config
+;		end
+		
+	'template-corrections-button': begin
+		F = file_requester( /read, title='Select a template corrections DAI', path=(*pstate).output_dir, file=(*pstate).template_corrections_dai, $
+							filter='*.dai', group=event.top )
+		if F[0] eq '' then goto, finish
+		(*pstate).template_corrections_dai = F[0]
+		set_widget_text, (*pstate).template_corrections_text, F[0]
+
+		table = wizard_batch_load_corr( pstate, title=title, type=type, element=element, error=error)
+		if error then begin
+;			warning,'wizard_batch_event','No raw files found.'		
+			goto, finish
+		endif
+		*(*pstate).pcorr = table
+		*(*pstate).pctitle = title
+		*(*pstate).pctype = type
+;		*(*pstate).pcel = element
+		wizard_batch_update_ctable, pstate
+		end
+	
+	'template-rgb-button': begin
+		F = file_requester( /read, title='Select an RGB export "Learn" file', path=(*pstate).output_dir, file=(*pstate).template_sort_dai, $
+							filter='*.rgb.csv', group=event.top )
+		if F[0] ne '' then begin
+			(*pstate).template_rgb_export = F[0]
+			set_widget_text, (*pstate).template_rgb_text, F[0]
+		endif
+
+		table = wizard_batch_load_rgb( pstate, title=title, type=type, error=error)
+		if error then begin
+;			warning,'wizard_batch_event','No raw files found.'		
+			goto, finish
+		endif
+		*(*pstate).prgb = table
+		*(*pstate).prtitle = title
+		*(*pstate).prtype = type
+		wizard_batch_update_rgb_table, pstate
 		end
 		
+	'template-rgb-text': begin
+		widget_control, event.id, get_value=s
+		(*pstate).template_rgb_export = s
+		end
+					
 	'results-table': begin
 ;		help,event,/str
 		case tag_names( event, /structure_name) of
@@ -359,7 +402,7 @@ case uname of
 							file=(*p)[i].(k), group=event.top, title='Select '+name+' File', cancel=cancel)
 						if cancel eq 0 then begin
 							(*p)[i].(k) = f[0]
-							wizard_standards_update_table, pstate
+							wizard_batch_update_table, pstate
 						endif
 					endif
 				endif
@@ -395,14 +438,14 @@ case uname of
 									else:
 								endcase
 								if err then begin
-									warning,'wizard_standards_event','Illegal character for "'+(*(*pstate).ptype)[k]+'" in "'+(*(*pstate).ptitle)[k]+'" on row '+str_tidy(i)
+									warning,'wizard_batch_event','Illegal character for "'+(*(*pstate).ptype)[k]+'" in "'+(*(*pstate).ptitle)[k]+'" on row '+str_tidy(i)
 									return
 								endif
 							endif
 						endfor
 					endif
-					wizard_standards_update_table, pstate
-					wizard_standards_update_stats, pstate
+					wizard_batch_update_table, pstate
+					wizard_batch_update_stats, pstate
 					if ((*pstate).sel.top lt (*pstate).rows-1) then begin
 						view = widget_info( (*pstate).results_table, /table_view)
 						(*pstate).sel.left = (*pstate).sel.left
@@ -440,8 +483,8 @@ case uname of
 					endfor
 				endif
 			endfor
-			wizard_standards_update_table, pstate
-			wizard_standards_update_stats, pstate
+			wizard_batch_update_table, pstate
+			wizard_batch_update_stats, pstate
 		endif
 		end
 
@@ -469,8 +512,8 @@ case uname of
 				*p = t
 			endelse
 		endif
-		wizard_standards_update_table, pstate
-		wizard_standards_update_stats, pstate
+		wizard_batch_update_table, pstate
+		wizard_batch_update_stats, pstate
 		end
 
 	'table-enable-button': begin
@@ -478,33 +521,42 @@ case uname of
 		np = n_elements(*p)
 		if ((*pstate).sel.top ge 0) and ((*pstate).sel.bottom lt np) then begin
 			for i=(*pstate).sel.top,(*pstate).sel.bottom do begin
-				(*p)[i].on = 1 - (*p)[i].on 
+				if (*p)[i].on eq 1 then begin						; was "On"
+					(*p)[i].on = 0
+				endif else if (*p)[i].on eq 0 then begin			; was "Off"
+					(*p)[i].on = 1
+				endif else if (*p)[i].on eq 2 then begin			; was "Done"
+					(*p)[i].on = 0
+				endif else if (*p)[i].on eq 3 then begin			; was "Error"
+					(*p)[i].on = 0
+				endif
 			endfor
 		endif
-		wizard_standards_update_table, pstate
+		wizard_batch_update_table, pstate
 		end
 
 	'table-clear-button': begin
 		if no_data then goto, finish
 		*p = 0
-		wizard_standards_update_table, pstate
-		wizard_standards_update_stats, pstate
+		wizard_batch_update_table, pstate
+		wizard_batch_update_stats, pstate
 		(*pstate).sel.top = -1
 		(*pstate).sel.bottom = -1
 		end
 
 	'process-button': begin
 		(*pstate).loop = 0
-		wizard_standards_process_blog, pstate, error=error
+		wizard_batch_process_blog, pstate, error=error
 		end
 	
-	'stats-table': begin
+	'corrections-table': begin
 		case tag_names( event, /structure_name) of
 			'WIDGET_TABLE_CELL_SEL': begin
-				(*pstate).sel.left = event.sel_left
-				(*pstate).sel.top = event.sel_top
-				(*pstate).sel.right = event.sel_right
-				(*pstate).sel.bottom = event.sel_bottom
+				(*pstate).csel.left = event.sel_left
+				(*pstate).csel.top = event.sel_top
+				(*pstate).csel.right = event.sel_right
+				(*pstate).csel.bottom = event.sel_bottom
+				help, (*pstate).csel
 				end
 				
 			'WIDGET_TABLE_TEXT_SEL': begin
@@ -514,34 +566,172 @@ case uname of
 		endcase
 		end
 
-	'detector-mode': begin
-		n = n_elements(*(*pstate).detector_list)
-		if n lt 1 then goto, finish
-		(*pstate).detector_mode = event.index < (n-1)
-		wizard_standards_update_plots, pstate
+	'corrections-mode': begin
+		(*pstate).correction_mode = event.index
+		end
+	
+	'corrections-element': begin
+		(*pstate).correction_element_mode = event.index
+		end
+	
+	'ctable-add-button': begin
+		if typevar(*(*pstate).pcel) ne 'STRING' then begin
+			warning,'Batch Wizard','Need to load a template DAI file on tab 1 first.'
+			return
+		endif
+		el = (*(*pstate).pcel)[ (*pstate).correction_element_mode]
+		op = (*pstate).uv.list[ (*pstate).correction_mode]
+		if strmid(op,0,1) eq '*' then op = op + ' [' + el + ']'
+		t = *(*pstate).pcorr
+		if typevar(t) ne 'STRUCT' then begin
+			t = [{el:el, history:op, bottom:0., top:100., log:0}]
+		endif else begin
+			t = [t, {el:el, history:op, bottom:0., top:100., log:0}]
+		endelse
+		*(*pstate).pcorr = t
+		wizard_batch_update_ctable, pstate
+		end
+	
+	'ctable-delete-button': begin
+		t = *(*pstate).pcorr
+		n = n_elements(t)
+		if n eq 0 then return
+		if typevar(t) ne 'STRUCT' then return
+		i = clip( (*pstate).csel.top, 0,n-1)
+		if (i eq 0) then begin
+			t = t[1:n-1]
+		endif else if (i gt 0) and (i lt n-1) then begin
+			t = [t[0:i-1], t[i+1:n-1]]
+		endif else if (i eq n-1) then begin
+			t = t[0:i-1]
+		endif
+		*(*pstate).pcorr = t
+		wizard_batch_update_ctable, pstate
+		end
+	
+	'ctable-clear-button': begin
+		*(*pstate).pcorr = ''
+		wizard_batch_update_ctable, pstate
 		end
 
-	'detector-new-mode': begin
-		n = n_elements(*(*pstate).detector_list)
-		if n lt 1 then goto, finish
-		(*pstate).detector_new_mode = event.index < (n-1)
-		wizard_standards_update_plots, pstate
+	'display-apply-button': begin
+		t = *(*pstate).pcorr
+		n = n_elements(t)
+		if n eq 0 then return
+		if typevar(t) ne 'STRUCT' then return
+		widget_control, (*pstate).display_bottom_text, get_value=bot
+		widget_control, (*pstate).display_top_text, get_value=top
+		widget_control, (*pstate).display_log_text, get_value=log
+		i = (*pstate).csel.top
+		t[i].bottom = clip( fix2(bot), 0,99)
+		t[i].top = clip( fix2(top), 1,100)
+		t[i].log = clip( fix2(log), 0,2)
+		*(*pstate).pcorr = t
+		wizard_batch_update_ctable, pstate
 		end
+	
+	'rgb-table': begin
+		case tag_names( event, /structure_name) of
+			'WIDGET_TABLE_CELL_SEL': begin
+				(*pstate).rsel.left = event.sel_left
+				(*pstate).rsel.top = event.sel_top
+				(*pstate).rsel.right = event.sel_right
+				(*pstate).rsel.bottom = event.sel_bottom
+				help, (*pstate).rsel
+				end
+				
+			'WIDGET_TABLE_TEXT_SEL': begin
+				help,event,/str
+				end
+			else:
+		endcase
+		end
+
+	'rgb-r-element': begin
+		(*pstate).r_element_mode = event.index
+		end
+	
+	'rgb-g-element': begin
+		(*pstate).g_element_mode = event.index
+		end
+	
+	'rgb-b-element': begin
+		(*pstate).b_element_mode = event.index
+		end
+	
+	'rgb-add-button': begin
+		if typevar(*(*pstate).pcel) ne 'STRING' then begin
+			warning,'Batch Wizard','Need to load a template DAI file on tab 1 first.'
+			return
+		endif
+		r = (*(*pstate).pcel)[(*pstate).r_element_mode]
+		g = (*(*pstate).pcel)[(*pstate).g_element_mode]
+		b = (*(*pstate).pcel)[(*pstate).b_element_mode]
+		widget_control, (*pstate).rgb_zoom_text, get_value=s
+		izoom = clip( fix2(s), -5,2)
+		t = *(*pstate).prgb
+		if typevar(t) ne 'STRUCT' then begin
+			t = [{r:r, g:g, b:b, zoom:izoom}]
+		endif else begin
+			t = [t, {r:r, g:g, b:b, zoom:izoom}]
+		endelse
+		*(*pstate).prgb = t
+		wizard_batch_update_rgb_table, pstate
+		end
+
+	'rgb-delete-button': begin
+		t = *(*pstate).prgb
+		n = n_elements(t)
+		if n eq 0 then return
+		if typevar(t) ne 'STRUCT' then return
+		i = clip( (*pstate).rsel.top, 0,n-1)
+		if (i eq 0) then begin
+			t = t[1:n-1]
+		endif else if (i gt 0) and (i lt n-1) then begin
+			t = [t[0:i-1], t[i+1:n-1]]
+		endif else if (i eq n-1) then begin
+			t = t[0:i-1]
+		endif
+		*(*pstate).prgb = t
+		wizard_batch_update_rgb_table, pstate
+		end
+
+	'rgb-clear-button': begin
+		*(*pstate).prgb = ''
+		wizard_batch_update_rgb_table, pstate
+		end
+
+	'rgb-save-button': begin
+		end
+
+;	'detector-mode': begin
+;		n = n_elements(*(*pstate).detector_list)
+;		if n lt 1 then goto, finish
+;		(*pstate).detector_mode = event.index < (n-1)
+;		wizard_batch_update_plots, pstate
+;		end
+
+;	'detector-new-mode': begin
+;		n = n_elements(*(*pstate).detector_list)
+;		if n lt 1 then goto, finish
+;		(*pstate).detector_new_mode = event.index < (n-1)
+;		wizard_batch_update_plots, pstate
+;		end
 
 	'back-button': begin
 		(*pstate).tab = clip( (*pstate).tab-1, 0, n_elements((*pstate).tab_names)-1)
 		widget_control, (*pstate).tab_panel, set_tab_current=(*pstate).tab
-		wizard_standards_update_info, pstate
+		wizard_batch_update_info, pstate
 		end
 		
 	'next-button': begin
 		(*pstate).tab = clip( (*pstate).tab+1, 0, n_elements((*pstate).tab_names)-1)
 		widget_control, (*pstate).tab_panel, set_tab_current=(*pstate).tab
-		wizard_standards_update_info, pstate
+		wizard_batch_update_info, pstate
 		end
 		
 	'figure-button': begin
-		wizard_standards_update_info, pstate, /force
+		wizard_batch_update_info, pstate, /force
 		end
 		
 	else:
@@ -555,10 +745,10 @@ done:
 	goto, kill
 
 bad_state:
-	warning,'wizard_standards_event',['STATE variable has become ill-defined.','Abort Wizard.'],/error
+	warning,'wizard_batch_event',['STATE variable has become ill-defined.','Abort Wizard.'],/error
 	goto, kill
 bad_ptr:
-	warning,'wizard_standards_event',['Parameter structure variable has become ill-defined.','Abort Wizard.'],/error
+	warning,'wizard_batch_event',['Parameter structure variable has become ill-defined.','Abort Wizard.'],/error
 	goto, kill
 
 ; Free memory and exit cleanly ...
@@ -568,14 +758,15 @@ kill:
 
 	if ptr_valid( (*pstate).path) then ptr_free, (*pstate).path
 	if ptr_valid( (*pstate).root) then ptr_free, (*pstate).root
-	if ptr_valid( (*pstate).pconfig) then ptr_free, (*pstate).pconfig
+;	if ptr_valid( (*pstate).pconfig) then ptr_free, (*pstate).pconfig
 	if ptr_valid( (*pstate).presults) then ptr_free, (*pstate).presults
 	if ptr_valid( (*pstate).ptitle) then ptr_free, (*pstate).ptitle
 
 	if ptr_valid( (*pstate).ptype) then ptr_free, (*pstate).ptype
 	if ptr_valid( (*pstate).pheadings) then ptr_free, (*pstate).pheadings
-	if ptr_valid( (*pstate).psheadings) then ptr_free, (*pstate).psheadings
-	if ptr_valid( (*pstate).detector_list) then ptr_free, (*pstate).detector_list
+	if ptr_valid( (*pstate).pcheadings) then ptr_free, (*pstate).pcheadings
+	if ptr_valid( (*pstate).prheadings) then ptr_free, (*pstate).prheadings
+;	if ptr_valid( (*pstate).detector_list) then ptr_free, (*pstate).detector_list
 
 	if ptr_valid( (*pstate).windows_open[0]) then ptr_free, (*pstate).windows_open
 
@@ -604,7 +795,7 @@ end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards_callback_image_done, pstate, pep, error=error
+pro wizard_batch_callback_image_done, pstate, pep, error=error
 
 ; Callback to: After image done, check loop and do the next one.
 ; 'pep'	event.pointer returned in Notify, points to wizard_notify struct
@@ -622,7 +813,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_callback_image_done',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_callback_image_done',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -664,18 +855,32 @@ endif
 				if nq gt 0 then (*p)[q].throttle = (*pret).throttle.new					
 			endif
 		endif
-		wizard_standards_update_table, pstate
-		wizard_standards_update_stats, pstate
+		if (*pret).dam.new ne '' then begin
+			q = where( *(*pstate).ptitle eq 'DAM', nq)
+			if nq gt 0 then begin
+				q = where( (*p)[*].dam eq (*pret).dam.old, nq)
+				if nq gt 0 then (*p)[q].dam = (*pret).dam.new					
+			endif
+		endif
+
+		(*p)[ (*pstate).index].conv = 0.99			; as a test
+
+		wizard_batch_update_table, pstate
+;		wizard_batch_update_stats, pstate
 		ptr_free, pret
 	endif
 	
+;	Next row?			put this here for now. Needs to in callback after LAST operations later ...
+	
+	(*pstate).loop += 1
+	wizard_batch_process_blog, pstate, error=error
 	error = 0
 	return
 end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards_callback_region_done, pstate, pep, error=error
+pro wizard_batch_callback_region_done, pstate, pep, error=error
 
 ; Callback to: After region done, access results and calculate 'conv'
 
@@ -692,7 +897,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_callback_region_done',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_callback_region_done',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -705,7 +910,7 @@ endif
 	pd = (*(*pep).pdata).presults						; results from region
 	local = (*(*pep).pdata).local						; is it managed here?
 	if ptr_good(pd) eq 0 then begin
-		warning,'wizard_standards_callback_region_done','Pointer bad in region results return (local='+str_tidy(local)+').'
+		warning,'wizard_batch_callback_region_done','Pointer bad in region results return (local='+str_tidy(local)+').'
 		return
 	endif
 	
@@ -718,50 +923,50 @@ endif
 
 	q1 = where( *(*pd).el eq row.el, nq1)
 	if nq1 eq 0 then begin
-		warning,'wizard_standards_callback_region_done','Element "'+row.el+'" not found in region results.'
+		warning,'wizard_batch_callback_region_done','Element "'+row.el+'" not found in region results.'
 		return
 	endif
 
 ;	Find matching standard specification (remember that 'el' is based on standard spec) ...
 
-	q2 = wizard_standards_find_match( pstate, row.name, row.serial, row.detector, row.energy, error=error)
-	if error then begin
-		warning,'wizard_standards_callback_region_done','Standards spec: "'+row.name+','+row.serial+','+row.detector+','+std_tidy(row.eenergy)+'" not found in "standards.csv" config file.'
-		return
-	endif
+;	q2 = wizard_batch_find_match( pstate, row.name, row.serial, row.detector, row.energy, error=error)
+;	if error then begin
+;		warning,'wizard_batch_callback_region_done','Standards spec: "'+row.name+','+row.serial+','+row.detector+','+std_tidy(row.eenergy)+'" not found in "standards.csv" config file.'
+;		return
+;	endif
 
 ;	copy_pointer_data, pd, pt, /init					; for testing, to examine *pd (pointer becomes invalid in debug)
 
 ;	Ratio of conc to expected ...
 
-	r = (*(*pd).conc)[q1[0]] / (1.e+4 * (*pc)[q2[0]].conc)
-	(*(*pstate).presults)[ (*pstate).index].conv = r * (*pd).IC.conversion
-	wizard_standards_update_table, pstate
-
-;	Stats table ...
-
-	(*(*pstate).presults)[ (*pstate).index].mean = (*(*pd).conc)[q1[0]] / r
-	(*(*pstate).presults)[ (*pstate).index].error = (*(*pd).error)[q1[0]] / r
-	(*(*pstate).presults)[ (*pstate).index].sd = (*(*pd).sd)[q1[0]] / r
-	(*(*pstate).presults)[ (*pstate).index].relsd = (*(*pd).relsd)[q1[0]]
-	wizard_standards_update_stats, pstate
-	
-;	plots ...
-
-	wizard_standards_update_plots, pstate
-	wizard_standards_update_export, pstate
+;	r = (*(*pd).conc)[q1[0]] / (1.e+4 * (*pc)[q2[0]].conc)
+;	(*(*pstate).presults)[ (*pstate).index].conv = r * (*pd).IC.conversion
+;	wizard_batch_update_table, pstate
+;
+;;	Stats table ...
+;
+;	(*(*pstate).presults)[ (*pstate).index].mean = (*(*pd).conc)[q1[0]] / r
+;	(*(*pstate).presults)[ (*pstate).index].error = (*(*pd).error)[q1[0]] / r
+;	(*(*pstate).presults)[ (*pstate).index].sd = (*(*pd).sd)[q1[0]] / r
+;	(*(*pstate).presults)[ (*pstate).index].relsd = (*(*pd).relsd)[q1[0]]
+;	wizard_batch_update_stats, pstate
+;	
+;;	plots ...
+;
+;	wizard_batch_update_plots, pstate
+;	wizard_batch_update_export, pstate
 	
 ;	Next row?
 	
 	(*pstate).loop += 1
-	wizard_standards_process_blog, pstate, error=error
+	wizard_batch_process_blog, pstate, error=error
 	error = 0
 	return
 end
 
 ;---------------------------------------------------------------------------------------------------
 
-function wizard_standards_find_config, pstate, row, error=error
+function wizard_batch_find_config, pstate, row, error=error
 
 ; Look for this table row in the stds config rows.
 
@@ -777,7 +982,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_find_config',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_find_config',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -788,7 +993,7 @@ endif
 	error = 1
 	f = ''
 
-	j = wizard_standards_find_match( pstate, row.name, row.serial, row.detector, row.energy, error=error)
+	j = wizard_batch_find_match( pstate, row.name, row.serial, row.detector, row.energy, error=error)
 
 	if error eq 0 then begin
 		senergy = strtrim(round(1000.*(*(*pstate).pconfig)[j].energy),2) + 'eV'
@@ -801,7 +1006,7 @@ end
 
 ;--------------------------------------------------------------------------
 
-function wizard_standards_find_match, pstate, sample, serial, detector, energy, error=error
+function wizard_batch_find_match, pstate, sample, serial, detector, energy, error=error
 
 ; Look for these details in the stds config rows.
 
@@ -817,7 +1022,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_find_match',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_find_match',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -852,7 +1057,7 @@ end
 
 ;--------------------------------------------------------------------------
 
-function wizard_standards_output_file, pstate, blog, error=err
+function wizard_batch_output_file, pstate, blog, error=err
 	
 ; Determine the matching output file or path appropriate for 'blog'.
 ; If 'blog' is a raw path, return the new path. If a file, return new DAI file name.
@@ -869,7 +1074,7 @@ function wizard_standards_output_file, pstate, blog, error=err
 	       n = n_elements(s)
 	       c = 'Call stack: '
 	       if n gt 2 then c = [c, s[1:n-2]]
-	       warning,'wizard_standards_output_file',['IDL run-time error caught.', '', $
+	       warning,'wizard_batch_output_file',['IDL run-time error caught.', '', $
 	          'Error:  '+strtrim(!error_state.name,2), $
 	          !error_state.msg,'',c], /error
 	       MESSAGE, /RESET
@@ -900,7 +1105,7 @@ end
 
 ;------------------------------------------------------------------------------------------
 
-function wizard_standards_read_config, file, error=err
+function wizard_batch_read_config, file, error=err
 	
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -914,7 +1119,7 @@ function wizard_standards_read_config, file, error=err
 	       n = n_elements(s)
 	       c = 'Call stack: '
 	       if n gt 2 then c = [c, s[1:n-2]]
-	       warning,'wizard_standards_read_config',['IDL run-time error caught.', '', $
+	       warning,'wizard_batch_read_config',['IDL run-time error caught.', '', $
 	          'Error:  '+strtrim(!error_state.name,2), $
 	          !error_state.msg,'',c], /error
 	       MESSAGE, /RESET
@@ -952,7 +1157,7 @@ function wizard_standards_read_config, file, error=err
 			config = [config, entries]
 		endelse
 		if error then begin
-			warning,'wizard_standards_read_config','Illegal character in "float" value in config file.'
+			warning,'wizard_batch_read_config','Illegal character in "float" value in config file.'
 		endif
 	endwhile
 	err = 0
@@ -961,18 +1166,18 @@ finish:
 	return, (n_elements(config) eq 0) ? 0 : config
 	
 bad_file:
-	warning,'wizard_standards_read_config','Failed to open standards config file '+file
+	warning,'wizard_batch_read_config','Failed to open standards config file '+file
 	return, 0
 bad_format:
-	warning,'wizard_standards_read_config','Bad format in standards config file '+file
+	warning,'wizard_batch_read_config','Bad format in standards config file '+file
 	goto, finish
 end
 
 ;--------------------------------------------------------------------------
 
-function wizard_standards_scan_dir, pstate, title=title, type=type, error=error
+function wizard_batch_scan_dir, pstate, title=title, type=type, error=error
 
-; Scan selected raw dir for standards runs to populate the Table.
+; Scan selected raw dir for runs to populate the Table.
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -986,7 +1191,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_scan_dir',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_scan_dir',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -996,22 +1201,6 @@ endif
 if n_elements(silent) eq 0 then silent=0
 
 	error = 1
-	config = wizard_standards_read_config( fix_path((*pstate).resource_dir)+'standards'+path_sep()+'standards.csv', error=err)
-	if err then return, 0
-	
-	pc = (*pstate).pconfig
-	*pc = config
-	
-;	Config entries look like:
-;	entries = {Name:'', Serial:'', areal:0.0, el:'', conc:0.0, detector:'', energy:0.0, dam:''}
-
-;	if silent then begin
-;		rmin = (*pstate).run_min
-;		rmax = (*pstate).run_max
-;		use_range = 0
-;		if (*pstate).run_max gt 0 then use_range=1
-;		goto, cont
-;	endif
 
 	drop = ['Use all event/ run files','Filter numeric event file (run) names']
 	help_drop = 'For numeric event file names, using run numbers, you can choose a range within min/max run numbers.'
@@ -1030,28 +1219,32 @@ if n_elements(silent) eq 0 then silent=0
 	if rmax eq 0 then rmax = 10000000L
 
 cont:
-	p = scan_dir_evt( (*pstate).blog_dir, *(*pstate).pDevObj, ppath=(*pstate).path, proot=(*pstate).root, rmin=rmin, rmax=rmax, error=err)
+	p = scan_dir_evt( /image, (*pstate).blog_dir, dai_dir=(*pstate).output_dir, *(*pstate).pDevObj, ppath=(*pstate).path, proot=(*pstate).root, rmin=rmin, rmax=rmax, error=err)
 	if err then return, 0
 
 	nb = n_elements(p)
 	if nb eq 0 then begin
-		warning,'wizard_standards_scan_dir','No standards raw files found in - '+(*pstate).blog_dir
+		warning,'wizard_batch_scan_dir','No raw files found in - '+(*pstate).blog_dir
 		return, 0
 	endif
 	blog = strarr(nb)
-	for i=0,nb-1 do blog[i] = (*p[i]).file
+	dam = strarr(nb)
+	for i=0,nb-1 do begin
+		blog[i] = (*p[i]).file				; raw data file
+		dam[i] = (*p[i]).dam				; initial DAM file (from DAI file)
+	endfor
 	
 	for i=0,nb-1 do begin
 		mp = get_header_info( *(*pstate).pDevObj, blog[i], error=err)	; output=output, silent=silent
 		if err then begin
-			warning,'wizard_standards_scan_dir','Error in header read for file: '+blog[i]
+			warning,'wizard_batch_scan_dir','Error in header read for file: '+blog[i]
 			return, 0
 		endif
 		
 		detector = mp.metadata.detector_identity
 		serial = mp.metadata.sample_serial
 		sample_type = mp.metadata.sample_type
-		if sample_type ne 'standard' then continue			; filter here on 'standard_type' = "standard"
+;		if sample_type eq 'standard' then continue			; skip 'standard_type' = "standard"
 
 		energy = mp.energy
 		sample = mp.sample
@@ -1071,28 +1264,28 @@ cont:
 
 		if gain lt 1.0e-6 then begin
 			gain = 1.0										; is this a good idea?
-			print, '** wizard_standards_scan_dir: gain was zero, so set it to 1.0 to continue.'
+			print, '** wizard_batch_scan_dir: gain was zero, so set it to 1.0 to continue.'
 		endif
 		
 		el = ''
-		j = wizard_standards_find_match( pstate, sample, serial, detector, energy, error=err)
-		if err eq 0 then begin
-			el = (*pc)[j].el
-		endif
+;		j = wizard_batch_find_match( pstate, sample, serial, detector, energy, error=err)
+;		if err eq 0 then begin
+;			el = (*pc)[j].el
+;		endif
 
 ;		This defines the names and types of the columns of the table struct.
 ;		It must match the order of entries in the row struct of the table.
-;		This is NOT the selection of the columns as shown. See "wizard_standards_update_table" for that.
+;		This is NOT the selection of the columns as shown. See "wizard_batch_update_table" for that.
 
-		title = ['On','Raw','Name','Serial','Detector','Energy','Xsize','Ysize','PV name','IC Gain','El','Pileup','Throttle', $
+		title = ['On','Raw','DAM', 'Name','Serial','Detector','Energy','Xsize','Ysize','PV name','IC Gain','El','Pileup','Throttle', $
 				'Conv','Mean','Error','Std.Dev','SD/Error']
-		type = ['toggle','file','string','string','string','float','int','int','string','float','string','file','file', $
+		type = ['toggle','file','string','string','string','string','float','int','int','string','float','string','file','file', $
 				'float','float','float','float','float']
 		
-		row = {on:1, blog:blog[i], name:sample, serial:serial, detector:detector, energy:energy, xsize:xsize, ysize:ysize, $
+		row = {on:1, blog:blog[i], dam:dam[i], name:sample, serial:serial, detector:detector, energy:energy, xsize:xsize, ysize:ysize, $
 			pv:pv, gain:gain, el:el, pileup:pileup, throttle:throttle, conv:0.0, mean:0.0, error:0.0, sd:0.0, relsd:0.0}
 		
-		if wizard_standards_test_row( row) eq 0 then row.on=0
+		if wizard_batch_test_row( row) eq 0 then row.on=0
 
 		if n_elements(table) lt 1 then begin
 			table = row
@@ -1107,7 +1300,229 @@ end
 
 ;--------------------------------------------------------------------------
 
-function wizard_standards_test_row, row, error=error
+pro wizard_batch_load_template, pstate, error=error
+
+; Load the template DAI file and scan it for defaults for sorting.
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_load_template',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+      return
+    endif
+endif
+if n_elements(silent) eq 0 then silent=0
+
+	error = 1
+	p = read_geopixe_image( (*pstate).template_sort_dai, error=err)
+	if err then return
+
+	(*pstate).pdai = p
+	nel = (*p).n_el
+	if nel eq 0 then return
+	*(*pstate).pcel = *(*p).el
+	
+	error = 0	
+	return
+end
+
+;--------------------------------------------------------------------------
+
+function wizard_batch_load_corr, pstate, title=title, type=type, element=element, error=error
+
+; Load the template DAI file and scan it for image correction history to populate the Table.
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_load_corr',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+      return, 0
+    endif
+endif
+if n_elements(silent) eq 0 then silent=0
+
+	error = 1
+	p = read_geopixe_image( (*pstate).template_corrections_dai, error=err)
+	if err then return, 0
+
+	nel = (*p).n_el
+	if nel eq 0 then return, 0
+
+	start = 1
+	for i=0,nel-1 do begin
+		first = 1
+
+;		This defines the names and types of the columns of the Corr struct.
+;		It must match the order of entries in the row struct of the corr table.
+;		This is NOT the selection of the columns as shown. See "wizard_batch_update_ctable" for that.
+
+		title = ['El','History','Bottom','Top','Log']
+		type = ['string','string','int','int','int']
+		element = *(*p).el
+		
+		phist = (*(*p).history)[i]
+		if ptr_good(phist) eq 0 then continue
+		nhist = n_elements(*phist)
+		for j=0,nhist-1 do begin
+			s = hide_embedded( (*phist)[j], ' ')
+			sub = strsplit( s, ',:()', /extract, count=n_sub)
+			hist = sub[0]
+			OK = 0
+
+			if strlowcase(hist) eq 'plugin' then begin
+				OK = 1
+			endif else if hist eq 'inter-element' then begin
+				OK = 1
+			endif else begin
+
+;				Look for other processing commands, as listed in the 'image_process' routine list.
+;				"*" indicates an operation that gets applied to all element planes.
+;				If one particular element must be displayed to do this, it is put in brackets "[]".
+;				Else, this is done for element i=0.
+
+				skip_el = 0
+				if strmid(hist,0,1) eq '*' then begin
+					l1 = locate('[',s)
+					l2 = locate(']',s)
+					if (l1 ge 0) and (l2 ge 0) and (l2 gt l1+1) then begin
+						tag = strmid( s,l1+1,l2-l1-1)
+						if (*(*p).el)[i] ne tag then skip_el=1
+						hist = strmid( s,0,l1-1)
+					endif else begin
+						if not start then skip_el=1
+					endelse
+				endif
+				OK = (skip_el eq 0)
+			endelse
+
+			if OK then begin
+				row = {el:(*(*p).el)[i], history:s, bottom:(*(*p).options)[i].bottom, $
+					top:(*(*p).options)[i].top, log:(*(*p).options)[i].log}
+				
+				if n_elements(table) lt 1 then begin
+					table = row
+				endif else begin
+					table = [table, row]
+				endelse		
+			endif
+		endfor
+	endfor
+	
+	if n_elements(table) ge 1 then error = 0	
+	return, (error ? 0 : table)
+end
+
+;--------------------------------------------------------------------------
+
+function wizard_batch_load_rgb, pstate, title=title, type=type, error=error
+
+; Load the RGB Export file and scan it for export combinations to populate the Table.
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_load_rgb',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+      return, 0
+    endif
+endif
+if n_elements(silent) eq 0 then silent=0
+
+	error = 1
+	if (*pstate).template_rgb_export eq '' then return, 0
+		
+	on_ioerror, bad_file
+	openr, unit, (*pstate).template_rgb_export, /get_lun
+
+	list = replicate( {r:'', g:'', b:'', zoom:0}, 200)
+	s = ''
+	on_ioerror, cont
+	for i=0,199 do begin
+		readf, unit, s
+		str = strsplit( s, ', 	', /extract, count=ns)
+		if ns eq 0 then goto, cont
+		if ns lt 4 then begin
+			warning,'wizard_batch_load_rgb','Bad file format.'
+			goto, bad_file
+		endif
+		list[i].r = str[0]
+		list[i].g = str[1]
+		list[i].b = str[2]
+		list[i].zoom = fix2(str[3])
+	endfor
+cont:
+	q = where( list.r ne '', nq)
+	if nq eq 0 then goto, bad_file
+	list = list[q]
+	*(*pstate).prgb = list
+	close_file, unit
+
+	start = 1
+	for i=0,nq-1 do begin
+		first = 1
+
+;		This defines the names and types of the columns of the Corr struct.
+;		It must match the order of entries in the row struct of the corr table.
+;		This is NOT the selection of the columns as shown. See "wizard_batch_update_ctable" for that.
+
+		title = ['R','G','B','Zoom']
+		type = ['string','string','string','int']
+		
+		row = {R:list[i].r, G:list[i].g, B:list[i].b, Zoom:list[i].zoom}
+		
+		if n_elements(table) lt 1 then begin
+			table = row
+		endif else begin
+			table = [table, row]
+		endelse		
+	endfor
+	
+	if n_elements(table) ge 1 then error = 0	
+	return, (error ? 0 : table)
+
+bad_file:
+	close_file, unit
+	return, 0
+end
+
+;--------------------------------------------------------------------------
+
+function wizard_batch_test_row, row, error=error
 
 ; Test a table row for completeness.
 
@@ -1123,7 +1538,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_test_row',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_test_row',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -1138,8 +1553,10 @@ endif
 	error = 1
 
 ;	Removed (row.serial ne '') from this test ...
-	if (row.blog ne '') and (row.detector ne '') and (row.energy ne 0.) and   $
-			(row.gain ne 0.) and (row.el ne '') then begin
+;	if (row.blog ne '') and (row.detector ne '') and (row.energy ne 0.) and   $		; from standards wizard
+;			(row.gain ne 0.) and (row.el ne '') then begin
+
+	if (row.blog ne '') then begin
 		error = 0
 		return, 1
 	endif 
@@ -1150,15 +1567,15 @@ end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards_process_blog, pstate, error=error
+pro wizard_batch_process_blog, pstate, error=error
 
 ; For a single raw file, do the following:
 ;	1. Form DAI image file for standard 
 ;			Update pileup, throttle file paths
-;			(done in "wizard_standards_callback_image_done" on reply)
+;			(done in "wizard_batch_callback_image_done" on reply)
 ;	2. Set and integrate Region
 ;			Based on conc for element, calculate 'conv' 
-;			(done in "wizard_standards_callback_region_done" on reply)
+;			(done in "wizard_batch_callback_region_done" on reply)
 ;	
 ; Later will also need to redo and save Region and Update DAI with the new 'conv' and new charge.
 
@@ -1174,7 +1591,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_process_blog',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_process_blog',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -1192,42 +1609,40 @@ endif
 	if ptr_good(p) eq 1 then begin
 		if size( (*p)[0],/tname) eq 'STRUCT' then begin
 			no_data = 0
-			q = where( (*p)[*].on eq 1, n) 
+			q = where( (*p)[*].on eq 1, n) 				; ignores 'Off', 'Done', 'Error'
 		endif
 	endif
 	
-	i = (*pstate).loop						; our loop index
+	i = (*pstate).loop									; our loop index
 	if i ge n then return
 	j = q[i]
 	(*pstate).index = j
 	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
 	
-	output = wizard_standards_output_file( pstate, (*p)[j].blog, error=err)
+	output = wizard_batch_output_file( pstate, (*p)[j].blog, error=err)
 	if err then begin
-		warning,'wizard_standards_process_blog','Unable to form output file for raw: '+ strip_file_ext(strip_path((*p)[j].blog))
+		warning,'wizard_batch_process_blog','Unable to form output file for raw: '+ strip_file_ext(strip_path((*p)[j].blog))
 		return
 	endif
 	
-	da_file = wizard_standards_find_config( pstate, (*p)[j], error=err)
-	if err then begin
-		s = ['Check for the following in the "standards.csv" file: ','Name = '+(*p)[j].name, 'Serial number = '+(*p)[j].serial, $
-				'Energy = '+str_tidy((*p)[j].energy), 'Detector = '+(*p)[j].detector,'Note that name matches are case-sensitive.']
-		warning,'wizard_standards_process_blog',['No match found in config file for raw: '+ strip_file_ext(strip_path((*p)[j].blog)),'',s]
-		return
-	endif
-	
+;	Update DAM file details from the "template DAI file" field and set '(*p)[j].dam'.
+;	No, because this ignores the mechanism to update files not found and returned as the 'new' filenames.
+;	So, don't do this in this loop jere. Instead, set all '(*p)[j].dam' in this sequence:
+;	1. After 'scan_dir_evt', which will return DAM files in DAI file.
+
+
 	gain_value = charge_gain_units( (*p)[j].gain, units=gain_units)
 	if gain_value eq 0.0 then begin
-		warning,'wizard_standards_process_blog','Missing valid "IC Gain" value.'
+		warning,'wizard_batch_process_blog','Missing valid "IC Gain" value.'
 		return
 	endif
 	
 	wz = define(/wizard_notify)
-	wz.wizard = 'standards'
+	wz.wizard = 'batch'
 	wz.window = 'Sort EVT'								; Sort image
 	wz.command = 'sort-image'
 	wz.pdata = ptr_new( {	$
-		device:			(*(*pstate).pDevObj)->name(), $		; device name
+		device:			(*(*pstate).pDevObj)->name(), $	; device name
 		image_mode:		0, $							; sort mode (images)
 		type:			7, $							; SXRF data type
 		array:			1, $							; array detector
@@ -1236,7 +1651,7 @@ endif
 		throttle:		(*p)[j].throttle, $				; throttle file
 		output:			output, $						; output file
 		load:			1, $							; load image file if exists
-		skip:			1, $							; skip sort if exists already
+		skip:			0, $							; skip sort if exists already
 		verify:			1, $							; enable file verification
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			1.0, $							; initial 'conv'
@@ -1246,44 +1661,44 @@ endif
 		gain_units:		gain_units, $					; for gain in 'nA/V' 
 		cal:			(*pstate).energy_cal_file, $	; energy calibration file
 		proj_mode:		'DA', $							; DA projection mode
-		dam:			da_file }, /no_copy)			; DA matrix file
+		dam:			(*p)[j].dam }, /no_copy)		; DA matrix file
 	wz.local = 1
-	wz.callback = 'wizard_standards_callback_image_done'
+	wz.callback = 'wizard_batch_callback_image_done'
 	pw = ptr_new(wz, /no_copy)
 	p0 = pw									; first one
 	pl = pw									; current one
 	
-	margin = 0.025							; 2.5% margin
-	Xs = (*p)[j].xsize
-	Ys = (*p)[j].ysize
-	dX = fix( margin * Xs) > 2 				; margin (must be at least 2 pixels each side)
-	dY = fix( margin * Ys) > 1 				; margin (must miss at least 1 row, top and bottom)
-	
-	x = [dX, Xs-1-dX, Xs-1-dX, dX]			; corners
-	x = [x, mean(x), (2*x[1]+mean(x))/3]	; plus centre handle and angle handle
-	y = [dY, dY, Ys-1-dY, Ys-1-dY]
-	y = [y, mean(y), (2*y[1]+mean(y))/3]
-	theta = 0.								; rotation angle
-	
-	wz = define(/wizard_notify)
-	wz.wizard = 'standards'
-	wz.window = 'Image'						; sum Box region
-	wz.command = 'sum-region'
-	wz.pdata = ptr_new( {	$
-		mode:			0, $				; "+" sum mode
-		shape:			1, $				; Box shape index
-		x:				x, $				; X handles
-		y:				y, $				; Y handles
-		theta:			theta, $		 	; Rotation angle
-		get_stats:		1, $				; we need stats calculated and returned
-		uniform_element: (*p)[j].el, $		; element to test for uniformity
-		presults:		ptr_new(/allocate_heap), $		; will return region results here
-		local:			1 }, /no_copy)		; if zero, 'presults' managed elsewhere
-	wz.local = 1
-	wz.callback = 'wizard_standards_callback_region_done'
-	pw = ptr_new(wz, /no_copy)
-	(*pl).pnext = pw						; link current one to this 'next' one
-	pl = pw									; current one
+;	margin = 0.025							; 2.5% margin
+;	Xs = (*p)[j].xsize
+;	Ys = (*p)[j].ysize
+;	dX = fix( margin * Xs) > 2 				; margin (must be at least 2 pixels each side)
+;	dY = fix( margin * Ys) > 1 				; margin (must miss at least 1 row, top and bottom)
+;	
+;	x = [dX, Xs-1-dX, Xs-1-dX, dX]			; corners
+;	x = [x, mean(x), (2*x[1]+mean(x))/3]	; plus centre handle and angle handle
+;	y = [dY, dY, Ys-1-dY, Ys-1-dY]
+;	y = [y, mean(y), (2*y[1]+mean(y))/3]
+;	theta = 0.								; rotation angle
+;	
+;	wz = define(/wizard_notify)
+;	wz.wizard = 'batch'
+;	wz.window = 'Image'						; sum Box region
+;	wz.command = 'sum-region'
+;	wz.pdata = ptr_new( {	$
+;		mode:			0, $				; "+" sum mode
+;		shape:			1, $				; Box shape index
+;		x:				x, $				; X handles
+;		y:				y, $				; Y handles
+;		theta:			theta, $		 	; Rotation angle
+;		get_stats:		1, $				; we need stats calculated and returned
+;		uniform_element: (*p)[j].el, $		; element to test for uniformity
+;		presults:		ptr_new(/allocate_heap), $		; will return region results here
+;		local:			1 }, /no_copy)		; if zero, 'presults' managed elsewhere
+;	wz.local = 1
+;	wz.callback = 'wizard_batch_callback_region_done'
+;	pw = ptr_new(wz, /no_copy)
+;	(*pl).pnext = pw						; link current one to this 'next' one
+;	pl = pw									; current one
 
 ;	The first wizard data pointer is still in use, so we use a new one for the next row ...	
 	
@@ -1304,7 +1719,7 @@ end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards_update_info, pstate, force=force
+pro wizard_batch_update_info, pstate, force=force
 
 ; Update info text and figure table
 
@@ -1321,7 +1736,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_update_info',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_update_info',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -1331,17 +1746,17 @@ endif
 if n_elements(force) eq 0 then force=0
 
 	i = (*pstate).tab < (n_elements((*pstate).tab_names)-1)
-	file = geopixe_root+'wizard/wizard_standards-' + (*pstate).tab_names[i] + '.txt'
+	file = geopixe_root+'wizard/wizard_batch-' + (*pstate).tab_names[i] + '.txt'
 	list = wizard_instructions_file( file, error=err)
 	if err then begin
-		print,'Wizard_standards: text file not found: '+file
+		print,'Wizard_batch: text file not found: '+file
 	endif else begin
 		widget_control, (*pstate).instructions_text, set_value=list
 	endelse
 
 	if force or ((*pstate).tab_used[i] eq 0) then begin
-		file = geopixe_root + 'wizard/wizard_standards-' + (*pstate).tab_names[i] + '.png'
-		figure, file, group=(*pstate).tlb, title='Standards Wizard - Figure '+str_tidy(i+1)
+		file = geopixe_root + 'wizard/wizard_batch-' + (*pstate).tab_names[i] + '.png'
+		figure, file, group=(*pstate).tlb, title='Batch Wizard - Figure '+str_tidy(i+1)
 	endif
 	(*pstate).tab_used[i] = 1
 	return
@@ -1349,7 +1764,7 @@ end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards_update_export, pstate
+pro wizard_batch_update_export, pstate
 
 ; Export the results table
 
@@ -1366,7 +1781,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_update_export',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_update_export',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -1384,7 +1799,7 @@ endif
 		endif
 	endif
 	if n eq 0 then return
-	output = (*pstate).output_dir + 'wizard-standards-results.csv'
+	output = (*pstate).output_dir + 'wizard-batch-results.csv'
 	
 	on_ioerror, bad
 	openw, 1, output
@@ -1401,165 +1816,267 @@ finish:
 	close_file, 1
 	return
 bad:
-	warning,'wizard_standards_update_export','Failed to open output file: '+output
+	warning,'wizard_batch_update_export','Failed to open output file: '+output
 	goto, finish
 end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards_update_plots, pstate
-
-; Update results table
-
-COMPILE_OPT STRICTARR
-ErrorNo = 0
-common c_working_dir, geopixe_root
-common c_errors_1, catch_errors_on
-if catch_errors_on then begin
-    Catch, ErrorNo
-    if (ErrorNo ne 0) then begin
-       Catch, /cancel
-       on_error, 1
-       help, calls = s
-       n = n_elements(s)
-       c = 'Call stack: '
-       if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_update_plots',['IDL run-time error caught.', '', $
-          'Error:  '+strtrim(!error_state.name,2), $
-          !error_state.msg,'',c], /error
-       MESSAGE, /RESET
-       return
-    endif
-endif
-
-	no_data = 1
-	p = (*pstate).presults
-	n = 0
-	if ptr_good(p) eq 1 then begin
-		if size( (*p)[0],/tname) eq 'STRUCT' then begin
-			no_data = 0
-			n = n_elements( *p)
-		endif
-	endif
-	if n eq 0 then return
-	
-	conv = (*p).conv
-	q1 = where( (conv ne 0.), nq1)
-	if nq1 eq 0 then return
-	run = long(strip_file_ext(strip_path( (*p).blog)))
-	e = (*p).energy
-	el_code, (*p).el, el, z, shell, bad, error
-	eline = e_line( z, major_line( z, shell))
-
-	det0 = (*(*pstate).detector_list)[(*pstate).detector_mode]
-	det = (*(*pstate).detector_list)[(*pstate).detector_new_mode]
-	if (det0 ne '') and (det ne '') then begin
-		print,'Update_plots: Dets: ',det0,'  ',det
-		detector_update, present=det0, new=i, file=f
-		pdet0 = read_detector( f, error=error0)
-		if error0 then begin
-			warning, 'wizard_standards_update_plots','Error reading old Detectors file: '+det0, /error
-		endif
-		detector_update, present=det, new=i, file=f
-		pdet = read_detector( f, error=error)
-		if error then begin
-			warning, 'wizard_standards_update_plots','Error reading new Detectors file: '+det, /error
-		endif
-		 
-		if (error0 eq 0) and (error eq 0) then begin
-			eff0 = detector_efficiency( pdet0, null, eline, effective=aeff0, solid_angle=omega0)
-			eff = detector_efficiency( pdet, null, eline, effective=aeff, solid_angle=omega)
-			conv = conv * eff0/eff
-		endif
-	endif
-	
-	!x.title = 'Run #'
-	!y.title = '"Conv" Calibration Factor'
-	!p.title = ''
-	!p.charsize = 1.0
-	!p.thick = 1.0
-	!p.charthick = 1.0
-	xleg = 0.83
-	yleg = 0.16
-	dxleg = 0.02
-	dyleg = 0.05
-	wset, (*pstate).wid1
-	
-	dr = (max(run)-min(run))*0.03 > 2
-	xrange = [min(run)-dr, max(run)+dr]
-	yrange = [0.8*(min(conv[q1])>0),1.2*max(conv[q1])]
-	done = intarr(n)
-	q = indgen(n)
-	more = 1
-	count = 0
-	cols = ['green','red','yellow','orange','l.blue','violet','blue','grey','white','brown']
-	repeat begin
-		e1 = e[q[0]]
-		q0 = where( (e eq e1), nq0)
-		q1 = where( (e eq e1) and (conv ne 0.), nq1)
-		if count eq 0 then begin
-			plot, [run[0],run], [conv[0],conv], color=spec_colour('white'), ticklen=1.0, /nodata, $
-					xrange=xrange, yrange=yrange, xstyle=1,ystyle=1
-		endif
-		if nq1 gt 0 then begin
-			oplot, [run[q1[0]],run[q1]], [conv[q1[0]],conv[q1]], color=spec_colour(cols[count]), psym=-((count mod 7)+1)
-		endif
-		plots, xleg+[0,0],yleg+count*dyleg+[0.005,0.005],/norm, color=spec_colour(cols[count]), psym=((count mod 7)+1)
-		xyouts, xleg+dxleg, yleg+count*dyleg,/norm, str_tidy(e[q1[0]])
-		count = count+1
-		done[q0] = 1
-
-		q = where( done eq 0, more)
-	endrep until more eq 0
-	
-	q1 = where( (conv ne 0.) and (eline gt 0.), nq1)
-	if nq1 eq 0 then return
-
-	!x.title = 'Line Energy (keV)'
-	!y.title = '"Conv" Calibration Factor'
-	!p.title = ''
-	!p.charsize = 1.0
-	!p.thick = 1.0
-	!p.charthick = 1.0
-	xleg = 0.83
-	yleg = 0.16
-	dxleg = 0.02
-	dyleg = 0.05
-	wset, (*pstate).wid2
-	
-	dr = (max(eline)-min(eline))*0.03 > 0.5
-	xrange = [min(eline)-dr, max(eline)+dr]
-	yrange = [0.8*(min(conv[q1])>0),1.2*max(conv[q1])]
-	done = intarr(n)
-	q = indgen(n)
-	more = 1
-	count = 0
-	cols = ['green','red','yellow','orange','l.blue','violet','blue','grey','white','brown']
-	repeat begin
-		e1 = e[q[0]]
-		q0 = where( (e eq e1), nq0)
-		q1 = where( (e eq e1) and (conv ne 0.) and (eline gt 0.), nq1)
-		if count eq 0 then begin
-			plot, [eline[0],eline], [conv[0],conv], color=spec_colour('white'), ticklen=1.0, /nodata, $
-					xrange=xrange, yrange=yrange, xstyle=1,ystyle=1
-		endif
-		if nq1 gt 0 then begin
-			oplot, [eline[q1[0]],eline[q1]], [conv[q1[0]],conv[q1]], color=spec_colour(cols[count]), psym=-((count mod 7)+1)
-		endif
-		plots, xleg+[0,0],yleg+count*dyleg+[0.005,0.005],/norm, color=spec_colour(cols[count]), psym=((count mod 7)+1)
-		xyouts, xleg+dxleg, yleg+count*dyleg,/norm, str_tidy(e[q1[0]])
-		count = count+1
-		done[q0] = 1
-
-		q = where( done eq 0, more)
-	endrep until more eq 0
-	
-	return
-end
+;pro wizard_batch_update_plots, pstate
+;
+;; Update results table
+;
+;COMPILE_OPT STRICTARR
+;ErrorNo = 0
+;common c_working_dir, geopixe_root
+;common c_errors_1, catch_errors_on
+;if catch_errors_on then begin
+;    Catch, ErrorNo
+;    if (ErrorNo ne 0) then begin
+;       Catch, /cancel
+;       on_error, 1
+;       help, calls = s
+;       n = n_elements(s)
+;       c = 'Call stack: '
+;       if n gt 2 then c = [c, s[1:n-2]]
+;       warning,'wizard_batch_update_plots',['IDL run-time error caught.', '', $
+;          'Error:  '+strtrim(!error_state.name,2), $
+;          !error_state.msg,'',c], /error
+;       MESSAGE, /RESET
+;       return
+;    endif
+;endif
+;
+;	no_data = 1
+;	p = (*pstate).presults
+;	n = 0
+;	if ptr_good(p) eq 1 then begin
+;		if size( (*p)[0],/tname) eq 'STRUCT' then begin
+;			no_data = 0
+;			n = n_elements( *p)
+;		endif
+;	endif
+;	if n eq 0 then return
+;	
+;	conv = (*p).conv
+;	q1 = where( (conv ne 0.), nq1)
+;	if nq1 eq 0 then return
+;	run = long(strip_file_ext(strip_path( (*p).blog)))
+;	e = (*p).energy
+;	el_code, (*p).el, el, z, shell, bad, error
+;	eline = e_line( z, major_line( z, shell))
+;
+;	det0 = (*(*pstate).detector_list)[(*pstate).detector_mode]
+;	det = (*(*pstate).detector_list)[(*pstate).detector_new_mode]
+;	if (det0 ne '') and (det ne '') then begin
+;		print,'Update_plots: Dets: ',det0,'  ',det
+;		detector_update, present=det0, new=i, file=f
+;		pdet0 = read_detector( f, error=error0)
+;		if error0 then begin
+;			warning, 'wizard_batch_update_plots','Error reading old Detectors file: '+det0, /error
+;		endif
+;		detector_update, present=det, new=i, file=f
+;		pdet = read_detector( f, error=error)
+;		if error then begin
+;			warning, 'wizard_batch_update_plots','Error reading new Detectors file: '+det, /error
+;		endif
+;		 
+;		if (error0 eq 0) and (error eq 0) then begin
+;			eff0 = detector_efficiency( pdet0, null, eline, effective=aeff0, solid_angle=omega0)
+;			eff = detector_efficiency( pdet, null, eline, effective=aeff, solid_angle=omega)
+;			conv = conv * eff0/eff
+;		endif
+;	endif
+;	
+;	!x.title = 'Run #'
+;	!y.title = '"Conv" Calibration Factor'
+;	!p.title = ''
+;	!p.charsize = 1.0
+;	!p.thick = 1.0
+;	!p.charthick = 1.0
+;	xleg = 0.83
+;	yleg = 0.16
+;	dxleg = 0.02
+;	dyleg = 0.05
+;	wset, (*pstate).wid1
+;	
+;	dr = (max(run)-min(run))*0.03 > 2
+;	xrange = [min(run)-dr, max(run)+dr]
+;	yrange = [0.8*(min(conv[q1])>0),1.2*max(conv[q1])]
+;	done = intarr(n)
+;	q = indgen(n)
+;	more = 1
+;	count = 0
+;	cols = ['green','red','yellow','orange','l.blue','violet','blue','grey','white','brown']
+;	repeat begin
+;		e1 = e[q[0]]
+;		q0 = where( (e eq e1), nq0)
+;		q1 = where( (e eq e1) and (conv ne 0.), nq1)
+;		if count eq 0 then begin
+;			plot, [run[0],run], [conv[0],conv], color=spec_colour('white'), ticklen=1.0, /nodata, $
+;					xrange=xrange, yrange=yrange, xstyle=1,ystyle=1
+;		endif
+;		if nq1 gt 0 then begin
+;			oplot, [run[q1[0]],run[q1]], [conv[q1[0]],conv[q1]], color=spec_colour(cols[count]), psym=-((count mod 7)+1)
+;		endif
+;		plots, xleg+[0,0],yleg+count*dyleg+[0.005,0.005],/norm, color=spec_colour(cols[count]), psym=((count mod 7)+1)
+;		xyouts, xleg+dxleg, yleg+count*dyleg,/norm, str_tidy(e[q1[0]])
+;		count = count+1
+;		done[q0] = 1
+;
+;		q = where( done eq 0, more)
+;	endrep until more eq 0
+;	
+;	q1 = where( (conv ne 0.) and (eline gt 0.), nq1)
+;	if nq1 eq 0 then return
+;
+;	!x.title = 'Line Energy (keV)'
+;	!y.title = '"Conv" Calibration Factor'
+;	!p.title = ''
+;	!p.charsize = 1.0
+;	!p.thick = 1.0
+;	!p.charthick = 1.0
+;	xleg = 0.83
+;	yleg = 0.16
+;	dxleg = 0.02
+;	dyleg = 0.05
+;	wset, (*pstate).wid2
+;	
+;	dr = (max(eline)-min(eline))*0.03 > 0.5
+;	xrange = [min(eline)-dr, max(eline)+dr]
+;	yrange = [0.8*(min(conv[q1])>0),1.2*max(conv[q1])]
+;	done = intarr(n)
+;	q = indgen(n)
+;	more = 1
+;	count = 0
+;	cols = ['green','red','yellow','orange','l.blue','violet','blue','grey','white','brown']
+;	repeat begin
+;		e1 = e[q[0]]
+;		q0 = where( (e eq e1), nq0)
+;		q1 = where( (e eq e1) and (conv ne 0.) and (eline gt 0.), nq1)
+;		if count eq 0 then begin
+;			plot, [eline[0],eline], [conv[0],conv], color=spec_colour('white'), ticklen=1.0, /nodata, $
+;					xrange=xrange, yrange=yrange, xstyle=1,ystyle=1
+;		endif
+;		if nq1 gt 0 then begin
+;			oplot, [eline[q1[0]],eline[q1]], [conv[q1[0]],conv[q1]], color=spec_colour(cols[count]), psym=-((count mod 7)+1)
+;		endif
+;		plots, xleg+[0,0],yleg+count*dyleg+[0.005,0.005],/norm, color=spec_colour(cols[count]), psym=((count mod 7)+1)
+;		xyouts, xleg+dxleg, yleg+count*dyleg,/norm, str_tidy(e[q1[0]])
+;		count = count+1
+;		done[q0] = 1
+;
+;		q = where( done eq 0, more)
+;	endrep until more eq 0
+;	
+;	return
+;end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards_update_stats, pstate
+;pro wizard_batch_update_stats, pstate
+;
+;; Update results table
+;
+;COMPILE_OPT STRICTARR
+;ErrorNo = 0
+;common c_working_dir, geopixe_root
+;common c_errors_1, catch_errors_on
+;if catch_errors_on then begin
+;    Catch, ErrorNo
+;    if (ErrorNo ne 0) then begin
+;       Catch, /cancel
+;       on_error, 1
+;       help, calls = s
+;       n = n_elements(s)
+;       c = 'Call stack: '
+;       if n gt 2 then c = [c, s[1:n-2]]
+;       warning,'wizard_batch_update_stats',['IDL run-time error caught.', '', $
+;          'Error:  '+strtrim(!error_state.name,2), $
+;          !error_state.msg,'',c], /error
+;       MESSAGE, /RESET
+;       return
+;    endif
+;endif
+;
+;	no_data = 1
+;	p = (*pstate).presults
+;	n = 0
+;	if ptr_good(p) eq 1 then begin
+;		if size( (*p)[0],/tname) eq 'STRUCT' then begin
+;			no_data = 0
+;			n = n_elements( *p)
+;		endif
+;	endif
+;
+;case !version.os_family of
+;	'MacOS': begin
+;		ch_scale = 1.2
+;		end
+;	'unix': begin
+;		ch_scale = 1.2
+;		end
+;	else: begin
+;		ch_scale = 1.0
+;		end
+;endcase
+;
+;;	The heading labels chosen here need to be a subset of the 'title' strings for the tags in each
+;;	row struct of the results table (see 'wizard_batch_scan_dir'), except "#", which is the row index.
+;
+;	rows = string(indgen(n>1))
+;	headings = ['#', 'Raw','Name','Serial', 'Energy','El', 'Mean','Error','Std.Dev','SD/Error']
+;	nc = n_elements(headings)
+;	widths = [3, 7,5,9, 7,4, replicate(10,nc-6)] * !d.x_ch_size * ch_scale
+;	t = strarr(nc,256)
+;	
+;	if no_data eq 0 then begin
+;		for i=0,n-1 do begin
+;			t[0,i] = str_tidy(i)									; first column is just index #
+;			
+;			for j=1,nc-1 do begin
+;				q = where( headings[j] eq *(*pstate).ptitle, nq)	; Find heading in list of tag name 'titles'
+;				if nq gt 0 then begin								; for row struct of results table.
+;					k = q[0]										; q[0] is then tag index in struct.
+;					case (*(*pstate).ptype)[k] of
+;						'string': begin
+;							t[j,i] = (*p)[i].(k)
+;							end
+;						'file': begin
+;							t[j,i] = strip_file_ext( strip_path((*p)[i].(k)), /double)
+;							end
+;						'toggle': begin
+;							t[j,i] = (*p)[i].(k) ? 'On' : 'Off'
+;							end
+;						'int': begin
+;							t[j,i] = str_tidy((*p)[i].(k))
+;							end
+;						'long': begin
+;							t[j,i] = str_tidy((*p)[i].(k))
+;							end
+;						'float': begin
+;							t[j,i] = str_tidy((*p)[i].(k))
+;							end
+;						'double': begin
+;							t[j,i] = str_tidy((*p)[i].(k))
+;							end
+;					endcase
+;				endif
+;			endfor
+;		endfor	
+;	endif
+;	widget_control, (*pstate).stats_table, set_value=t, column_widths=widths, align=2, $
+;						column_labels=headings, table_xsize=nc, table_ysize=n>1
+;	widget_control, (*pstate).stats_table, use_table_select=[0,0,nc-1,n-1]
+;	(*pstate).scolumns = nc
+;	*(*pstate).psheadings = headings
+;	(*pstate).srows = n
+;	return
+;end
+
+;--------------------------------------------------------------------------
+
+pro wizard_batch_update_ctable, pstate
 
 ; Update results table
 
@@ -1576,7 +2093,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_update_stats',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_update_ctable',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -1585,7 +2102,7 @@ if catch_errors_on then begin
 endif
 
 	no_data = 1
-	p = (*pstate).presults
+	p = (*pstate).pcorr
 	n = 0
 	if ptr_good(p) eq 1 then begin
 		if size( (*p)[0],/tname) eq 'STRUCT' then begin
@@ -1599,7 +2116,7 @@ case !version.os_family of
 		ch_scale = 1.2
 		end
 	'unix': begin
-		ch_scale = 1.2
+		ch_scale = 1.25
 		end
 	else: begin
 		ch_scale = 1.0
@@ -1607,23 +2124,28 @@ case !version.os_family of
 endcase
 
 ;	The heading labels chosen here need to be a subset of the 'title' strings for the tags in each
-;	row struct of the results table (see 'wizard_standards_scan_dir'), except "#", which is the row index.
+;	row struct of the results table (see 'wizard_batch_scan_dir'), except "#", which is the row index.
 
 	rows = string(indgen(n>1))
-	headings = ['#', 'Raw','Name','Serial', 'Energy','El', 'Mean','Error','Std.Dev','SD/Error']
+	headings = ['#', 'El', 'History', 'Bottom', 'Top', 'Log']
 	nc = n_elements(headings)
-	widths = [3, 7,5,9, 7,4, replicate(10,nc-6)] * !d.x_ch_size * ch_scale
+	widths = [4,9, 40, 9,9,5] * !d.x_ch_size * ch_scale
 	t = strarr(nc,256)
-	
+
+	if typevar(*(*pstate).pctitle) eq 'UNDEFINED' then begin	
+		*(*pstate).pctitle = ['El','History','Bottom','Top','Log']
+		*(*pstate).pctype = ['string','string','int','int','int']
+	endif
+
 	if no_data eq 0 then begin
 		for i=0,n-1 do begin
 			t[0,i] = str_tidy(i)									; first column is just index #
 			
 			for j=1,nc-1 do begin
-				q = where( headings[j] eq *(*pstate).ptitle, nq)	; Find heading in list of tag name 'titles'
+				q = where( headings[j] eq *(*pstate).pctitle, nq)	; Find heading in list of tag name 'titles'
 				if nq gt 0 then begin								; for row struct of results table.
 					k = q[0]										; q[0] is then tag index in struct.
-					case (*(*pstate).ptype)[k] of
+					case (*(*pstate).pctype)[k] of
 						'string': begin
 							t[j,i] = (*p)[i].(k)
 							end
@@ -1631,7 +2153,7 @@ endcase
 							t[j,i] = strip_file_ext( strip_path((*p)[i].(k)), /double)
 							end
 						'toggle': begin
-							t[j,i] = (*p)[i].(k) ? 'On' : 'Off'
+							t[j,i] = toggle_modes[(*p)[i].(k)]
 							end
 						'int': begin
 							t[j,i] = str_tidy((*p)[i].(k))
@@ -1650,18 +2172,18 @@ endcase
 			endfor
 		endfor	
 	endif
-	widget_control, (*pstate).stats_table, set_value=t, column_widths=widths, align=2, $
+	widget_control, (*pstate).corrections_table, set_value=t, column_widths=widths, align=2, $
 						column_labels=headings, table_xsize=nc, table_ysize=n>1
-	widget_control, (*pstate).stats_table, use_table_select=[0,0,nc-1,n-1]
-	(*pstate).scolumns = nc
-	*(*pstate).psheadings = headings
-	(*pstate).srows = n
+	widget_control, (*pstate).results_table, use_table_select=[0,0,nc-1,n-1]
+	(*pstate).ccolumns = nc
+	*(*pstate).pcheadings = headings
+	(*pstate).crows = n
 	return
 end
 
-;--------------------------------------------------------------------------
+;----------------------------------------------------------------------
 
-pro wizard_standards_update_table, pstate
+pro wizard_batch_update_rgb_table, pstate
 
 ; Update results table
 
@@ -1678,7 +2200,114 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_standards_update_table',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_update_rgb_table',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+       return
+    endif
+endif
+
+	no_data = 1
+	p = (*pstate).prgb
+	n = 0
+	if ptr_good(p) eq 1 then begin
+		if size( (*p)[0],/tname) eq 'STRUCT' then begin
+			no_data = 0
+			n = n_elements( *p)
+		endif
+	endif
+
+case !version.os_family of
+	'MacOS': begin
+		ch_scale = 1.2
+		end
+	'unix': begin
+		ch_scale = 1.25
+		end
+	else: begin
+		ch_scale = 1.0
+		end
+endcase
+
+;	The heading labels chosen here need to be a subset of the 'title' strings for the tags in each
+;	row struct of the results table (see 'wizard_batch_scan_dir'), except "#", which is the row index.
+
+	rows = string(indgen(n>1))
+	headings = ['#', 'R', 'G', 'B', 'Zoom']
+	nc = n_elements(headings)
+	widths = [4, replicate(10,4)] * !d.x_ch_size * ch_scale
+	t = strarr(nc,256)
+
+	if typevar(*(*pstate).prtitle) eq 'UNDEFINED' then begin	
+		*(*pstate).prtitle = ['R','G','B','Zoom']
+		*(*pstate).prtype = ['string','string','string','int']
+	endif
+
+	if no_data eq 0 then begin
+		for i=0,n-1 do begin
+			t[0,i] = str_tidy(i)									; first column is just index #
+			
+			for j=1,nc-1 do begin
+				q = where( headings[j] eq *(*pstate).prtitle, nq)	; Find heading in list of tag name 'titles'
+				if nq gt 0 then begin								; for row struct of results table.
+					k = q[0]										; q[0] is then tag index in struct.
+					case (*(*pstate).prtype)[k] of
+						'string': begin
+							t[j,i] = (*p)[i].(k)
+							end
+						'file': begin
+							t[j,i] = strip_file_ext( strip_path((*p)[i].(k)), /double)
+							end
+						'toggle': begin
+							t[j,i] = toggle_modes[(*p)[i].(k)]
+							end
+						'int': begin
+							t[j,i] = str_tidy((*p)[i].(k))
+							end
+						'long': begin
+							t[j,i] = str_tidy((*p)[i].(k))
+							end
+						'float': begin
+							t[j,i] = str_tidy((*p)[i].(k))
+							end
+						'double': begin
+							t[j,i] = str_tidy((*p)[i].(k))
+							end
+					endcase
+				endif
+			endfor
+		endfor	
+	endif
+	widget_control, (*pstate).rgb_table, set_value=t, column_widths=widths, align=2, $
+						column_labels=headings, table_xsize=nc, table_ysize=n>1
+	widget_control, (*pstate).rgb_table, use_table_select=[0,0,nc-1,n-1]
+	(*pstate).rgb_columns = nc
+	*(*pstate).prheadings = headings
+	(*pstate).rrows = n
+	return
+end
+
+;----------------------------------------------------------------------
+
+pro wizard_batch_update_table, pstate
+
+; Update results table
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_working_dir, geopixe_root
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_update_table',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -1709,14 +2338,17 @@ case !version.os_family of
 endcase
 
 ;	The heading labels chosen here need to be a subset of the 'title' strings for the tags in each
-;	row struct of the results table (see 'wizard_standards_scan_dir'), except "#", which is the row index.
+;	row struct of the results table (see 'wizard_batch_scan_dir'), except "#", which is the row index.
 
 	rows = string(indgen(n>1))
-	headings = ['#','On', 'Raw','Name','Serial', 'Detector','Energy', 'Xsize','Ysize', 'IC Gain','El','Conv', 'Pileup','Throttle']
+;	headings = ['#','On', 'Raw','Name', 'Detector','Energy', 'Xsize','Ysize', 'IC Gain','Conv', 'Pileup','Throttle']
+	widths = [3,5, 20,8, replicate(7,2), replicate(5,2), 7,10, 10,10] * !d.x_ch_size * ch_scale
+	headings = ['#','On', 'Raw','Name','Energy', 'Xsize','Ysize','Conv', 'Pileup','Throttle']
+	widths = [3,5, 34,8, replicate(7,1), replicate(5,2), 10, 10,10] * !d.x_ch_size * ch_scale
 	nc = n_elements(headings)
-	widths = [3,5, 7,8,7, replicate(7,2), replicate(5,2), 7,4,12, 10,10] * !d.x_ch_size * ch_scale
 	t = strarr(nc,256)
-	
+	toggle_modes = ['Off', 'On', 'Done', 'Error']
+
 	if no_data eq 0 then begin
 		for i=0,n-1 do begin
 			t[0,i] = str_tidy(i)									; first column is just index #
@@ -1733,7 +2365,7 @@ endcase
 							t[j,i] = strip_file_ext( strip_path((*p)[i].(k)), /double)
 							end
 						'toggle': begin
-							t[j,i] = (*p)[i].(k) ? 'On' : 'Off'
+							t[j,i] = toggle_modes[(*p)[i].(k)]
 							end
 						'int': begin
 							t[j,i] = str_tidy((*p)[i].(k))
@@ -1763,7 +2395,7 @@ end
 
 ;----------------------------------------------------------------------
 
-pro OnRealize_wizard_standards_device_mode, wWidget
+pro OnRealize_wizard_batch_device_mode, wWidget
 
 COMPILE_OPT STRICTARR
 top = tlb_id( wWidget)
@@ -1780,7 +2412,7 @@ end
 
 ;------------------------------------------------------------------------------------------
 
-pro OnRealize_wizard_standards_draw1, wWidget
+pro OnRealize_wizard_batch_draw1, wWidget
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1794,7 +2426,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'OnRealize_wizard_standards_draw1',['IDL run-time error caught.', '', $
+		warning,'OnRealize_wizard_batch_draw1',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -1813,7 +2445,7 @@ end
 
 ;----------------------------------------------------------------------
 
-pro OnRealize_wizard_standards_draw2, wWidget
+pro OnRealize_wizard_batch_draw2, wWidget
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1827,7 +2459,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'OnRealize_wizard_standards_draw2',['IDL run-time error caught.', '', $
+		warning,'OnRealize_wizard_batch_draw2',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -1846,7 +2478,7 @@ end
 
 ;----------------------------------------------------------------------
 
-pro OnRealize_wizard_standards_instructions, wWidget
+pro OnRealize_wizard_batch_instructions, wWidget
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1860,7 +2492,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'OnRealize_wizard_standards_instructions',['IDL run-time error caught.', '', $
+		warning,'OnRealize_wizard_batch_instructions',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -1873,13 +2505,13 @@ endif
 	widget_control, child, get_uvalue=pstate
 	
 	(*pstate).tab = 0
-	wizard_standards_update_info, pstate
+	wizard_batch_update_info, pstate
 	return
 end
 
 ;----------------------------------------------------------------------
 
-pro OnRealize_wizard_standards_results_table, wWidget
+pro OnRealize_wizard_batch_ctable, wWidget
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1893,7 +2525,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'OnRealize_wizard_standards_results_table',['IDL run-time error caught.', '', $
+		warning,'OnRealize_wizard_batch_ctable',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -1905,13 +2537,13 @@ endif
 	child = widget_info( top, /child)
 	widget_control, child, get_uvalue=pstate
 
-	wizard_standards_update_table, pstate
+;	wizard_batch_update_ctable, pstate
 	return
 end
 
 ;----------------------------------------------------------------------
 
-pro OnRealize_wizard_standards_stats_table, wWidget
+pro OnRealize_wizard_batch_rgbtable, wWidget
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1925,7 +2557,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'OnRealize_wizard_standards_stats_table',['IDL run-time error caught.', '', $
+		warning,'OnRealize_wizard_batch_rgbtable',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -1937,16 +2569,79 @@ endif
 	child = widget_info( top, /child)
 	widget_control, child, get_uvalue=pstate
 
-	wizard_standards_update_stats, pstate
+;	wizard_batch_update_rgbtable, pstate
+	return
+end
+
+;----------------------------------------------------------------------
+
+pro OnRealize_wizard_batch_results_table, wWidget
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'OnRealize_wizard_batch_results_table',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+	top = tlb_id( wWidget)
+	child = widget_info( top, /child)
+	widget_control, child, get_uvalue=pstate
+
+	wizard_batch_update_table, pstate
+	return
+end
+
+;----------------------------------------------------------------------
+
+pro OnRealize_wizard_batch_stats_table, wWidget
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'OnRealize_wizard_batch_stats_table',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+	top = tlb_id( wWidget)
+	child = widget_info( top, /child)
+	widget_control, child, get_uvalue=pstate
+
+	wizard_batch_update_stats, pstate
 	return
 end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_standards, debug=debug
+pro wizard_batch, debug=debug
 
-; Wizard to determine the 'conv' calibration factors for standards foils.
-; (code assumes GeoPIXE version 7.6s or later [8.6s or later w/ py3])
+; Wizard to batch process raw data into images using the Sort EVT window.
 ; 
 ; It calls some GeoPIXE routines directly and also uses the "Notify" mechanism to send
 ; global messages to designated GeoPIXE images. Using the 'global' approach means that
@@ -2014,7 +2709,7 @@ if (ErrorNo ne 0) then begin
 	if file_test(file) eq 0 then begin
 		file = '../GeoPIXE.sav'					; current dir in a subdir of runtime dir
 		if file_test(file) eq 0 then begin
-			a = dialog_message('wizard_standards: Failed to restore GeoPIXE.sav.',/error)
+			a = dialog_message('wizard_batch: Failed to restore GeoPIXE.sav.',/error)
 		endif else found=1
 	endif else found = 1
 	if found then begin
@@ -2043,7 +2738,7 @@ if catch_errors_on then begin
 		n = n_elements(s)
 		c = 'Call stack: '
 		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'wizard_standards',['IDL run-time error caught.', '', $
+		warning,'wizard_batch',['IDL run-time error caught.', '', $
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
@@ -2057,7 +2752,7 @@ startupp, /colours, /database			; setup GeoPIXE defaults, database
 register_notify							; notification routines
 version = geopixe_version()				; GeoPIXE Version text
 
-default = geopixe_defaults(source='wizard_standards')
+default = geopixe_defaults(source='wizard_batch')
 config = default.path.config
 detector_update, list=detector_list, title=detector_title
 
@@ -2140,38 +2835,39 @@ right_resize = 0.3
 define_devices, titles=device_titles, names=device_names
 DevObjList = instance_device_objects( device_names, error=err)
 if err then begin
-	warning,'wizard_standards',['Failed to open Device Objects.','Missing "xxx_device__define.sav" files in "/interface" ?']
+	warning,'wizard_batch',['Failed to open Device Objects.','Missing "xxx_device__define.sav" files in "/interface" ?']
 	return
 endif
 if obj_valid(DevObjList[0]) eq 0 then begin
-	warning,'wizard_standards',['Failed to open Device Objects.','Obj array invalid.']
+	warning,'wizard_batch',['Failed to open Device Objects.','Obj array invalid.']
 	return
 endif
 device_initial = "MAIA_DEVICE"
 device = 0
 q = where( device_initial eq device_names, nq)
 if nq ne 0 then device = q[0]
+image_process, return_list=uv
 
 ; 	top-level base
 
-tlb = widget_base( /column, title='Standards Calibration Wizard ' + wversion + ' (GeoPIXE '+version+')', /TLB_KILL_REQUEST_EVENTS, $
-					group_leader=group, uname='wizard-standards-tlb', /TLB_SIZE_EVENTS, SPACE=2 ,XPAD=2 ,YPAD=2 ,xoffset=xoffset, $
+tlb = widget_base( /column, title='Batch Processing Wizard ' + wversion + ' (GeoPIXE '+version+')', /TLB_KILL_REQUEST_EVENTS, $
+					group_leader=group, uname='wizard-batch-tlb', /TLB_SIZE_EVENTS, SPACE=2 ,XPAD=2 ,YPAD=2 ,xoffset=xoffset, $
 					yoffset=yoffset, /base_align_center)
 tbase = widget_base( tlb, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
 lbase = widget_base( tbase, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
-tab_panel = widget_tab( lbase, location=2, /align_center, uname='wizard-standards-tab-panel')
-tab_names = ['input','table','stats','plots']
+tab_panel = widget_tab( lbase, location=2, /align_center, uname='wizard-batch-tab-panel')
+tab_names = ['input','corrections','rgb','table']
 
 ; Files and paths -----------------------------------------
 
 file_base = widget_base( tab_panel, title='  1. User Input    ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
-label = widget_label( file_base, value='Select raw data directory for standards')
-file_text = widget_text( file_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
-				value=['Select the raw data directory to scan for all "standard" analyses. These need to be collected as image scans and flagged as "standard" in the metadata. ' + $
-					'You can edit some parameters in the Table on tab two.'], $
+label = widget_label( file_base, value='Select raw data directory')
+text = widget_text( file_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
+				value=['Select the data directory to scan for all raw data. Select an output path, and select a template DAI image file to set initial sort parameters. ' + $
+					'You can edit some sort parameters in the Table on tab 4.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the User Input panel.'}, frame=1)
 
 
@@ -2183,7 +2879,7 @@ file_base0b = widget_base( file_base0, /column, xpad=0, ypad=0, space=5, /base_a
 file_base0c = widget_base( file_base0b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 lab = widget_label( file_base0c, value='Device:')
 device_mode = widget_combobox( file_base0c, value=device_titles, uname='device-mode', /tracking, xsize=text_xsize, $
-					notify_realize='OnRealize_wizard_standards_device_mode', $
+					notify_realize='OnRealize_wizard_batch_device_mode', $
 					uvalue='Select input device driver for the raw data file(s).')
 
 
@@ -2194,75 +2890,204 @@ file_base1b = widget_base( file_base1, /column, xpad=0, ypad=0, space=5, /base_a
 
 file_base1c = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base1c, value='Raw dir:', uname='blog-dir-button', tracking=tracking, $
-						uvalue='Click to browse for the raw data directory for any "standard". ', scr_xsize=button_xsize )
+						uvalue='Click to browse for the raw data directory. ', scr_xsize=button_xsize )
 blog_dir_text = widget_text( file_base1c, uname='blog-dir-text', value=default.path.data, tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for the raw data directory for any "standard", or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
-;						Notify_Realize='OnRealize_standards_blog_dir_text')
+						uvalue={xresize:left_resize, help:'Enter the raw data directory, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
+;						Notify_Realize='OnRealize_batch_blog_dir_text')
 
 file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base1d, value='Energy Cal:', uname='energy-cal-file-button', tracking=tracking, $
 						uvalue='Click to browse for the energy calibration SPEC file for all good detectors. Delete any detectors in the SPEC file to exclude these detector channels.', scr_xsize=button_xsize )
 energy_cal_file_text = widget_text( file_base1d, uname='energy-cal-file-text', value='', tracking=tracking, $
 						uvalue={xresize:left_resize, help:'Enter file-name for the energy cal SPEC file for the detector, or click on button to browse for the file. Delete any detectors in the SPEC file to exclude these detector channels.'}, scr_xsize=text_xsize, /edit)
-;						Notify_Realize='OnRealize_standards_energy_cal_file_text')
+;						Notify_Realize='OnRealize_batch_energy_cal_file_text')
 
 file_base1e = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base1e, value='Output Path:', uname='output-dir-button', tracking=tracking, $
-						uvalue='Click to browse for the output directory tree for image and region data. ', scr_xsize=button_xsize )
+						uvalue='Click to browse for the output directory tree for image data. ', scr_xsize=button_xsize )
 output_dir_text = widget_text( file_base1e, uname='output-dir-text', value=default.path.analysis, tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter the directory tree for image and region output, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
-;						Notify_Realize='OnRealize_standards_output_dir_text')
+						uvalue={xresize:left_resize, help:'Enter the directory tree for image output, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
+;						Notify_Realize='OnRealize_batch_output_dir_text')
 
 
 file_base2 = widget_base( file_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize, uvalue={xresize:left_resize})
-label = widget_label( file_base2, value='Resource Files')
+label = widget_label( file_base2, value='Template settings for processing')
 file_base2b = widget_base( file_base2, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
 file_base2c = widget_base( file_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
-button = widget_button( file_base2c, value='Resources:', uname='resource-dir-button', tracking=tracking, $
-						uvalue='Click to browse for the GeoPIXE Resources directory. This tree contains all the files needed for processing these "standard" data. ' + $
-						'The key files are the DA matrix files, stored according to detector and energy (e.g. "384C14/standards/18500eV/Pt_MM15931_384C14_18500eV.damx"). ' + $
-						'Defaults to the "path config" on your home "~/.geopixe/geopixe.conf" file.', scr_xsize=button_xsize )
-resource_dir_text = widget_text( file_base2c, uname='resource-dir-text', value=default.path.config, tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for the GeoPIXE Resources directory, or click on button to browse for the dir. ' + $
-						'The key files are the DA matrix files, stored according to detector and energy (e.g. "384C14/standards/18500eV/Pt_MM15931_384C14_18500eV.damx"). ' + $
-						'Defaults to the "path config" on your home "~/.geopixe/geopixe.conf" file.'}, scr_xsize=text_xsize, /edit)
-;						Notify_Realize='OnRealize_standards_resource_dir_text')
+button = widget_button( file_base2c, value='Template:', uname='template-sort-button', tracking=tracking, $
+						uvalue='Click to browse for a template image DAI file to use to set default sort settings such as the DAM file.', scr_xsize=button_xsize )
+template_sort_text = widget_text( file_base2c, uname='template-sort-text', value='', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter file-name for a template image DAI file to use to set default sort settings such as the DAM file.'}, scr_xsize=text_xsize, /edit)
+;						Notify_Realize='OnRealize_batch_template_sort_text')
 
-file_base3 = widget_base( file_base, /row, xpad=1, ypad=0, space=20, /align_center, /base_align_center)
+;file_base3 = widget_base( file_base, /row, xpad=1, ypad=0, space=20, /align_center, /base_align_center)
+;
+;button = widget_button( file_base3, value='Reload "standards.csv"', uname='reload-standards-button', tracking=tracking, $
+;						uvalue='Click to reload the "standards.csv" file from Resources. Use this during testing. Later we will hide this button as it is automatic after selecting Resources.', scr_xsize=2*button_xsize )
 
-button = widget_button( file_base3, value='Reload "standards.csv"', uname='reload-standards-button', tracking=tracking, $
-						uvalue='Click to reload the "standards.csv" file from Resources. Use this during testing. Later we will hide this button as it is automatic after selecting Resources.', scr_xsize=2*button_xsize )
-button = widget_button( file_base3, value='Scan Raw Dir', uname='scan-blog-button', tracking=tracking, $
-						uvalue='Click to scan the selected raw dir for all "standard" data and populate the table (on the next tab page). Click on "Next" to move to the next page, or use the tabs on the left.', scr_xsize=2*button_xsize )
+
+; Template image corrections table  -----------------------------------------
+
+ctable_base = widget_base( tab_panel, title='  2. Corrections Table    ', /column, xpad=1, ypad=1, space=5, $
+					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
+label = widget_label( ctable_base, value='Table of image corrections and display parameters')
+text = widget_text( ctable_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='ctable-explanation', tracking=tracking, $
+				value=['Table showing all image operations from a template DAI file, which can be selected here. ' + $
+				'Operations that effect ALL planes (shown with a "*") are only shown againt ' + $
+				'the element selected to guide that operation. Corrections can be deleted or more added. The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'], $
+				uvalue={xresize:left_resize, help:'Explanation of the role of the Corretions panel.'}, frame=1)
+
+ctable_base0 = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
+
+button = widget_button( ctable_base0, value='Template:', uname='template-corrections-button', tracking=tracking, $
+						uvalue='Click to browse for a template image DAI file to use for image corrections, digital filters and display settings.', scr_xsize=button_xsize )
+template_corrections_text = widget_text( ctable_base0, uname='template-sort-text', value='', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter file-name for a template image DAI file to use for image corrections, digital filters and display settings.'}, scr_xsize=text_xsize, /edit)
+
+ctable_base1 = widget_base( ctable_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
+
+ctable1_base = widget_base( ctable_base1, title='   Corrections Table    ', /column, xpad=1, ypad=1, space=5, $
+					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180-20, uvalue={xresize:left_resize,yresize:1})
+
+cheadings = strarr(6)					; dummy values (see 'wizard_batch_update_ctable' for actual headings)
+ncc = n_elements(cheadings)
+widths = replicate(6,ncc) * !d.x_ch_size * ch_scale
+t = strarr(ncc,256)
+
+ctable = Widget_Table(ctable1_base, UNAME='corrections-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182-20, /no_row_headers, $
+				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows all element image corrections from the template DAI file. ' + $
+				'Operations that effect ALL planes (shown with a "*") are only shown againt the element selected to guide that operation. ' + $
+				'Corrections can be deleted or more added. The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'}, $
+				column_labels=headings, column_widths=widths, $
+				NOTIFY_REALIZE='OnRealize_wizard_batch_ctable')
+			
+ctable_base2a = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
+
+label = widget_label( ctable_base2a, value='Edit Correction:')
+corrections_element = widget_combobox( ctable_base2a, value=['Back'], uname='corrections-element', /tracking, xsize=button_xsize, $
+;					notify_realize='OnRealize_wizard_batch_corrections_element', $
+					uvalue='Select an image processing function to add.')
+corrections_mode = widget_combobox( ctable_base2a, value=uv.list, uname='corrections-mode', /tracking, xsize=button_xsize2, $
+;					notify_realize='OnRealize_wizard_batch_corrections_mode', $
+					uvalue='Select an image processing function to add.')
+button = widget_button( ctable_base2a, value='Add', uname='ctable-add-button', tracking=tracking, $
+						uvalue='Add the selected image processing command for the selected element plane. Select the element and command first.', scr_xsize=button_xsize )
+button = widget_button( ctable_base2a, value='Delete', uname='ctable-delete-button', tracking=tracking, $
+						uvalue='Click to deleted the elected rows of the table. Click in a cell to select that row; click and drag to select multuiple rows.', scr_xsize=button_xsize )
+button = widget_button( ctable_base2a, value='Clear', uname='ctable-clear-button', tracking=tracking, $
+						uvalue='Click to clear the corrections table.', scr_xsize=button_xsize )
+
+ctable_base2b = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
+
+label = widget_label( ctable_base2b, value='Edit Display:  Bottom:')
+display_bottom_text = widget_text( ctable_base2b, uname='display-bottom-text', value='0', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter the "Bottom" display value (0-99).'}, scr_xsize=button_xsize, /edit)
+label = widget_label( ctable_base2b, value='  Top:')
+display_top_text = widget_text( ctable_base2b, uname='display-top-text', value='100', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter the "Top" display value (1-100).'}, scr_xsize=button_xsize, /edit)
+label = widget_label( ctable_base2b, value='  Log:')
+display_log_text = widget_text( ctable_base2b, uname='display-log-text', value='0', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter the display intensity curve function value (0=Linear, 1=Log, 2=SQRT).'}, scr_xsize=button_xsize, /edit)
+button = widget_button( ctable_base2b, value='Apply', uname='display-apply-button', tracking=tracking, $
+						uvalue='Click to apply these display values to the selected row. ', scr_xsize=button_xsize )
+		
+
+; Template RGB exports table  -----------------------------------------
+
+rgbtable_base = widget_base( tab_panel, title='  3. RGB Exports    ', /column, xpad=1, ypad=1, space=5, $
+					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
+label = widget_label( rgbtable_base, value='Table of RGB export options')
+text = widget_text( rgbtable_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgbtable-explanation', tracking=tracking, $
+				value=['Table showing selected RGB images/plots to export. The table can be set from a "Learn" RGB.csv file created in the RGB Image window ' + $
+				'(see the "Learn" menu) or edited here.'], $
+				uvalue={xresize:left_resize, help:'Explanation of the role of the RGB Export panel.'}, frame=1)
+
+rgbtable_base0 = widget_base( rgbtable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
+
+button = widget_button( rgbtable_base0, value='RGB Export:', uname='template-rgb-button', tracking=tracking, $
+						uvalue='Click to browse for a RGB CSV file list of RGB export combinations.', scr_xsize=button_xsize )
+template_rgb_text = widget_text( rgbtable_base0, uname='template-rgb-text', value='', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter file-name for a RGB CSV file list of RGB export combinations.'}, scr_xsize=text_xsize, /edit)
+
+rgbtable_base1 = widget_base( rgbtable_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
+
+rgbtable1_base = widget_base( rgbtable_base1, title='   RGB Export list Table    ', /column, xpad=1, ypad=1, space=5, $
+					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
+
+rgb_headings = strarr(12)			; dummy values (see 'wizard_batch_update_rgbtable' for actual headings)
+ncr = n_elements(rgb_headings)
+widths = replicate(6,ncr) * !d.x_ch_size * ch_scale
+t = strarr(ncr,256)
+
+rgbtable = Widget_Table(rgbtable1_base, UNAME='rgb-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182, /no_row_headers, $
+				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows selected RGB export combinations to export for each processed image .' + $
+				'using the selected Zoom factor.'}, $
+				column_labels=headings, column_widths=widths, $
+				NOTIFY_REALIZE='OnRealize_wizard_batch_rgbtable')
+			
+rgbtable_base2 = widget_base( rgbtable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
+
+label = widget_label( rgbtable_base2, value='Edit Export:  R')
+r_element = widget_combobox( rgbtable_base2, value=['Back'], uname='rgb-r-element', /tracking, xsize=button_xsize1, $
+;					notify_realize='OnRealize_wizard_batch_corrections_r_element', $
+					uvalue='Select the element for Red to add.')
+label = widget_label( rgbtable_base2, value='  G:')
+g_element = widget_combobox( rgbtable_base2, value=['Back'], uname='rgb-g-element', /tracking, xsize=button_xsize1, $
+;					notify_realize='OnRealize_wizard_batch_corrections_g_element', $
+					uvalue='Select the element for Green to add.')
+label = widget_label( rgbtable_base2, value='  B:')
+b_element = widget_combobox( rgbtable_base2, value=['Back'], uname='rgb-b-element', /tracking, xsize=button_xsize1, $
+;					notify_realize='OnRealize_wizard_batch_corrections_b_element', $
+					uvalue='Select the element for Blue to add.')
+label = widget_label( rgbtable_base2, value='  Zoom:')
+rgb_zoom_text = widget_text( rgbtable_base2, uname='rgb-zoom-text', value='0', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter the new "Zoom" factor (-2 to 2 typ.).'}, scr_xsize=button_xsize1, /edit)
+button = widget_button( rgbtable_base2, value='Add', uname='rgb-add-button', tracking=tracking, $
+						uvalue='Click to add these RGB selections to the RGB Export table. ', scr_xsize=button_xsize )
+button = widget_button( rgbtable_base2, value='Delete', uname='rgb-delete-button', tracking=tracking, $
+						uvalue='Click to deleted selected rows of the RGB table. Click in a cell to select that row; click and drag to select multuiple rows.', scr_xsize=button_xsize )
+button = widget_button( rgbtable_base2, value='Clear', uname='rgb-clear-button', tracking=tracking, $
+						uvalue='Click to clear the RGB table.', scr_xsize=button_xsize )
+button = widget_button( rgbtable_base2, value='Save', uname='rgb-save-button', tracking=tracking, $
+						uvalue='Click to save the RGB table to a ".rgb.csv" file for the "Learn" function here and in the RGB Image window', scr_xsize=button_xsize )
+		
 
 ; Results table  -----------------------------------------
 
-table_base = widget_base( tab_panel, title='  2. Results Table    ', /column, xpad=1, ypad=1, space=5, $
+table_base = widget_base( tab_panel, title='  4. Processing Table    ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
-label = widget_label( table_base, value='Work Table and Results')
+label = widget_label( table_base, value='Work Table and Processing Progress')
 results_text = widget_text( table_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='table-explanation', tracking=tracking, $
-				value=['Table showing the details of the raw files scanned, and parameters needed for the calculation of the calibration factor "conv". ' + $
-				'Missing values lacking metadata need to be entered. See more detailed instructions in the info panel (right). When ready click "Process" to start processing.'], $
+				value=['Scan for the details of the raw files (set raw path on tab 1). ' + $
+				'Missing values for raw data lacking metadata need to be entered. See more detailed instructions in the info panel (right). When ready click "Start Process" to start processing.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the Results panel.'}, frame=1)
 
 table_base1 = widget_base( table_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
 
-tab2_panel = widget_tab( table_base1, location=0, /align_center, uname='wizard-standards-results-tab-panel')
+table_base1a = widget_base( table_base1, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
 
-table1_base = widget_base( tab2_panel, title='  Results Table    ', /column, xpad=1, ypad=1, space=5, $
+button = widget_button( table_base1a, value='Scan Raw Dir for data', uname='scan-blog-button', tracking=tracking, $
+						uvalue='Click to scan the selected raw dir (tab 1) for all raw data and populate the table. Click on "Start processing" to begin processing.', scr_xsize=2*button_xsize )
+label = widget_label( table_base1a, value='    Conv:')
+conv_text = widget_text( table_base1a, uname='conv-text', value='', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter file-name for a RGB CSV file list of RGB export combinations.'}, scr_xsize=button_xsize2, /edit)
+
+table1_base = widget_base( table_base1, title='  Results Table    ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
 
-headings = strarr(12)			; dummy values (see 'wizard_standards_update_table' for actual headings)
+headings = strarr(12)			; dummy values (see 'wizard_batch_update_table' for actual headings)
 nc = n_elements(headings)
 widths = replicate(6,nc) * !d.x_ch_size * ch_scale
 t = strarr(nc,256)
 
 results_table = Widget_Table(table1_base, UNAME='results-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
 				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182, /no_row_headers, $
-				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows the resulting "conv" factors after calibration using the standard foils.'}, $
+				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows the raw data to process and tracks processing progress.'}, $
 				column_labels=headings, column_widths=widths, $
-				NOTIFY_REALIZE='OnRealize_wizard_standards_results_table')
+				NOTIFY_REALIZE='OnRealize_wizard_batch_results_table')
 			
 table_base2 = widget_base( table_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
 
@@ -2277,73 +3102,9 @@ button = widget_button( table_base2, value='Delete', uname='table-delete-button'
 button = widget_button( table_base2, value='Clear', uname='table-clear-button', tracking=tracking, $
 						uvalue='Click to clear the entire table. ', scr_xsize=button_xsize )
 label = widget_label( table_base2, value='            ')
-button = widget_button( table_base2, value='Process', uname='process-button', tracking=tracking, $
+button = widget_button( table_base2, value='Start Processing', uname='process-button', tracking=tracking, $
 						uvalue='Click to start the calculation of the calibration factors "conv". Make sure the table entries are correct first. ', scr_xsize=1.5*button_xsize )
 		
-; Stats table  -----------------------------------------
-
-stats_base = widget_base( tab_panel, title='  3. Statistics    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
-label = widget_label( stats_base, value='Image Statistics')
-stats_text = widget_text( stats_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='stats-explanation', tracking=tracking, $
-				value=['Table showing statistics for the region selected on the image. See more detailed instructions in the info panel (right). '], $
-				uvalue={xresize:left_resize, help:'Explanation of the role of the Stats panel.'}, frame=1)
-
-stats_base1 = widget_base( stats_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
-
-tab2_panel = widget_tab( stats_base1, location=0, /align_center, uname='wizard-standards-stats-tab-panel')
-
-stats2_base = widget_base( tab2_panel, title='  Statistics Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
-
-sheadings = strarr(12)			; dummy values (see 'wizard_standards_update_stats' for actual headings)
-ncs = n_elements(sheadings)
-swidths = replicate(6,nc) * !d.x_ch_size
-t = strarr(ncs,256)
-
-stats_table = Widget_Table(stats2_base, UNAME='stats-table', /all_events, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182, /no_row_headers, $
-				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows the image statistics for the images on the standard foils.'}, column_labels=sheadings, column_widths=swidths, $
-				NOTIFY_REALIZE='OnRealize_wizard_standards_stats_table')
-			
-;stats_base2 = widget_base( stats_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
-
-;button = widget_button( stats_base2, value='Clear', uname='table-clear-button', tracking=tracking, $
-;						uvalue='Click to clear the entire table. ', scr_xsize=button_xsize )
-		
-; Plots  -----------------------------------------
-
-plot_base = widget_base( tab_panel, title='  4. Plots    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
-label = widget_label( plot_base, value='Calibration Results Plots')
-plot_text = widget_text( plot_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='plots-explanation', tracking=tracking, $
-				value=['Results for "conv" calibration factors plotted against "raw" run or line energy.'], frame=1)
-
-ptab_panel = widget_tab( plot_base, location=3, /align_center, uname='wizard-standards-ptab-panel')
-ptab_names = ['run','energy']
-
-prun_base = widget_base( ptab_panel, title='  1.   Run # order    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize-10, scr_ysize=left_ysize-150, uvalue={xresize:left_resize,yresize:1})
-
-results_draw1 = widget_draw( prun_base, uname='results-draw1', xsize=left_xsize-25, ysize=left_ysize-160, notify_realize='OnRealize_wizard_standards_draw1', $
-			retain=retain, uvalue={xresize:left_resize,yresize:1})
- 
-penergy_base = widget_base( ptab_panel, title='  2.   Line Energy    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize-10, scr_ysize=left_ysize-150, uvalue={xresize:left_resize,yresize:1})
-
-results_draw2 = widget_draw( penergy_base, uname='results-draw2', xsize=left_xsize-25, ysize=left_ysize-160, notify_realize='OnRealize_wizard_standards_draw2', $
-			retain=retain, uvalue={xresize:left_resize,yresize:1})
- 
-det_base = widget_base( plot_base, /row, /base_align_center, ypad=0, xpad=0, space=5)
-lab = widget_label( det_base, value='Detector:  Old:')
-dtitle = [' ',detector_title]
-dlist = ['',detector_list]
-detector_mode = widget_combobox( det_base, value=dtitle, uname='detector-mode', $
-					uvalue='Select the existing detector calibration. ', xsize=0.4*text_xsize-50)
-lab = widget_label( det_base, value='      New:')
-detector_new_mode = widget_combobox( det_base, value=dtitle, uname='detector-new-mode', $
-					uvalue='Select a new detector calibration to compare. ', xsize=0.4*text_xsize-50)
-					
 ;------------------------------------------------------------------------------------------------
 
 sbase = widget_base( lbase, /row, xpad=0, ypad=0, space=20, /base_align_center, /align_center)
@@ -2357,7 +3118,7 @@ button = widget_button( sbase, value='  Next  >>  ', uname='next-button', tracki
 rbase = widget_base( tbase, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
 instructions_text = widget_list( rbase, scr_xsize=right_xsize, scr_ysize=right_ysize, uname='instruction-explanation', tracking=tracking, $
-				value='', Notify_Realize='OnRealize_wizard_standards_instructions', $
+				value='', Notify_Realize='OnRealize_wizard_batch_instructions', $
 				uvalue={xresize:right_resize, yresize:1, help:'Explanation of the function and controls on this tab panel.'});, frame=1)
 
 ;------------------------------------------------------------------------------------------------
@@ -2402,55 +3163,91 @@ state = { $
 		pDevObj:				ptr_new( DevObjList[device]), $	; current Device object
 		device:					device, $						; device index
 		pDevObjList:			ptr_new( DevObjList), $			; device object list
-		sel: {left:-1, top:-1, right:-1, bottom:-1, edit:0 }, $	; use "(*pstate).sel.top" as current region
+		sel: {left:-1, top:-1, right:-1, bottom:-1, edit:0 }, $	; use "(*pstate).sel.top" as current row in processing table
+		csel: {left:-1, top:-1, right:-1, bottom:-1, edit:0 }, $	; use "(*pstate).sel.top" as current row in corrections table
+		rsel: {left:-1, top:-1, right:-1, bottom:-1, edit:0 }, $	; use "(*pstate).sel.top" as current row in RGB table
+		uv:						uv, $							; image process list
 
 		blog_dir:	 			default.path.data, $			; blog data dir tree
 		energy_cal_file:		'', $							; energy cal file name
 		output_dir:				default.path.analysis, $		; output dir tree
-		resource_dir:			default.path.config, $			; path to GeoPIXE resources for standards
+		template_sort_dai:		'', $							; template DAI for sorting
+		template_corrections_dai:	'', $						; template DAI for corrections
+		template_rgb_export:		'', $						; template RGB.csv for RGB export
 		root:					ptr_new(/allocate_heap), $		; storage foor 'build_output_path' root path
 
-		pconfig:				ptr_new(/allocate_heap), $		; room for standards.csv config table
+;		pconfig:				ptr_new(/allocate_heap), $		; room for standards.csv config table
 		loop:					0, $							; loop counter
 		index:					0, $							; table row index
+		pdai:					ptr_new(/allocate_heap), $		; pointer to template DAI image struct
+		pcel:					ptr_new(/allocate_heap), $		; element names from template DAI file
 
 		presults:				ptr_new(/allocate_heap), $		; room for results table
 		ptitle:					ptr_new(/allocate_heap), $		; names for table struct columns 
 		ptype:					ptr_new(/allocate_heap), $		; data-types for table struct columns 
 
+		pcorr:					ptr_new(/allocate_heap), $		; room for corrections table
+		pctitle:				ptr_new(/allocate_heap), $		; names for corr struct columns 
+		pctype:					ptr_new(/allocate_heap), $		; data-types for corr struct columns 
+
+		prgb:					ptr_new(/allocate_heap), $		; room for RGB table
+		prtitle:				ptr_new(/allocate_heap), $		; names for RGB struct columns 
+		prtype:					ptr_new(/allocate_heap), $		; data-types for RGB struct columns 
+
 		columns:				nc, $							; table columns
 		pheadings:				ptr_new(headings), $			; headings
 		rows:					0, $							; rows
 
-		scolumns:				ncs, $							; stats columns
-		psheadings:				ptr_new(sheadings), $			; headings
-		srows:					0, $							; rows
-		
-		wid1:					0L, $							; Draw 1 window ID
-		wid2:					0L, $							; Draw 2 window ID
-		detector_mode:			0, $							; detector (old) droplist setting
-		detector_new_mode:		0, $							; detector (new) droplist setting
-		detector_list:			ptr_new(/allocate_heap), $		; pointer to list of detector file names
-		
-		blog_dir_text: 			blog_dir_text, $				; standards curve calc filter filename text ID
-		energy_cal_file_text:	energy_cal_file_text, $			; standards curve calc yield filename text ID
-		output_dir_text: 		output_dir_text, $				; standards curve calc outer filename text ID
-		resource_dir_text: 		resource_dir_text, $			; standards curve calc inner filename text ID
+		ccolumns:				ncc, $							; corrections columns
+		pcheadings:				ptr_new(cheadings), $			; headings
+		crows:					0, $							; rows
+		correction_mode:		0, $							; mode for corr processing ID
+		correction_element_mode:	0, $						; mode for corr el ID
 
+		rgb_columns:			ncr, $							; RGB columns
+		prheadings:				ptr_new(rgb_headings), $		; headings
+		rrows:					0, $							; rows
+		r_element_mode:			0, $							; R element mode
+		g_element_mode:			0, $							; G element mode
+		b_element_mode:			0, $							; B element mode
+		
+;		wid1:					0L, $							; Draw 1 window ID
+;		wid2:					0L, $							; Draw 2 window ID
+;		detector_mode:			0, $							; detector (old) droplist setting
+;		detector_new_mode:		0, $							; detector (new) droplist setting
+;		detector_list:			ptr_new(/allocate_heap), $		; pointer to list of detector file names
+		
+		blog_dir_text: 			blog_dir_text, $				; blog dir text ID
+		energy_cal_file_text:	energy_cal_file_text, $			; energy cal file text ID
+		output_dir_text: 		output_dir_text, $				; output dir text ID
+		template_sort_text: 	template_sort_text, $			; template sort DAI text ID
+		template_corrections_text: 	template_corrections_text, $	; template corrections DAI text ID
+		template_rgb_text:	 	template_rgb_text, $			; template RGB export list text ID
+
+		corrections_table:		ctable, $						; corrections table ID
+		rgb_table:				rgbtable, $						; RGB export table ID
 		results_table:			results_table, $				; results table ID
-		stats_table:			stats_table, $					; stats table ID
+		corrections_mode:		corrections_mode, $				; process corrections mode ID
+		corrections_element:	corrections_element, $			; corrections element for Add ID	
+		display_bottom_text:	display_bottom_text, $			; display bottom text ID
+		display_top_text:		display_top_text, $				; display top text ID
+		display_log_text:		display_log_text, $				; display log text ID
+		r_element:				r_element, $					; R element mode ID	
+		g_element:				g_element, $					; G element mode ID	
+		b_element:				b_element, $					; B element mode ID	
+		rgb_zoom_text:			rgb_zoom_text, $				; Zoom text ID
 
-		ptab_panel:				ptab_panel, $					; plot tab ID
-		results_draw1:			results_draw1, $				; results plot1 (by run)
-		results_draw2:			results_draw2, $				; results plot2 (by energy)
-		detector_mode_id:		detector_mode, $				; detector (old) droplist ID
-		detector_new_mode_id:	detector_new_mode, $			; detector (new) droplist ID
+;		ptab_panel:				ptab_panel, $					; plot tab ID
+;		results_draw1:			results_draw1, $				; results plot1 (by run)
+;		results_draw2:			results_draw2, $				; results plot2 (by energy)
+;		detector_mode_id:		detector_mode, $				; detector (old) droplist ID
+;		detector_new_mode_id:	detector_new_mode, $			; detector (new) droplist ID
 		
 		instructions_text:		instructions_text, $			; instructions text ID
 		help:					help $							; help text ID
 		}
 
-*(state.detector_list) = dlist
+;*(state.detector_list) = dlist
 
 child = widget_info( tlb, /child)
 pstate = ptr_new(state, /no_copy)
@@ -2464,9 +3261,9 @@ geom = widget_info( tlb, /geometry)
 register_notify, tlb, ['wizard-return', $				; returns from GeoPIXE windows
 				'path', $								; new paths
 				'new-detectors']						; detectors changed
-xmanager, 'wizard_standards', tlb, /no_block
+xmanager, 'wizard_batch', tlb, /no_block
 
-wizard_test_windows, 'standards', pstate				; check for open GeoPIXE windows and
+wizard_test_windows, 'batch', pstate					; check for open GeoPIXE windows and
 widget_control, tlb, timer=8.0							; start timer to check periodically
 return
 end

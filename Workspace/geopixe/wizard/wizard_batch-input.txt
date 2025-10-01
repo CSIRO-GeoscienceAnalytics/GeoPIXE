@@ -1,0 +1,42 @@
+
+     Standards Analysis Wizard
+
+The Wizard will search for all "standards" foil image scan
+data-sets in the selected 'blog' directory. Standards will
+be indentified by 'sample_type' metadata as "standard".
+
+Each will be imaged using pre-calculated DA matrix files.
+These files are stored in the GeoPIXE Resource area, which
+can be selected here (defaults to the value of the "path
+config" in your "~/.geopixe/geopixe.conf" file).
+
+"Resources" is used to set the path to the top level of 
+the <config> directory.
+
+e.g.  at XFM =  Resources: \XFM\config\geopixe_config\
+
+The <config> data is assumed to be stored in a tree divided
+by detector ID and energy:
+     <config>/<detector>/standards/<energy>/
+
+DA matrix files assumed to be named similarly:
+     e.g. path in config: 384C14/standards/18500eV/
+            file: Pt_MM15931_384C14_18500eV.damx
+
+Each standard will be imaged using the appropriate DA 
+matrix and a large region selected to determine average 
+conc. This will be compared to the certified value to 
+determine the conversion factor 'conv'.
+
+Results are stored in the Table on tab two. Image 
+statistics are shown on tab three and "conv" values
+are plotted on tab four.
+
+The certified values for standards come from the file:
+     <config>/standards/standards.csv
+
+     Controls
+
+Scan Blog Dir: Scan blog dir for data files and populate
+     table based on metadata.
+

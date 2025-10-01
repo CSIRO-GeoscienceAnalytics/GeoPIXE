@@ -1462,6 +1462,14 @@ end
 
 ;-----------------------------------------------------------------
 
+pro Image_Process_Clear_sides, Event, n, silent=silent, no_undo=no_undo, select=ii
+
+	Image_Process_Clear, Event, n, silent=silent, no_undo=no_undo, select=ii, /sides
+	return
+end
+
+;-----------------------------------------------------------------
+
 pro Image_Process_Clear, Event, n, silent=silent, no_undo=no_undo, select=ii, sides=sides
 
 COMPILE_OPT STRICTARR
@@ -2323,6 +2331,7 @@ end
 ;   If a line in image is missing (n=0), then replace it with average of lines on each side.
 ;   If a line is double counted (n=1), then halve it.
 ;   Use /vertical for vertical missing lines, or add 2 to 'n'.
+;	Uses region (or 'select') to select area to examine.
 
 pro Image_Process_missing_lines, Event, n, silent=silent, no_undo=no_undo, vertical=vertical, select=select
 
@@ -2560,8 +2569,56 @@ end
 
 ;-----------------------------------------------------------------
 
+pro Image_Process_Shift_even_columns, Event, n, _EXTRA=_VWBExtra_
+
+COMPILE_OPT STRICTARR
+
+Image_Process_Shift_rows, Event, n, /Y, /even, _EXTRA=_VWBExtra_
+return
+
+end
+
+;-----------------------------------------------------------------
+
+pro Image_Process_Shift_odd_columns, Event, n, _EXTRA=_VWBExtra_
+
+COMPILE_OPT STRICTARR
+
+Image_Process_Shift_rows, Event, n, /Y, /odd, _EXTRA=_VWBExtra_
+return
+
+end
+
+;-----------------------------------------------------------------
+
+pro Image_Process_Shift_even_rows, Event, n, _EXTRA=_VWBExtra_
+
+COMPILE_OPT STRICTARR
+
+Image_Process_Shift_rows, Event, n, /X, /even, _EXTRA=_VWBExtra_
+return
+
+end
+
+;-----------------------------------------------------------------
+
+pro Image_Process_Shift_odd_rows, Event, n, _EXTRA=_VWBExtra_
+
+COMPILE_OPT STRICTARR
+
+Image_Process_Shift_rows, Event, n, /X, /odd, _EXTRA=_VWBExtra_
+return
+
+end
+
+;-----------------------------------------------------------------
+
 pro Image_Process_Shift_rows, Event, dx, silent=silent, no_undo=no_undo, select=ii, $
 					x=x, y=y, odd=odd, even=even, test_ysize=test_ysize
+
+; Main work horse for row and column pixel shifting in images.
+; It uses 'shift_image_rows', which allows fractional pixel shifts.
+; Only the '/all' option is missing. Use "Image_Process_Shift_all".
 
 COMPILE_OPT STRICTARR
 if n_elements(silent) lt 1 then silent=0
@@ -2601,6 +2658,8 @@ sskip = 'Odd'
 if even then sskip = 'Even'
 sdir = 'rows'
 if Y then sdir = 'columns'
+if n_elements(ii) lt 1 then ii=0
+el_chosen = (*(*p).el)[ii]
 
 if (*pstate).analyze_mode eq 0 then begin          ; include mode
     mark_vertices, pstate, xv,yv, nxy
@@ -2650,7 +2709,7 @@ for i=0L,n_el-1 do begin
     (*pimg)[lowx:highx,lowy:highy,i] = img2[lowx:highx,lowy:highy]
 
     if (*pstate).display_mode eq 0 then begin
-       add_history, (*p).history, i, 'Shift '+sskip+' '+sdir+', by = '+ str_tidy(dx)+' '+sytest
+       add_history, (*p).history, i, '* Shift '+sskip+' '+sdir+', by = '+ str_tidy(dx)+' '+sytest+' ['+el_chosen+']'
     endif
 endfor
 set_image_minmax, p, pimg, opt
@@ -2666,6 +2725,9 @@ end
 ;-----------------------------------------------------------------
 
 pro Image_Process_Shift, Event, n, silent=silent, no_undo=no_undo, select=ii, all=all
+
+;	Shift rows in an image. Only 'Image_Process_Shift, /all' is used now.
+;	All other uses use 'Image_Process_Shift_rows', which s more general.
 
 COMPILE_OPT STRICTARR
 if n_elements(silent) lt 1 then silent=0
@@ -2697,6 +2759,8 @@ if all then begin
     skip = 1
     sskip = 'all'
 endif
+if n_elements(ii) lt 1 then ii=0
+el_chosen = (*(*p).el)[ii]
 
 if (*pstate).analyze_mode eq 0 then begin          ; include mode
     mark_vertices, pstate, x,y, nxy
@@ -2724,7 +2788,7 @@ if (*pstate).analyze_mode eq 0 then begin          ; include mode
          highy = max(y)
        endif
     endelse
-endif else begin                        ; exclude mode (multipass)
+endif else begin                    			    ; exclude mode (multipass)
     pq = (*pstate).q
     if ptr_valid(pq) then begin
        q_to_xy, *pq, sx, tx,ty
@@ -2750,7 +2814,7 @@ for i=0L,n_el-1 do begin
 	set_image_minmax, p, pimg, opt
 
     if (*pstate).display_mode eq 0 then begin
-       add_history, (*p).history, i, 'Shift '+sskip+' rows, by = '+ str_tidy(n)
+       add_history, (*p).history, i, 'Shift '+sskip+' rows, by = '+ str_tidy(n)+' ['+el_chosen+']'
     endif
 endfor
 
@@ -5570,9 +5634,9 @@ snap_done:
 
 				'inter-element': begin
 ;					Note: format of history (e.g. "()") is assumed for image processing Get function
-;					and must be consistent in routine doing the processing/adding the history noe.
+;					and must be consistent in routine doing the processing/adding the history note.
 ;
-;					Declared also in 'interelement_operations' and used in 'interelement_filter', interelement_transform:
+;					Declared also in 'interelement_operations' and used in 'interelement_filter', 'interelement_transform'
 
 					operations = define(/operations)
 					filters = ['None','Median filter 2','Median filter 3','Median filter 5','Median filter 10','Gaussian filter 1.0','Gaussian filter 1.5','Gaussian filter 2.0','Gaussian filter 3.0','Gaussian filter 5.0','Gaussian filter 10.0']

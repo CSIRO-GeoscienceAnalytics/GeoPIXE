@@ -1,4 +1,4 @@
-function scan_dir_evt, F, obj, image=image, ppath=ppath, proot=proot, $
+function scan_dir_evt, F, obj, image=image, dai_dir=dai_dir, ppath=ppath, proot=proot, $
 				mode=mode, rmin=rmin, rmax=rmax, error=error
 
 ; Scan the dir tree F for list-mode files and construct an array
@@ -10,6 +10,7 @@ function scan_dir_evt, F, obj, image=image, ppath=ppath, proot=proot, $
 ;	proot	pointer to path root
 ;	error	returns error (1) or sucess(0)
 ;	/image	also scan for derived image DAI files.
+;	dai_dir  path to DAI files (defaults to same as raw files 'F')
 ;	mode	normal image mode (0) or cuts mode (1)
 ;	rmin	minimum event file run number
 ;	rmax	maximum event file run number
@@ -20,6 +21,7 @@ if n_elements(geopixe_root) lt 1 then geopixe_root=''
 if lenchr(F) lt 1 then return, 0L
 if n_elements(obj) lt 1 then return, 0L
 if n_elements(image) lt 1 then image=0
+if n_elements(dai_dir) lt 1 then dai_dir=F
 if n_elements(mode) lt 1 then mode=0
 if n_elements(ppath) lt 1 then ppath=ptr_new(F)
 if n_elements(proot) lt 1 then begin
@@ -71,10 +73,10 @@ endif
 				q = q[q2]
 			endif
 			nq = nq2
+			if nq ge 1 then begin
+				s = s[q]
+			endif
 		endif
-		if nq ge 1 then begin
-			s = s[q]
-		endif else s = ''
 		ns = n_elements(s)
 	endif
 
@@ -89,7 +91,7 @@ endif
 	endif else fs0 = fs
 	s0 = strip_file_ext(s)
 	
-	s2 = file_search( F, dai)											; all original dai files
+	s2 = file_search( dai_dir, dai)									; all original dai files
 	ok = file_test( s2, /read) and (file_test( s2, /zero_length) ne 1)
 	q = where( ok eq 1, nd)
 	if nd gt 0 then begin
@@ -122,7 +124,7 @@ endif
 	endelse
  
 	for i=0L,ns-1 do begin
-		t = { file:s[i], output:'', suppress:0, enable:1, xrange:0,yrange:0, xsize:0.0,ysize:0.0, charge:0.0, comment:'', energy:0.0}
+		t = { file:s[i], dam:'', output:'', suppress:0, enable:1, xrange:0,yrange:0, xsize:0.0,ysize:0.0, charge:0.0, comment:'', energy:0.0}
 
 		if image and (nd gt 0) then begin	
 			name = fs0[i]
@@ -149,6 +151,7 @@ endif
 					t.charge = (*pimg).charge
 					t.comment = (*pimg).comment
 					t.energy = (*pimg).energy
+					t.dam = (*pimg).matrix.file
 					t.suppress = 1
 				endif
 				free_images, pimg

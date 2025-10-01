@@ -141,7 +141,7 @@ case tag_names( event,/structure) of
 				*(*pstate).pargs1 = {first:((*pstate).current_sort eq (*pstate).first_sort), save:sav, html:'', bw:'', $
 								export:'', overwrite:over, correctX:(*pstate).options[6], $
 								mirrorX:(*pstate).options[7] and flipx, tiff:'', tiff_type:0, $
-								rgb:(*pstate).options[11], metadata:(*pstate).options[12] }
+								rgb:(*pstate).options[11], metadata:(*pstate).options[12]}
 				if (*pstate).options[2] then begin						; output HTML
 					file = (*(*p)[(*pstate).current_sort]).file
 					path = *(*pstate).path + 'html' + path_sep()
@@ -185,7 +185,7 @@ case tag_names( event,/structure) of
 							load = ((*pstate).options[0] eq 1) or ((*pstate).options[2] eq 1) or ((*pstate).options[3] eq 1) or $
 									((*pstate).options[4] eq 1) or ((*pstate).options[6] eq 1) or ((*pstate).options[7] eq 1) or $
 									((*pstate).options[8] eq 1) or ((*pstate).options[9] eq 1) or ((*pstate).options[10] eq 1) or $
-									((*pstate).options[11] eq 1) or ((*pstate).options[12] eq 1) 
+									((*pstate).options[11] eq 1) or ((*pstate).options[12] eq 1)
 							*(*pstate).psort = {p:(*p)[(*pstate).current_sort], skip:(*pstate).options[5], load:load}
 							progress, /update, (*pstate).progress_tlb, {unit:0, value:0, current:(i>1), size:np}, cancel=cancel
 							if cancel then goto, finish
@@ -472,7 +472,7 @@ case uname of
 				load = ((*pstate).options[0] eq 1) or ((*pstate).options[2] eq 1) or ((*pstate).options[3] eq 1) or $
 						((*pstate).options[4] eq 1) or ((*pstate).options[6] eq 1) or ((*pstate).options[7] eq 1) or $
 						((*pstate).options[8] eq 1) or ((*pstate).options[9] eq 1) or ((*pstate).options[10] eq 1) or $
-						((*pstate).options[11] eq 1) 
+						((*pstate).options[11] eq 1) or ((*pstate).options[12] eq 1) 
 				*(*pstate).psort = {p:(*p)[i], skip:(*pstate).options[5], load:load}
 				break
 			endif
@@ -1416,8 +1416,7 @@ options_id = cw_bgroup2( tbase, ['Apply digital filters to images','Overwrite or
 							'Save images as B/W PNG to HTML','Export images as Tab delimited text','Skip sort if original DAI already exists', $
 							'Apply a CorrectX scaling file','Mirror X (odd images only)','Save images as TIFF concentration', $
 							'Save images as TIFF counts','Save images as TIFF ng/cm**2','Save selected RGB images','Save METADATA for each image'], $
-			column=3, xpad=0, ypad=0, space=0, $
-			/return_index, tracking=tracking, $
+			column=3, xpad=0, ypad=0, space=0, /return_index, tracking=tracking, $
 			uname='options', set_value=options, /nonexclusive, $
 			uvalue=['Enable the application of digital filters to the images, based on a prior DAI file used as a template. A requester will prompt for this file after the first sort in the table. Then all filter operations used on each element in the template will be applied.', $
 					'Overwrite the initial DAI file with the digital filtered images, rather than write a separate "-m.DAI" or "-x.DAI" file. This saves disk space, but it may be better to avoid this to ensure that the modified image data is stored in a different file.', $

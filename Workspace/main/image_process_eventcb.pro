@@ -197,7 +197,7 @@ if ptr_valid((*pstate).p) then ptr_free, (*pstate).p
 
 (*pstate).p = ptr_new( {  $
 				name: 		'Process', $
-				mode:		0, $						; use current image
+				mode:		0, $							; use current image
 				operation:	uv.routine[event.index], $
 				arg1:		uv.arg[event.index] }, /no_copy)
 
@@ -290,6 +290,7 @@ for i=0L,(*p).n_el-1 do begin
 		endif
 
 		phist = (*(*(*pstate).pmodel).phistory)[j]		; apply digital filters from history
+
 		if ptr_valid(phist) and select.mode_enable[1] then begin
 			nhist = n_elements(*phist)
 			if nhist ge 1 then begin
@@ -313,6 +314,12 @@ for i=0L,(*p).n_el-1 do begin
 									arg1:arg, filter:sq, arg2:sub[2] }
 						OK = 1
 					endif else begin
+
+;						Look for other processing commands, as listed in the 'image_process' routine list.
+;						"*" indicates an operation that gets applied to all element planes.
+;						If one particular element must be displayed to do this, it is put in brackets "[]".
+;						Else, this is done for element i=0.
+
 						hist = sub[0]
 						skip_el = 0
 						if strmid(hist,0,1) eq '*' then begin
@@ -323,19 +330,21 @@ for i=0L,(*p).n_el-1 do begin
 								tag = strmid( hist,l1+1,l2-l1-1)
 								if (*(*p).el)[i] ne tag then skip_el=1
 								hist = strmid( hist,0,l1-1)
-							endif
+							endif else begin
+								if not start then skip_el=1
+							endelse
 						endif
 
-						q = where( (list eq hist) and (abs(uv.arg-arg) lt 0.01))
+						q = where( (strlowcase(list) eq strlowcase(hist)) and (abs(uv.arg-arg) lt 0.01))
 						m = q[0]
 						if m ne -1 then begin
 							op = {mode:1, image:i, name:'process', valid:1, operation:uv.routine[m],  $
 										arg1:uv.arg[m], filter:'', arg2:'' }
 							OK = (skip_el eq 0)
-							help, op
 						endif
 					endelse
 					if OK then begin
+						help, op
 						if first then begin
 							first = 0
 							ops = op
@@ -359,7 +368,7 @@ for i=0L,(*p).n_el-1 do begin
 endfor
 
 ; Need to think about whether we need to introduce a "priority" in the order of these operations.
-; For example, should we do a global "Correct Zero pixels" before individual medain filters?
+; For example, should we do a global "Correct Zero pixels" before individual median filters?
 ; Or should that be the other way round?
 ; Should all operations performed on an image be tagged by a sequence number, so we can do them again
 ; in the same order?

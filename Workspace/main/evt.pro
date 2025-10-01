@@ -169,11 +169,6 @@ snap_done:
 					(*p).output_file = (*psort).output				; *** after new sort control, Parallel ...
 					suppress = (*psort).suppress
 
-;					if suppress eq 0 then begin						; ***
-;						*(*pstate).path = build_output_path( (*p).evt_file, (*p).output_file, (*p).root, /set)
-;					endif else begin
-;						*(*pstate).path = build_output_path( (*p).evt_file, (*p).output_file, (*p).root)
-;					endelse
 					*(*pstate).path = extract_path( (*p).output_file)
 					print,'EVT: path = ', *(*pstate).path
 					
@@ -183,11 +178,6 @@ snap_done:
 					widget_control, (*pstate).comment, set_value=(*p).comment
 					widget_control, (*pstate).evt2_file, set_value=''
 					set_widget_text, (*pstate).evt_file, (*p).evt_file
-
-;					T = strip_file_ext((*p).evt_file)										; ***
-;					if (mode eq 1) then T = strip_file_m( T, ending='-cuts') + '-cuts'
-;					if (mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
-;					(*p).output_file = *(*pstate).path + strip_path(T,/keep) + '.'+ (*pstate).outputs[(*p).sort_mode]
 
 					set_widget_text, (*pstate).output_file, (*p).output_file
 
@@ -279,9 +269,13 @@ snap_done:
 								if tag_present('PROJ_MODE', *pd) then evt_set_proj_mode, pstate, (*pd).proj_mode, event.top
 								if tag_present('DAM', *pd) then evt_set_proj_file, pstate, (*pd).dam
 								if tag_present('OUTPUT', *pd) then evt_set_output_file, pstate, (*pd).output, event.top
+								skip = 1
+								load = 0
+								if tag_present('SKIP', *pd) then skip = (*pd).skip			; skip sort if output file exists
+								if tag_present('LOAD', *pd) then load = (*pd).load			; load image output file
 
-								use = (*pw).qual1					; add this tag to filename
-								dont = (*pw).qual2					; strip this off existing filename
+								use = (*pw).qual1											; add this tag to filename
+								dont = (*pw).qual2											; strip this off existing filename
 								if (use ne '') or (dont ne '') then begin
 									pt = extract_path((*p).output_file)
 									T = strip_path( strip_file_ext( (*p).output_file))
@@ -296,22 +290,43 @@ snap_done:
 									evt_set_output_file, pstate, T, event.top
 								endif
 								err = 1
-	
-								pp = read_geopixe_image( (*p).output_file, error=error)
-								if error eq 0 then begin
-									(*pstate).pimage = pp
-									*(*pstate).path = extract_path( (*p).output_file)
-									notify, 'path', (*pstate).path, from=event.top
-									notify, 'images', (*pstate).pimage, from=event.top
-									err = 0
-								endif else begin
+
+								exists = file_test( (*p).output_file)
+								if exists and (load or skip) then begin						; load existing images
+									pp = read_geopixe_image( (*p).output_file, error=error)
+									if error eq 0 then begin
+										(*pstate).pimage = pp
+										*(*pstate).path = extract_path( (*p).output_file)
+										notify, 'path', (*pstate).path, from=event.top
+										notify, 'images', (*pstate).pimage, from=event.top
+										err = 0
+									endif else skip = 0
+								endif else skip = 0
+								if (skip eq 0) then begin									; sort raw data into images
 									verify = 0
 									if tag_present('VERIFY', *pd) then verify=(*pd).verify
 									(*p).flux = 0.0
 									widget_control, hourglass=1
 									evt_start, pstate, group=event.top, pprefs=(*pstate).pprefs, $
 													verify=verify, file_return=sret, error=err
-								endelse
+								endif
+
+;								pp = read_geopixe_image( (*p).output_file, error=error)
+;								if error eq 0 then begin
+;									(*pstate).pimage = pp
+;									*(*pstate).path = extract_path( (*p).output_file)
+;									notify, 'path', (*pstate).path, from=event.top
+;									notify, 'images', (*pstate).pimage, from=event.top
+;									err = 0
+;								endif else begin
+;									verify = 0
+;									if tag_present('VERIFY', *pd) then verify=(*pd).verify
+;									(*p).flux = 0.0
+;									widget_control, hourglass=1
+;									evt_start, pstate, group=event.top, pprefs=(*pstate).pprefs, $
+;													verify=verify, file_return=sret, error=err
+;								endelse
+
 								(*pw).error = err
 								(*pd).output = (*p).output_file						; file-name
 								if tag_present('PNEW', *pd) then begin
