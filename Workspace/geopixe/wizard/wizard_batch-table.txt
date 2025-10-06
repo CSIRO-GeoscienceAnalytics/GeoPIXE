@@ -5,19 +5,16 @@ Table is populated using metadata where available. Missing
 entries will need to be added. Click in a cell to edit it, 
 or use "Fill" to duplicate it down the selected column.
 
-The processing will image each standard, extract a region
-over the central 95% of the area, and calculate the "conv"
-factor based on the concentration estimated from the
-region compared to the "standards.csv" config file. 
+     Setup first
 
-This analysis will ignore pixels with no data. Technically,
-it only includes pixels within 0.8 and 1.2 times the 'mode',
-or most common pixel value.
+Scan Raw Dir for data: Scan for all raw data, using the "Device"
+and raw dir setup on tab 1.
 
-See the results in the "conv" column of the table and on 
-the "Statistics" and "Plots" tabs.
+Conv: Edit the flux to charge conversion (calibration) factor,
+if relevant for your data type. If you measure beam charge
+directly, edit the "Charge" column in the table.
 
-     Controls
+     Table Controls
 
 Enable: Toggle the enable state of selected rows.
 
@@ -27,17 +24,17 @@ Delete: Delete selected row(s).
 
 Clear: Clears entire table.
 
-Process: Start the processing.
+Start Processing: Start the batch processing.
 
      Selection of cells
 
 Click in a cell to select it. Click and drag to select
-multiple rows and/or columns. Selecting the "pileup" and
-"throttle" cells will bring up the file requester. All
-other cells using the same file-name will be updated too.
+multiple rows and/or columns. Selecting a file cell
+will bring up the file requester. All other cells using 
+the same file-name will be updated too.
 
      Results File
 
 The results and statistics are exported to a file
-called "wizard-standards-results.csv" in the designated
+called "wizard-batch-results.csv" in the designated
 output directory, in comma-separated format.

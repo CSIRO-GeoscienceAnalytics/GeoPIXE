@@ -209,7 +209,7 @@ case uname of
 				(*pstate).tlb_xsize = geom.scr_xsize
 				(*pstate).tlb_ysize = geom.scr_ysize
 
-				wizard_batch_update_plots, pstate
+;				wizard_batch_update_plots, pstate
 				end
 			else:
 		endcase
@@ -288,10 +288,9 @@ case uname of
 	'template-sort-button': begin
 		F = file_requester( /read, title='Select a template DAI', path=(*pstate).output_dir, file=(*pstate).template_sort_dai, $
 							filter='*.dai', group=event.top )
-		if F[0] ne '' then begin
-			(*pstate).template_sort_dai = F[0]
-			set_widget_text, (*pstate).template_sort_text, F[0]
-		endif
+		if F[0] eq '' then goto, finish
+		(*pstate).template_sort_dai = F[0]
+		set_widget_text, (*pstate).template_sort_text, F[0]
 		wizard_batch_load_template, pstate, error=error
 		if error then begin
 ;			warning,'wizard_batch_event','No raw files found.'		
@@ -305,7 +304,20 @@ case uname of
 		
 	'template-sort-text': begin
 		widget_control, event.id, get_value=s
+		if file_test(s) eq 0 then begin
+			warning,'wizard_batch_event','File not found.'		
+			goto, finish
+		endif
 		(*pstate).template_sort_dai = s
+		wizard_batch_load_template, pstate, error=error
+		if error then begin
+;			warning,'wizard_batch_event','No raw files found.'		
+			goto, finish
+		endif
+		widget_control, (*pstate).corrections_element, set_value = *(*pstate).pcel	
+		widget_control, (*pstate).r_element, set_value = *(*pstate).pcel
+		widget_control, (*pstate).g_element, set_value = *(*pstate).pcel
+		widget_control, (*pstate).b_element, set_value = *(*pstate).pcel
 		end
 					
 	'scan-blog-button': begin
@@ -343,7 +355,7 @@ case uname of
 		*(*pstate).pcorr = table
 		*(*pstate).pctitle = title
 		*(*pstate).pctype = type
-;		*(*pstate).pcel = element
+;		*(*pstate).pcel = element				; now set from template DAI
 		wizard_batch_update_ctable, pstate
 		end
 	
@@ -371,184 +383,6 @@ case uname of
 		(*pstate).template_rgb_export = s
 		end
 					
-	'results-table': begin
-;		help,event,/str
-		case tag_names( event, /structure_name) of
-			'WIDGET_TABLE_CELL_SEL': begin
-				(*pstate).sel.left = event.sel_left
-				(*pstate).sel.top = event.sel_top
-				(*pstate).sel.right = event.sel_right
-				(*pstate).sel.bottom = event.sel_bottom
-				i = (*pstate).sel.top
-				if i lt 0 then goto, finish
-			
-;				print,'re-load table ...'
-;				print, (*pstate).sel
-				view = widget_info( (*pstate).results_table, /table_view)
-				widget_control, (*pstate).results_table, get_value=t
-				widget_control, (*pstate).results_table, set_value=t
-				widget_control, (*pstate).results_table, set_table_select=[(*pstate).sel.left,(*pstate).sel.top,(*pstate).sel.right,(*pstate).sel.bottom]
-				widget_control, (*pstate).results_table, set_table_view=view
-				
-				i = (*pstate).sel.top
-				j = (*pstate).sel.left
-				if (i lt 0) or (j lt 0) then goto, finish
-				q = where( (*(*pstate).pheadings)[j] eq *(*pstate).ptitle, nq)	; Find heading is list of tag names
-				if nq gt 0 then begin											; for row struct of results table.
-					k = q[0]													; q[0] is then tag index in struct.
-					if ((*(*pstate).ptype)[k] eq 'file') and ((event.sel_right-j eq 0) and (event.sel_bottom-i eq 0)) then begin
-						name = (*(*pstate).ptitle)[k]
-						f = file_requester( /read, filter=['*.'+strlowcase(name)+'.var','*.txt'], /fix_filter, $
-							file=(*p)[i].(k), group=event.top, title='Select '+name+' File', cancel=cancel)
-						if cancel eq 0 then begin
-							(*p)[i].(k) = f[0]
-							wizard_batch_update_table, pstate
-						endif
-					endif
-				endif
-				end
-				
-			'WIDGET_TABLE_CH': begin
-				if (event.ch eq 13B) or (event.ch eq 10B) then begin			; <cr> after edit cell
-					if no_data eq 0 then begin									; ignore if now rows loaded
-						widget_control, (*pstate).results_table, get_value=t
-						i = (*pstate).sel.top
-						if i lt 0 then goto, finish
-						for j=3,(*pstate).columns-1 do begin
-							q = where( (*(*pstate).pheadings)[j] eq *(*pstate).ptitle, nq)	; Find heading is list of tag names
-							if nq gt 0 then begin								; for row struct of results table.
-								k = q[0]										; q[0] is then tag index in struct.
-								err = 0
-								case (*(*pstate).ptype)[k] of
-									'string': begin
-										(*p)[i].(k) = t[j,i]
-										end
-									'int': begin
-										(*p)[i].(k) = fix2(t[j,i], error=err)
-										end
-									'long': begin
-										(*p)[i].(k) = long2(t[j,i], error=err)
-										end
-									'float': begin
-										(*p)[i].(k) = float2(t[j,i], error=err)
-										end
-									'double': begin
-										(*p)[i].(k) = double2(t[j,i], error=err)
-										end
-									else:
-								endcase
-								if err then begin
-									warning,'wizard_batch_event','Illegal character for "'+(*(*pstate).ptype)[k]+'" in "'+(*(*pstate).ptitle)[k]+'" on row '+str_tidy(i)
-									return
-								endif
-							endif
-						endfor
-					endif
-					wizard_batch_update_table, pstate
-					wizard_batch_update_stats, pstate
-					if ((*pstate).sel.top lt (*pstate).rows-1) then begin
-						view = widget_info( (*pstate).results_table, /table_view)
-						(*pstate).sel.left = (*pstate).sel.left
-						(*pstate).sel.right = (*pstate).sel.left
-						(*pstate).sel.top = (*pstate).sel.top+1
-						(*pstate).sel.bottom = (*pstate).sel.top > (*pstate).sel.bottom
-						widget_control, (*pstate).results_table, set_table_select=[(*pstate).sel.left,(*pstate).sel.top,(*pstate).sel.right,(*pstate).sel.bottom]
-						widget_control, (*pstate).results_table, set_table_view=view
-						widget_control, (*pstate).results_table, edit_cell=[(*pstate).sel.top,(*pstate).sel.left]
-					endif
-				endif
-				end
-			'WIDGET_TABLE_TEXT_SEL': begin
-				end
-			else:
-		endcase
-		end
-
-	'table-fill-button': begin
-		if no_data then goto, finish
-		np = n_elements(*p)
-		if (((*pstate).sel.top le np-1) and ((*pstate).sel.bottom ge (*pstate).sel.top)) and  $
-						((*pstate).sel.left le (*pstate).sel.right) then begin
-
-			widget_control, (*pstate).results_table, get_value=t
-			i1 = (*pstate).sel.top
-			i2 = np-1
-			if (*pstate).sel.bottom gt (*pstate).sel.top then i2=(*pstate).sel.bottom
-			for j=(*pstate).sel.left,(*pstate).sel.right do begin
-				q = where( (*(*pstate).pheadings)[j] eq *(*pstate).ptitle, nq)	; Find heading is list of tag names
-				if nq gt 0 then begin											; for row struct of results table.
-					k = q[0]													; q[0] is then tag index in struct.
-					for i=i1,i2 do begin
-						(*p)[i].(k) = (*p)[i1].(k)
-					endfor
-				endif
-			endfor
-			wizard_batch_update_table, pstate
-			wizard_batch_update_stats, pstate
-		endif
-		end
-
-	'table-delete-button': begin
-		if no_data then goto, finish
-		np = n_elements(*p)
-		if ((*pstate).sel.top ge 0) and ((*pstate).sel.bottom lt np) then begin
-			n = (*pstate).columns
-			ns = -1
-			if (*pstate).sel.top eq 0 then begin
-				if (*pstate).sel.bottom eq np-1 then begin
-					*p = ptr_new()
-				endif else begin
-					*p = (*p)[(*pstate).sel.bottom+1:np-1]
-					ns = 0
-				endelse
-			endif else begin
-				t = (*p)[0:(*pstate).sel.top-1]
-				if (*pstate).sel.bottom lt np-1 then begin
-					t = [t,(*p)[(*pstate).sel.bottom+1:np-1]]
-					ns = (*pstate).sel.top
-				endif else begin
-					ns = (*pstate).sel.top-1
-				endelse
-				*p = t
-			endelse
-		endif
-		wizard_batch_update_table, pstate
-		wizard_batch_update_stats, pstate
-		end
-
-	'table-enable-button': begin
-		if no_data then goto, finish
-		np = n_elements(*p)
-		if ((*pstate).sel.top ge 0) and ((*pstate).sel.bottom lt np) then begin
-			for i=(*pstate).sel.top,(*pstate).sel.bottom do begin
-				if (*p)[i].on eq 1 then begin						; was "On"
-					(*p)[i].on = 0
-				endif else if (*p)[i].on eq 0 then begin			; was "Off"
-					(*p)[i].on = 1
-				endif else if (*p)[i].on eq 2 then begin			; was "Done"
-					(*p)[i].on = 0
-				endif else if (*p)[i].on eq 3 then begin			; was "Error"
-					(*p)[i].on = 0
-				endif
-			endfor
-		endif
-		wizard_batch_update_table, pstate
-		end
-
-	'table-clear-button': begin
-		if no_data then goto, finish
-		*p = 0
-		wizard_batch_update_table, pstate
-		wizard_batch_update_stats, pstate
-		(*pstate).sel.top = -1
-		(*pstate).sel.bottom = -1
-		end
-
-	'process-button': begin
-		(*pstate).loop = 0
-		wizard_batch_process_blog, pstate, error=error
-		end
-	
 	'corrections-table': begin
 		case tag_names( event, /structure_name) of
 			'WIDGET_TABLE_CELL_SEL': begin
@@ -623,9 +457,14 @@ case uname of
 		widget_control, (*pstate).display_top_text, get_value=top
 		widget_control, (*pstate).display_log_text, get_value=log
 		i = (*pstate).csel.top
-		t[i].bottom = clip( fix2(bot), 0,99)
-		t[i].top = clip( fix2(top), 1,100)
-		t[i].log = clip( fix2(log), 0,2)
+		el = ((*(*pstate).pcorr)[i]).el
+		q = where( t.el eq el, nq)
+		if nq eq 0 then goto, finish
+		for j=0,nq-1 do begin
+			t[q[j]].bottom = clip( fix2(bot), 0,99)
+			t[q[j]].top = clip( fix2(top), 1,100)
+			t[q[j]].log = clip( fix2(log), 0,2)
+		endfor
 		*(*pstate).pcorr = t
 		wizard_batch_update_ctable, pstate
 		end
@@ -702,8 +541,204 @@ case uname of
 		end
 
 	'rgb-save-button': begin
+		t = *(*pstate).prgb
+		n = n_elements(t)
+		if typevar(t) ne 'STRUCT' then return
+		if n eq 0 then begin
+			warning,'wizard_batch_event','No RGB images lists to save.'
+			return
+		endif
+		F = file_requester( /write, filter=['*.rgb.csv'], group=event.top, path=*(*pstate).path, $
+					title='Save RGB image display list to a file', /fix_filter)
+		if F eq '' then return
+		F = strip_file_ext(F,/double) + '.rgb.csv'
+	
+		on_ioerror, bad_file
+		openw, unit, F[0], /get_lun
+	
+		list = *(*pstate).prgb
+		for i=0,n-1 do begin
+			printf, unit, list[i].r, list[i].g, list[i].b, list[i].zoom, format='(A,",",A,",",A,",",I3)'
+		endfor
+bad_file:
+		close_file, unit
+		return
 		end
 
+	'results-table': begin
+;		help,event,/str
+		case tag_names( event, /structure_name) of
+			'WIDGET_TABLE_CELL_SEL': begin
+				(*pstate).sel.left = event.sel_left
+				(*pstate).sel.top = event.sel_top
+				(*pstate).sel.right = event.sel_right
+				(*pstate).sel.bottom = event.sel_bottom
+				i = (*pstate).sel.top
+				if i lt 0 then goto, finish
+			
+;				print,'re-load table ...'
+;				print, (*pstate).sel
+				view = widget_info( (*pstate).results_table, /table_view)
+				widget_control, (*pstate).results_table, get_value=t
+				widget_control, (*pstate).results_table, set_value=t
+				widget_control, (*pstate).results_table, set_table_select=[(*pstate).sel.left,(*pstate).sel.top,(*pstate).sel.right,(*pstate).sel.bottom]
+				widget_control, (*pstate).results_table, set_table_view=view
+				
+				i = (*pstate).sel.top
+				j = (*pstate).sel.left
+				if (i lt 0) or (j lt 0) then goto, finish
+				q = where( (*(*pstate).pheadings)[j] eq *(*pstate).ptitle, nq)		; Find heading in list of tag names
+				if nq gt 0 then begin												; for row struct of results table.
+					k = q[0]														; q[0] is then tag index in struct.
+					if ((*(*pstate).ptype)[k] eq 'file') and ((event.sel_right-j eq 0) and (event.sel_bottom-i eq 0)) then begin
+						name = (*(*pstate).ptitle)[k]
+						f = file_requester( /read, filter=['*.'+strlowcase(name)+'.var','*.txt'], /fix_filter, $
+							file=(*p)[i].(k), group=event.top, title='Select '+name+' File', cancel=cancel)
+						if cancel eq 0 then begin
+							(*p)[i].(k) = f[0]
+							wizard_batch_update_table, pstate
+						endif
+					endif
+				endif
+				end
+				
+			'WIDGET_TABLE_CH': begin
+				if (event.ch eq 13B) or (event.ch eq 10B) then begin				; <cr> after edit cell
+					if no_data eq 0 then begin										; ignore if now rows loaded
+						widget_control, (*pstate).results_table, get_value=t
+						i = (*pstate).sel.top
+						if i lt 0 then goto, finish
+						for j=3,(*pstate).columns-1 do begin
+							q = where( (*(*pstate).pheadings)[j] eq *(*pstate).ptitle, nq)	; Find heading in list of tag names
+							if nq gt 0 then begin									; for row struct of results table.
+								k = q[0]											; q[0] is then tag index in struct.
+								err = 0
+								case (*(*pstate).ptype)[k] of
+									'string': begin
+										(*p)[i].(k) = t[j,i]
+										end
+									'int': begin
+										(*p)[i].(k) = fix2(t[j,i], error=err)
+										end
+									'long': begin
+										(*p)[i].(k) = long2(t[j,i], error=err)
+										end
+									'float': begin
+										(*p)[i].(k) = float2(t[j,i], error=err)
+										end
+									'double': begin
+										(*p)[i].(k) = double2(t[j,i], error=err)
+										end
+									else:
+								endcase
+								if err then begin
+									warning,'wizard_batch_event','Illegal character for "'+(*(*pstate).ptype)[k]+'" in "'+(*(*pstate).ptitle)[k]+'" on row '+str_tidy(i)
+									return
+								endif
+							endif
+						endfor
+					endif
+					wizard_batch_update_table, pstate
+					if ((*pstate).sel.top lt (*pstate).rows-1) then begin
+						view = widget_info( (*pstate).results_table, /table_view)
+						(*pstate).sel.left = (*pstate).sel.left
+						(*pstate).sel.right = (*pstate).sel.left
+						(*pstate).sel.top = (*pstate).sel.top+1
+						(*pstate).sel.bottom = (*pstate).sel.top > (*pstate).sel.bottom
+						widget_control, (*pstate).results_table, set_table_select=[(*pstate).sel.left,(*pstate).sel.top,(*pstate).sel.right,(*pstate).sel.bottom]
+						widget_control, (*pstate).results_table, set_table_view=view
+						widget_control, (*pstate).results_table, edit_cell=[(*pstate).sel.top,(*pstate).sel.left]
+					endif
+				endif
+				end
+			'WIDGET_TABLE_TEXT_SEL': begin
+				end
+			else:
+		endcase
+		end
+
+	'table-fill-button': begin
+		if no_data then goto, finish
+		np = n_elements(*p)
+		if (((*pstate).sel.top le np-1) and ((*pstate).sel.bottom ge (*pstate).sel.top)) and  $
+						((*pstate).sel.left le (*pstate).sel.right) then begin
+
+			widget_control, (*pstate).results_table, get_value=t
+			i1 = (*pstate).sel.top
+			i2 = np-1
+			if (*pstate).sel.bottom gt (*pstate).sel.top then i2=(*pstate).sel.bottom
+			for j=(*pstate).sel.left,(*pstate).sel.right do begin
+				q = where( (*(*pstate).pheadings)[j] eq *(*pstate).ptitle, nq)	; Find heading is list of tag names
+				if nq gt 0 then begin											; for row struct of results table.
+					k = q[0]													; q[0] is then tag index in struct.
+					for i=i1,i2 do begin
+						(*p)[i].(k) = (*p)[i1].(k)
+					endfor
+				endif
+			endfor
+			wizard_batch_update_table, pstate
+		endif
+		end
+
+	'table-delete-button': begin
+		if no_data then goto, finish
+		np = n_elements(*p)
+		if ((*pstate).sel.top ge 0) and ((*pstate).sel.bottom lt np) then begin
+			n = (*pstate).columns
+			ns = -1
+			if (*pstate).sel.top eq 0 then begin
+				if (*pstate).sel.bottom eq np-1 then begin
+					*p = ptr_new()
+				endif else begin
+					*p = (*p)[(*pstate).sel.bottom+1:np-1]
+					ns = 0
+				endelse
+			endif else begin
+				t = (*p)[0:(*pstate).sel.top-1]
+				if (*pstate).sel.bottom lt np-1 then begin
+					t = [t,(*p)[(*pstate).sel.bottom+1:np-1]]
+					ns = (*pstate).sel.top
+				endif else begin
+					ns = (*pstate).sel.top-1
+				endelse
+				*p = t
+			endelse
+		endif
+		wizard_batch_update_table, pstate
+		end
+
+	'table-enable-button': begin
+		if no_data then goto, finish
+		np = n_elements(*p)
+		if ((*pstate).sel.top ge 0) and ((*pstate).sel.bottom lt np) then begin
+			for i=(*pstate).sel.top,(*pstate).sel.bottom do begin
+				if (*p)[i].on eq 1 then begin						; was "On"
+					(*p)[i].on = 0
+				endif else if (*p)[i].on eq 0 then begin			; was "Off"
+					(*p)[i].on = 1
+				endif else if (*p)[i].on eq 2 then begin			; was "Done"
+					(*p)[i].on = 0
+				endif else if (*p)[i].on eq 3 then begin			; was "Error"
+					(*p)[i].on = 0
+				endif
+			endfor
+		endif
+		wizard_batch_update_table, pstate
+		end
+
+	'table-clear-button': begin
+		if no_data then goto, finish
+		*p = 0
+		wizard_batch_update_table, pstate
+		(*pstate).sel.top = -1
+		(*pstate).sel.bottom = -1
+		end
+
+	'process-button': begin
+		(*pstate).loop = 0
+		wizard_batch_process_blog, pstate, error=error
+		end
+	
 ;	'detector-mode': begin
 ;		n = n_elements(*(*pstate).detector_list)
 ;		if n lt 1 then goto, finish
@@ -863,14 +898,14 @@ endif
 			endif
 		endif
 
-		(*p)[ (*pstate).index].conv = 0.99			; as a test
+		charge =  (*(*pep).pdata).charge
+		(*p)[ (*pstate).index].charge = charge
 
 		wizard_batch_update_table, pstate
-;		wizard_batch_update_stats, pstate
 		ptr_free, pret
 	endif
 	
-;	Next row?			put this here for now. Needs to in callback after LAST operations later ...
+;	Next row?			put this here for now. Needs to be in callback after LAST operations later ...
 	
 	(*pstate).loop += 1
 	wizard_batch_process_blog, pstate, error=error
@@ -949,7 +984,6 @@ endif
 ;	(*(*pstate).presults)[ (*pstate).index].error = (*(*pd).error)[q1[0]] / r
 ;	(*(*pstate).presults)[ (*pstate).index].sd = (*(*pd).sd)[q1[0]] / r
 ;	(*(*pstate).presults)[ (*pstate).index].relsd = (*(*pd).relsd)[q1[0]]
-;	wizard_batch_update_stats, pstate
 ;	
 ;;	plots ...
 ;
@@ -1227,17 +1261,20 @@ cont:
 		warning,'wizard_batch_scan_dir','No raw files found in - '+(*pstate).blog_dir
 		return, 0
 	endif
-	blog = strarr(nb)
-	dam = strarr(nb)
-	for i=0,nb-1 do begin
-		blog[i] = (*p[i]).file				; raw data file
-		dam[i] = (*p[i]).dam				; initial DAM file (from DAI file)
-	endfor
 	
+	widget_control, (*pstate).conv_text, get_value=s
+	set_conv = 0
+	if s eq '' then set_conv = 1
+
 	for i=0,nb-1 do begin
-		mp = get_header_info( *(*pstate).pDevObj, blog[i], error=err)	; output=output, silent=silent
+		if set_conv and ((*p[i]).conv ne 0.0) then begin
+			widget_control, (*pstate).conv_text, set_value=str_tidy((*p[i]).conv)
+			set_conv = 0
+		endif
+
+		mp = get_header_info( *(*pstate).pDevObj, (*p[i]).file, error=err)	; output=output, silent=silent
 		if err then begin
-			warning,'wizard_batch_scan_dir','Error in header read for file: '+blog[i]
+			warning,'wizard_batch_scan_dir','Error in header read for file: '+(*p[i]).file
 			return, 0
 		endif
 		
@@ -1246,44 +1283,43 @@ cont:
 		sample_type = mp.metadata.sample_type
 ;		if sample_type eq 'standard' then continue			; skip 'standard_type' = "standard"
 
-		energy = mp.energy
-		sample = mp.sample
-		gain = mp.sensitivity
-		pv = mp.IC_name
-		pileup = mp.pileup.file
-		if (mp.pileup.on eq 0) then pileup = ''		
-		throttle = mp.throttle.file
-		if (mp.throttle.on eq 0) then throttle = ''		
-		xsize = mp.scan.x_pixels
-		ysize = mp.scan.y_pixels
+;		energy = mp.energy									; already in 'p' from 'scan_dir_evt'
+;		charge = mp.charge
+;		xpixels = mp.scan.x_pixels
+;		ypixels = mp.scan.y_pixels
+;		xsize = mp.scan.x_mm
+;		ysize = mp.scan.y_mm
 
-		if (mp.metadata.facility eq 'MM.Mel.') and (pv eq '') then begin
-			gain = 1.0										; to test using old Udimet data
-			pv = 'Maia:dwell.time'
-		endif
-
-		if gain lt 1.0e-6 then begin
-			gain = 1.0										; is this a good idea?
-			print, '** wizard_batch_scan_dir: gain was zero, so set it to 1.0 to continue.'
-		endif
-		
-		el = ''
-;		j = wizard_batch_find_match( pstate, sample, serial, detector, energy, error=err)
-;		if err eq 0 then begin
-;			el = (*pc)[j].el
+;		sample = mp.sample
+;		gain = mp.sensitivity
+;		pv = mp.IC_name
+;		pileup = mp.pileup.file
+;		if (mp.pileup.on eq 0) then pileup = ''		
+;		throttle = mp.throttle.file
+;		if (mp.throttle.on eq 0) then throttle = ''		
+;		if (mp.metadata.facility eq 'MM.Mel.') and (pv eq '') then begin
+;			gain = 1.0										; to test using old Udimet data
+;			pv = 'Maia:dwell.time'
 ;		endif
-
+;		if gain lt 1.0e-6 then begin
+;			gain = 1.0										; is this a good idea?
+;			print, '** wizard_batch_scan_dir: gain was zero, so set it to 1.0 to continue.'
+;		endif
+		
 ;		This defines the names and types of the columns of the table struct.
 ;		It must match the order of entries in the row struct of the table.
 ;		This is NOT the selection of the columns as shown. See "wizard_batch_update_table" for that.
 
-		title = ['On','Raw','DAM', 'Name','Serial','Detector','Energy','Xsize','Ysize','PV name','IC Gain','El','Pileup','Throttle', $
-				'Conv','Mean','Error','Std.Dev','SD/Error']
-		type = ['toggle','file','string','string','string','string','float','int','int','string','float','string','file','file', $
-				'float','float','float','float','float']
+		title = ['On','Raw','DAM', 'Name','Serial','Detector','Energy','Xpixels','Ypixels','Xsize','Ysize','PV name','IC Gain','Pileup','Throttle', $
+				'Charge','Output','Mean','Error','Std.Dev','SD/Error']
+		type = ['toggle','file','string','string','string','string','float','int','int','int','int','string','float','file','file', $
+				'float','string','float','float','float','float']
 		
-		row = {on:1, blog:blog[i], dam:dam[i], name:sample, serial:serial, detector:detector, energy:energy, xsize:xsize, ysize:ysize, $
-			pv:pv, gain:gain, el:el, pileup:pileup, throttle:throttle, conv:0.0, mean:0.0, error:0.0, sd:0.0, relsd:0.0}
+		row = {on:1, blog:(*p[i]).file, dam:(*p[i]).dam, name:(*p[i]).sample, serial:serial, $
+			detector:detector, energy:(*p[i]).energy, charge:(*p[i]).charge, $
+			xpixels:(*p[i]).xrange, ypixels:(*p[i]).yrange, xsize:(*p[i]).xsize, ysize:(*p[i]).ysize, $
+			pv:(*p[i]).pv, gain:(*p[i]).gain, pileup:(*p[i]).pileup, throttle:(*p[i]).throttle, $
+			output:(*p[i]).output, mean:0.0, error:0.0, sd:0.0, relsd:0.0}
 		
 		if wizard_batch_test_row( row) eq 0 then row.on=0
 
@@ -1374,7 +1410,6 @@ if n_elements(silent) eq 0 then silent=0
 
 	start = 1
 	for i=0,nel-1 do begin
-		first = 1
 
 ;		This defines the names and types of the columns of the Corr struct.
 ;		It must match the order of entries in the row struct of the corr table.
@@ -1385,8 +1420,11 @@ if n_elements(silent) eq 0 then silent=0
 		element = *(*p).el
 		
 		phist = (*(*p).history)[i]
-		if ptr_good(phist) eq 0 then continue
+		found = 0
+		if ptr_good(phist) eq 0 then goto, more_corr
+
 		nhist = n_elements(*phist)
+		first = 1
 		for j=0,nhist-1 do begin
 			s = hide_embedded( (*phist)[j], ' ')
 			sub = strsplit( s, ',:()', /extract, count=n_sub)
@@ -1422,14 +1460,28 @@ if n_elements(silent) eq 0 then silent=0
 			if OK then begin
 				row = {el:(*(*p).el)[i], history:s, bottom:(*(*p).options)[i].bottom, $
 					top:(*(*p).options)[i].top, log:(*(*p).options)[i].log}
-				
-				if n_elements(table) lt 1 then begin
+				found = 1
+				if start then begin
 					table = row
+					start = 0
 				endif else begin
 					table = [table, row]
-				endelse		
+				endelse
+				first = 0
 			endif
 		endfor
+more_corr:
+		if first and not found then begin
+			row = {el:(*(*p).el)[i], history:'', bottom:(*(*p).options)[i].bottom, $
+				top:(*(*p).options)[i].top, log:(*(*p).options)[i].log}
+			if start then begin
+				table = row
+				start = 0
+			endif else begin
+				table = [table, row]
+			endelse
+			first = 0
+		endif
 	endfor
 	
 	if n_elements(table) ge 1 then error = 0	
@@ -1636,6 +1688,9 @@ endif
 		warning,'wizard_batch_process_blog','Missing valid "IC Gain" value.'
 		return
 	endif
+	widget_control, (*pstate).conv_text, get_value=s
+	conv = 1.0
+	if s ne '' then conv = float2(s)
 	
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
@@ -1654,7 +1709,8 @@ endif
 		skip:			0, $							; skip sort if exists already
 		verify:			1, $							; enable file verification
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
-		conv:			1.0, $							; initial 'conv'
+		conv:			conv, $							; initial 'conv'
+		charge:			0.0, $							; for the returned charge
 		charge_mode:	1, $							; flux/charge mode (IC w/ PV)
 		flux_scaler: 	(*p)[j].pv, $					; scaler ID
 		gain_value:		gain_value, $					; IC gain
@@ -2131,6 +2187,7 @@ endcase
 	nc = n_elements(headings)
 	widths = [4,9, 40, 9,9,5] * !d.x_ch_size * ch_scale
 	t = strarr(nc,256)
+	toggle_modes = ['Off', 'On', 'Done', 'Error']
 
 	if typevar(*(*pstate).pctitle) eq 'UNDEFINED' then begin	
 		*(*pstate).pctitle = ['El','History','Bottom','Top','Log']
@@ -2238,6 +2295,7 @@ endcase
 	nc = n_elements(headings)
 	widths = [4, replicate(10,4)] * !d.x_ch_size * ch_scale
 	t = strarr(nc,256)
+	toggle_modes = ['Off', 'On', 'Done', 'Error']
 
 	if typevar(*(*pstate).prtitle) eq 'UNDEFINED' then begin	
 		*(*pstate).prtitle = ['R','G','B','Zoom']
@@ -2342,9 +2400,9 @@ endcase
 
 	rows = string(indgen(n>1))
 ;	headings = ['#','On', 'Raw','Name', 'Detector','Energy', 'Xsize','Ysize', 'IC Gain','Conv', 'Pileup','Throttle']
-	widths = [3,5, 20,8, replicate(7,2), replicate(5,2), 7,10, 10,10] * !d.x_ch_size * ch_scale
-	headings = ['#','On', 'Raw','Name','Energy', 'Xsize','Ysize','Conv', 'Pileup','Throttle']
-	widths = [3,5, 34,8, replicate(7,1), replicate(5,2), 10, 10,10] * !d.x_ch_size * ch_scale
+;	widths = [3,5, 20,8, replicate(7,2), replicate(5,2), 7,10, 10,10] * !d.x_ch_size * ch_scale
+	headings = ['#','On', 'Raw', 'Xpixels','Ypixels','Xsize','Ysize', 'Charge', 'Output']
+	widths = [3,5, 12, replicate(7,2),replicate(7,2), 8, 41] * !d.x_ch_size * ch_scale
 	nc = n_elements(headings)
 	t = strarr(nc,256)
 	toggle_modes = ['Off', 'On', 'Done', 'Error']
@@ -2374,7 +2432,7 @@ endcase
 							t[j,i] = str_tidy((*p)[i].(k))
 							end
 						'float': begin
-							t[j,i] = str_tidy((*p)[i].(k))
+							t[j,i] = str_tidy((*p)[i].(k), places=-2)
 							end
 						'double': begin
 							t[j,i] = str_tidy((*p)[i].(k))
@@ -2607,35 +2665,35 @@ end
 
 ;----------------------------------------------------------------------
 
-pro OnRealize_wizard_batch_stats_table, wWidget
-
-COMPILE_OPT STRICTARR
-ErrorNo = 0
-common c_errors_1, catch_errors_on
-if catch_errors_on then begin
-	Catch, ErrorNo
-	if (ErrorNo ne 0) then begin
-		Catch, /cancel
-		on_error, 1
-		help, calls = s
-		n = n_elements(s)
-		c = 'Call stack: '
-		if n gt 2 then c = [c, s[1:n-2]]
-		warning,'OnRealize_wizard_batch_stats_table',['IDL run-time error caught.', '', $
-				'Error:  '+strtrim(!error_state.name,2), $
-				!error_state.msg,'',c], /error
-		MESSAGE, /RESET
-		return
-	endif
-endif
-
-	top = tlb_id( wWidget)
-	child = widget_info( top, /child)
-	widget_control, child, get_uvalue=pstate
-
-	wizard_batch_update_stats, pstate
-	return
-end
+;pro OnRealize_wizard_batch_stats_table, wWidget
+;
+;COMPILE_OPT STRICTARR
+;ErrorNo = 0
+;common c_errors_1, catch_errors_on
+;if catch_errors_on then begin
+;	Catch, ErrorNo
+;	if (ErrorNo ne 0) then begin
+;		Catch, /cancel
+;		on_error, 1
+;		help, calls = s
+;		n = n_elements(s)
+;		c = 'Call stack: '
+;		if n gt 2 then c = [c, s[1:n-2]]
+;		warning,'OnRealize_wizard_batch_stats_table',['IDL run-time error caught.', '', $
+;				'Error:  '+strtrim(!error_state.name,2), $
+;				!error_state.msg,'',c], /error
+;		MESSAGE, /RESET
+;		return
+;	endif
+;endif
+;
+;	top = tlb_id( wWidget)
+;	child = widget_info( top, /child)
+;	widget_control, child, get_uvalue=pstate
+;
+;	wizard_batch_update_stats, pstate
+;	return
+;end
 
 ;--------------------------------------------------------------------------
 
@@ -2850,7 +2908,7 @@ image_process, return_list=uv
 
 ; 	top-level base
 
-tlb = widget_base( /column, title='Batch Processing Wizard ' + wversion + ' (GeoPIXE '+version+')', /TLB_KILL_REQUEST_EVENTS, $
+tlb = widget_base( /column, title='Batch Processing Wizard [under construction] ' + wversion + ' (GeoPIXE '+version+')', /TLB_KILL_REQUEST_EVENTS, $
 					group_leader=group, uname='wizard-batch-tlb', /TLB_SIZE_EVENTS, SPACE=2 ,XPAD=2 ,YPAD=2 ,xoffset=xoffset, $
 					yoffset=yoffset, /base_align_center)
 tbase = widget_base( tlb, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
@@ -2895,19 +2953,19 @@ blog_dir_text = widget_text( file_base1c, uname='blog-dir-text', value=default.p
 						uvalue={xresize:left_resize, help:'Enter the raw data directory, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_batch_blog_dir_text')
 
-file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
-button = widget_button( file_base1d, value='Energy Cal:', uname='energy-cal-file-button', tracking=tracking, $
-						uvalue='Click to browse for the energy calibration SPEC file for all good detectors. Delete any detectors in the SPEC file to exclude these detector channels.', scr_xsize=button_xsize )
-energy_cal_file_text = widget_text( file_base1d, uname='energy-cal-file-text', value='', tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for the energy cal SPEC file for the detector, or click on button to browse for the file. Delete any detectors in the SPEC file to exclude these detector channels.'}, scr_xsize=text_xsize, /edit)
-;						Notify_Realize='OnRealize_batch_energy_cal_file_text')
-
 file_base1e = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base1e, value='Output Path:', uname='output-dir-button', tracking=tracking, $
 						uvalue='Click to browse for the output directory tree for image data. ', scr_xsize=button_xsize )
 output_dir_text = widget_text( file_base1e, uname='output-dir-text', value=default.path.analysis, tracking=tracking, $
 						uvalue={xresize:left_resize, help:'Enter the directory tree for image output, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_batch_output_dir_text')
+
+file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
+button = widget_button( file_base1d, value='Energy Cal:', uname='energy-cal-file-button', tracking=tracking, $
+						uvalue='Click to browse for the energy calibration SPEC file for all good detectors. Delete any detectors in the SPEC file to exclude these detector channels.', scr_xsize=button_xsize )
+energy_cal_file_text = widget_text( file_base1d, uname='energy-cal-file-text', value='', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter file-name for the energy cal SPEC file for the detector, or click on button to browse for the file. Delete any detectors in the SPEC file to exclude these detector channels.'}, scr_xsize=text_xsize, /edit)
+;						Notify_Realize='OnRealize_batch_energy_cal_file_text')
 
 
 file_base2 = widget_base( file_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize, uvalue={xresize:left_resize})
@@ -3023,7 +3081,7 @@ t = strarr(ncr,256)
 
 rgbtable = Widget_Table(rgbtable1_base, UNAME='rgb-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
 				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182, /no_row_headers, $
-				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows selected RGB export combinations to export for each processed image .' + $
+				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows selected RGB export combinations to export for each processed image ' + $
 				'using the selected Zoom factor.'}, $
 				column_labels=headings, column_widths=widths, $
 				NOTIFY_REALIZE='OnRealize_wizard_batch_rgbtable')
@@ -3073,7 +3131,7 @@ button = widget_button( table_base1a, value='Scan Raw Dir for data', uname='scan
 						uvalue='Click to scan the selected raw dir (tab 1) for all raw data and populate the table. Click on "Start processing" to begin processing.', scr_xsize=2*button_xsize )
 label = widget_label( table_base1a, value='    Conv:')
 conv_text = widget_text( table_base1a, uname='conv-text', value='', tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for a RGB CSV file list of RGB export combinations.'}, scr_xsize=button_xsize2, /edit)
+						uvalue={xresize:left_resize, help:'Enter the conversion from flux to charge.'}, scr_xsize=button_xsize2, /edit)
 
 table1_base = widget_base( table_base1, title='  Results Table    ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
@@ -3236,6 +3294,7 @@ state = { $
 		g_element:				g_element, $					; G element mode ID	
 		b_element:				b_element, $					; B element mode ID	
 		rgb_zoom_text:			rgb_zoom_text, $				; Zoom text ID
+		conv_text:				conv_text, $					; conv factor text ID
 
 ;		ptab_panel:				ptab_panel, $					; plot tab ID
 ;		results_draw1:			results_draw1, $				; results plot1 (by run)

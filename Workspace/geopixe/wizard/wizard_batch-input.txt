@@ -1,42 +1,45 @@
 
-     Standards Analysis Wizard
+     Batch Wizard
 
-The Wizard will search for all "standards" foil image scan
-data-sets in the selected 'blog' directory. Standards will
-be indentified by 'sample_type' metadata as "standard".
+The Wizard is used to process a series of raw data files
+into output image DAI files. The setup is organized on 4
+tabs. Click "Next >>" to move to each new tab.
 
-Each will be imaged using pre-calculated DA matrix files.
-These files are stored in the GeoPIXE Resource area, which
-can be selected here (defaults to the value of the "path
-config" in your "~/.geopixe/geopixe.conf" file).
+1. User Input
 
-"Resources" is used to set the path to the top level of 
-the <config> directory.
+First set the Device type for the raw data. This is essential
+to find the correct raw data files.
 
-e.g.  at XFM =  Resources: \XFM\config\geopixe_config\
+Raw dir: Path where our raw data resides.
 
-The <config> data is assumed to be stored in a tree divided
-by detector ID and energy:
-     <config>/<detector>/standards/<energy>/
+Output path: The "analysis" directory where output images 
+are written.
 
-DA matrix files assumed to be named similarly:
-     e.g. path in config: 384C14/standards/18500eV/
-            file: Pt_MM15931_384C14_18500eV.damx
+Energy Cal: Select an energy cal SPEC file, which will be used
+to enable detector channels and set the energy cals for all 
+detectors.
 
-Each standard will be imaged using the appropriate DA 
-matrix and a large region selected to determine average 
-conc. This will be compared to the certified value to 
-determine the conversion factor 'conv'.
+2. Corrections Table
 
-Results are stored in the Table on tab two. Image 
-statistics are shown on tab three and "conv" values
-are plotted on tab four.
+Optionally, you can load image processing corrections from
+a template DAI file (like the "Get" button on the Image
+Processing window).
 
-The certified values for standards come from the file:
-     <config>/standards/standards.csv
+This table will also allow Display ranges to be modified.
 
-     Controls
+3. RGB Exports
 
-Scan Blog Dir: Scan blog dir for data files and populate
-     table based on metadata.
+Here you can specify a list of RGB element combinations for
+RGB Image exports. You can also load these from a rgb.csv
+file, as setup using the "Learn" menu on the RGB Images
+window.
 
+4. Processing Table
+
+Here you scan the raw data dir for data files, which fills
+in a table of key parameters, and "Start Processing".
+
+
+Advance to the next tab using "Next >>" or use "<< Back"
+to return the previous tab. You can also select tabs directory.
+Hit "Figure" to reopen any diagram for a tab (if closed).

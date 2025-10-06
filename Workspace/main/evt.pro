@@ -311,25 +311,10 @@ snap_done:
 													verify=verify, file_return=sret, error=err
 								endif
 
-;								pp = read_geopixe_image( (*p).output_file, error=error)
-;								if error eq 0 then begin
-;									(*pstate).pimage = pp
-;									*(*pstate).path = extract_path( (*p).output_file)
-;									notify, 'path', (*pstate).path, from=event.top
-;									notify, 'images', (*pstate).pimage, from=event.top
-;									err = 0
-;								endif else begin
-;									verify = 0
-;									if tag_present('VERIFY', *pd) then verify=(*pd).verify
-;									(*p).flux = 0.0
-;									widget_control, hourglass=1
-;									evt_start, pstate, group=event.top, pprefs=(*pstate).pprefs, $
-;													verify=verify, file_return=sret, error=err
-;								endelse
-
 								(*pw).error = err
-								(*pd).output = (*p).output_file						; file-name
-								if tag_present('PNEW', *pd) then begin
+								(*pd).output = (*p).output_file								; file-name
+								(*pd).charge = (*(*pstate).p).charge						; return a new charge
+								if tag_present('PNEW', *pd) then begin						; some file paths have changed
 									if n_elements(sret) gt 0 then *(*pd).pnew = sret
 								endif
 								notify, 'wizard-return', pw

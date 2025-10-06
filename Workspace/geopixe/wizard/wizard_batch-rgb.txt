@@ -1,0 +1,34 @@
+
+     RGB Exports table
+
+Here you can specify a list of RGB element combinations for
+RGB Image exports.
+
+You can also set zoom parameters, which allow export at 
+full resolution (zoom=0), zoomed in to a smaller image 
+(zoom<0) or expanded (zoom>0). The Zoom parameters are
+effectively powers of 2 in image scaling and mimic the "+"
+and "-" buttons under the image windows.
+
+RGB Export: Select a rgb.csv file to load the RGB combinations 
+from. This file may have been setup using the "Learn" menu on
+the RGB Images window or previously in the Batch Wizard.
+
+     Table Controls
+
+Edit Export
+
+To add a new combination, select the elements for R, G and B
+and hit "Add". You can optionally change the display "Log"
+parameter, as described above.
+
+Add: To delete an entry, select the row by clicking in a cell 
+and hit "Delete". 
+
+Clear: Clear the table using "Clear".
+
+Save: Write the RGB combinations into a new rgb.csv file to
+use here, or with the "Learn" menu in the RGB Image window.
+
+
+

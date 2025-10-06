@@ -1,6 +1,8 @@
 function charge_gain_units, sensitivity, units=gain_units
 
 ; Convert 'sensitivity' to 'gain' in the range 1-500 and a 'units' scaling range
+;
+; For reverse conversion, see 'charge_sensitivity'
 
 COMPILE_OPT STRICTARR
 

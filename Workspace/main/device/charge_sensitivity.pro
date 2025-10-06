@@ -3,6 +3,8 @@ function charge_sensitivity, val, unit, ionbeam=ionbeam, time=time
 ; Convert a 'val' multiplier and a 'unit' string into a sensitivity value.
 ; If a time unit, return time=1.
 ; Set /ionbeam for ionbeam use.
+;
+; For reverse conversion, see 'charge_gain_units'
 
 COMPILE_OPT STRICTARR
 	sens = 0.

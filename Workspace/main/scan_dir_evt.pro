@@ -124,7 +124,9 @@ endif
 	endelse
  
 	for i=0L,ns-1 do begin
-		t = { file:s[i], dam:'', output:'', suppress:0, enable:1, xrange:0,yrange:0, xsize:0.0,ysize:0.0, charge:0.0, comment:'', energy:0.0}
+		t = { file:s[i], dam:'', output:'', suppress:0, enable:1, xrange:0,yrange:0, xsize:0.0,ysize:0.0, charge:0.0, $
+			pv:'', conv:0.0, gain:1.0, pileup:'',throttle:'', sample:'',grain:'',comment:'', energy:0.0, $
+			xorigin:0.0, yorigin:0.0, zorigin:0.0, facility:'', endstation:'' }
 
 		if image and (nd gt 0) then begin	
 			name = fs0[i]
@@ -148,10 +150,21 @@ endif
 					t.yrange = (*pimg).ysize * ((*pimg).ycompress > 1)
 					t.xsize = (*pimg).scan.x * 1000.
 					t.ysize = (*pimg).scan.y * 1000.
+					t.xorigin = (*pimg).scan.origin.x
+					t.yorigin = (*pimg).scan.origin.y
 					t.charge = (*pimg).charge
-					t.comment = (*pimg).comment
+					t.pv = (*pimg).IC.pv.name
+					t.conv = (*pimg).IC.conversion
+					t.gain = (*pimg).IC.pv.val * (*pimg).IC.pv.unit
 					t.energy = (*pimg).energy
 					t.dam = (*pimg).matrix.file
+					t.pileup = (*pimg).pileup
+					t.throttle = (*pimg).throttle
+					t.sample = (*pimg).sample
+					t.grain = (*pimg).grain
+					t.comment = (*pimg).comment
+					t.endstation = (*pimg).endstation
+					t.facility = (*pimg).facility
 					t.suppress = 1
 				endif
 				free_images, pimg
@@ -188,10 +201,32 @@ endif
 					(*p[i]).yrange = mp.scan.y_pixels
 					(*p[i]).xsize = mp.scan.x_mm * 1000.
 					(*p[i]).ysize = mp.scan.y_mm * 1000.
+					(*p[i]).xorigin = mp.scan.x
+					(*p[i]).yorigin = mp.scan.y
+					(*p[i]).zorigin = mp.scan.z
 				endif
 				(*p[i]).charge = mp.charge
 				(*p[i]).comment = mp.title
 				(*p[i]).energy = mp.energy
+
+				(*p[i]).sample = mp.sample
+				(*p[i]).gain = mp.sensitivity
+				(*p[i]).pv = mp.IC_name
+				(*p[i]).pileup = mp.pileup.file
+				if (mp.pileup.on eq 0) then (*p[i]).pileup = ''		
+				(*p[i]).throttle = mp.throttle.file
+				if (mp.throttle.on eq 0) then (*p[i]).throttle = ''		
+		
+				(*p[i]).facility = mp.metadata.facility
+				(*p[i]).endstation = mp.metadata.endstation
+				if (mp.metadata.facility eq 'MM.Mel.') and ((*p[i]).pv eq '') then begin
+					(*p[i]).gain = 1.0										; to test using old Udimet data
+					(*p[i]).pv = 'Maia:dwell.time'
+				endif
+				if (*p[i]).gain lt 1.0e-6 then begin
+					(*p[i]).gain = 1.0										; is this a good idea?
+					print, '** wizard_batch_scan_dir: gain was zero, so set it to 1.0 to continue.'
+				endif
 				silent = 1
 			endif
 		endif
