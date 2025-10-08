@@ -364,6 +364,7 @@ endif
               ['images-changed', $          ; new images pointer
               'batch-filter' $           ; batch application of "Get" button
               ], from=wGroup
+  register_notify, Image_Process_TLB, ['wizard-action']	; global notify from a wizard
 
   XManager, 'Image_Process', Image_Process_TLB ,/no_block
 

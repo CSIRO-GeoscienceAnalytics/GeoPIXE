@@ -71,6 +71,108 @@ case event.tag of
 		return
 		end
 
+	'wizard-action': begin
+		if ptr_valid( event.pointer) then begin
+			if (*event.pointer).window eq 'Image Operations' then begin
+				case (*event.pointer).command of
+					'open-test': begin
+;						print,'*** Wizard Image Process: test if window is open ...'
+						pw = (*pstate).pwiz
+						*pw = *event.pointer
+						(*pw).top = event.top
+						(*pw).error = 0
+						notify, 'wizard-return', pw
+						end
+
+;					'image-corrections': begin
+;						pw = event.pointer
+;						pops = (*pw).pdata
+;						print,'*** Wizard Image Process: package image corrections.'
+;						np = n_elements(*pops)
+;						widget_control, (*pstate).list, get_uvalue=uv
+;						list = uv.list
+;						for i=0L,n_elements(list)-1 do begin
+;							j = strsplit( list[i], ' ', count=nj)
+;							if gnumeric( strmid(list[i], j[nj-1])) then begin
+;								list[i] = strmid( list[i], 0, j[nj-1]-1)
+;							endif
+;						endfor
+;
+;						for k=0L,np-1 do begin
+;							i = where( (*pops)[k].el eq *(*p).el)
+;							if i eq -1 then continue
+;
+;							s = hide_embedded( (*pops)[k].history, ' ')
+;							sub = strsplit( s, ',:()', /extract, count=n_sub)
+;							hist = strlowcase(sub[0])	
+;							arg = 0.0
+;							sub2 = strsplit( sub[n_sub-1], ' ,=', /extract, count=n_sub2)
+;							if gnumeric(sub2[n_sub2-1]) then arg=float(sub2[n_sub2-1])
+;							OK = 0
+;		
+;							if hist eq 'plugin' then begin
+;								op = {mode:1, image:i, name:hist, valid:1, operation:sub[1],  $
+;											arg1:0.0, filter:'', arg2:'' }
+;								OK = 1
+;							endif else if hist eq 'inter-element' then begin
+;								sq = hide_embedded( sub[3], ' ', /unhide)
+;								op = {mode:1, image:i, name:hist, valid:1, operation:sub[1],  $
+;											arg1:arg, filter:sq, arg2:sub[2] }
+;								OK = 1
+;							endif else begin
+;
+;;								Look for other processing commands, as listed in the 'image_process' routine list.
+;;								"*" indicates an operation that gets applied to all element planes.
+;;								If one particular element must be displayed to do this, it is put in brackets "[]".
+;;								Else, this is done for element i=0.
+;
+;								hist = sub[0]
+;								skip_el = 0
+;								if strmid(hist,0,1) eq '*' then begin
+;									l1 = locate('[',hist)
+;									l2 = locate(']',hist)
+;									if (l1 ge 0) and (l2 ge 0) and (l2 gt l1+1) then begin
+;										tag = strmid( hist,l1+1,l2-l1-1)
+;										if (*(*p).el)[i] ne tag then skip_el=1
+;										hist = strmid( hist,0,l1-1)
+;									endif else begin
+;										if not start then skip_el=1
+;									endelse
+;								endif
+;		
+;								q = where( (strlowcase(list) eq strlowcase(hist)) and (abs(uv.arg-arg) lt 0.01))
+;								m = q[0]
+;								if m ne -1 then begin
+;									op = {mode:1, image:i, name:'process', valid:1, operation:uv.routine[m],  $
+;												arg1:uv.arg[m], filter:'', arg2:'' }
+;									OK = (skip_el eq 0)
+;								endif
+;							endelse
+;							if OK then begin
+;								help, op
+;								if n_elements(ops) eq 0 then begin
+;									ops = op
+;								endif else begin
+;									ops = [ops, op ]
+;								endelse
+;							endif
+;						endfor
+;						if n_elements(ops) ge 1 then begin
+;							(*pstate).p = ptr_new( ops, /no_copy)
+;							notify, 'image-process', (*pstate).p,  from=event.top
+;						endif
+;						(*pw).error = err
+;						notify, 'wizard-return', pw
+;						end
+
+					else: begin
+						warning,'image: Notify',['Unknown wizard command: '+(*event.pointer).command, $
+								'Make sure GeoPIXE version is compatible with Wizard.']
+					endelse
+				endcase
+			endif
+		endif
+		end
 	else: begin
 		print,'OnNotify_Image_Process: unknown tag = ',event.tag
 		end
@@ -136,6 +238,7 @@ state = {	$
 			pimage:		tuv.pimage, $				; pointer to images
 			pget:		ptr_new(/allocate_heap), $	; previous get settings
 			pmodel:		ptr_new(/allocate_heap), $	; get pimg parameters
+			pwiz:		ptr_new(/allocate_heap), $	; wizard memory
 
 			row_height:	0, $		; table row height
 			xoffset:	0, $		; offset in xsize for resize
@@ -267,19 +370,10 @@ if n_elements(*(*pstate).pmodel) lt 1 then goto, done
 select = *(*pstate).pget
 
 widget_control, (*pstate).list, get_uvalue=uv, /hourglass
-list = uv.list
-for i=0L,n_elements(list)-1 do begin
-	j = strsplit( list[i], ' ', count=nj)
-	if gnumeric( strmid(list[i], j[nj-1])) then begin
-		list[i] = strmid( list[i], 0, j[nj-1]-1)
-	endif
-endfor
 
-start = 1
 for i=0L,(*p).n_el-1 do begin
 	j = where( strtrim((*(*p).el)[i],2) eq strtrim((*(*pstate).pmodel).el,2))
 	j = j[0]
-	first = 1
 	if (j ne -1) and (select.el_enable[i] eq 1) then begin
 
 		if select.mode_enable[0] then begin				; apply display range settings
@@ -295,75 +389,10 @@ for i=0L,(*p).n_el-1 do begin
 			nhist = n_elements(*phist)
 			if nhist ge 1 then begin
 				for k=0L,nhist-1 do begin
-					s = hide_embedded( (*phist)[k], ' ')
-					sub = strsplit( s, ',:()', /extract, count=n_sub)
-					hist = strlowcase(sub[0])
-						
-					arg = 0.0
-					sub2 = strsplit( sub[n_sub-1], ' ,=', /extract, count=n_sub2)
-					if gnumeric(sub2[n_sub2-1]) then arg=float(sub2[n_sub2-1])
-					OK = 0
-
-					if hist eq 'plugin' then begin
-						op = {mode:1, image:i, name:hist, valid:1, operation:sub[1],  $
-									arg1:0.0, filter:'', arg2:'' }
-						OK = 1
-					endif else if hist eq 'inter-element' then begin
-						sq = hide_embedded( sub[3], ' ', /unhide)
-						op = {mode:1, image:i, name:hist, valid:1, operation:sub[1],  $
-									arg1:arg, filter:sq, arg2:sub[2] }
-						OK = 1
-					endif else begin
-
-;						Look for other processing commands, as listed in the 'image_process' routine list.
-;						"*" indicates an operation that gets applied to all element planes.
-;						If one particular element must be displayed to do this, it is put in brackets "[]".
-;						Else, this is done for element i=0.
-
-						hist = sub[0]
-						skip_el = 0
-						if strmid(hist,0,1) eq '*' then begin
-;							hist = strmid( hist,2)
-							l1 = locate('[',hist)
-							l2 = locate(']',hist)
-							if (l1 ge 0) and (l2 ge 0) and (l2 gt l1+1) then begin
-								tag = strmid( hist,l1+1,l2-l1-1)
-								if (*(*p).el)[i] ne tag then skip_el=1
-								hist = strmid( hist,0,l1-1)
-							endif else begin
-								if not start then skip_el=1
-							endelse
-						endif
-
-						q = where( (strlowcase(list) eq strlowcase(hist)) and (abs(uv.arg-arg) lt 0.01))
-						m = q[0]
-						if m ne -1 then begin
-							op = {mode:1, image:i, name:'process', valid:1, operation:uv.routine[m],  $
-										arg1:uv.arg[m], filter:'', arg2:'' }
-							OK = (skip_el eq 0)
-						endif
-					endelse
-					if OK then begin
-						help, op
-						if first then begin
-							first = 0
-							ops = op
-						endif else begin
-							ops = [ops, op ]
-						endelse
-					endif
+					image_build_op, i, *(*p).el, uv, (*phist)[k], ops
 				endfor
 			endif
 		endif
-	endif
-
-	if first eq 0 then begin
-		if start then begin
-			op_list = ops
-			start = 0
-		endif else begin
-			op_list = [op_list, ops]
-		endelse
 	endif
 endfor
 
@@ -373,8 +402,8 @@ endfor
 ; Should all operations performed on an image be tagged by a sequence number, so we can do them again
 ; in the same order?
 
-if n_elements(op_list) ge 1 then begin
-	(*pstate).p = ptr_new( op_list, /no_copy)
+if n_elements(ops) ge 1 then begin
+	(*pstate).p = ptr_new( ops, /no_copy)
 	notify, 'image-process', (*pstate).p,  from=event.top
 endif else begin
 	notify, 'image-display', from=event.top

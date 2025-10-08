@@ -277,6 +277,7 @@ case uname of
 			(*pstate).output_dir = F[0]
 			set_widget_text, (*pstate).output_dir_text, F[0]
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
+			*(*pstate).path = F[0]
 		endif
 		end
 		
@@ -300,6 +301,7 @@ case uname of
 		widget_control, (*pstate).r_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).g_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).b_element, set_value = *(*pstate).pcel
+		widget_control, (*pstate).conv_text, set_value = str_tidy((*(*pstate).pdai).IC.conversion)
 		end
 		
 	'template-sort-text': begin
@@ -907,15 +909,15 @@ endif
 	
 ;	Next row?			put this here for now. Needs to be in callback after LAST operations later ...
 	
-	(*pstate).loop += 1
-	wizard_batch_process_blog, pstate, error=error
+;	(*pstate).loop += 1
+;	wizard_batch_process_blog, pstate, error=error
 	error = 0
 	return
 end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_batch_callback_region_done, pstate, pep, error=error
+pro wizard_batch_callback_display_done, pstate, pep, error=error
 
 ; Callback to: After region done, access results and calculate 'conv'
 
@@ -932,7 +934,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_batch_callback_region_done',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_callback_display_done',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -942,53 +944,44 @@ endif
 
 	error = 1
 	if (*pep).error ne 0 then return
-	pd = (*(*pep).pdata).presults						; results from region
-	local = (*(*pep).pdata).local						; is it managed here?
-	if ptr_good(pd) eq 0 then begin
-		warning,'wizard_batch_callback_region_done','Pointer bad in region results return (local='+str_tidy(local)+').'
-		return
-	endif
 	
-;	Process region ...
+;	Next row?
+	
+;	(*pstate).loop += 1
+;	wizard_batch_process_blog, pstate, error=error
+	error = 0
+	return
+end
 
-	row = (*(*pstate).presults)[ (*pstate).index]		; current row of table
-	pc = (*pstate).pconfig								; full config list
+;--------------------------------------------------------------------------
 
-;	Find results for element selected for this row ...
+pro wizard_batch_callback_corrections_done, pstate, pep, error=error
 
-	q1 = where( *(*pd).el eq row.el, nq1)
-	if nq1 eq 0 then begin
-		warning,'wizard_batch_callback_region_done','Element "'+row.el+'" not found in region results.'
-		return
-	endif
+; Callback to: After region done, access results and calculate 'conv'
 
-;	Find matching standard specification (remember that 'el' is based on standard spec) ...
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_working_dir, geopixe_root
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_callback_corrections_done',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+      return
+    endif
+endif
 
-;	q2 = wizard_batch_find_match( pstate, row.name, row.serial, row.detector, row.energy, error=error)
-;	if error then begin
-;		warning,'wizard_batch_callback_region_done','Standards spec: "'+row.name+','+row.serial+','+row.detector+','+std_tidy(row.eenergy)+'" not found in "standards.csv" config file.'
-;		return
-;	endif
-
-;	copy_pointer_data, pd, pt, /init					; for testing, to examine *pd (pointer becomes invalid in debug)
-
-;	Ratio of conc to expected ...
-
-;	r = (*(*pd).conc)[q1[0]] / (1.e+4 * (*pc)[q2[0]].conc)
-;	(*(*pstate).presults)[ (*pstate).index].conv = r * (*pd).IC.conversion
-;	wizard_batch_update_table, pstate
-;
-;;	Stats table ...
-;
-;	(*(*pstate).presults)[ (*pstate).index].mean = (*(*pd).conc)[q1[0]] / r
-;	(*(*pstate).presults)[ (*pstate).index].error = (*(*pd).error)[q1[0]] / r
-;	(*(*pstate).presults)[ (*pstate).index].sd = (*(*pd).sd)[q1[0]] / r
-;	(*(*pstate).presults)[ (*pstate).index].relsd = (*(*pd).relsd)[q1[0]]
-;	
-;;	plots ...
-;
-;	wizard_batch_update_plots, pstate
-;	wizard_batch_update_export, pstate
+	error = 1
+	if (*pep).error ne 0 then return
 	
 ;	Next row?
 	
@@ -1310,16 +1303,17 @@ cont:
 ;		It must match the order of entries in the row struct of the table.
 ;		This is NOT the selection of the columns as shown. See "wizard_batch_update_table" for that.
 
-		title = ['On','Raw','DAM', 'Name','Serial','Detector','Energy','Xpixels','Ypixels','Xsize','Ysize','PV name','IC Gain','Pileup','Throttle', $
-				'Charge','Output','Mean','Error','Std.Dev','SD/Error']
-		type = ['toggle','file','string','string','string','string','float','int','int','int','int','string','float','file','file', $
-				'float','string','float','float','float','float']
+		title = ['On','Raw','DAM', 'Name','Serial','Detector','Energy','Xpixels','Ypixels','Xsize', $
+				'Ysize','PV name','IC Gain','Pileup','Throttle', 'Charge','Output','Mean','Error','Std.Dev', $
+				'SD/Error']
+		type = ['toggle','file','string','string','string','string','float','int','int','int', $
+				'int','string','float','file','file', 'float','string','float','float','float', $
+				'float']
 		
-		row = {on:1, blog:(*p[i]).file, dam:(*p[i]).dam, name:(*p[i]).sample, serial:serial, $
-			detector:detector, energy:(*p[i]).energy, charge:(*p[i]).charge, $
-			xpixels:(*p[i]).xrange, ypixels:(*p[i]).yrange, xsize:(*p[i]).xsize, ysize:(*p[i]).ysize, $
-			pv:(*p[i]).pv, gain:(*p[i]).gain, pileup:(*p[i]).pileup, throttle:(*p[i]).throttle, $
-			output:(*p[i]).output, mean:0.0, error:0.0, sd:0.0, relsd:0.0}
+		row = {on:1, blog:(*p[i]).file, dam:(*p[i]).dam, name:(*p[i]).sample, serial:serial, detector:detector, $
+			energy:(*p[i]).energy, xpixels:(*p[i]).xrange, ypixels:(*p[i]).yrange, xsize:(*p[i]).xsize, $
+			ysize:(*p[i]).ysize, pv:(*p[i]).pv, gain:(*p[i]).gain, pileup:(*p[i]).pileup, throttle:(*p[i]).throttle, $
+			charge:(*p[i]).charge, output:(*p[i]).output, mean:0.0, error:0.0, sd:0.0, relsd:0.0}
 		
 		if wizard_batch_test_row( row) eq 0 then row.on=0
 
@@ -1619,6 +1613,62 @@ end
 
 ;--------------------------------------------------------------------------
 
+function wizard_batch_ops, pstate, display=display, error=error
+
+; Build list of 'ops' for image processing
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_ops',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+      return, 0
+    endif
+endif
+
+	error = 1
+	pops = (*pstate).pcorr
+	pcel = (*pstate).pcel
+	uv = (*pstate).uv
+	np = n_elements(*pops)
+
+;	Build display settings list ...
+
+	for i=0, np-1 do begin
+		d = {el:(*pops)[i].el, bottom:(*pops)[i].bottom, top:(*pops)[i].top, log:(*pops)[i].log }
+		if n_elements(display) eq 0 then begin
+			display = d
+		endif else begin
+			display = [display, d]
+		endelse
+	endfor
+
+;	Build ops list ...
+
+	for k=0L,np-1 do begin
+		i = (where( (*pops)[k].el eq *pcel))[0]
+		if i eq -1 then continue
+
+		image_build_op, i, *pcel, uv, (*pops)[k].history, ops
+	endfor
+
+	error = 0
+	return, ops
+end
+
+;--------------------------------------------------------------------------
+
 pro wizard_batch_process_blog, pstate, error=error
 
 ; For a single raw file, do the following:
@@ -1677,17 +1727,13 @@ endif
 		return
 	endif
 	
-;	Update DAM file details from the "template DAI file" field and set '(*p)[j].dam'.
-;	No, because this ignores the mechanism to update files not found and returned as the 'new' filenames.
-;	So, don't do this in this loop jere. Instead, set all '(*p)[j].dam' in this sequence:
-;	1. After 'scan_dir_evt', which will return DAM files in DAI file.
+;	Setup struct for Sort EVT ...
 
-
-	gain_value = charge_gain_units( (*p)[j].gain, units=gain_units)
-	if gain_value eq 0.0 then begin
-		warning,'wizard_batch_process_blog','Missing valid "IC Gain" value.'
-		return
-	endif
+;	gain_value = charge_gain_units( (*p)[j].gain, units=gain_units)
+;	if gain_value eq 0.0 then begin
+;		warning,'wizard_batch_process_blog','Missing valid "IC Gain" value.'
+;		return
+;	endif
 	widget_control, (*pstate).conv_text, get_value=s
 	conv = 1.0
 	if s ne '' then conv = float2(s)
@@ -1699,65 +1745,70 @@ endif
 	wz.pdata = ptr_new( {	$
 		device:			(*(*pstate).pDevObj)->name(), $	; device name
 		image_mode:		0, $							; sort mode (images)
-		type:			7, $							; SXRF data type
-		array:			1, $							; array detector
+		type:			(*(*pstate).pdai).detector, $	; data type
+		array:			(*(*pstate).pdai).array, $		; array detector?
 		blog:			(*p)[j].blog, $					; blog file
 		pileup:			(*p)[j].pileup, $				; pileup file
 		throttle:		(*p)[j].throttle, $				; throttle file
 		output:			output, $						; output file
 		load:			1, $							; load image file if exists
-		skip:			0, $							; skip sort if exists already
+		skip:			1, $							; skip sort if exists already
 		verify:			1, $							; enable file verification
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			conv, $							; initial 'conv'
 		charge:			0.0, $							; for the returned charge
-		charge_mode:	1, $							; flux/charge mode (IC w/ PV)
-		flux_scaler: 	(*p)[j].pv, $					; scaler ID
-		gain_value:		gain_value, $					; IC gain
-		gain_units:		gain_units, $					; for gain in 'nA/V' 
+		charge_mode:	(*(*pstate).pdai).IC.mode, $	; flux/charge mode (IC w/ PV)
+		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
+		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
+		gain_units:		(*(*pstate).pdai).IC.pv.unit, $	; for gain in 'nA/V' 
 		cal:			(*pstate).energy_cal_file, $	; energy calibration file
 		proj_mode:		'DA', $							; DA projection mode
-		dam:			(*p)[j].dam }, /no_copy)		; DA matrix file
+		dam:			(*(*pstate).pdai).matrix.file }, /no_copy)		; DA matrix file
 	wz.local = 1
 	wz.callback = 'wizard_batch_callback_image_done'
 	pw = ptr_new(wz, /no_copy)
 	p0 = pw									; first one
 	pl = pw									; current one
 	
-;	margin = 0.025							; 2.5% margin
-;	Xs = (*p)[j].xsize
-;	Ys = (*p)[j].ysize
-;	dX = fix( margin * Xs) > 2 				; margin (must be at least 2 pixels each side)
-;	dY = fix( margin * Ys) > 1 				; margin (must miss at least 1 row, top and bottom)
-;	
-;	x = [dX, Xs-1-dX, Xs-1-dX, dX]			; corners
-;	x = [x, mean(x), (2*x[1]+mean(x))/3]	; plus centre handle and angle handle
-;	y = [dY, dY, Ys-1-dY, Ys-1-dY]
-;	y = [y, mean(y), (2*y[1]+mean(y))/3]
-;	theta = 0.								; rotation angle
-;	
-;	wz = define(/wizard_notify)
-;	wz.wizard = 'batch'
-;	wz.window = 'Image'						; sum Box region
-;	wz.command = 'sum-region'
-;	wz.pdata = ptr_new( {	$
-;		mode:			0, $				; "+" sum mode
-;		shape:			1, $				; Box shape index
-;		x:				x, $				; X handles
-;		y:				y, $				; Y handles
-;		theta:			theta, $		 	; Rotation angle
-;		get_stats:		1, $				; we need stats calculated and returned
-;		uniform_element: (*p)[j].el, $		; element to test for uniformity
-;		presults:		ptr_new(/allocate_heap), $		; will return region results here
-;		local:			1 }, /no_copy)		; if zero, 'presults' managed elsewhere
-;	wz.local = 1
-;	wz.callback = 'wizard_batch_callback_region_done'
-;	pw = ptr_new(wz, /no_copy)
-;	(*pl).pnext = pw						; link current one to this 'next' one
-;	pl = pw									; current one
+;	Setup structs for Image Display and Processing
 
+	ops = wizard_batch_ops( pstate, display=display, error=error)
+
+	if error then begin
+		warning,'wizard_batch_process_blog','Error building display & operations lists for Image Operations.'
+		return
+	endif
+	if n_elements(display) eq 0 then goto, image_processing
+
+	wz = define(/wizard_notify)
+	wz.wizard = 'batch'
+	wz.window = 'Image'						; set display parameters
+	wz.command = 'set-display'
+	wz.pdata = ptr_new( display, /no_copy)	; display list
+			
+	wz.local = 1
+	wz.callback = 'wizard_batch_callback_display_done'
+	pw = ptr_new(wz, /no_copy)
+	(*pl).pnext = pw						; link current one to this 'next' one
+	pl = pw									; current one
+
+image_processing:
+
+	wz = define(/wizard_notify)
+	wz.wizard = 'batch'
+	wz.window = 'Image'						; do image corrections
+	wz.command = 'image-corrections'
+	wz.pdata = ptr_new( ops, /no_copy)		; corrections list
+			
+	wz.local = 1
+	wz.callback = 'wizard_batch_callback_corrections_done'
+	pw = ptr_new(wz, /no_copy)
+	(*pl).pnext = pw						; link current one to this 'next' one
+	pl = pw									; current one
+
+;	Send off the linked list to be actioned ...
 ;	The first wizard data pointer is still in use, so we use a new one for the next row ...	
-	
+
 	if (*pstate).loop mod 2 then begin
 		clear_wizard, (*pstate).pwizard1
 		*(*pstate).pwizard1 = *p0
@@ -2751,7 +2802,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 
-wversion = '8.9'							; wizard version
+wversion = '8.9a'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
@@ -2819,7 +2870,7 @@ detector_update, list=detector_list, title=detector_title
 ; to check on their 'open' status. They MUST make a copy of the Notify pointer contents,
 ; set (*pw).top of the copy to 'event.top' and return the new pw. 
 
-windows_needed = ['Image','Sort EVT']
+windows_needed = ['Image','Sort EVT','Image Operations']
 
 case !version.os_family of
 	'MacOS': begin
@@ -3194,8 +3245,8 @@ state = { $
 		tracking:				tracking, $						; tracking mode
 		tab:					0, $							; current Tab selected
 		tab_names:				tab_names, $					; tab names
-		tab_used:				intarr(n_elements(tab_names)), $		; flags that figure is displayed
-		windows_needed:			windows_needed, $						; list of needed window names
+		tab_used:				intarr(n_elements(tab_names)), $	; flags that figure is displayed
+		windows_needed:			windows_needed, $					; list of needed window names
 		windows_open:			ptrarr(n_elements(windows_needed), /allocate_heap), $	; lists unique window IDs found to be open.
 		windows_veto:			0, $									; veto Timer when pop-up is open
 

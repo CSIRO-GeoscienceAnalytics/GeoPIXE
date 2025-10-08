@@ -4,6 +4,8 @@ pro clear_wizard, p
 ;		Free its linked structs, and 'pdata' if 'local'
 ;		but do not free any pointers
 ;		that are contained in Wizard supplied pdata.
+;
+;   Similar to, but not the same as 'free_wizard'
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0

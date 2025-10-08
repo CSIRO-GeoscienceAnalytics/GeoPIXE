@@ -86,7 +86,176 @@ widget_control, child, get_uvalue=pstate
 restore, geopixe_root+'blog_browser.sav'
 blog_browse, group=event.top
 end
+
+;--------------------------------------------------------------------------
+
+;	Build vector of image process operations 'ops' on images
+;	Called from Notify 'image-process' and wizard 'wizard_batch_ops'
+
+pro image_build_op, i, el, uv, history, ops
+
+;	Build next operation for element 'i' (elements = 'el') using 'history'.
+;	'uv contains the operations list from 'image_process'.
+;	Vector 'ops' will be created and added to here.
+ 
+	COMPILE_OPT STRICTARR
+	list = uv.list
+	for k=0L,n_elements(list)-1 do begin
+		j = strsplit( list[k], ' ', count=nj)
+		if gnumeric( strmid(list[k], j[nj-1])) then begin
+			list[k] = strmid( list[k], 0, j[nj-1]-1)
+		endif
+	endfor
+
+	s = hide_embedded( history, ' ')
+	m = locate('[',s)
+	if m ge 0 then s = strmid(s,0,m)
+	sub = strsplit( s, ',:()', /extract, count=n_sub)
+	sub = strtrim(sub,2)
+	hist = strlowcase(sub[0])	
+
+	arg = 0.0
+	sub2 = strsplit( sub[n_sub-1], ' ,=', /extract, count=n_sub2)
+	if gnumeric(sub2[n_sub2-1]) then arg = float(sub2[n_sub2-1])
+	OK = 0
+
+	if hist eq 'plugin' then begin
+		op = {mode:1, image:i, name:hist, valid:1, operation:sub[1],  $
+					arg1:0.0, filter:'', arg2:'' }
+		OK = 1
+	endif else if hist eq 'inter-element' then begin
+		sq = hide_embedded( sub[3], ' ', /unhide)
+		op = {mode:1, image:i, name:hist, valid:1, operation:sub[1],  $
+					arg1:arg, filter:sq, arg2:sub[2] }
+		OK = 1
+	endif else begin
+
+;		Look for other processing commands, as listed in the 'image_process' routine list.
+;		"*" indicates an operation that gets applied to all element planes.
+;		If one particular element must be displayed to do this, it is put in brackets "[]".
+;		Else, this is done for element i=0.
+
+		hist = history
+		skip_el = 0
+		if strmid(hist,0,1) eq '*' then begin
+			l1 = locate('[',hist)
+			l2 = locate(']',hist)
+			if (l1 ge 0) and (l2 ge 0) and (l2 gt l1+1) then begin
+				tag = strmid( hist,l1+1,l2-l1-1)
+				if el[i] ne tag then skip_el=1
+			endif
+		endif
+
+		q = where( (strlowcase(list) eq strlowcase(sub[0])) and (abs(uv.arg-arg) lt 0.01))
+		m = q[0]
+		if m ne -1 then begin
+			op = {mode:1, image:i, name:'process', valid:1, operation:uv.routine[m],  $
+						arg1:uv.arg[m], filter:'', arg2:'' }
+			OK = (skip_el eq 0)
+		endif
+	endelse
+	if OK then begin
+		help, op
+		if n_elements(ops) eq 0 then begin
+			ops = op
+		endif else begin
+			ops = [ops, op ]
+		endelse
+	endif
+	return
+end
+
+;-----------------------------------------------------------------
+
+;	Do image process operations 'ops' on images
+;	Called from Notify 'image-process' and wizard action 'image-operations'
+
+pro image_do_operations, event, ops
+
+	COMPILE_OPT STRICTARR
+	child = widget_info( event.top, /child)
+	widget_control, child, get_uvalue=pstate
+	widget_control, /hourglass
+	n_ops = n_elements(ops)
+
+	for j=0L,n_ops-1 do begin
+		i = (ops[j].mode eq 1) ? ops[j].image : (*pstate).image
+		help, ops[j]
+
+		case strlowcase(ops[j].name) of
+			'plugin': begin
+				p = (*pstate).p
+				call_procedure, ops[j].operation, p, i, history=history
+				set_image_minmax, p, (*p).image, (*p).options
+
+				hist = 'Plugin ' + ops[j].operation
+				if n_elements(history) gt 0 then hist = hist + ', ' + history
+				add_history, (*p).history, i, hist
+				end
+
+			'inter-element': begin
+;					Note: format of history (e.g. "()") is assumed for image processing Get function
+;					and must be consistent in routine doing the processing/adding the history note.
 ;
+;					Declared also in 'interelement_operations' and used in 'interelement_filter', 'interelement_transform'
+
+				operations = define(/operations)
+				filters = ['None','Median filter 2','Median filter 3','Median filter 5','Median filter 10','Gaussian filter 1.0','Gaussian filter 1.5','Gaussian filter 2.0','Gaussian filter 3.0','Gaussian filter 5.0','Gaussian filter 10.0']
+
+;					e.g. "Inter-Element: Subtract Ni (Median filter 3) * 0.04"
+; 					e.g. ops[j].operation  'Subtract'
+;								arg2       'Ni'
+;								filter     'Median filter 3'
+;								arg1       0.04
+
+				p = (*pstate).p
+				k = where( ops[j].arg2 eq *(*p).el, nk)
+				if nk eq 0 then begin
+					print,'OnNotify_image "image-process": inter-element source "'+ops[j].arg2+'" not found.'
+				endif else begin
+					(*p).modify.source = k
+					*(*p).modify.image = (*(*p).image)[*,*,k]
+					qf = where( ops[j].filter eq filters, nqf)
+					if nqf eq 0 then begin
+						warning, 'OnNotify_image "image-process"',['"inter-element" Filter "'+ops[j].filter,'" unknown, element='+(*(*p).el)[i]]
+					endif else begin
+						(*p).modify.filter = qf[0]
+						interelement_filter, p, error=err
+						if err then warning, 'OnNotify_image "image-process"',['"inter-element" Error for Filter "'+ops[j].filter,'", element='+(*(*p).el)[i]]
+					endelse
+					(*p).modify.target = i
+					(*p).modify.scale = ops[j].arg1
+					(*p).modify.strength = 1.0
+					qo = where( ops[j].operation eq operations, nqo)
+					if nqo eq 0 then begin
+						warning, 'OnNotify_image "image-process"',['"inter-element" Operation "'+ops[j].operation,'" unknown, element='+(*(*p).el)[i]]
+					endif else begin
+						(*p).modify.operation = qo[0]
+						img = interelement_transform( p, i, error=err)
+						if err eq 0 then begin
+							(*(*p).image)[*,*,(*p).modify.target] = img
+							s = operations[(*p).modify.operation] + ' ' + (*(*p).el)[(*p).modify.source] + ' ('+ops[j].filter+') * ' + str_tidy((*p).modify.scale * (*p).modify.strength)
+							add_history, (*p).history, (*p).modify.target, 'Inter-Element: '+s
+						endif
+					endelse
+					(*p).modify.filter = 0
+					(*p).modify.operation = 0
+					(*p).modify.scale = 1.0
+				endelse
+				end
+			'process': begin
+;					Note: format of history (e.g. "*" at start or "[tag]") is assumed for image processing Get function
+;					and must be consistent in routine doing the processing/adding the history noe.
+;
+				call_procedure, ops[j].operation, event, ops[j].arg1, select=i, /silent
+				end
+			else:
+		endcase
+	endfor
+
+	return
+end
+
 ;-----------------------------------------------------------------
 
 pro image_Shape, Event, shape=shape
@@ -5608,7 +5777,7 @@ snap_done:
 	   Image_Process_Kill_All_Region, Event
        end
 
-    'image-process': begin				 ; returned from 'image_process'
+    'image-process': begin						 ; returned from 'image_process' "get"
 		print,'Image: image-process ...........................................................'
 
 		if ptr_valid( event.pointer) eq 0 then goto, finish
@@ -5617,80 +5786,7 @@ snap_done:
 		n_ops = n_elements(ops)
 		widget_control, /hourglass
 
-		for j=0L,n_ops-1 do begin
-			i = (ops[j].mode eq 1) ? ops[j].image : (*pstate).image
-			help, ops[j]
-
-			case strlowcase(ops[j].name) of
-				'plugin': begin
-					p = (*pstate).p
-					call_procedure, ops[j].operation, p, i, history=history
-					set_image_minmax, p, (*p).image, (*p).options
-	
-					hist = 'Plugin ' + ops[j].operation
-					if n_elements(history) gt 0 then hist = hist + ', ' + history
-					add_history, (*p).history, i, hist
-					end
-
-				'inter-element': begin
-;					Note: format of history (e.g. "()") is assumed for image processing Get function
-;					and must be consistent in routine doing the processing/adding the history note.
-;
-;					Declared also in 'interelement_operations' and used in 'interelement_filter', 'interelement_transform'
-
-					operations = define(/operations)
-					filters = ['None','Median filter 2','Median filter 3','Median filter 5','Median filter 10','Gaussian filter 1.0','Gaussian filter 1.5','Gaussian filter 2.0','Gaussian filter 3.0','Gaussian filter 5.0','Gaussian filter 10.0']
-
-;					e.g. "Inter-Element: Subtract Ni (Median filter 3) * 0.04"
-; 					e.g. ops[j].operation  'Subtract'
-;								arg2       'Ni'
-;								filter     'Median filter 3'
-;								arg1       0.04
-
-					p = (*pstate).p
-					k = where( ops[j].arg2 eq *(*p).el, nk)
-					if nk eq 0 then begin
-						print,'OnNotify_image "image-process": inter-element source "'+ops[j].arg2+'" not found.'
-					endif else begin
-						(*p).modify.source = k
-						*(*p).modify.image = (*(*p).image)[*,*,k]
-						qf = where( ops[j].filter eq filters, nqf)
-						if nqf eq 0 then begin
-							warning, 'OnNotify_image "image-process"',['"inter-element" Filter "'+ops[j].filter,'" unknown, element='+(*(*p).el)[i]]
-						endif else begin
-							(*p).modify.filter = qf[0]
-							interelement_filter, p, error=err
-							if err then warning, 'OnNotify_image "image-process"',['"inter-element" Error for Filter "'+ops[j].filter,'", element='+(*(*p).el)[i]]
-						endelse
-						(*p).modify.target = i
-						(*p).modify.scale = ops[j].arg1
-						(*p).modify.strength = 1.0
-						qo = where( ops[j].operation eq operations, nqo)
-						if nqo eq 0 then begin
-							warning, 'OnNotify_image "image-process"',['"inter-element" Operation "'+ops[j].operation,'" unknown, element='+(*(*p).el)[i]]
-						endif else begin
-							(*p).modify.operation = qo[0]
-							img = interelement_transform( p, i, error=err)
-							if err eq 0 then begin
-								(*(*p).image)[*,*,(*p).modify.target] = img
-								s = operations[(*p).modify.operation] + ' ' + (*(*p).el)[(*p).modify.source] + ' ('+ops[j].filter+') * ' + str_tidy((*p).modify.scale * (*p).modify.strength)
-								add_history, (*p).history, (*p).modify.target, 'Inter-Element: '+s
-							endif
-						endelse
-						(*p).modify.filter = 0
-						(*p).modify.operation = 0
-						(*p).modify.scale = 1.0
-					endelse
-					end
-				'process': begin
-;					Note: format of history (e.g. "*" at start or "[tag]") is assumed for image processing Get function
-;					and must be consistent in routine doing the processing/adding the history noe.
-;
-					call_procedure, ops[j].operation, event, ops[j].arg1, select=i, /silent
-					end
-				else:
-			endcase
-		endfor
+		image_do_operations, event, ops
 
 		pimg = point_image( pstate, opt=opt, nx=sx, ny=sy)
 		if ptr_valid( opt) then begin
@@ -5701,13 +5797,13 @@ snap_done:
 		endif
 
 		draw_images, pstate
-		notify, 'image-display', from=event.top
 		end
+
+    'batch-operations-open': begin
 
 ;		If the Image Operations window is not open then batch processing will stall.
 ;		Test here and open it, if needed. Remember that the call expects 'state' back.
 
-    'batch-operations-open': begin
 		print,'Image: batch-operations-open ...........................................................'
 		if (*pstate).operations eq 0 then begin
 			image_Image_Operations, Event
@@ -6299,6 +6395,42 @@ snap_done:
 						(*pw).error = err
 						notify, 'wizard-return', pw
 						end
+
+					'set-display': begin
+						pw = event.pointer
+						pd = (*pw).pdata
+						print,'*** Wizard Image: set display parameters ...'
+						nd = n_elements(*pd)
+
+						pimg = point_image( pstate, opt=opt, nx=sx, ny=sy)
+						p = (*pstate).p
+						for i=0, nd-1 do begin
+							j = (where((*pd)[i].el eq *(*p).el))[0]
+							if j ne -1 then begin
+								(*opt)[j].bottom = (*pd)[i].bottom
+								(*opt)[j].top = (*pd)[i].top
+								(*opt)[j].log = (*pd)[i].log
+							endif
+						endfor
+						widget_control, (*pstate).top_slider, set_value = (*opt)[(*pstate).image].top
+						widget_control, (*pstate).bottom_slider, set_value = (*opt)[(*pstate).image].bottom
+						widget_control, (*pstate).Zscale_mode_id, set_combobox_select = clip((*opt)[(*pstate).image].log,0,2)
+						draw_images, pstate
+						(*pw).error = 0
+						notify, 'wizard-return', pw
+						end
+
+					'image-corrections': begin
+						pw = event.pointer
+						ops = *(*pw).pdata
+						print,'*** Wizard Image: do image operations ...'
+						image_do_operations, event, ops
+				
+						draw_images, pstate
+						(*pw).error = 0
+						notify, 'wizard-return', pw
+						end
+
 					else: begin
 						warning,'image: Notify',['Unknown wizard command: '+(*event.pointer).command, $
 								'Make sure GeoPIXE version is compatible with Wizard.']
