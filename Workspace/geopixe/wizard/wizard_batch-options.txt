@@ -1,0 +1,28 @@
+
+     Processing, Save & Export Options
+
+Select file creation, image correction and export options.
+
+File Options
+
+Here you can select to Skip the sort if an image DAI file
+already exists, indicating that the processing has been done.
+
+Use the Overwrite option to force overwriting the sorted DAI
+filename, rather than the default behaviour to append a 
+"-m.dai" or "-x.dai" to create a "modified" image file. This
+saves disk space. But it may be better to keep the original
+images.
+
+Processing and Corrections Options
+
+The first option "Apply corrections to image" will be
+enabled if corrections have been defined on tab 2.
+
+Export and Save Options
+
+After the Images are sorted, corrected and saved, select 
+various output and export options here.
+
+If RGB Export options have been defined on tab 3, these
+will be enabled here.

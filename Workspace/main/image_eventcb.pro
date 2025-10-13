@@ -156,7 +156,7 @@ pro image_build_op, i, el, uv, history, ops
 	endelse
 	if OK then begin
 		help, op
-		if n_elements(ops) eq 0 then begin
+		if typevar(ops) ne 'STRUCT' then begin
 			ops = op
 		endif else begin
 			ops = [ops, op ]
@@ -4229,7 +4229,10 @@ img = (*pimg)[*,*,i]							; image data for this element
 threshold = ((*opt)[i].bottom + 0.03 * ((*opt)[i].top - (*opt)[i].bottom)) * (*opt)[i].max/100.
 
 q = where( img lt threshold)					; threshold at 3% of top slider
-if q[0] eq -1 then return
+if q[0] eq -1 then begin
+	Print, 'Image, No zeroes found to repair.'
+	return
+endif
 
 if (*pstate).display_mode eq 0 then begin
 	Print, 'Image, first pass ...'
@@ -6425,7 +6428,50 @@ snap_done:
 						ops = *(*pw).pdata
 						print,'*** Wizard Image: do image operations ...'
 						image_do_operations, event, ops
-				
+						image_Save, event, /default, /overwrite
+		
+						draw_images, pstate
+						(*pw).error = 0
+						notify, 'wizard-return', pw
+						end
+
+				    'batch-save': begin
+						pw = event.pointer
+						pd = (*pw).pdata
+						print,'*** Wizard Image: do image saves and exports ...'
+						if (*pd).mirrorX then begin
+							Image_Process_Rotate, Event, 0, /flipx
+							(*pd).save = 1
+						endif
+						if (*pd).correctX then begin
+							Image_Process_Correct_Current_file, Event, 0, first=(*pd).first
+							(*pd).save = 1
+						endif
+						if (*pd).save then begin
+							Image_Save, Event, /default, overwrite=(*pd).overwrite
+						endif
+						if (*pd).metadata then begin
+							print_image_metadata, (*pstate).p, stats=0
+						endif
+						
+						html = (*pd).html
+						if strlen(html) gt 0 then begin
+							image_save_all_HTML, event, /PNG, file=html, first=(*pd).first
+						endif
+						bw = (*pd).bw
+						if strlen(bw) gt 0 then begin
+							image_save_all_HTML, event, /PNG, file=bw, first=(*pd).first, /bw
+						endif
+						export = (*pd).export
+						if strlen(export) gt 0 then begin
+							export_images_csv, pstate, file=export, first=(*pd).first, event=event
+						endif
+						tiff = (*pd).tiff
+						if strlen(tiff) gt 0 then begin
+							mode = (*pd).tiff_type
+							image_save_all_TIFF, event, file=tiff, first=(*pd).first, mode=mode
+						endif
+
 						draw_images, pstate
 						(*pw).error = 0
 						notify, 'wizard-return', pw

@@ -29,5 +29,9 @@ endif
 
 	current = *windows_open[q[0]]						; current open IDs
 	count = n_elements(current)							; current unique open count
+
+	if (count eq 1) then begin
+		if (current eq 0L) then count=0					; an ID of 0L means invalid
+	endif
 	return, count
 end

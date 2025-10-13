@@ -960,7 +960,7 @@ common c_mex_1, reference_ts, smooth_ref_time
 			self->save_header_data, head							; save raw device data 'mp' in self
 			self->update_header_info, error=error					; update self.header using saved 'mp'
 			
-			beam_energy = self.header.energy
+			beam_energy = self.header.energy / 1000.				; for keV
 		endif
 	endif
 

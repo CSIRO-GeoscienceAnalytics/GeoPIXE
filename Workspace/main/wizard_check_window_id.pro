@@ -29,9 +29,10 @@ endif
 if n_elements(name) eq 0 then return
 if n_elements(id) eq 0 then return
 
-	if widget_info( id, /valid) eq 0 then return
 	q = where( name eq windows_needed, nq)				; index to needed windows
 	if nq eq 0 then return
+
+;	if widget_info( id, /valid) eq 0 then return
 
 	current = *windows_open[q[0]]						; current open IDs
 	if n_elements(current) eq 0 then begin
@@ -50,12 +51,15 @@ if n_elements(id) eq 0 then return
 	if nq1 ge 1 then begin
 		*windows_open[q[0]] = current[q1]
 	endif else begin
-		*windows_open[q[0]] = null
+		*windows_open[q[0]] = 0L
 	endelse
 
 	count = n_elements(*windows_open[q[0]])				; current unique open count
+	if (count eq 1) then begin
+		if (*windows_open[q[0]] eq 0L) then count=0
+	endif
 
-;	print,'name,id,current=',name,'  ',id,'  ',*windows_open[q[0]]
+;	print,'name, id, current, count =',name,'  ',id,'  ',*windows_open[q[0]], count
 	error = 0
 	return
 end

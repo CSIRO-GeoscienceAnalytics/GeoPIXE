@@ -95,7 +95,7 @@ case tag_names( event,/structure) of
 		if ((*pstate).windows_veto eq 0) then begin
 			wizard_test_windows, 'batch', pstate				; periodically check which GeoPIXE windows are
 		endif													; currently open (not if warning open [windows_veto])
-		widget_control, event.id, timer=8.0	
+		widget_control, event.id, timer=5.0	
 		goto, finish
 		end
 
@@ -179,6 +179,15 @@ case tag_names( event,/structure) of
 						notify, 'wizard-action', (*pw).pnext
 					endif else begin
 						print, '   >>> End sequence, no Notify next.'
+
+;						Next row?
+	
+						if (*pw).loop then begin
+							print, '   >>> Loop to next row?'
+							(*pstate).loop += 1
+							wizard_batch_process_blog, pstate, error=error
+							if error then goto, finish
+						endif
 					endelse
 				endif
 				goto, finish
@@ -359,6 +368,9 @@ case uname of
 		*(*pstate).pctype = type
 ;		*(*pstate).pcel = element				; now set from template DAI
 		wizard_batch_update_ctable, pstate
+
+		(*pstate).options_process[0] = 1		; enable corrections
+		widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
 		end
 	
 	'template-rgb-button': begin
@@ -378,6 +390,9 @@ case uname of
 		*(*pstate).prtitle = title
 		*(*pstate).prtype = type
 		wizard_batch_update_rgb_table, pstate
+
+		(*pstate).options_export[6] = 1			; enable RGB exports
+		widget_control, (*pstate).options_export_id, set_value=(*pstate).options_export
 		end
 		
 	'template-rgb-text': begin
@@ -426,6 +441,9 @@ case uname of
 		endelse
 		*(*pstate).pcorr = t
 		wizard_batch_update_ctable, pstate
+
+		(*pstate).options_process[0] = 1		; enable corrections
+		widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
 		end
 	
 	'ctable-delete-button': begin
@@ -448,6 +466,9 @@ case uname of
 	'ctable-clear-button': begin
 		*(*pstate).pcorr = ''
 		wizard_batch_update_ctable, pstate
+
+		(*pstate).options_process[0] = 0		; enable corrections
+		widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
 		end
 
 	'display-apply-button': begin
@@ -469,6 +490,9 @@ case uname of
 		endfor
 		*(*pstate).pcorr = t
 		wizard_batch_update_ctable, pstate
+
+		(*pstate).options_process[0] = 1		; enable corrections
+		widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
 		end
 	
 	'rgb-table': begin
@@ -518,6 +542,9 @@ case uname of
 		endelse
 		*(*pstate).prgb = t
 		wizard_batch_update_rgb_table, pstate
+
+		(*pstate).options_export[6] = 1			; enable RGB exports
+		widget_control, (*pstate).options_export_id, set_value=(*pstate).options_export
 		end
 
 	'rgb-delete-button': begin
@@ -540,6 +567,9 @@ case uname of
 	'rgb-clear-button': begin
 		*(*pstate).prgb = ''
 		wizard_batch_update_rgb_table, pstate
+
+		(*pstate).options_export[6] = 0			; enable RGB exports
+		widget_control, (*pstate).options_export_id, set_value=(*pstate).options_export
 		end
 
 	'rgb-save-button': begin
@@ -565,6 +595,39 @@ case uname of
 bad_file:
 		close_file, unit
 		return
+		end
+
+	'options-file': begin
+		(*pstate).options_file[event.value] = event.select
+		widget_control, (*pstate).options_file_id, set_value=(*pstate).options_file
+		end
+
+	'options-process': begin
+		(*pstate).options_process[event.value] = event.select
+		widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
+		end
+
+	'options-export': begin
+		(*pstate).options_export[event.value] = event.select
+		if event.value eq 0 then begin
+			(*pstate).options_export[1] = 0
+		endif
+		if event.value eq 1 then begin
+			(*pstate).options_export[0] = 0
+		endif
+		if event.value eq 3 then begin
+			(*pstate).options_export[4] = 0
+			(*pstate).options_export[5] = 0
+		endif
+		if event.value eq 4 then begin
+			(*pstate).options_export[3] = 0
+			(*pstate).options_export[5] = 0
+		endif
+		if event.value eq 5 then begin
+			(*pstate).options_export[3] = 0
+			(*pstate).options_export[4] = 0
+		endif
+		widget_control, (*pstate).options_export_id, set_value=(*pstate).options_export
 		end
 
 	'results-table': begin
@@ -901,16 +964,14 @@ endif
 		endif
 
 		charge =  (*(*pep).pdata).charge
+		output =  (*(*pep).pdata).output
 		(*p)[ (*pstate).index].charge = charge
+		(*p)[ (*pstate).index].output = output
 
 		wizard_batch_update_table, pstate
 		ptr_free, pret
 	endif
-	
-;	Next row?			put this here for now. Needs to be in callback after LAST operations later ...
-	
-;	(*pstate).loop += 1
-;	wizard_batch_process_blog, pstate, error=error
+
 	error = 0
 	return
 end
@@ -945,10 +1006,6 @@ endif
 	error = 1
 	if (*pep).error ne 0 then return
 	
-;	Next row?
-	
-;	(*pstate).loop += 1
-;	wizard_batch_process_blog, pstate, error=error
 	error = 0
 	return
 end
@@ -983,10 +1040,40 @@ endif
 	error = 1
 	if (*pep).error ne 0 then return
 	
-;	Next row?
+	error = 0
+	return
+end
+
+;--------------------------------------------------------------------------
+
+pro wizard_batch_callback_save_done, pstate, pep, error=error
+
+; Callback to: After region done, access results and calculate 'conv'
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_working_dir, geopixe_root
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_callback_save_done',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+      return
+    endif
+endif
+
+	error = 1
+	if (*pep).error ne 0 then return
 	
-	(*pstate).loop += 1
-	wizard_batch_process_blog, pstate, error=error
 	error = 0
 	return
 end
@@ -1638,10 +1725,12 @@ if catch_errors_on then begin
 endif
 
 	error = 1
+	ops = 0
 	pops = (*pstate).pcorr
 	pcel = (*pstate).pcel
 	uv = (*pstate).uv
 	np = n_elements(*pops)
+	if np eq 0 then return, 0
 
 ;	Build display settings list ...
 
@@ -1672,14 +1761,11 @@ end
 pro wizard_batch_process_blog, pstate, error=error
 
 ; For a single raw file, do the following:
-;	1. Form DAI image file for standard 
-;			Update pileup, throttle file paths
-;			(done in "wizard_batch_callback_image_done" on reply)
-;	2. Set and integrate Region
-;			Based on conc for element, calculate 'conv' 
-;			(done in "wizard_batch_callback_region_done" on reply)
-;	
-; Later will also need to redo and save Region and Update DAI with the new 'conv' and new charge.
+;	1. Sort the raw data to form the DAI image file
+;	2. Apply any selected corrections to images.
+;	3. Apply display ranges.
+;	4. Save and export in various formats.
+;	5. Export RGB images.
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1716,7 +1802,10 @@ endif
 	endif
 	
 	i = (*pstate).loop									; our loop index
-	if i ge n then return
+	if i ge n then begin
+		print,'	process_blog: no more to process.'
+		return
+	endif
 	j = q[i]
 	(*pstate).index = j
 	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
@@ -1738,11 +1827,18 @@ endif
 	conv = 1.0
 	if s ne '' then conv = float2(s)
 	
+	save = 0
+	load = 0
+	for k=0,n_elements( (*pstate).options_export)-1 do save = save or (*pstate).options_export[k]
+	for k=0,n_elements( (*pstate).options_process)-1 do load = load or (*pstate).options_process[k]
+	load = save or load
+	save = load
+
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
 	wz.window = 'Sort EVT'								; Sort image
-	wz.command = 'sort-image'
-	wz.pdata = ptr_new( {	$
+	wz.command = 'sort-image'							; (or load if exists and 'load' or 'skip' set)
+	wz.pdata = ptr_new( {	$0
 		device:			(*(*pstate).pDevObj)->name(), $	; device name
 		image_mode:		0, $							; sort mode (images)
 		type:			(*(*pstate).pdai).detector, $	; data type
@@ -1751,8 +1847,8 @@ endif
 		pileup:			(*p)[j].pileup, $				; pileup file
 		throttle:		(*p)[j].throttle, $				; throttle file
 		output:			output, $						; output file
-		load:			1, $							; load image file if exists
-		skip:			1, $							; skip sort if exists already
+		load:			load, $							; load (1) image file if exists
+		skip:			(*pstate).options_file[1], $	; skip (1) sort if exists already
 		verify:			1, $							; enable file verification
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			conv, $							; initial 'conv'
@@ -1772,42 +1868,95 @@ endif
 	
 ;	Setup structs for Image Display and Processing
 
-	ops = wizard_batch_ops( pstate, display=display, error=error)
-
-	if error then begin
-		warning,'wizard_batch_process_blog','Error building display & operations lists for Image Operations.'
-		return
+	do_ops = (*pstate).options_process[0]
+	if do_ops then begin
+		ops = wizard_batch_ops( pstate, display=display, error=error)
+	
+		if error then begin
+			do_ops = 0
+;			warning,'wizard_batch_process_blog','Error building display & operations lists for Image Operations.'
+;			return
+		endif
 	endif
-	if n_elements(display) eq 0 then goto, image_processing
+
+	if do_ops then begin
+		wz = define(/wizard_notify)
+		wz.wizard = 'batch'
+		wz.window = 'Image'						; do image corrections
+		wz.command = 'image-corrections'
+		wz.pdata = ptr_new( ops, /no_copy)		; corrections list
+				
+		wz.local = 1
+		wz.callback = 'wizard_batch_callback_corrections_done'
+		pw = ptr_new(wz, /no_copy)
+		(*pl).pnext = pw						; link current one to this 'next' one
+		pl = pw									; current one
+
+		if n_elements(display) ne 0 then begin
+			wz = define(/wizard_notify)
+			wz.wizard = 'batch'
+			wz.window = 'Image'						; set display parameters
+			wz.command = 'set-display'
+			wz.pdata = ptr_new( display, /no_copy)	; display list
+					
+			wz.local = 1
+			wz.callback = 'wizard_batch_callback_display_done'
+			pw = ptr_new(wz, /no_copy)
+			(*pl).pnext = pw						; link current one to this 'next' one
+			pl = pw									; current one
+		endif
+	endif
+
+;	Save options, including some misc corrections (from batych-sort) ...
+
+;	flipx = 1 - (((*pstate).current_sort - (*pstate).first_sort) mod 2)
+	flipx = 1 - (((*pstate).index - 0) mod 2)
+	over = (*pstate).options_file[0]
+
+	*(*pstate).parg1 = {first:((*pstate).loop eq 0), save:save, html:'', bw:'', $
+					export:'', overwrite:over, correctX:(*pstate).options_process[1], $
+					mirrorX:(*pstate).options_process[2] and flipx, tiff:'', tiff_type:0, $
+					rgb:(*pstate).options_export[6], metadata:(*pstate).options_export[7]}
+
+	if (*pstate).options_export[0] then begin						; output HTML
+		path = extract_path(output) + 'html' + path_sep()
+		file = path + strip_file_ext(strip_path(output)) + '.html'
+		(*(*pstate).parg1).html = file
+	endif else if (*pstate).options_export[1] then begin			; output B/W HTML
+		path = extract_path(output) + 'html' + path_sep() + 'bw' + path_sep()
+		file = path + strip_file_ext(strip_path(output)) + '-bw.html'
+		(*(*pstate).parg1).bw = file
+	endif
+	if (*pstate).options_export[2] then begin						; export CSV/TXT image(s)
+		path = extract_path(output) + 'export' + path_sep()
+		file = path + strip_file_ext(strip_path(output)) + '.csv'
+		(*(*pstate).parg1).export = file
+	endif
+	if (*pstate).options_export[3] or (*pstate).options_export[4] or (*pstate).options_export[5] then begin			; export TIFF image(s)
+		path = extract_path(output) + 'tiff' + path_sep()
+		file = path + strip_file_ext(strip_path(output)) + '.html'
+		(*(*pstate).parg1).tiff = file
+		(*(*pstate).parg1).tiff_type = 0
+		if (*pstate).options_export[4] then (*(*pstate).parg1).tiff_type = 1
+		if (*pstate).options_export[5] then (*(*pstate).parg1).tiff_type = 2
+	endif
 
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
 	wz.window = 'Image'						; set display parameters
-	wz.command = 'set-display'
-	wz.pdata = ptr_new( display, /no_copy)	; display list
+	wz.command = 'batch-save'
+	wz.pdata = ptr_new( *(*pstate).parg1)	; save options
 			
 	wz.local = 1
-	wz.callback = 'wizard_batch_callback_display_done'
-	pw = ptr_new(wz, /no_copy)
-	(*pl).pnext = pw						; link current one to this 'next' one
-	pl = pw									; current one
-
-image_processing:
-
-	wz = define(/wizard_notify)
-	wz.wizard = 'batch'
-	wz.window = 'Image'						; do image corrections
-	wz.command = 'image-corrections'
-	wz.pdata = ptr_new( ops, /no_copy)		; corrections list
-			
-	wz.local = 1
-	wz.callback = 'wizard_batch_callback_corrections_done'
+	wz.callback = 'wizard_batch_callback_save_done'
 	pw = ptr_new(wz, /no_copy)
 	(*pl).pnext = pw						; link current one to this 'next' one
 	pl = pw									; current one
 
 ;	Send off the linked list to be actioned ...
-;	The first wizard data pointer is still in use, so we use a new one for the next row ...	
+;	The first wizard data pointer may still be in use, so we use a new one for the next row ...	
+
+	(*pl).loop = 1							; last command, so check for loop to next
 
 	if (*pstate).loop mod 2 then begin
 		clear_wizard, (*pstate).pwizard1
@@ -2802,7 +2951,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 
-wversion = '8.9a'							; wizard version
+wversion = '8.9b'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
@@ -2967,7 +3116,7 @@ tbase = widget_base( tlb, /row, xpad=0, ypad=0, space=5, /base_align_center, /al
 lbase = widget_base( tbase, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
 tab_panel = widget_tab( lbase, location=2, /align_center, uname='wizard-batch-tab-panel')
-tab_names = ['input','corrections','rgb','table']
+tab_names = ['input','corrections','rgb','options','table']
 
 ; Files and paths -----------------------------------------
 
@@ -3164,9 +3313,60 @@ button = widget_button( rgbtable_base2, value='Save', uname='rgb-save-button', t
 						uvalue='Click to save the RGB table to a ".rgb.csv" file for the "Learn" function here and in the RGB Image window', scr_xsize=button_xsize )
 		
 
+; Processing and save/export options  -----------------------------------------
+
+options_base = widget_base( tab_panel, title='  4. Options    ', /column, xpad=1, ypad=1, space=5, $
+					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
+label = widget_label( options_base, value='Processing, Save & Export Options')
+text = widget_text( options_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='options-explanation', tracking=tracking, $
+				value=['Tab showing a selection of processing and output/export options. The image corrections options are setup on tab 2 (Corrections). ' + $
+				'The RGB Export options are setup on tab 3 (RGB Exports).'], $
+				uvalue={xresize:left_resize, help:'Explanation of the role of the Options panel.'}, frame=1)
+
+options_base2 = widget_base( options_base, /row, xpad=5, ypad=0, space=2, /align_top, /base_align_top)
+
+options_base3a = widget_base( options_base2, /column, /frame, xpad=2, ypad=2, space=2, /align_top, /base_align_center)
+label = widget_label( options_base3a, value='File Options')
+
+options_file = [0,1]
+options_file_id = cw_bgroup2( options_base3a, ['Overwrite original DAI file','Skip sort if original DAI already exists'], $
+			/column, xpad=0, ypad=0, space=0, /return_index, tracking=tracking, $
+			uname='options-file', set_value=options_file, /nonexclusive, $
+			uvalue=['Overwrite the initial DAI file with the digital filtered images, rather than write a separate "-m.DAI" or "-x.DAI" file. This saves disk space, but it may be better to avoid this to ensure that the modified image data is stored in a different file.', $
+					'Skip the sorting of the raw data to DAI image file if a DAI file already exists for a particular run. Use this feature to apply filtering and output options to previously sorted runs.'])
+
+options_base3b = widget_base( options_base2, /column, /frame, xpad=2, ypad=2, space=2, /align_top, /base_align_center)
+label = widget_label( options_base3b, value='Processing Options')
+
+options_process = [0,0,0]
+options_process_id = cw_bgroup2( options_base3b, ['Apply corrections to images','Apply a CorrectX scaling file','Mirror X (odd images only)'], $
+			/column, xpad=0, ypad=0, space=0, /return_index, tracking=tracking, $
+			uname='options-process', set_value=options_process, /nonexclusive, $
+			uvalue=['Enable the application of digital filters and corrections to the resulting images, as defined on tab 2 (Corrections). ', $
+					'Select an existing file of CorrectX corrections to scale image for variations in X current, flux, etc.', $
+					'A nasty hack to flip an image in X [to fix the Epics negative width error at XFM that produces negative X and flips every second image]. Set "First" on the first image to flip in X.'])
+
+options_base3c = widget_base( options_base2, /column, /frame, xpad=2, ypad=2, space=2, /align_top, /base_align_center)
+label = widget_label( options_base3c, value='Export Options')
+
+options_export = [0,0,0,0,0,0,0,0]
+options_export_id = cw_bgroup2( options_base3c, ['Save images as colour PNG to HTML', 'Save images as B/W PNG to HTML','Export images as Tab delimited text', $
+							'Save images as TIFF concentration', 'Save images as TIFF counts','Save images as TIFF ng/cm**2','Save selected RGB images','Save METADATA for each image'], $
+			/column, xpad=0, ypad=0, space=0, /return_index, tracking=tracking, $
+			uname='options-export', set_value=options_export, /nonexclusive, $
+			uvalue=['Save colour images in PNG format, and build a summary HTML file using thumb-nail versions of the images. You will be prompted for an element list after the first sort in the table.', $
+					'Save black and white images in PNG format, and build a summary HTML file using thumb-nail versions of the images. You will be prompted for an element list after the first sort in the table.', $
+					'Export selected element images as tab delimited text files. You will be prompted for an element list after the first sort in the table.', $
+					'Save floating point images proportional to concentration in TIFF format, and build a summary HTML file using thumb-nail versions of the images. You will be prompted for an element list after the first sort in the table.', $
+					'Save floating point images proportional to counts in TIFF format, and build a summary HTML file using thumb-nail versions of the images. You will be prompted for an element list after the first sort in the table.', $
+					'Save floating point images proportional to ng/cm^2 in TIFF format, and build a summary HTML file using thumb-nail versions of the images. You will be prompted for an element list after the first sort in the table.', $)
+					'Save selected RGB images as defined on tab 3 (RGB Exports). Use "Learn" in the RGB Image window to create a template file, or build the table on tab 3, to provide the RGB list.', $
+					'Save a Metadata JSON file of image parameters for each image.'])
+
+
 ; Results table  -----------------------------------------
 
-table_base = widget_base( tab_panel, title='  4. Processing Table    ', /column, xpad=1, ypad=1, space=5, $
+table_base = widget_base( tab_panel, title='  5. Processing Table    ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( table_base, value='Work Table and Processing Progress')
 results_text = widget_text( table_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='table-explanation', tracking=tracking, $
@@ -3219,7 +3419,7 @@ button = widget_button( table_base2, value='Start Processing', uname='process-bu
 sbase = widget_base( lbase, /row, xpad=0, ypad=0, space=20, /base_align_center, /align_center)
 button = widget_button( sbase, value='  <<  Back  ', uname='back-button', tracking=tracking, uvalue='Go back a page in the procedure to the previous page. ' + $
 			' You can also click on the Tab label for a previous page to go directly to it.')
-button = widget_button( sbase, value=' Figure ', uname='figure-button', tracking=tracking, uvalue='Re-display the Figure for this tab.')
+button = widget_button( sbase, value=' Figure ', uname='figure-button', tracking=tracking, uvalue='Re-display the Figure for this tab (if available).')
 button = widget_button( sbase, value='  Next  >>  ', uname='next-button', tracking=tracking, uvalue='Go to the next page in the procedure, if all entries have been made and prerequisite steps have been completed.')
 		
 ;------------------------------------------------------------------------------------------------
@@ -3320,6 +3520,10 @@ state = { $
 		g_element_mode:			0, $							; G element mode
 		b_element_mode:			0, $							; B element mode
 		
+		options_file:			options_file, $					; file options
+		options_process:		options_process, $				; processing options
+		options_export:			options_export, $				; save/export options
+
 ;		wid1:					0L, $							; Draw 1 window ID
 ;		wid2:					0L, $							; Draw 2 window ID
 ;		detector_mode:			0, $							; detector (old) droplist setting
@@ -3346,6 +3550,10 @@ state = { $
 		b_element:				b_element, $					; B element mode ID	
 		rgb_zoom_text:			rgb_zoom_text, $				; Zoom text ID
 		conv_text:				conv_text, $					; conv factor text ID
+
+		options_file_id:		options_file_id, $				; file options bgroup ID
+		options_process_id:		options_process_id, $			; processing options bgroup ID
+		options_export_id:		options_export_id, $			; save/export options bgroup ID
 
 ;		ptab_panel:				ptab_panel, $					; plot tab ID
 ;		results_draw1:			results_draw1, $				; results plot1 (by run)

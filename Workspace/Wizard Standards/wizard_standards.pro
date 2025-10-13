@@ -171,15 +171,25 @@ case tag_names( event,/structure) of
 					endif
 
 ;					If there is a valid notify struct pointed to from 'pnext' in the returned event,
-;					then Notify that in turn ...
-;					Note that we don't free linked list memory here.
+;					then Notify that in turn ... (Note that we don't free linked list memory here).
+;					if there are no more commands in list (no 'pnext') then test 'loop' flag.
 
 					if ptr_good( (*pw).pnext) then begin
 						print, '   >>> Notify next, to="'+(*(*pw).pnext).window+'", command="'+(*(*pw).pnext).command
 						notify, 'wizard-action', (*pw).pnext
 					endif else begin
 						print, '   >>> End sequence, no Notify next.'
+
+;						Next row?
+	
+						if (*pw).loop then begin
+							print, '   >>> Loop to next row?'
+							(*pstate).loop += 1
+							wizard_standards_process_blog, pstate, error=error
+							if error then goto, finish
+						endif
 					endelse
+
 				endif
 				goto, finish
 				end
@@ -752,9 +762,10 @@ endif
 	wizard_standards_update_export, pstate
 	
 ;	Next row?
-	
-	(*pstate).loop += 1
-	wizard_standards_process_blog, pstate, error=error
+;	Done in event routine now ...	
+;	(*pstate).loop += 1
+;	wizard_standards_process_blog, pstate, error=error
+
 	error = 0
 	return
 end
@@ -1197,7 +1208,10 @@ endif
 	endif
 	
 	i = (*pstate).loop						; our loop index
-	if i ge n then return
+	if i ge n then begin
+		print,'	process_blog: no more to process, finish.'
+		return
+	endif
 	j = q[i]
 	(*pstate).index = j
 	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
@@ -1240,6 +1254,7 @@ endif
 		verify:			1, $							; enable file verification
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			1.0, $							; initial 'conv'
+		charge:			0.0, $							; returned charge from sort
 		charge_mode:	1, $							; flux/charge mode (IC w/ PV)
 		flux_scaler: 	(*p)[j].pv, $					; scaler ID
 		gain_value:		gain_value, $					; IC gain
@@ -1287,6 +1302,8 @@ endif
 
 ;	The first wizard data pointer is still in use, so we use a new one for the next row ...	
 	
+	(*pl).loop = 1							; last command, so check for loop to next
+
 	if (*pstate).loop mod 2 then begin
 		clear_wizard, (*pstate).pwizard1
 		*(*pstate).pwizard1 = *p0
@@ -1998,7 +2015,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 
-wversion = '8.9'							; wizard version
+wversion = '8.9a'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
@@ -2199,13 +2216,6 @@ blog_dir_text = widget_text( file_base1c, uname='blog-dir-text', value=default.p
 						uvalue={xresize:left_resize, help:'Enter file-name for the raw data directory for any "standard", or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_standards_blog_dir_text')
 
-file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
-button = widget_button( file_base1d, value='Energy Cal:', uname='energy-cal-file-button', tracking=tracking, $
-						uvalue='Click to browse for the energy calibration SPEC file for all good detectors. Delete any detectors in the SPEC file to exclude these detector channels.', scr_xsize=button_xsize )
-energy_cal_file_text = widget_text( file_base1d, uname='energy-cal-file-text', value='', tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for the energy cal SPEC file for the detector, or click on button to browse for the file. Delete any detectors in the SPEC file to exclude these detector channels.'}, scr_xsize=text_xsize, /edit)
-;						Notify_Realize='OnRealize_standards_energy_cal_file_text')
-
 file_base1e = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base1e, value='Output Path:', uname='output-dir-button', tracking=tracking, $
 						uvalue='Click to browse for the output directory tree for image and region data. ', scr_xsize=button_xsize )
@@ -2213,6 +2223,12 @@ output_dir_text = widget_text( file_base1e, uname='output-dir-text', value=defau
 						uvalue={xresize:left_resize, help:'Enter the directory tree for image and region output, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_standards_output_dir_text')
 
+file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
+button = widget_button( file_base1d, value='Energy Cal:', uname='energy-cal-file-button', tracking=tracking, $
+						uvalue='Click to browse for the energy calibration SPEC file for all good detectors. Delete any detectors in the SPEC file to exclude these detector channels.', scr_xsize=button_xsize )
+energy_cal_file_text = widget_text( file_base1d, uname='energy-cal-file-text', value='', tracking=tracking, $
+						uvalue={xresize:left_resize, help:'Enter file-name for the energy cal SPEC file for the detector, or click on button to browse for the file. Delete any detectors in the SPEC file to exclude these detector channels.'}, scr_xsize=text_xsize, /edit)
+;						Notify_Realize='OnRealize_standards_energy_cal_file_text')
 
 file_base2 = widget_base( file_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize, uvalue={xresize:left_resize})
 label = widget_label( file_base2, value='Resource Files')

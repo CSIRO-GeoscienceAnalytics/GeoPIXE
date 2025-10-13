@@ -1938,6 +1938,7 @@ def_struct = {	wizard:		'', $				; originating wizard name
 				pdata:		ptr_new(), $		; general data to be transferred
 				local:		1, $				; pdata is managed 'local' to Wizard
 				callback:	'', $				; name of callback routine
+				loop:		0, $				; optional loop control in Wizard
 				pnext:		ptr_new() }			; next action in linked list
 
 ;--------------------------------------------------------------------------------------------

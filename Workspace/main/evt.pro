@@ -312,8 +312,8 @@ snap_done:
 								endif
 
 								(*pw).error = err
-								(*pd).output = (*p).output_file								; file-name
-								(*pd).charge = (*(*pstate).p).charge						; return a new charge
+								if tag_present('OUTPUT', *pd) then (*pd).output = (*p).output_file								; file-name
+								if tag_present('CHARGE', *pd) then (*pd).charge = (*(*pstate).p).charge						; return a new charge
 								if tag_present('PNEW', *pd) then begin						; some file paths have changed
 									if n_elements(sret) gt 0 then *(*pd).pnew = sret
 								endif
