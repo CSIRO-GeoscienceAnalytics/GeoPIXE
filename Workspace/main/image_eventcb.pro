@@ -6435,7 +6435,7 @@ snap_done:
 						notify, 'wizard-return', pw
 						end
 
-				    'batch-save': begin
+				    'save-batch': begin
 						pw = event.pointer
 						pd = (*pw).pdata
 						print,'*** Wizard Image: do image saves and exports ...'

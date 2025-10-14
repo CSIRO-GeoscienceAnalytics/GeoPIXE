@@ -246,7 +246,7 @@ case uname of
 							/dir, group=event.top )
 		if F[0] ne '' then begin
 			(*pstate).blog_dir = F[0]
-			set_widget_text, (*pstate).blog_dir_text, F[0]
+			set_widget_text, (*pstate).blog_dir_text, (*pstate).blog_dir
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 			if lenchr(s) gt 0 then begin
 				(*pstate).output_dir = s
@@ -284,9 +284,9 @@ case uname of
 							/dir, group=event.top )
 		if F[0] ne '' then begin
 			(*pstate).output_dir = F[0]
-			set_widget_text, (*pstate).output_dir_text, F[0]
+			set_widget_text, (*pstate).output_dir_text, (*pstate).output_dir 
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
-			*(*pstate).path = F[0]
+			*(*pstate).path = (*pstate).output_dir 
 		endif
 		end
 		
@@ -294,7 +294,14 @@ case uname of
 		widget_control, event.id, get_value=s
 		(*pstate).output_dir = s
 		end
-					
+				
+	'same-dir-button': begin
+		(*pstate).output_dir = (*pstate).blog_dir
+		set_widget_text, (*pstate).output_dir_text, (*pstate).output_dir 
+		s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
+		*(*pstate).path = (*pstate).output_dir 
+		end
+
 	'template-sort-button': begin
 		F = file_requester( /read, title='Select a template DAI', path=(*pstate).output_dir, file=(*pstate).template_sort_dai, $
 							filter='*.dai', group=event.top )
@@ -585,16 +592,7 @@ case uname of
 		if F eq '' then return
 		F = strip_file_ext(F,/double) + '.rgb.csv'
 	
-		on_ioerror, bad_file
-		openw, unit, F[0], /get_lun
-	
-		list = *(*pstate).prgb
-		for i=0,n-1 do begin
-			printf, unit, list[i].r, list[i].g, list[i].b, list[i].zoom, format='(A,",",A,",",A,",",I3)'
-		endfor
-bad_file:
-		close_file, unit
-		return
+		wizard_batch_save_rgb, F[0]
 		end
 
 	'options-file': begin
@@ -897,7 +895,7 @@ end
 
 pro wizard_batch_callback_image_done, pstate, pep, error=error
 
-; Callback to: After image done, check loop and do the next one.
+; Callback to: After sort of raw data into images done
 ; 'pep'	event.pointer returned in Notify, points to wizard_notify struct
 
 COMPILE_OPT STRICTARR
@@ -980,7 +978,8 @@ end
 
 pro wizard_batch_callback_display_done, pstate, pep, error=error
 
-; Callback to: After region done, access results and calculate 'conv'
+; Callback to: After image display parameters set
+; 'pep'	event.pointer returned in Notify, points to wizard_notify struct
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1014,7 +1013,8 @@ end
 
 pro wizard_batch_callback_corrections_done, pstate, pep, error=error
 
-; Callback to: After region done, access results and calculate 'conv'
+; Callback to: After image corrections done
+; 'pep'	event.pointer returned in Notify, points to wizard_notify struct
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1048,7 +1048,43 @@ end
 
 pro wizard_batch_callback_save_done, pstate, pep, error=error
 
-; Callback to: After region done, access results and calculate 'conv'
+; Callback to: After image saves done
+; 'pep'	event.pointer returned in Notify, points to wizard_notify struct
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_working_dir, geopixe_root
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+    Catch, ErrorNo
+    if (ErrorNo ne 0) then begin
+       Catch, /cancel
+       on_error, 1
+       help, calls = s
+       n = n_elements(s)
+       c = 'Call stack: '
+       if n gt 2 then c = [c, s[1:n-2]]
+       warning,'wizard_batch_callback_save_done',['IDL run-time error caught.', '', $
+          'Error:  '+strtrim(!error_state.name,2), $
+          !error_state.msg,'',c], /error
+       MESSAGE, /RESET
+      return
+    endif
+endif
+
+	error = 1
+	if (*pep).error ne 0 then return
+	
+	error = 0
+	return
+end
+
+;---------------------------------------------------------------------------------------------------
+
+pro wizard_batch_callback_rgb_done, pstate, pep, error=error
+
+; Callback to: After RGB exports done
+; 'pep'	event.pointer returned in Notify, points to wizard_notify struct
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1767,25 +1803,25 @@ pro wizard_batch_process_blog, pstate, error=error
 ;	4. Save and export in various formats.
 ;	5. Export RGB images.
 
-COMPILE_OPT STRICTARR
-ErrorNo = 0
-common c_errors_1, catch_errors_on
-if catch_errors_on then begin
-    Catch, ErrorNo
-    if (ErrorNo ne 0) then begin
-       Catch, /cancel
-       on_error, 1
-       help, calls = s
-       n = n_elements(s)
-       c = 'Call stack: '
-       if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_batch_process_blog',['IDL run-time error caught.', '', $
-          'Error:  '+strtrim(!error_state.name,2), $
-          !error_state.msg,'',c], /error
-       MESSAGE, /RESET
-      return
-    endif
-endif
+	COMPILE_OPT STRICTARR
+	ErrorNo = 0
+	common c_errors_1, catch_errors_on
+	if catch_errors_on then begin
+	    Catch, ErrorNo
+	    if (ErrorNo ne 0) then begin
+	       Catch, /cancel
+	       on_error, 1
+	       help, calls = s
+	       n = n_elements(s)
+	       c = 'Call stack: '
+	       if n gt 2 then c = [c, s[1:n-2]]
+	       warning,'wizard_batch_process_blog',['IDL run-time error caught.', '', $
+	          'Error:  '+strtrim(!error_state.name,2), $
+	          !error_state.msg,'',c], /error
+	       MESSAGE, /RESET
+	      return
+	    endif
+	endif
 
 	wizard_check_windows, pstate, error=error
 	if error then return
@@ -1863,8 +1899,8 @@ endif
 	wz.local = 1
 	wz.callback = 'wizard_batch_callback_image_done'
 	pw = ptr_new(wz, /no_copy)
+	pl = pw									; new current one
 	p0 = pw									; first one
-	pl = pw									; current one
 	
 ;	Setup structs for Image Display and Processing
 
@@ -1903,7 +1939,7 @@ endif
 			wz.callback = 'wizard_batch_callback_display_done'
 			pw = ptr_new(wz, /no_copy)
 			(*pl).pnext = pw						; link current one to this 'next' one
-			pl = pw									; current one
+			pl = pw									; new current one
 		endif
 	endif
 
@@ -1943,15 +1979,34 @@ endif
 
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
-	wz.window = 'Image'						; set display parameters
-	wz.command = 'batch-save'
+	wz.window = 'Image'						; save modified images
+	wz.command = 'save-batch'
 	wz.pdata = ptr_new( *(*pstate).parg1)	; save options
 			
 	wz.local = 1
 	wz.callback = 'wizard_batch_callback_save_done'
 	pw = ptr_new(wz, /no_copy)
 	(*pl).pnext = pw						; link current one to this 'next' one
-	pl = pw									; current one
+	pl = pw									; new current one
+
+;	Save selected RGB images ...
+
+	file = (*(*pstate).path) + 'temp.rgb.csv'
+	wizard_batch_save_rgb, pstate, file, error=err
+
+	if err eq 0 then begin
+		wz = define(/wizard_notify)
+		wz.wizard = 'batch'
+		wz.window = 'Image RGB'					; save RGB images
+		wz.command = 'save-rgb'
+		wz.pdata = ptr_new( file)				; RGB export temp file
+				
+		wz.local = 1
+		wz.callback = 'wizard_batch_callback_rgb_done'
+		pw = ptr_new(wz, /no_copy)
+		(*pl).pnext = pw						; link current one to this 'next' one
+		pl = pw									; new current one
+	endif
 
 ;	Send off the linked list to be actioned ...
 ;	The first wizard data pointer may still be in use, so we use a new one for the next row ...	
@@ -1970,6 +2025,54 @@ endif
 		notify, 'wizard-action', (*pstate).pwizard2	
 	endelse
 	error = 0
+	return
+end
+
+;--------------------------------------------------------------------------
+
+pro wizard_batch_save_rgb, pstate, file, error=error
+
+;	Save RGB settings (if defined) to a file
+
+	COMPILE_OPT STRICTARR
+	ErrorNo = 0
+	common c_working_dir, geopixe_root
+	common c_errors_1, catch_errors_on
+	if catch_errors_on then begin
+	    Catch, ErrorNo
+	    if (ErrorNo ne 0) then begin
+	       Catch, /cancel
+	       on_error, 1
+	       help, calls = s
+	       n = n_elements(s)
+	       c = 'Call stack: '
+	       if n gt 2 then c = [c, s[1:n-2]]
+	       warning,'wizard_batch_save_rgb',['IDL run-time error caught.', '', $
+	          'Error:  '+strtrim(!error_state.name,2), $
+	          !error_state.msg,'',c], /error
+	       MESSAGE, /RESET
+	       return
+	    endif
+	endif
+	error = 1
+
+	if n_elements(file) eq 0 then return
+	if file eq '' then return
+	if ptr_good( (*pstate).prgb) eq 0 then return
+
+	on_ioerror, bad_file
+	openw, unit, file, /get_lun
+
+	list = *(*pstate).prgb
+	n = n_elements(list)
+
+	for i=0,n-1 do begin
+		printf, unit, list[i].r, list[i].g, list[i].b, list[i].zoom, format='(A,",",A,",",A,",",I3)'
+	endfor
+	error = 0
+
+bad_file:
+	close_file, unit
 	return
 end
 
@@ -2951,7 +3054,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 
-wversion = '8.9b'							; wizard version
+wversion = '8.9c'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
@@ -3019,7 +3122,7 @@ detector_update, list=detector_list, title=detector_title
 ; to check on their 'open' status. They MUST make a copy of the Notify pointer contents,
 ; set (*pw).top of the copy to 'event.top' and return the new pw. 
 
-windows_needed = ['Image','Sort EVT','Image Operations']
+windows_needed = ['Image','Sort EVT','Image Operations','Image RGB']
 
 case !version.os_family of
 	'MacOS': begin
@@ -3157,8 +3260,10 @@ file_base1e = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_ali
 button = widget_button( file_base1e, value='Output Path:', uname='output-dir-button', tracking=tracking, $
 						uvalue='Click to browse for the output directory tree for image data. ', scr_xsize=button_xsize )
 output_dir_text = widget_text( file_base1e, uname='output-dir-text', value=default.path.analysis, tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter the directory tree for image output, or click on button to browse for the dir. '}, scr_xsize=text_xsize, /edit)
+						uvalue={xresize:left_resize, help:'Enter the directory tree for image output, or click on button to browse for the dir. '}, scr_xsize=text_xsize-button_xsize2-5, /edit)
 ;						Notify_Realize='OnRealize_batch_output_dir_text')
+button = widget_button( file_base1e, value='Same as Raw', uname='same-dir-button', tracking=tracking, $
+						uvalue='Click to set the Anaysis path the same as the Raw path. ', scr_xsize=button_xsize2 )
 
 file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base1d, value='Energy Cal:', uname='energy-cal-file-button', tracking=tracking, $

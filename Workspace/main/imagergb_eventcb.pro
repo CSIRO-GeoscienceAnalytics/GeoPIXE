@@ -988,6 +988,18 @@ case event.tag of
 						(*pw).error = err
 						notify, 'wizard-return', pw
 						end
+
+					'save-rgb': begin
+						print,'*** Wizard Image RGB: save RGB images ...'
+						pw = event.pointer
+						file = *(*pw).pdata
+						ImageRGB_Learn, Event, file=file 
+						ImageRGB_Learn, Event, /execute, /silent
+
+						(*pw).error = 0
+						notify, 'wizard-return', pw
+						end
+
 					else: begin
 						warning,'image_RGB: Notify',['Unknown wizard command: '+(*event.pointer).command, $
 								'Make sure GeoPIXE version is compatible with Wizard.']
