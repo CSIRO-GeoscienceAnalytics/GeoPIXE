@@ -266,7 +266,7 @@ case uname of
 		end
 					
 	'energy-cal-file-button': begin
-		F = file_requester( /read, title='Select a detector energy cal file', path=(*pstate).output_dir, $
+		F = file_requester( /read, title='Select a detector energy cal file', path=*(*pstate).path, $
 							file=(*pstate).energy_cal_file, filter='*.spec', group=event.top )
 		if F[0] ne '' then begin
 			(*pstate).energy_cal_file = F[0]
@@ -307,7 +307,7 @@ case uname of
 							filter='*.dai', group=event.top )
 		if F[0] eq '' then goto, finish
 		(*pstate).template_sort_dai = F[0]
-		set_widget_text, (*pstate).template_sort_text, F[0]
+		set_widget_text, (*pstate).template_sort_text, (*pstate).template_sort_dai
 		wizard_batch_load_template, pstate, error=error
 		if error then begin
 ;			warning,'wizard_batch_event','No raw files found.'		
@@ -318,6 +318,25 @@ case uname of
 		widget_control, (*pstate).g_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).b_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).conv_text, set_value = str_tidy((*(*pstate).pdai).IC.conversion)
+
+		if typevar( *(*pstate).pcorr) ne 'STRUCT' then begin
+			(*pstate).template_corrections_dai = (*pstate).template_sort_dai
+			set_widget_text, (*pstate).template_corrections_text, (*pstate).template_corrections_dai
+	
+			table = wizard_batch_load_corr( pstate, title=title, type=type, element=element, error=error)
+			if error then begin
+				goto, finish
+			endif
+			*(*pstate).pcorr = table
+			*(*pstate).pctitle = title
+			*(*pstate).pctype = type
+			wizard_batch_update_ctable, pstate
+	
+			(*pstate).options_process[0] = 0		; do not enable corrections yet
+			widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
+			(*pstate).template_corrections_dai = ''
+			set_widget_text, (*pstate).template_corrections_text, (*pstate).template_corrections_dai
+		endif
 		end
 		
 	'template-sort-text': begin
@@ -336,6 +355,25 @@ case uname of
 		widget_control, (*pstate).r_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).g_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).b_element, set_value = *(*pstate).pcel
+
+		if typevar( *(*pstate).pcorr) ne 'STRUCT' then begin
+			(*pstate).template_corrections_dai = (*pstate).template_sort_dai
+			set_widget_text, (*pstate).template_corrections_text, (*pstate).template_corrections_dai
+	
+			table = wizard_batch_load_corr( pstate, title=title, type=type, element=element, error=error)
+			if error then begin
+				goto, finish
+			endif
+			*(*pstate).pcorr = table
+			*(*pstate).pctitle = title
+			*(*pstate).pctype = type
+			wizard_batch_update_ctable, pstate
+	
+			(*pstate).options_process[0] = 0		; do not enable corrections yet
+			widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
+			(*pstate).template_corrections_dai = ''
+			set_widget_text, (*pstate).template_corrections_text, (*pstate).template_corrections_dai
+		endif
 		end
 					
 	'scan-blog-button': begin
@@ -476,6 +514,8 @@ case uname of
 
 		(*pstate).options_process[0] = 0		; enable corrections
 		widget_control, (*pstate).options_process_id, set_value=(*pstate).options_process
+		(*pstate).template_corrections_dai = ''
+		set_widget_text, (*pstate).template_corrections_text, (*pstate).template_corrections_dai
 		end
 
 	'display-apply-button': begin
@@ -1244,7 +1284,7 @@ function wizard_batch_output_file, pstate, blog, error=err
 ;		f = strmid(f, 0,j) + 'analysis' + strmid(f, j+4)
 ;	endif
 
-	if extract_extension() ne '' then begin
+	if extract_extension( f) ne '' then begin
 		f = strip_file_ext( f) + '.dai'
 	endif
 	err = 0
@@ -1538,10 +1578,10 @@ if n_elements(silent) eq 0 then silent=0
 		
 		phist = (*(*p).history)[i]
 		found = 0
+		first = 1
 		if ptr_good(phist) eq 0 then goto, more_corr
 
 		nhist = n_elements(*phist)
-		first = 1
 		for j=0,nhist-1 do begin
 			s = hide_embedded( (*phist)[j], ' ')
 			sub = strsplit( s, ',:()', /extract, count=n_sub)
@@ -1915,7 +1955,7 @@ pro wizard_batch_process_blog, pstate, error=error
 		endif
 	endif
 
-	over = (*pstate).options_file[0]			; overwrite option
+	over = (*pstate).options_file[0]			; overwrite original DAI option
 
 	if do_ops then begin
 		wz = define(/wizard_notify)
@@ -1943,6 +1983,13 @@ pro wizard_batch_process_blog, pstate, error=error
 			pw = ptr_new(wz, /no_copy)
 			(*pl).pnext = pw						; link current one to this 'next' one
 			pl = pw									; new current one
+		endif
+
+;		As the images have now been modified, add the suffix ...
+
+		if over eq 0 then begin
+			ext = extract_extension(output)
+			output = strip_file_m( strip_file_ext(output), ending='-x') + '-x.' + ext
 		endif
 	endif
 
@@ -1999,15 +2046,15 @@ pro wizard_batch_process_blog, pstate, error=error
 	if err eq 0 then begin
 		wz = define(/wizard_notify)
 		wz.wizard = 'batch'
-		wz.window = 'Image RGB'					; save RGB images
+		wz.window = 'Image RGB'				; save RGB images
 		wz.command = 'save-rgb'
-		wz.pdata = ptr_new( file)				; RGB export temp file
+		wz.pdata = ptr_new( file)			; RGB export temp file
 				
 		wz.local = 1
 		wz.callback = 'wizard_batch_callback_rgb_done'
 		pw = ptr_new(wz, /no_copy)
-		(*pl).pnext = pw						; link current one to this 'next' one
-		pl = pw									; new current one
+		(*pl).pnext = pw					; link current one to this 'next' one
+		pl = pw								; new current one
 	endif
 
 ;	Send off the linked list to be actioned ...

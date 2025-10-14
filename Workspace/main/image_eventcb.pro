@@ -4787,20 +4787,20 @@ if F ne '' then begin
 ;   For new parameters, make a new popup that uses the new 'select_element'
 ;   compount widget (see 'export_select' as a guide).
 
-    if first then begin
-       title = 'Select elements for HTML file'
-       if bw then title = title + ' (in b/w)'
-       select = element_select( event.top, el, old_select=*(*pstate).pselect3, $
-	   					title=title, path=*(*pstate).path )
-       qselect = where(select eq 1)
-       if qselect[0] eq -1 then goto, done
-       *(*pstate).pselect3 = select
-    endif
-    qselect = where(*(*pstate).pselect3 eq 1)
-    if qselect[0] eq -1 then goto, done
+	if first then begin
+		title = 'Select elements for HTML file'
+		if bw then title = title + ' (in b/w)'
+		select = element_select( event.top, el, old_select=*(*pstate).pselect3, $
+					title=title, path=*(*pstate).path )
+		qselect = where(select eq 1)
+		if qselect[0] eq -1 then goto, done
+		*(*pstate).pselect3 = select
+	endif
+	qselect = where(*(*pstate).pselect3 eq 1)
+	if qselect[0] eq -1 then goto, done
 
-    F = strip_file_ext(F) + '.html'
-    path = extract_path(F)
+	F = strip_file_ext(F) + '.html'
+	path = extract_path(F)
 	if file_test(path,/dir) eq 0 then begin
 		safe_file_mkdir, path, error=error
 		if error then begin
@@ -4808,280 +4808,277 @@ if F ne '' then begin
 		endif
 	endif
 
-    if bw then begin
-;     rc = rr
-;     gc = gg
-;     bc = bb
-       tvlct,rc,gc,bc,/get
-       loadct, 0, bottom=16, ncolors=100
-       tvlct, rr,gg,bb, /get
-       rr[16:115] = reverse(rr[16:115])
-       gg[16:115] = reverse(gg[16:115])
-       bb[16:115] = reverse(bb[16:115])
-       tvlct, rr[16:115],gg[16:115],bb[16:115], 16
-    endif else begin
-       tvlct, rr,gg,bb, /get
-    endelse
-    widget_control, /hourglass
+	if bw then begin
+;		rc = rr
+;		gc = gg
+;		bc = bb
+		tvlct,rc,gc,bc,/get
+		loadct, 0, bottom=16, ncolors=100
+		tvlct, rr,gg,bb, /get
+		rr[16:115] = reverse(rr[16:115])
+		gg[16:115] = reverse(gg[16:115])
+		bb[16:115] = reverse(bb[16:115])
+		tvlct, rr[16:115],gg[16:115],bb[16:115], 16
+	endif else begin
+		tvlct, rr,gg,bb, /get
+	endelse
+	widget_control, /hourglass
 
-    on_ioerror, bad_io
-    openw,1, F
-    printf,1,'<HTML>'
-    printf,1,'<HEAD>'
-    printf,1,'<TITLE>',F,'</TITLE>'
-    printf,1,'</HEAD>'
-    printf,1,'<BODY BGCOLOR="#FFFFFF">'
-    printf,1,'<H3>Dynamic Analysis PIXE/SXRF Imaging</H3>'
-    printf,1,'<H4>',(*p).source,'</H4>'
-    printf,1,'<font size="-1">These X-ray elemental images were collected in "'+(*p).DevObj->title()+'" format.'
-    printf,1,'The event data were analyzed using the'
-    printf,1,'<A href="http://www.nmp.csiro.au/dynamic.html">CSIRO Dynamic Analysis method</A> in GeoPIXE,'
-    printf,1,'which enables quantitative, true-elemental images to be un-mixed from the generally complex'
-    printf,1,'PIXE/SXRF energy spectrum. The images shown below are at fixed size (200 pixels) in this summary. To view its original size,'
-    printf,1,'click on the image.</font><p>'
-    if (*pstate).display_mode eq 1 then begin
-       printf,1,'<p><font size="-1">These images show VARIANCE.</font><p>'
-    endif
-    if (*p).type eq 1 then begin
-       printf,1,'<p><font size="-1">These images show end-member Mass Fraction.</font><p>'
-    endif
+	on_ioerror, bad_io
+	openw,1, F
+	printf,1,'<HTML>'
+	printf,1,'<HEAD>'
+	printf,1,'<TITLE>',F,'</TITLE>'
+	printf,1,'</HEAD>'
+	printf,1,'<BODY BGCOLOR="#FFFFFF">'
+	printf,1,'<H3>Dynamic Analysis PIXE/SXRF Imaging</H3>'
+	printf,1,'<H4>',(*p).source,'</H4>'
+	printf,1,'<font size="-1">These X-ray elemental images were collected in "'+(*p).DevObj->title()+'" format.'
+	printf,1,'The event data were analyzed using the'
+	printf,1,'<A href="http://www.nmp.csiro.au/dynamic.html">CSIRO Dynamic Analysis method</A> in GeoPIXE,'
+	printf,1,'which enables quantitative, true-elemental images to be un-mixed from the generally complex'
+	printf,1,'PIXE/SXRF energy spectrum. The images shown below are at fixed size (200 pixels) in this summary. To view its original size,'
+	printf,1,'click on the image.</font><p>'
+	if (*pstate).display_mode eq 1 then begin
+		printf,1,'<p><font size="-1">These images show VARIANCE.</font><p>'
+	endif
+	if (*p).type eq 1 then begin
+		printf,1,'<p><font size="-1">These images show end-member Mass Fraction.</font><p>'
+	endif
 
-    first = 1
-    for i=0L,n_elements(qselect)-1 do begin
-       s = strtrim( el[qselect[i]], 2)
-       st = s
-       if (*pstate).display_mode eq 1 then s = s + '-var'
-       if bw then s = s + '-bw'
-    ;  print,'i=',qselect[i],' el=',s,' F=',F
-       s = fix_file_name(s, /all)
+	first = 1
+	for i=0L,n_elements(qselect)-1 do begin
+		s = strtrim( el[qselect[i]], 2)
+		st = s
+		if (*pstate).display_mode eq 1 then s = s + '-var'
+		if bw then s = s + '-bw'
+		s = fix_file_name(s, /all)
 
 		F = strip_path(F)
-       gif_file = strip_file_ext(F) + '-small-' + s + ext       ; small postage stamps
-       gif_file2 = strip_file_ext(F) + '-' + s + ext        ; normal size
-       gif_file = path + fix_file_name( gif_file)
-       gif_file2 = path + fix_file_name( gif_file2)
+		gif_file = strip_file_ext(F) + '-small-' + s + ext       ; small postage stamps
+		gif_file2 = strip_file_ext(F) + '-' + s + ext        ; normal size
+		gif_file = path + fix_file_name( gif_file)
+		gif_file2 = path + fix_file_name( gif_file2)
 
-       ; Build the image and its mark area shape in the temp pixmap.
-       ; make_tvb may scale the image. Compress will return the scaling factor.
-       ; Scale plot_mark by the same amount.
+;		Build the image and its mark area shape in the temp pixmap.
+;		make_tvb may scale the image. Compress will return the scaling factor.
+;		Scale plot_mark by the same amount.
 
-;       b = make_tvb( pstate, qselect[i], /nozoom, xtgt=200,ytgt=200, compress=compress, $
-;              xmin=100,ymin=100, xmax=700,ymax=1000)
+;		b = make_tvb( pstate, qselect[i], /nozoom, xtgt=200,ytgt=200, compress=compress, $
+;				xmin=100,ymin=100, xmax=700,ymax=1000)
 
-       b = make_tvb( pstate, qselect[i], /nozoom, xtgt=200,ytgt=200, compress=compress)
-       if first then begin
-         window, /free, xsize=n_elements(b[*,0]), ysize=n_elements(b[0,*]), /pixmap
-         tpix = !d.window
-         first = 0
-       endif
-       tv, b
-       plot_mark, pstate, compress=compress, /wide
-       col = 115
-       colb = 16
-       if bw then col = spec_colour('red')
-;     if bw then colb = spec_colour('white')
-       xyouts, 1,2, st, /device, color=colb, charsize=1.5,charthick=10.0
-       xyouts, 1,2, st, /device, color=col, charsize=1.5,charthick=1.2
-       b = color_quan( tvrd(true=3), 3, rcol,gcol,bcol, colors=128)
+		b = make_tvb( pstate, qselect[i], /nozoom, xtgt=200,ytgt=200, compress=compress)
+		if first then begin
+			window, /free, xsize=n_elements(b[*,0]), ysize=n_elements(b[0,*]), /pixmap
+			tpix = !d.window
+			first = 0
+		endif
+		tv, b
+		plot_mark, pstate, compress=compress, /wide
+		col = 115
+		colb = 16
+		if bw then col = spec_colour('red')
+;		if bw then colb = spec_colour('white')
+		xyouts, 1,2, st, /device, color=colb, charsize=1.5,charthick=10.0
+		xyouts, 1,2, st, /device, color=col, charsize=1.5,charthick=1.2
+		b = color_quan( tvrd(true=3), 3, rcol,gcol,bcol, colors=128)
 
-    ;  b = pseudo_match( tvrd(true=3), true=3, ncolors=116)
+;		b = pseudo_match( tvrd(true=3), true=3, ncolors=116)
 
-       if n_elements(b) gt 1 then begin
-;      print,'HTML: save small ',gtitle,' file - ',gif_file
+		if n_elements(b) gt 1 then begin
+;			print,'HTML: save small ',gtitle,' file - ',gif_file
 
-         if png then begin
-          write_png, gif_file, b, rcol,gcol,bcol
-         endif else begin
-          write_gif, gif_file, b, rcol,gcol,bcol
-         endelse
+			if png then begin
+				write_png, gif_file, b, rcol,gcol,bcol
+			endif else begin
+				write_gif, gif_file, b, rcol,gcol,bcol
+			endelse
 
-         printf,1,'<A HREF="',strip_path(gif_file2),'"><IMG SRC="',strip_path(gif_file),'" ALIGN="CENTER"></A> '
+			printf,1,'<A HREF="',strip_path(gif_file2),'"><IMG SRC="',strip_path(gif_file),'" ALIGN="CENTER"></A> '
 
-       endif else begin
-         print,'image_save_all_HTML:  Bad small image number ', qselect[i]
-       endelse
+		endif else begin
+			print,'image_save_all_HTML:  Bad small image number ', qselect[i]
+		endelse
 
-       b = make_tvb( pstate, qselect[i], /nozoom)
+		b = make_tvb( pstate, qselect[i], /nozoom)
 
-       if n_elements(b) gt 1 then begin
-;      print,'HTML: save large ',gtitle,' file - ',gif_file2
+		if n_elements(b) gt 1 then begin
+;			print,'HTML: save large ',gtitle,' file - ',gif_file2
 
-         if png then begin
-          write_png, gif_file2, b, rr, gg, bb
-;          write_png, gif_file2, b
-         endif else begin
-          write_gif, gif_file2, b, rr, gg, bb
-         endelse
+			if png then begin
+				write_png, gif_file2, b, rr, gg, bb
+;				write_png, gif_file2, b
+         	endif else begin
+				write_gif, gif_file2, b, rr, gg, bb
+			endelse
 
-       endif else begin
-         print,'image_save_all_HTML:  Bad large image number ', qselect[i]
-       endelse
-    endfor
-    printf,1,'<P>'
+		endif else begin
+			print,'image_save_all_HTML:  Bad large image number ', qselect[i]
+		endelse
+	endfor
+	printf,1,'<P>'
 
-    legend_file = strip_file_ext( F) + '-legend'+ext
-    legend_file = path + fix_file_name( legend_file)
+	legend_file = strip_file_ext( F) + '-legend'+ext
+	legend_file = path + fix_file_name( legend_file)
 
-    b = bytarr(300,30)
-    for i=0L,300-1 do b[i,*] = byte(i/3) + 16B
+	b = bytarr(300,30)
+	for i=0L,300-1 do b[i,*] = byte(i/3) + 16B
 
-    if png then begin
-       write_png, legend_file, b, rr, gg, bb
-;     write_png, legend_file, b
-    endif else begin
-       write_gif, legend_file, b, rr, gg, bb
-    endelse
+	if png then begin
+		write_png, legend_file, b, rr, gg, bb
+;		write_png, legend_file, b
+	endif else begin
+		write_gif, legend_file, b, rr, gg, bb
+	endelse
 
-    if (*pstate).display_mode eq 1 then begin
-       printf,1,'<center><H4>Relative Statistical Variance Legend</H4></center>'
-    endif else begin
-       if (*p).type eq 1 then begin
-         printf,1,'<center><H4>Relative Mass Fraction Legend</H4></center>'
-       endif else begin
-         printf,1,'<center><H4>Relative Concentration Legend</H4></center>'
-       endelse
-    endelse
-    printf,1,'<center>Zero <img SRC="'+strip_path(legend_file)+'" align="CENTER" valign="CENTER"> Maximum</center><p>'
+	if (*pstate).display_mode eq 1 then begin
+		printf,1,'<center><H4>Relative Statistical Variance Legend</H4></center>'
+	endif else begin
+		if (*p).type eq 1 then begin
+			printf,1,'<center><H4>Relative Mass Fraction Legend</H4></center>'
+		endif else begin
+			printf,1,'<center><H4>Relative Concentration Legend</H4></center>'
+		endelse
+	endelse
+	printf,1,'<center>Zero <img SRC="'+strip_path(legend_file)+'" align="CENTER" valign="CENTER"> Maximum</center><p>'
 
     printf,1,'<H4>Dynamic Matrix: ',(*p).matrix.file,'</H4>'
-    printf,1,'<font size="-1">Sample: ', (*p).sample, ' '
-    printf,1,'Grain: ', (*p).grain, '<BR>'
-    printf,1,'Comment: ', (*p).comment, '<BR>'
-    printf,1,'Charge: ', (*p).charge, '<BR>'
-    printf,1,'Cal:  A= ', (*p).cal.poly[1],', B= ',(*p).cal.poly[0],', Units= ',(*p).cal.units, '<BR><P>'
-    printf,1,'Scan:  X= ', (*p).scan.x,', Y= ',(*p).scan.y, ' mm<BR>'
-    printf,1,'X Compress: ', (*p).xcompress,', Y Compress: ',(*p).ycompress, '<BR>'
-    printf,1,'X Scaled: ', (*p).scaled_x,', Y Scaled: ',(*p).scaled_y, '<BR>'
-    printf,1,'X size: ', (*p).xsize,', Y Size: ',(*p).ysize, '<BR><P>'
-    if xanes eq 0 then begin
-	    printf,1,'Processed: ', (*p).processed,', Bad: ',(*p).bad_xy, '<BR>'
-	    printf,1,'Valid: ', (*p).valid,', Clipped: ',(*p).clipped, '<BR><P>'
-    endif
-    printf,1,'DA Matrix: ', (*p).matrix.file, '<BR>'
-    printf,1,'DA Source: ', (*p).matrix.label, '<BR>'
-    printf,1,'DA Charge: ', (*p).matrix.charge, '<BR><P>'
-    if (*p).xstep_on eq 1 then begin
-       printf,1,'X Step Scan mode. XStep count= ', (*p).xstep, '<BR><P>'
-    endif
-    if (*p).xstep_on eq 2 then begin
-       printf,1,'Y Step Scan mode. YStep count= ', (*p).xstep, '<BR><P>'
-    endif
-    printf,1,'</font>'
+	printf,1,'<font size="-1">Sample: ', (*p).sample, ' '
+	printf,1,'Grain: ', (*p).grain, '<BR>'
+	printf,1,'Comment: ', (*p).comment, '<BR>'
+	printf,1,'Charge: ', (*p).charge, '<BR>'
+	printf,1,'Cal:  A= ', (*p).cal.poly[1],', B= ',(*p).cal.poly[0],', Units= ',(*p).cal.units, '<BR><P>'
+	printf,1,'Scan:  X= ', (*p).scan.x,', Y= ',(*p).scan.y, ' mm<BR>'
+	printf,1,'X Compress: ', (*p).xcompress,', Y Compress: ',(*p).ycompress, '<BR>'
+	printf,1,'X Scaled: ', (*p).scaled_x,', Y Scaled: ',(*p).scaled_y, '<BR>'
+	printf,1,'X size: ', (*p).xsize,', Y Size: ',(*p).ysize, '<BR><P>'
+	if xanes eq 0 then begin
+		printf,1,'Processed: ', (*p).processed,', Bad: ',(*p).bad_xy, '<BR>'
+		printf,1,'Valid: ', (*p).valid,', Clipped: ',(*p).clipped, '<BR><P>'
+	endif
+	printf,1,'DA Matrix: ', (*p).matrix.file, '<BR>'
+	printf,1,'DA Source: ', (*p).matrix.label, '<BR>'
+	printf,1,'DA Charge: ', (*p).matrix.charge, '<BR><P>'
+	if (*p).xstep_on eq 1 then begin
+		printf,1,'X Step Scan mode. XStep count= ', (*p).xstep, '<BR><P>'
+	endif
+	if (*p).xstep_on eq 2 then begin
+		printf,1,'Y Step Scan mode. YStep count= ', (*p).xstep, '<BR><P>'
+	endif
+	printf,1,'</font>'
 
-    if (*p).type eq 1 then begin
-       charge_per_pixel = 1.0
-       units = ''
-       percent = 0
-    endif else begin
-       charge_per_pixel = (*p).charge / (sx * sy)
-       units = 'ppm'
-       percent = 1
-    endelse
-    printf,1,'<H4>Display maximum values</H4>'
+	if (*p).type eq 1 then begin
+		charge_per_pixel = 1.0
+		units = ''
+		percent = 0
+	endif else begin
+		charge_per_pixel = (*p).charge / (sx * sy)
+		units = 'ppm'
+		percent = 1
+	endelse
+	printf,1,'<H4>Display maximum values</H4>'
 
-    printf,1,'<font size="-1"><table>'
-;   printf,1,'<colgroup span=6 width="130,130,130,130,130,130"></colgroup>'
-    printf,1,'<tr>'
-    j = 0
-    for i=0L,n_elements(qselect)-1 do begin
-       top = ((*opt)[qselect[i]].max * (*opt)[qselect[i]].top / 100.) / charge_per_pixel
-       if (*pstate).display_mode eq 1 then begin
-         sc = build_result( sqrt(top), sqrt(top)*0.01, 0.0)
-         su = units
-         if locate('%',sc) ge 0 then su=''
-         printf,1,'<td width=135>',el[qselect[i]],' (',sc,' ',+su+')^2 </td>'
-       endif else begin
-         sc = build_result( top, top*0.01, 0.0, percent=percent)
-         su = units
-         if locate('%',sc) ge 0 then su=''
-         printf,1,'<td width=135>',el[qselect[i]],' ',sc,' '+su+' </td>'
-       endelse
-       j = j+1
-       if j eq 6 then begin
-         j = 0
-         printf,1,'</tr><tr>'
-       endif
-    endfor
-    printf,1,'</tr></table></font><p>'
+	printf,1,'<font size="-1"><table>'
+;	printf,1,'<colgroup span=6 width="130,130,130,130,130,130"></colgroup>'
+	printf,1,'<tr>'
+	j = 0
+	for i=0L,n_elements(qselect)-1 do begin
+		top = ((*opt)[qselect[i]].max * (*opt)[qselect[i]].top / 100.) / charge_per_pixel
+		if (*pstate).display_mode eq 1 then begin
+			sc = build_result( sqrt(top), sqrt(top)*0.01, 0.0)
+			su = units
+			if locate('%',sc) ge 0 then su=''
+			printf,1,'<td width=135>',el[qselect[i]],' (',sc,' ',+su+')^2 </td>'
+		endif else begin
+			sc = build_result( top, top*0.01, 0.0, percent=percent)
+			su = units
+			if locate('%',sc) ge 0 then su=''
+			printf,1,'<td width=135>',el[qselect[i]],' ',sc,' '+su+' </td>'
+		endelse
+		j = j+1
+		if j eq 6 then begin
+			j = 0
+			printf,1,'</tr><tr>'
+		endif
+	endfor
+	printf,1,'</tr></table></font><p>'
 
-    printf,1,'<font size="-1">The counting statistics in a single pixel are generally low. This means that there can'
-    printf,1,'be large differences in deduced ppm.charge between neighbouring pixels.'
-    printf,1,'This is normal. Estimation of concentration in portions of the image involves'
-    printf,1,'integrating an average over the region. This averages out much of this'
-    printf,1,'statistics variation to yield concentration estimation with low detection limits.<p>'
-    printf,1,'However, these statistics can lead to a misleading colour scale for the image, as '
-    printf,1,'the image appears to show concentration variation over a large range at the pixel level.'
-    printf,1,'This means that some images show large maximum values despite a generally low concentration.'
-    printf,1,'(To help alleviate this problem, use image smoothing filters, or use average concentrations over a selected region, as shown below.)</font><p>'
+	printf,1,'<font size="-1">The counting statistics in a single pixel are generally low. This means that there can'
+	printf,1,'be large differences in deduced ppm.charge between neighbouring pixels.'
+	printf,1,'This is normal. Estimation of concentration in portions of the image involves'
+	printf,1,'integrating an average over the region. This averages out much of this'
+	printf,1,'statistics variation to yield concentration estimation with low detection limits.<p>'
+	printf,1,'However, these statistics can lead to a misleading colour scale for the image, as '
+	printf,1,'the image appears to show concentration variation over a large range at the pixel level.'
+	printf,1,'This means that some images show large maximum values despite a generally low concentration.'
+	printf,1,'(To help alleviate this problem, use image smoothing filters, or use average concentrations over a selected region, as shown below.)</font><p>'
 
-    printf,1,'<font size="-1">It should also be noted that overlap and background subtraction may lead to some pixels having negative values.'
-    printf,1,'For example, areas with zero concentration will have as many negative as positive pixels. '
-    printf,1,'When regions are integrated, all values are averaged and the correct concentration results. However,'
-    printf,1,'some images may appear to show areas with positive signal due to statistical fluctuations'
-    printf,1,'despite zero average concentration because negative pixels are shown in black.</font><p>'
+	printf,1,'<font size="-1">It should also be noted that overlap and background subtraction may lead to some pixels having negative values.'
+	printf,1,'For example, areas with zero concentration will have as many negative as positive pixels. '
+	printf,1,'When regions are integrated, all values are averaged and the correct concentration results. However,'
+	printf,1,'some images may appear to show areas with positive signal due to statistical fluctuations'
+	printf,1,'despite zero average concentration because negative pixels are shown in black.</font><p>'
 
-    if (*pstate).display_mode eq 0 then begin
-       if (*p).type eq 1 then begin
-         printf,1,'<H4>Average Mass Fraction in Current Region</H4>'
-       endif else begin
-         printf,1,'<H4>Average Concentration in Current Region</H4>'
-       endelse
+	if (*pstate).display_mode eq 0 then begin
+		if (*p).type eq 1 then begin
+			printf,1,'<H4>Average Mass Fraction in Current Region</H4>'
+		endif else begin
+			printf,1,'<H4>Average Concentration in Current Region</H4>'
+		endelse
 
-       analyze_image, pstate
-       OK = 1
-       if ptr_valid((*pstate).pregions) eq 0 then OK=0
-       if ((*pstate).region_id lt 0) or ((*pstate).region_id ge n_elements(*(*pstate).pregions)) then OK=0
-       if OK then begin
-         pr = (*(*pstate).pregions)[(*pstate).region_id]
-         if ptr_valid( pr) eq 0 then OK=0
-       endif
-       if OK then begin
+ 		analyze_image, pstate
+		OK = 1
+		if ptr_valid((*pstate).pregions) eq 0 then OK=0
+		if ((*pstate).region_id lt 0) or ((*pstate).region_id ge n_elements(*(*pstate).pregions)) then OK=0
+		if OK then begin
+			pr = (*(*pstate).pregions)[(*pstate).region_id]
+			if ptr_valid( pr) eq 0 then OK=0
+		endif
+		if OK then begin
+			printf,1,'<font size="-1">This table lists the average elemental concentrations over a selected region of the image.'
+			printf,1,'This is intended as a guide for solid samples; please disregard for fluid inclusions.'
+			if (*p).type eq 0 then printf,1,'Values shown are ppm unless shown as weight %.'
+			printf,1,'The region is shown in the small versions of each image shown below.<p>'
+			printf,1,'<table>'
+;			printf,1,'<colgroup span=6 width="130,130,130,130,130,130"></colgroup>'
+			printf,1,'<tr>'
 
-         printf,1,'<font size="-1">This table lists the average elemental concentrations over a selected region of the image.'
-         printf,1,'This is intended as a guide for solid samples; please disregard for fluid inclusions.'
-         if (*p).type eq 0 then printf,1,'Values shown are ppm unless shown as weight %.'
-         printf,1,'The region is shown in the small versions of each image shown below.<p>'
-         printf,1,'<table>'
-;      printf,1,'<colgroup span=6 width="130,130,130,130,130,130"></colgroup>'
-         printf,1,'<tr>'
-
-         j = 0
-         for i=1L,(*pr).n_el-1 do begin
-          q = where( el eq (*(*pr).el)[i] )
-          if q[0] ne -1 then begin
-              if select[q[0]] then begin
-
-                 sc = build_result( (*(*pr).conc)[i], (*(*pr).error)[i], (*(*pr).mdl)[i], percent=percent)
-                 su = units
-                 if locate('%',sc) ge 0 then su=''
-                 printf,1,'<td width=135>',el[i],' ',sc,' '+su+' </td>'
-                 j = j+1
-                 if j eq 6 then begin
-                   j = 0
-                   printf,1,'</tr><tr>'
-                 endif
-              endif
-          endif
-         endfor
-         printf,1,'</tr></table></font><p>'
-       endif else begin
-         printf,1,'<font size="-1">No specific region was specified.</font><p>'
-       endelse
-    endif
+			j = 0
+			for i=1L,(*pr).n_el-1 do begin
+				q = where( el eq (*(*pr).el)[i] )
+				if q[0] ne -1 then begin
+					if select[q[0]] then begin
+						sc = build_result( (*(*pr).conc)[i], (*(*pr).error)[i], (*(*pr).mdl)[i], percent=percent)
+						su = units
+						if locate('%',sc) ge 0 then su=''
+						printf,1,'<td width=135>',el[i],' ',sc,' '+su+' </td>'
+						j = j+1
+						if j eq 6 then begin
+							j = 0
+							printf,1,'</tr><tr>'
+						endif
+					endif
+				endif
+			endfor
+			printf,1,'</tr></table></font><p>'
+		endif else begin
+			printf,1,'<font size="-1">No specific region was specified.</font><p>'
+		endelse
+	endif
 
     printf,1,'</BODY>
     printf,1,'</HTML>
 
 bad_io:
-    if bw then begin
-;     rr = rc
-;     gg = gc
-;     bb = bc
-       tvlct, rc,gc,bc
-    endif
+	if bw then begin
+;		rr = rc
+;		gg = gc
+;		bb = bc
+		tvlct, rc,gc,bc
+	endif
 
-    close,1
-    if tpix ne 0 then wdelete, tpix
+	close,1
+	if tpix ne 0 then wdelete, tpix
 endif
 
 done:
