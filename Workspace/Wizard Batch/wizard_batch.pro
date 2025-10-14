@@ -592,7 +592,7 @@ case uname of
 		if F eq '' then return
 		F = strip_file_ext(F,/double) + '.rgb.csv'
 	
-		wizard_batch_save_rgb, F[0]
+		wizard_batch_save_rgb, pstate, F[0]
 		end
 
 	'options-file': begin
@@ -1874,7 +1874,7 @@ pro wizard_batch_process_blog, pstate, error=error
 	wz.wizard = 'batch'
 	wz.window = 'Sort EVT'								; Sort image
 	wz.command = 'sort-image'							; (or load if exists and 'load' or 'skip' set)
-	wz.pdata = ptr_new( {	$0
+	wz.pdata = ptr_new( {	$
 		device:			(*(*pstate).pDevObj)->name(), $	; device name
 		image_mode:		0, $							; sort mode (images)
 		type:			(*(*pstate).pdai).detector, $	; data type
@@ -1915,13 +1915,16 @@ pro wizard_batch_process_blog, pstate, error=error
 		endif
 	endif
 
+	over = (*pstate).options_file[0]			; overwrite option
+
 	if do_ops then begin
 		wz = define(/wizard_notify)
 		wz.wizard = 'batch'
 		wz.window = 'Image'						; do image corrections
 		wz.command = 'image-corrections'
-		wz.pdata = ptr_new( ops, /no_copy)		; corrections list
-				
+		wz.pdata = ptr_new( {	$
+			ops:		ops, $					; corrections list
+			overwrite:	over }, /no_copy)		; overwrite original DAI
 		wz.local = 1
 		wz.callback = 'wizard_batch_callback_corrections_done'
 		pw = ptr_new(wz, /no_copy)
@@ -1943,11 +1946,10 @@ pro wizard_batch_process_blog, pstate, error=error
 		endif
 	endif
 
-;	Save options, including some misc corrections (from batych-sort) ...
+;	Setup Save options, including some misc corrections (from batch-sort) ...
 
 ;	flipx = 1 - (((*pstate).current_sort - (*pstate).first_sort) mod 2)
 	flipx = 1 - (((*pstate).index - 0) mod 2)
-	over = (*pstate).options_file[0]
 
 	*(*pstate).parg1 = {first:((*pstate).loop eq 0), save:save, html:'', bw:'', $
 					export:'', overwrite:over, correctX:(*pstate).options_process[1], $
@@ -1989,7 +1991,7 @@ pro wizard_batch_process_blog, pstate, error=error
 	(*pl).pnext = pw						; link current one to this 'next' one
 	pl = pw									; new current one
 
-;	Save selected RGB images ...
+;	Setup to Save selected RGB images ...
 
 	file = (*(*pstate).path) + 'temp.rgb.csv'
 	wizard_batch_save_rgb, pstate, file, error=err
@@ -2059,6 +2061,7 @@ pro wizard_batch_save_rgb, pstate, file, error=error
 	if n_elements(file) eq 0 then return
 	if file eq '' then return
 	if ptr_good( (*pstate).prgb) eq 0 then return
+	file = strip_file_ext( file,/double) + '.rgb.csv'
 
 	on_ioerror, bad_file
 	openw, unit, file, /get_lun

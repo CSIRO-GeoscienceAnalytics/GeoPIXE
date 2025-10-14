@@ -4488,6 +4488,7 @@ if F ne '' then begin
     endif else begin
     	write_geopixe_image, (*pstate).p, F, no_null=(*pstate).realtime
     endelse
+	(*pstate).file = F[0]
 endif
 
 done:
@@ -6425,10 +6426,10 @@ snap_done:
 
 					'image-corrections': begin
 						pw = event.pointer
-						ops = *(*pw).pdata
+						pd = (*pw).pdata
 						print,'*** Wizard Image: do image operations ...'
-						image_do_operations, event, ops
-						image_Save, event, /default, /overwrite
+						image_do_operations, event, (*pd).ops
+						image_Save, event, /default, overwrite=(*pd).overwrite
 		
 						draw_images, pstate
 						(*pw).error = 0
