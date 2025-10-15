@@ -253,6 +253,7 @@ snap_done:
 								pw = event.pointer
 								pd = (*pw).pdata
 								if tag_present('DEVICE', *pd) then evt_set_device, pstate, (*pd).device, event.top
+								if tag_present('DEVICE_OPTIONS', *pd) then (*(*pstate).pdev)->set_options, (*pd).device_options
 								if tag_present('IMAGE_MODE', *pd) then evt_set_sort_mode, pstate, (*pd).image_mode, event.top
 								if tag_present('BLOG', *pd) then evt_set_evt_file, pstate, (*pd).blog, event.top, /no_cal_adopt
 								evt_set_evt2_file, pstate, ''

@@ -1869,16 +1869,21 @@ pro wizard_batch_process_setup, pstate, error=error
 	endif
 
 	error = 1
-;	widget_control, (*pstate).conv_text, get_value=s
-;	conv = 1.0
-;	if s ne '' then conv = float2(s)
-	
+	if (*(*pstate).pdai).DevObj->name() ne (*(*pstate).pDevObj)->name() then begin
+		warning,'wizard_batch_process_setup',['Device of template DAI does not match your Device droplist choice.', '', $
+						'Change Device droplist or select another DAI file.']
+		return
+	endif
+	options = (*(*pstate).pdai).DevObj->get_options()
+	(*(*pstate).pDevObj)->set_options, options
+
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
 	wz.window = 'Sort EVT'								; Sort image
 	wz.command = 'sort-setup'						
 	wz.pdata = ptr_new( {	$
 		device:			(*(*pstate).pDevObj)->name(), $	; device name
+		device_options:	options, $						; internal device options
 		image_mode:		0, $							; sort mode (images)
 		type:			(*(*pstate).pdai).detector, $	; data type
 		array:			(*(*pstate).pdai).array, $		; array detector?
