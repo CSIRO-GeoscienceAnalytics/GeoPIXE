@@ -5,7 +5,7 @@ The Wizard is used to process a series of raw data files
 into output image DAI files. The setup is organized on 4
 tabs. Click "Next >>" to move to each new tab.
 
-1. User Input
+Tab 1. User Input
 
 First set the Device type for the raw data. This is essential
 to find the correct raw data files.
@@ -19,7 +19,12 @@ Energy Cal: Select an energy cal SPEC file, which will be used
 to enable detector channels and set the energy cals for all 
 detectors.
 
-2. Corrections Table
+Template: Select an image DAI file to supply default settings
+and the important DA matrix from processing. These settings 
+will be sent to the Sort EVT where you may modify them.
+Set "Cluster" mode there too.
+
+Tab 2. Corrections Table
 
 Optionally, you can load image processing corrections from
 a template DAI file (like the "Get" button on the Image
@@ -27,14 +32,18 @@ Processing window).
 
 This table will also allow Display ranges to be modified.
 
-3. RGB Exports
+Tab 3. RGB Exports
 
 Here you can specify a list of RGB element combinations for
 RGB Image exports. You can also load these from a rgb.csv
 file, as setup using the "Learn" menu on the RGB Images
 window.
 
-4. Processing Table
+Tab 4. Options
+
+Select the file, processing and save/export options here.
+
+Tab 5. Processing Table
 
 Here you scan the raw data dir for data files, which fills
 in a table of key parameters, and "Start Processing".
@@ -42,4 +51,4 @@ in a table of key parameters, and "Start Processing".
 
 Advance to the next tab using "Next >>" or use "<< Back"
 to return the previous tab. You can also select tabs directory.
-Hit "Figure" to reopen any diagram for a tab (if closed).
+Hit "Figure" to reopen any diagram for a tab (if available).

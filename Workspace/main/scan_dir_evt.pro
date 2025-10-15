@@ -125,7 +125,7 @@ endif
  
 	for i=0L,ns-1 do begin
 		t = { file:s[i], dam:'', output:'', suppress:0, enable:1, xrange:0,yrange:0, xsize:0.0,ysize:0.0, charge:0.0, $
-			pv:'', conv:0.0, gain:1.0, pileup:'',throttle:'', sample:'',grain:'',comment:'', energy:0.0, $
+			pv:'', conv:0.0, gain:1.0, pileup:'',throttle:'', linear:'', sample:'',grain:'',comment:'', energy:0.0, $
 			xorigin:0.0, yorigin:0.0, zorigin:0.0, facility:'', endstation:'' }
 
 		if image and (nd gt 0) then begin	
@@ -160,6 +160,7 @@ endif
 					t.dam = (*pimg).matrix.file
 					t.pileup = (*pimg).pileup
 					t.throttle = (*pimg).throttle
+					t.linear = (*pimg).linearize
 					t.sample = (*pimg).sample
 					t.grain = (*pimg).grain
 					t.comment = (*pimg).comment

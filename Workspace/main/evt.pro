@@ -248,6 +248,33 @@ snap_done:
 								notify, 'wizard-return', pw
 								end
 
+							'sort-setup': begin
+								print,'*** Wizard Sort EVT: Set details only ...'
+								pw = event.pointer
+								pd = (*pw).pdata
+								if tag_present('DEVICE', *pd) then evt_set_device, pstate, (*pd).device, event.top
+								if tag_present('IMAGE_MODE', *pd) then evt_set_sort_mode, pstate, (*pd).image_mode, event.top
+								if tag_present('BLOG', *pd) then evt_set_evt_file, pstate, (*pd).blog, event.top, /no_cal_adopt
+								evt_set_evt2_file, pstate, ''
+								if tag_present('PILEUP', *pd) then evt_set_pileup_file, pstate, (*pd).pileup
+								if tag_present('THROTTLE', *pd) then evt_set_throttle_file, pstate, (*pd).throttle
+								if tag_present('LINEAR', *pd) then evt_set_linear_file, pstate, (*pd).linear
+								if tag_present('CONV', *pd) then evt_set_charge_conversion, pstate, (*pd).conv
+								if tag_present('CHARGE_MODE', *pd) then evt_set_charge_mode, pstate, (*pd).charge_mode, event.top
+								if tag_present('FLUX_SCALER', *pd) then evt_set_preamp_pv, pstate, (*pd).flux_scaler
+								if tag_present('GAIN_VALUE', *pd) then evt_set_preamp_sensitivity, pstate, (*pd).gain_value
+								if tag_present('GAIN_UNITS', *pd) then evt_set_preamp_units, pstate, (*pd).gain_units
+								if tag_present('ARRAY', *pd) then evt_set_array, pstate,  (*pd).array
+								if tag_present('TYPE', *pd) then evt_set_type, pstate, (*pd).type, event.top
+								if tag_present('CAL', *pd) then evt_getcal, pstate, (*pd).cal, event.top
+								if tag_present('PROJ_MODE', *pd) then evt_set_proj_mode, pstate, (*pd).proj_mode, event.top
+								if tag_present('DAM', *pd) then evt_set_proj_file, pstate, (*pd).dam
+								if tag_present('OUTPUT', *pd) then evt_set_output_file, pstate, (*pd).output, event.top
+
+								(*pw).error = 0
+								notify, 'wizard-return', pw
+								end
+
 							'sort-image': begin
 								print,'*** Wizard Sort EVT: Set details and then sort images ...'
 								pw = event.pointer
@@ -255,9 +282,10 @@ snap_done:
 								if tag_present('DEVICE', *pd) then evt_set_device, pstate, (*pd).device, event.top
 								if tag_present('IMAGE_MODE', *pd) then evt_set_sort_mode, pstate, (*pd).image_mode, event.top
 								if tag_present('BLOG', *pd) then evt_set_evt_file, pstate, (*pd).blog, event.top, /no_cal_adopt
+								evt_set_evt2_file, pstate, ''
 								if tag_present('PILEUP', *pd) then evt_set_pileup_file, pstate, (*pd).pileup
 								if tag_present('THROTTLE', *pd) then evt_set_throttle_file, pstate, (*pd).throttle
-								evt_set_evt2_file, pstate, ''
+								if tag_present('LINEAR', *pd) then evt_set_linear_file, pstate, (*pd).linear
 								if tag_present('CONV', *pd) then evt_set_charge_conversion, pstate, (*pd).conv
 								if tag_present('CHARGE_MODE', *pd) then evt_set_charge_mode, pstate, (*pd).charge_mode, event.top
 								if tag_present('FLUX_SCALER', *pd) then evt_set_preamp_pv, pstate, (*pd).flux_scaler
@@ -309,13 +337,15 @@ snap_done:
 									widget_control, hourglass=1
 									evt_start, pstate, group=event.top, pprefs=(*pstate).pprefs, $
 													verify=verify, file_return=sret, error=err
+									pp = (*pstate).pimage
 								endif
 
 								(*pw).error = err
 								if tag_present('OUTPUT', *pd) then (*pd).output = (*p).output_file								; file-name
 								if tag_present('CHARGE', *pd) then (*pd).charge = (*(*pstate).p).charge						; return a new charge
 								if tag_present('PNEW', *pd) then begin						; some file paths have changed
-									if n_elements(sret) gt 0 then *(*pd).pnew = sret
+									*(*pd).pnew = {pfiles:ptr_new(), stats:{processed:(*pp).processed, clipped:(*pp).clipped, valid:(*pp).valid, bad_xy:(*pp).bad_xy}}
+									if n_elements(sret) gt 0 then (*(*pd).pnew).pfiles = ptr_new( sret,/no_copy)
 								endif
 								notify, 'wizard-return', pw
 								end

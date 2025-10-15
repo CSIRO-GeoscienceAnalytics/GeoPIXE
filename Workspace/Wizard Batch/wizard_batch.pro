@@ -51,6 +51,7 @@ if catch_errors_on then begin
 				'Error:  '+strtrim(!error_state.name,2), $
 				!error_state.msg,'',c], /error
 		MESSAGE, /RESET
+		(*pstate).busy = 0
 		return						; goto, kill
 	endif
 endif
@@ -166,6 +167,7 @@ case tag_names( event,/structure) of
 						call_procedure, (*pw).callback, pstate, pw, error=error 
 						if error then begin
 							print, '		callback error='+str_tidy(error)
+							(*pstate).busy = 0
 							goto, finish
 						endif
 					endif
@@ -319,6 +321,8 @@ case uname of
 		widget_control, (*pstate).b_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).conv_text, set_value = str_tidy((*(*pstate).pdai).IC.conversion)
 
+		wizard_batch_process_setup, pstate, error=error
+
 		if typevar( *(*pstate).pcorr) ne 'STRUCT' then begin
 			(*pstate).template_corrections_dai = (*pstate).template_sort_dai
 			set_widget_text, (*pstate).template_corrections_text, (*pstate).template_corrections_dai
@@ -355,6 +359,8 @@ case uname of
 		widget_control, (*pstate).r_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).g_element, set_value = *(*pstate).pcel
 		widget_control, (*pstate).b_element, set_value = *(*pstate).pcel
+
+		wizard_batch_process_setup, pstate, error=error
 
 		if typevar( *(*pstate).pcorr) ne 'STRUCT' then begin
 			(*pstate).template_corrections_dai = (*pstate).template_sort_dai
@@ -695,7 +701,7 @@ case uname of
 					k = q[0]														; q[0] is then tag index in struct.
 					if ((*(*pstate).ptype)[k] eq 'file') and ((event.sel_right-j eq 0) and (event.sel_bottom-i eq 0)) then begin
 						name = (*(*pstate).ptitle)[k]
-						f = file_requester( /read, filter=['*.'+strlowcase(name)+'.var','*.txt'], /fix_filter, $
+						f = file_requester( /read, filter=['*.'+strlowcase(name)+'.var','*.txt','*.'+strlowcase(name)], /fix_filter, $
 							file=(*p)[i].(k), group=event.top, title='Select '+name+' File', cancel=cancel)
 						if cancel eq 0 then begin
 							(*p)[i].(k) = f[0]
@@ -961,6 +967,7 @@ endif
 
 	error = 1
 	if (*pep).error ne 0 then return
+	pd = (*pep).pdata
 
 	n = 0
 	p = (*pstate).presults
@@ -976,30 +983,43 @@ endif
 ;	Use 'pnew' new files struct to update any changed file-names in the table (anywhere?)
 ;	Free the struct when done.
 
-	if ptr_good( (*(*pep).pdata).pnew) then begin
-		pret = (*(*pep).pdata).pnew
-		p = (*pstate).presults
-		if (*pret).pileup.new ne '' then begin
-			q = where( *(*pstate).ptitle eq 'Pileup', nq)
-			if nq gt 0 then begin
-				q = where( (*p)[*].pileup eq (*pret).pileup.old, nq)
-				if nq gt 0 then (*p)[q].pileup = (*pret).pileup.new					
+	if ptr_good( (*pd).pnew) then begin
+		pfiles = (*(*pd).pnew).pfiles
+		if ptr_good(pfiles) then begin
+			if (*pfiles).pileup.new ne '' then begin
+				q = where( *(*pstate).ptitle eq 'Pileup', nq)
+				if nq gt 0 then begin
+					q = where( (*p)[*].pileup eq (*pfiles).pileup.old, nq)
+					if nq gt 0 then (*p)[q].pileup = (*pfiles).pileup.new					
+				endif
+			endif
+			if (*pfiles).throttle.new ne '' then begin
+				q = where( *(*pstate).ptitle eq 'Throttle', nq)
+				if nq gt 0 then begin
+					q = where( (*p)[*].throttle eq (*pfiles).throttle.old, nq)
+					if nq gt 0 then (*p)[q].throttle = (*pfiles).throttle.new					
+				endif
+			endif
+			if (*pfiles).linear.new ne '' then begin
+				q = where( *(*pstate).ptitle eq 'Linear', nq)
+				if nq gt 0 then begin
+					q = where( (*p)[*].linear eq (*pfiles).linear.old, nq)
+					if nq gt 0 then (*p)[q].linear = (*pfiles).linear.new					
+				endif
+			endif
+			if (*pfiles).dam.new ne '' then begin
+				q = where( *(*pstate).ptitle eq 'DAM', nq)
+				if nq gt 0 then begin
+					q = where( (*p)[*].dam eq (*pfiles).dam.old, nq)
+					if nq gt 0 then (*p)[q].dam = (*pfiles).dam.new					
+				endif
 			endif
 		endif
-		if (*pret).throttle.new ne '' then begin
-			q = where( *(*pstate).ptitle eq 'Throttle', nq)
-			if nq gt 0 then begin
-				q = where( (*p)[*].throttle eq (*pret).throttle.old, nq)
-				if nq gt 0 then (*p)[q].throttle = (*pret).throttle.new					
-			endif
-		endif
-		if (*pret).dam.new ne '' then begin
-			q = where( *(*pstate).ptitle eq 'DAM', nq)
-			if nq gt 0 then begin
-				q = where( (*p)[*].dam eq (*pret).dam.old, nq)
-				if nq gt 0 then (*p)[q].dam = (*pret).dam.new					
-			endif
-		endif
+		stats = (*(*pd).pnew).stats
+		(*p)[ (*pstate).index].processed = stats.processed
+		(*p)[ (*pstate).index].valid = stats.valid
+		(*p)[ (*pstate).index].clipped = stats.clipped
+		(*p)[ (*pstate).index].bad_xy = stats.bad_xy
 
 		charge =  (*(*pep).pdata).charge
 		output =  (*(*pep).pdata).output
@@ -1007,7 +1027,7 @@ endif
 		(*p)[ (*pstate).index].output = output
 
 		wizard_batch_update_table, pstate
-		ptr_free, pret
+		ptr_free, pfiles
 	endif
 
 	error = 0
@@ -1438,45 +1458,32 @@ cont:
 		serial = mp.metadata.sample_serial
 		sample_type = mp.metadata.sample_type
 ;		if sample_type eq 'standard' then continue			; skip 'standard_type' = "standard"
-
-;		energy = mp.energy									; already in 'p' from 'scan_dir_evt'
-;		charge = mp.charge
-;		xpixels = mp.scan.x_pixels
-;		ypixels = mp.scan.y_pixels
-;		xsize = mp.scan.x_mm
-;		ysize = mp.scan.y_mm
-
-;		sample = mp.sample
-;		gain = mp.sensitivity
-;		pv = mp.IC_name
-;		pileup = mp.pileup.file
-;		if (mp.pileup.on eq 0) then pileup = ''		
-;		throttle = mp.throttle.file
-;		if (mp.throttle.on eq 0) then throttle = ''		
-;		if (mp.metadata.facility eq 'MM.Mel.') and (pv eq '') then begin
-;			gain = 1.0										; to test using old Udimet data
-;			pv = 'Maia:dwell.time'
-;		endif
-;		if gain lt 1.0e-6 then begin
-;			gain = 1.0										; is this a good idea?
-;			print, '** wizard_batch_scan_dir: gain was zero, so set it to 1.0 to continue.'
-;		endif
 		
+;		If a DAI was not found in scan and a template DAI is available, use that ...
+
+		if ptr_good( (*pstate).pdai) then begin
+			if ((*p[i]).linear eq '') and ( (*(*pstate).pdai).linearize ne '') then begin
+				(*p[i]).linear = (*(*pstate).pdai).linearize
+			endif
+		endif
+
 ;		This defines the names and types of the columns of the table struct.
 ;		It must match the order of entries in the row struct of the table.
 ;		This is NOT the selection of the columns as shown. See "wizard_batch_update_table" for that.
 
 		title = ['On','Raw','DAM', 'Name','Serial','Detector','Energy','Xpixels','Ypixels','Xsize', $
-				'Ysize','PV name','IC Gain','Pileup','Throttle', 'Charge','Output','Mean','Error','Std.Dev', $
-				'SD/Error']
+				'Ysize','PV name','IC Gain','Pileup','Throttle','Linear', 'Conv', 'Charge','Output','Mean','Error','Std.Dev', $
+				'SD/Error','Processed','Clipped','Valid','Bad_xy']
 		type = ['toggle','file','string','string','string','string','float','int','int','int', $
-				'int','string','float','file','file', 'float','string','float','float','float', $
-				'float']
+				'int','string','float','file','file','file', 'float','float','string','float','float','float', $
+				'float','long64','long64','long64','long64']
 		
 		row = {on:1, blog:(*p[i]).file, dam:(*p[i]).dam, name:(*p[i]).sample, serial:serial, detector:detector, $
 			energy:(*p[i]).energy, xpixels:(*p[i]).xrange, ypixels:(*p[i]).yrange, xsize:(*p[i]).xsize, $
-			ysize:(*p[i]).ysize, pv:(*p[i]).pv, gain:(*p[i]).gain, pileup:(*p[i]).pileup, throttle:(*p[i]).throttle, $
-			charge:(*p[i]).charge, output:(*p[i]).output, mean:0.0, error:0.0, sd:0.0, relsd:0.0}
+			ysize:(*p[i]).ysize, pv:(*p[i]).pv, gain:(*p[i]).gain, $
+			pileup:(*p[i]).pileup, throttle:(*p[i]).throttle, linear:(*p[i]).linear,$
+			conv:(*p[i]).conv, charge:(*p[i]).charge, output:(*p[i]).output, mean:0.0, error:0.0, sd:0.0, relsd:0.0, $
+			processed:0LL, clipped:0LL, valid:0LL, bad_xy:0LL}
 		
 		if wizard_batch_test_row( row) eq 0 then row.on=0
 
@@ -1486,6 +1493,7 @@ cont:
 			table = [table, row]
 		endelse		
 	endfor
+	(*pstate).busy = 0
 	
 	if n_elements(table) ge 1 then error = 0	
 	return, (error ? 0 : table)
@@ -1834,6 +1842,75 @@ end
 
 ;--------------------------------------------------------------------------
 
+pro wizard_batch_process_setup, pstate, error=error
+
+;	Send template DAI parameters to evt window.
+;	They can be modified by user from there before processing starts.
+
+	COMPILE_OPT STRICTARR
+	ErrorNo = 0
+	common c_errors_1, catch_errors_on
+	if catch_errors_on then begin
+	    Catch, ErrorNo
+	    if (ErrorNo ne 0) then begin
+	       Catch, /cancel
+	       on_error, 1
+	       help, calls = s
+	       n = n_elements(s)
+	       c = 'Call stack: '
+	       if n gt 2 then c = [c, s[1:n-2]]
+	       warning,'wizard_batch_process_setup',['IDL run-time error caught.', '', $
+	          'Error:  '+strtrim(!error_state.name,2), $
+	          !error_state.msg,'',c], /error
+	       MESSAGE, /RESET
+		   (*pstate).busy = 0
+	      return
+	    endif
+	endif
+
+	error = 1
+;	widget_control, (*pstate).conv_text, get_value=s
+;	conv = 1.0
+;	if s ne '' then conv = float2(s)
+	
+	wz = define(/wizard_notify)
+	wz.wizard = 'batch'
+	wz.window = 'Sort EVT'								; Sort image
+	wz.command = 'sort-setup'						
+	wz.pdata = ptr_new( {	$
+		device:			(*(*pstate).pDevObj)->name(), $	; device name
+		image_mode:		0, $							; sort mode (images)
+		type:			(*(*pstate).pdai).detector, $	; data type
+		array:			(*(*pstate).pdai).array, $		; array detector?
+		blog:			(*(*pstate).pdai).source, $		; blog file
+		pileup:			(*(*pstate).pdai).pileup, $		; pileup file
+		throttle:		(*(*pstate).pdai).throttle, $	; throttle file
+		linear:			(*(*pstate).pdai).linearize, $	; linearize file
+		output:			(*(*pstate).pdai).file, $		; output file
+		conv:			(*(*pstate).pdai).IC.conversion, $		; 'conv'
+		charge:			(*(*pstate).pdai).charge, $		; for the returned charge
+		charge_mode:	(*(*pstate).pdai).IC.mode, $	; flux/charge mode (IC w/ PV)
+		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
+		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
+		gain_units:		(*(*pstate).pdai).IC.pv.unit, $	; for gain in 'nA/V' 
+;		cal:			(*pstate).energy_cal_file, $	; energy calibration file
+		proj_mode:		'DA', $							; DA projection mode
+		dam:			(*(*pstate).pdai).matrix.file }, /no_copy)		; DA matrix file
+	wz.local = 1
+;	wz.callback = 'wizard_batch_callback_image_done'
+	pw = ptr_new(wz, /no_copy)
+	pl = pw									; new current one
+	p0 = pw									; first one
+
+	clear_wizard, (*pstate).pwizard1
+	*(*pstate).pwizard5 = *p0
+	ptr_free, p0
+	notify, 'wizard-action', (*pstate).pwizard5	
+	error = 0
+	return
+end
+;--------------------------------------------------------------------------
+
 pro wizard_batch_process_blog, pstate, error=error
 
 ; For a single raw file, do the following:
@@ -1859,6 +1936,7 @@ pro wizard_batch_process_blog, pstate, error=error
 	          'Error:  '+strtrim(!error_state.name,2), $
 	          !error_state.msg,'',c], /error
 	       MESSAGE, /RESET
+		   (*pstate).busy = 0
 	      return
 	    endif
 	endif
@@ -1867,6 +1945,13 @@ pro wizard_batch_process_blog, pstate, error=error
 	if error then return
 
 	error = 1
+	if ptr_good( (*pstate).pdai) eq 0 then begin
+		warning,'wizard_batch_process_blog',['Need to setup a Template DAI file for processing.', '', $
+						'Use the "Template" button on tab 1.']
+		(*pstate).busy = 0
+		return
+	endif
+
 	no_data = 1
 	p = (*pstate).presults
 	n = 0
@@ -1880,15 +1965,20 @@ pro wizard_batch_process_blog, pstate, error=error
 	i = (*pstate).loop									; our loop index
 	if i ge n then begin
 		print,'	process_blog: no more to process.'
+		(*pstate).busy = 0
+		wizard_batch_update_summary, pstate
+		wizard_batch_update_table, pstate
 		return
 	endif
 	j = q[i]
 	(*pstate).index = j
 	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
-	
+	(*pstate).busy = 1
+
 	output = wizard_batch_output_file( pstate, (*p)[j].blog, error=err)
 	if err then begin
 		warning,'wizard_batch_process_blog','Unable to form output file for raw: '+ strip_file_ext(strip_path((*p)[j].blog))
+		(*pstate).busy = 0
 		return
 	endif
 	
@@ -1917,11 +2007,12 @@ pro wizard_batch_process_blog, pstate, error=error
 	wz.pdata = ptr_new( {	$
 		device:			(*(*pstate).pDevObj)->name(), $	; device name
 		image_mode:		0, $							; sort mode (images)
-		type:			(*(*pstate).pdai).detector, $	; data type
-		array:			(*(*pstate).pdai).array, $		; array detector?
+;		type:			(*(*pstate).pdai).detector, $	; data type
+;		array:			(*(*pstate).pdai).array, $		; array detector?
 		blog:			(*p)[j].blog, $					; blog file
 		pileup:			(*p)[j].pileup, $				; pileup file
 		throttle:		(*p)[j].throttle, $				; throttle file
+		linear:			(*p)[j].linear, $				; linearize file
 		output:			output, $						; output file
 		load:			load, $							; load (1) image file if exists
 		skip:			(*pstate).options_file[1], $	; skip (1) sort if exists already
@@ -1929,13 +2020,13 @@ pro wizard_batch_process_blog, pstate, error=error
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			conv, $							; initial 'conv'
 		charge:			0.0, $							; for the returned charge
-		charge_mode:	(*(*pstate).pdai).IC.mode, $	; flux/charge mode (IC w/ PV)
-		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
-		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
-		gain_units:		(*(*pstate).pdai).IC.pv.unit, $	; for gain in 'nA/V' 
-		cal:			(*pstate).energy_cal_file, $	; energy calibration file
-		proj_mode:		'DA', $							; DA projection mode
-		dam:			(*(*pstate).pdai).matrix.file }, /no_copy)		; DA matrix file
+;		charge_mode:	(*(*pstate).pdai).IC.mode, $	; flux/charge mode (IC w/ PV)
+;		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
+;		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
+;		gain_units:		(*(*pstate).pdai).IC.pv.unit, $	; for gain in 'nA/V' 
+		cal:			(*pstate).energy_cal_file}, /no_copy)	; energy calibration file
+;		proj_mode:		'DA', $							; DA projection mode
+;		dam:			(*(*pstate).pdai).matrix.file }, /no_copy)		; DA matrix file
 	wz.local = 1
 	wz.callback = 'wizard_batch_callback_image_done'
 	pw = ptr_new(wz, /no_copy)
@@ -2040,21 +2131,25 @@ pro wizard_batch_process_blog, pstate, error=error
 
 ;	Setup to Save selected RGB images ...
 
-	file = (*(*pstate).path) + 'temp.rgb.csv'
-	wizard_batch_save_rgb, pstate, file, error=err
+	do_rgb = (*pstate).options_export[6]		; export RGB option
 
-	if err eq 0 then begin
-		wz = define(/wizard_notify)
-		wz.wizard = 'batch'
-		wz.window = 'Image RGB'				; save RGB images
-		wz.command = 'save-rgb'
-		wz.pdata = ptr_new( file)			; RGB export temp file
-				
-		wz.local = 1
-		wz.callback = 'wizard_batch_callback_rgb_done'
-		pw = ptr_new(wz, /no_copy)
-		(*pl).pnext = pw					; link current one to this 'next' one
-		pl = pw								; new current one
+	if do_rgb then begin						; export RGB
+		file = (*(*pstate).path) + 'temp.rgb.csv'
+		wizard_batch_save_rgb, pstate, file, error=err
+	
+		if err eq 0 then begin
+			wz = define(/wizard_notify)
+			wz.wizard = 'batch'
+			wz.window = 'Image RGB'				; save RGB images
+			wz.command = 'save-rgb'
+			wz.pdata = ptr_new( file)			; RGB export temp file
+					
+			wz.local = 1
+			wz.callback = 'wizard_batch_callback_rgb_done'
+			pw = ptr_new(wz, /no_copy)
+			(*pl).pnext = pw					; link current one to this 'next' one
+			pl = pw								; new current one
+		endif
 	endif
 
 ;	Send off the linked list to be actioned ...
@@ -2173,9 +2268,9 @@ end
 
 ;--------------------------------------------------------------------------
 
-pro wizard_batch_update_export, pstate
+pro wizard_batch_update_summary, pstate
 
-; Export the results table
+; Export the results summary table
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -2190,7 +2285,7 @@ if catch_errors_on then begin
        n = n_elements(s)
        c = 'Call stack: '
        if n gt 2 then c = [c, s[1:n-2]]
-       warning,'wizard_batch_update_export',['IDL run-time error caught.', '', $
+       warning,'wizard_batch_update_summary',['IDL run-time error caught.', '', $
           'Error:  '+strtrim(!error_state.name,2), $
           !error_state.msg,'',c], /error
        MESSAGE, /RESET
@@ -2212,20 +2307,20 @@ endif
 	
 	on_ioerror, bad
 	openw, 1, output
-	printf, 1, 'Raw, Name, Serial, Detector, Energy, Xsize, Ysize, IC Gain, El, Conv, Pileup, Throttle, Mean, Error, Std.Dev, SD/Error'
+	printf, 1, 'Raw, Name, Serial, Detector, Energy, Xsize, Ysize, IC Gain, Conv, Charge, Pileup, Throttle, Linear, Processed, Clipped, Valid, Bad_xy, Output'
 	for i=0,n-1 do begin
 		printf, 1, (*p)[i].blog, (*p)[i].name, (*p)[i].serial, (*p)[i].detector, str_tidy((*p)[i].energy), $
-				str_tidy((*p)[i].Xsize), str_tidy((*p)[i].Ysize), str_tidy((*p)[i].gain), (*p)[i].el, $
-				str_tidy((*p)[i].conv), (*p)[i].pileup, (*p)[i].throttle, str_tidy((*p)[i].mean), $
-				str_tidy((*p)[i].error), str_tidy((*p)[i].sd), str_tidy((*p)[i].relsd), $
-				format='(15(A,","),A)' 
+				str_tidy((*p)[i].Xsize), str_tidy((*p)[i].Ysize), str_tidy((*p)[i].gain),  $
+				str_tidy((*p)[i].conv), str_tidy((*p)[i].charge), (*p)[i].pileup, (*p)[i].throttle, (*p)[i].linear, $
+				str_tidy((*p)[i].processed), str_tidy((*p)[i].clipped), str_tidy((*p)[i].valid), str_tidy((*p)[i].bad_xy), $
+				(*p)[i].output, format='(17(A,","),A)' 
 	endfor
 
 finish:
 	close_file, 1
 	return
 bad:
-	warning,'wizard_batch_update_export','Failed to open output file: '+output
+	warning,'wizard_batch_update_summary','Failed to open output file: '+output
 	goto, finish
 end
 
@@ -2577,6 +2672,9 @@ endcase
 						'double': begin
 							t[j,i] = str_tidy((*p)[i].(k))
 							end
+						'long64': begin
+							t[j,i] = str_tidy((*p)[i].(k))
+							end
 					endcase
 				endif
 			endfor
@@ -2685,6 +2783,9 @@ endcase
 						'double': begin
 							t[j,i] = str_tidy((*p)[i].(k))
 							end
+						'long64': begin
+							t[j,i] = str_tidy((*p)[i].(k))
+							end
 					endcase
 				endif
 			endfor
@@ -2752,18 +2853,24 @@ endcase
 ;	row struct of the results table (see 'wizard_batch_scan_dir'), except "#", which is the row index.
 
 	rows = string(indgen(n>1))
-;	headings = ['#','On', 'Raw','Name', 'Detector','Energy', 'Xsize','Ysize', 'IC Gain','Conv', 'Pileup','Throttle']
-;	widths = [3,5, 20,8, replicate(7,2), replicate(5,2), 7,10, 10,10] * !d.x_ch_size * ch_scale
-	headings = ['#','On', 'Raw', 'Xpixels','Ypixels','Xsize','Ysize', 'Charge', 'Output']
-	widths = [3,5, 12, replicate(7,2),replicate(7,2), 8, 41] * !d.x_ch_size * ch_scale
+	headings = ['#','On', 'Raw', 'Xpixels','Ypixels','Xsize','Ysize', 'Charge', 'Output', 'Pileup','Throttle','Linear']
+	widths = [3,5, 12, replicate(7,2),replicate(7,2), 8, 41, replicate(20,3)] * !d.x_ch_size * ch_scale
 	nc = n_elements(headings)
 	t = strarr(nc,256)
 	toggle_modes = ['Off', 'On', 'Done', 'Error']
 
+	c = intarr(3,nc,256)
+	c[0,*,*] = (spec_colour('white',/rgb))[0]						; table colours
+	c[1,*,*] = (spec_colour('white',/rgb))[1]
+	c[2,*,*] = (spec_colour('white',/rgb))[2]
+
 	if no_data eq 0 then begin
 		for i=0,n-1 do begin
 			t[0,i] = str_tidy(i)									; first column is just index #
-			
+
+			if (*pstate).busy and (i eq (*pstate).index) then begin
+				for l=0,nc-1 do c[*,l,i] = spec_colour('green',/rgb)
+			endif
 			for j=1,nc-1 do begin
 				q = where( headings[j] eq *(*pstate).ptitle, nq)	; Find heading in list of tag name 'titles'
 				if nq gt 0 then begin								; for row struct of results table.
@@ -2788,6 +2895,9 @@ endcase
 							t[j,i] = str_tidy((*p)[i].(k), places=-2)
 							end
 						'double': begin
+							t[j,i] = str_tidy((*p)[i].(k), places=-3)
+							end
+						'long64': begin
 							t[j,i] = str_tidy((*p)[i].(k))
 							end
 					endcase
@@ -2798,6 +2908,7 @@ endcase
 	widget_control, (*pstate).results_table, set_value=t, column_widths=widths, align=2, $
 						column_labels=headings, table_xsize=nc, table_ysize=n>1
 	widget_control, (*pstate).results_table, use_table_select=[0,0,nc-1,n-1]
+	widget_control, (*pstate).results_table, background_color=c
 	(*pstate).columns = nc
 	*(*pstate).pheadings = headings
 	(*pstate).rows = n
@@ -3601,7 +3712,7 @@ state = { $
 		tab:					0, $							; current Tab selected
 		tab_names:				tab_names, $					; tab names
 		tab_used:				intarr(n_elements(tab_names)), $	; flags that figure is displayed
-		windows_needed:			windows_needed, $					; list of needed window names
+		windows_needed:			windows_needed, $				; list of needed window names
 		windows_open:			ptrarr(n_elements(windows_needed), /allocate_heap), $	; lists unique window IDs found to be open.
 		windows_veto:			0, $									; veto Timer when pop-up is open
 
@@ -3643,6 +3754,7 @@ state = { $
 ;		pconfig:				ptr_new(/allocate_heap), $		; room for standards.csv config table
 		loop:					0, $							; loop counter
 		index:					0, $							; table row index
+		busy:					0, $							; processing bisy flag
 		pdai:					ptr_new(/allocate_heap), $		; pointer to template DAI image struct
 		pcel:					ptr_new(/allocate_heap), $		; element names from template DAI file
 
