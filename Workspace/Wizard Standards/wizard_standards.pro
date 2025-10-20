@@ -91,11 +91,16 @@ case tag_names( event,/structure) of
 		goto, finish
 		end
 	'WIDGET_TIMER': begin
-		(*pstate).windows_veto = ((*pstate).windows_veto-1) > 0	; decrement count-down, to give time to close some windows
-		if ((*pstate).windows_veto eq 0) then begin
-			wizard_test_windows, 'standards', pstate			; periodically check which GeoPIXE windows are
-		endif													; currently open (not if warning open [windows_veto])
-		widget_control, event.id, timer=8.0	
+		if *(*pstate).message.pwizard ne !null then begin
+			warning, 'Standards Wizard', *(*pstate).message.pwizard
+			*(*pstate).message.pwizard  = !null
+		endif
+		if *(*pstate).message.pwindow ne !null then begin
+			warning, 'Standards Wizard', *(*pstate).message.pwindow
+			*(*pstate).message.pwindow  = !null
+		endif
+		wizard_test_windows, 'standards', pstate			; periodically check which GeoPIXE windows are
+		widget_control, event.id, timer=20.0	
 		goto, finish
 		end
 
@@ -129,9 +134,8 @@ case tag_names( event,/structure) of
 					pw = event.pointer
 
 					if (*pw).wizard ne 'standards' then begin
-						(*pstate).windows_veto = 5				; veto tests while this pop-up is open
-																; count down gives time to close somewindows
-						warning, 'wizard_standards_return', ['Another Wizard appears to be open ("'+(*pw).wizard+'").', '', $
+						print,'Wizard Standards: found another Wizard: '+(*pw).wizard
+						*(*pstate).message.pwizard = 	['Another Wizard appears to be open ("'+(*pw).wizard+'").', '', $
 								'This will cause many problems.','Only open one Wizard at a time.','Please close other Wizards.']
 						goto, finish
 					endif
@@ -144,9 +148,8 @@ case tag_names( event,/structure) of
 						if error then goto, finish
 
 						if count gt 1 then begin
-							(*pstate).windows_veto = 4			; veto tests while this pop-up is open
-																; count down gives time to close somewindows
-							warning, 'wizard_standards_return', ['Multiple windows of types "'+strjoin((*pstate).windows_needed,', ')+'" may be open.', '', $
+							print,'Wizard Standards: found duplicate windows.'
+							*(*pstate).message.pwindow = ['Multiple windows of types "'+strjoin((*pstate).windows_needed,', ')+'" may be open.', '', $
 								'This may cause problems.','Please close any duplicate windows.']
 						endif
 						goto, finish
@@ -2015,7 +2018,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 
-wversion = '8.9a'							; wizard version
+wversion = '8.9c'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
@@ -2394,7 +2397,9 @@ state = { $
 		tab_used:				intarr(n_elements(tab_names)), $		; flags that figure is displayed
 		windows_needed:			windows_needed, $						; list of needed window names
 		windows_open:			ptrarr(n_elements(windows_needed), /allocate_heap), $	; lists unique window IDs found to be open.
-		windows_veto:			0, $									; veto Timer when pop-up is open
+
+		message: {	pwizard:	ptr_new(/allocate_heap), $		; message about another Wizard being open
+					pwindow:	ptr_new(/allocate_heap)}, $		; message about duplicate windows being open
 
 		pwizard1:				ptr_new(/allocate_heap), $		; data area for wizard notify commands to GeoPIXE
 		pwizard2:				ptr_new(/allocate_heap), $		; data area for wizard notify commands to GeoPIXE

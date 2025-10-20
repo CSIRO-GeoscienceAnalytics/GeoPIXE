@@ -1,9 +1,9 @@
 
      Work and Results Table
 
-Table is populated using metadata where available. Missing
-entries will need to be added. Click in a cell to edit it, 
-or use "Fill" to duplicate it down the selected column.
+Table of Raw data and any associated analysis results from
+a selected directory. Table is populated using metadata 
+where available. Scroll right to see more columns. 
 
      Setup first
 
@@ -16,6 +16,10 @@ directly, edit the "Charge" column in the table.
 
      Table Controls
 
+Missing entries will need to be added. Click in a cell 
+to edit it, or use "Fill" to duplicate it down the
+selected column.
+
 Enable: Toggle the enable state of selected rows.
 
 Fill: Duplicate down selected columns. 
@@ -24,14 +28,18 @@ Delete: Delete selected row(s).
 
 Clear: Clears entire table.
 
-Start Processing: Start the batch processing.
-
      Selection of cells
 
 Click in a cell to select it. Click and drag to select
 multiple rows and/or columns. Selecting a file cell
 will bring up the file requester. All other cells using 
 the same file-name will be updated too.
+
+     Processing
+
+Start Processing: Start the batch processing.
+
+Abort: Abort processing after the current row finishes.
 
      Results File
 

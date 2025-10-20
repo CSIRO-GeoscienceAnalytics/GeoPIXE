@@ -342,8 +342,8 @@ snap_done:
 								endif
 
 								(*pw).error = err
-								if tag_present('OUTPUT', *pd) then (*pd).output = (*p).output_file								; file-name
-								if tag_present('CHARGE', *pd) then (*pd).charge = (*(*pstate).p).charge						; return a new charge
+								if tag_present('OUTPUT', *pd) then (*pd).output = (*pp).file								; file-name
+								if tag_present('CHARGE', *pd) then (*pd).charge = (*pp).charge						; return a new charge
 								if tag_present('PNEW', *pd) then begin						; some file paths have changed
 									*(*pd).pnew = {pfiles:ptr_new(), stats:{processed:(*pp).processed, clipped:(*pp).clipped, valid:(*pp).valid, bad_xy:(*pp).bad_xy}}
 									if n_elements(sret) gt 0 then (*(*pd).pnew).pfiles = ptr_new( sret,/no_copy)

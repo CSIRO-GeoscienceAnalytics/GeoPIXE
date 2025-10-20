@@ -28,10 +28,22 @@ endif
 	if nq eq 0 then return, 0
 
 	current = *windows_open[q[0]]						; current open IDs
-	count = n_elements(current)							; current unique open count
 
+	nc = n_elements(current)
+	good = intarr(nc)
+	for i=0,nc-1 do begin
+		good[i] = widget_info( current[i], /valid)		; check all to be valid
+	endfor
+	q1 = where( good eq 1, nq1)
+	if nq1 ge 1 then begin
+		*windows_open[q[0]] = current[q1]
+	endif else begin
+		*windows_open[q[0]] = 0L
+	endelse
+
+	count = n_elements(*windows_open[q[0]])				; current unique open count
 	if (count eq 1) then begin
-		if (current eq 0L) then count=0					; an ID of 0L means invalid
+		if (*windows_open[q[0]] eq 0L) then count=0
 	endif
 	return, count
 end

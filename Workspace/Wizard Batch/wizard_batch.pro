@@ -87,16 +87,21 @@ case tag_names( event,/structure) of
 			widget_control, (*pstate).help, set_value=s
 		endif else begin
 			widget_control, (*pstate).help, set_value='Complete entries and operations on the current tab before hitting "Next" to go to the next one. ' + $
-						'Go back to previous tab using "Back" or  select specific tabs on the left.'
+						'Go back to previous tab using "Back" or select specific tabs on the left.'
 		endelse
 		goto, finish
 		end
 	'WIDGET_TIMER': begin
-		(*pstate).windows_veto = ((*pstate).windows_veto-1) > 0	; decrement count-down, to give time to close some windows
-		if ((*pstate).windows_veto eq 0) then begin
-			wizard_test_windows, 'batch', pstate				; periodically check which GeoPIXE windows are
-		endif													; currently open (not if warning open [windows_veto])
-		widget_control, event.id, timer=5.0	
+		if *(*pstate).message.pwizard ne !null then begin
+			warning, 'Batch Wizard', *(*pstate).message.pwizard
+			*(*pstate).message.pwizard  = !null
+		endif
+		if *(*pstate).message.pwindow ne !null then begin
+			warning, 'Batch Wizard', *(*pstate).message.pwindow
+			*(*pstate).message.pwindow  = !null
+		endif
+		wizard_test_windows, 'batch', pstate					; periodically check which GeoPIXE windows are
+		widget_control, event.id, timer=20.0	
 		goto, finish
 		end
 
@@ -130,9 +135,8 @@ case tag_names( event,/structure) of
 					pw = event.pointer
 
 					if (*pw).wizard ne 'batch' then begin
-						(*pstate).windows_veto = 5				; veto tests while this pop-up is open
-																; count down gives time to close somewindows
-						warning, 'wizard_batch_return', ['Another Wizard appears to be open ("'+(*pw).wizard+'").', '', $
+						print,'Wizard Batch: found another Wizard: '+(*pw).wizard
+						*(*pstate).message.pwizard = 	['Another Wizard appears to be open ("'+(*pw).wizard+'").', '', $
 								'This will cause many problems.','Only open one Wizard at a time.','Please close other Wizards.']
 						goto, finish
 					endif
@@ -145,9 +149,8 @@ case tag_names( event,/structure) of
 						if error then goto, finish
 
 						if count gt 1 then begin
-							(*pstate).windows_veto = 4			; veto tests while this pop-up is open
-																; count down gives time to close somewindows
-							warning, 'wizard_batch_return', ['Multiple windows of types "'+strjoin((*pstate).windows_needed,', ')+'" may be open.', '', $
+							print,'Wizard Batch: found duplicate windows.'
+							*(*pstate).message.pwindow = ['Multiple windows of types "'+strjoin((*pstate).windows_needed,', ')+'" may be open.', '', $
 								'This may cause problems.','Please close any duplicate windows.']
 						endif
 						goto, finish
@@ -155,9 +158,10 @@ case tag_names( event,/structure) of
 						
 					print, '*** Wizard return: from="'+(*pw).window+'", command="'+(*pw).command+'", error='+str_tidy((*pw).error)
 					if (*pw).error then begin
+						(*p)[(*pstate).index].on = 4				; Error
 						warning,'batch wizard',['Error in processing this data-set:', $
 								(*(*pw).pdata).output,'','"OK" to continue, "Cancel" to abort all.'], cancel=cancel
-						if cancel then goto, finish
+						if cancel then goto, abort_run
 					endif
 						
 ;					If there is a callback routine, execute it now, passing the returned wizard notify pointer ...
@@ -184,9 +188,9 @@ case tag_names( event,/structure) of
 
 ;						Next row?
 	
+						if (*pstate).abort then goto, abort_run
 						if (*pw).loop then begin
 							print, '   >>> Loop to next row?'
-							(*pstate).loop += 1
 							wizard_batch_process_blog, pstate, error=error
 							if error then goto, finish
 						endif
@@ -682,7 +686,9 @@ case uname of
 				(*pstate).sel.top = event.sel_top
 				(*pstate).sel.right = event.sel_right
 				(*pstate).sel.bottom = event.sel_bottom
-				i = (*pstate).sel.top
+				i = (*pstate).sel.top < (n_elements( *(*pstate).presults) - 1)
+				ibot = (*pstate).sel.bottom < (n_elements( *(*pstate).presults) - 1)
+				(*pstate).sel.bottom = ibot
 				if i lt 0 then goto, finish
 			
 ;				print,'re-load table ...'
@@ -690,7 +696,7 @@ case uname of
 				view = widget_info( (*pstate).results_table, /table_view)
 				widget_control, (*pstate).results_table, get_value=t
 				widget_control, (*pstate).results_table, set_value=t
-				widget_control, (*pstate).results_table, set_table_select=[(*pstate).sel.left,(*pstate).sel.top,(*pstate).sel.right,(*pstate).sel.bottom]
+				widget_control, (*pstate).results_table, set_table_select=[(*pstate).sel.left,(*pstate).sel.top,(*pstate).sel.right,ibot]
 				widget_control, (*pstate).results_table, set_table_view=view
 				
 				i = (*pstate).sel.top
@@ -701,8 +707,15 @@ case uname of
 					k = q[0]														; q[0] is then tag index in struct.
 					if ((*(*pstate).ptype)[k] eq 'file') and ((event.sel_right-j eq 0) and (event.sel_bottom-i eq 0)) then begin
 						name = (*(*pstate).ptitle)[k]
-						f = file_requester( /read, filter=['*.'+strlowcase(name)+'.var','*.txt','*.'+strlowcase(name)], /fix_filter, $
-							file=(*p)[i].(k), group=event.top, title='Select '+name+' File', cancel=cancel)
+						if name eq 'Raw' then begin
+							DevObj = *(*pstate).pDevObj
+							F = file_requester( /read, filter = '*'+DevObj->extension(), group=event.top, file=(*p)[i].(k), $
+								title='Select the Raw data file', fix_filter=0, cancel=cancel, $
+								numeric=(DevObj->multi_files() and DevObj->extension() eq '') )
+						endif else begin
+							f = file_requester( /read, filter=['*.'+strlowcase(name)+'.var','*.txt','*.'+strlowcase(name)], /fix_filter, $
+								file=(*p)[i].(k), group=event.top, title='Select '+name+' File', cancel=cancel)
+						endelse
 						if cancel eq 0 then begin
 							(*p)[i].(k) = f[0]
 							wizard_batch_update_table, pstate
@@ -844,8 +857,12 @@ case uname of
 		end
 
 	'process-button': begin
-		(*pstate).loop = 0
+		(*pstate).first = 1
 		wizard_batch_process_blog, pstate, error=error
+		end
+
+	'abort-button': begin
+		(*pstate).abort = 1
 		end
 	
 ;	'detector-mode': begin
@@ -884,6 +901,12 @@ endcase
 finish:
 	widget_control, hourglass=0
 	return
+
+abort_run:
+	(*pstate).abort = 0										; abort
+	(*pstate).busy = 0
+	wizard_batch_update_table, pstate
+	goto, finish
 
 done:
 	goto, kill
@@ -966,7 +989,7 @@ if catch_errors_on then begin
 endif
 
 	error = 1
-	if (*pep).error ne 0 then return
+;	if (*pep).error ne 0 then return
 	pd = (*pep).pdata
 
 	n = 0
@@ -1015,16 +1038,28 @@ endif
 				endif
 			endif
 		endif
-		stats = (*(*pd).pnew).stats
-		(*p)[ (*pstate).index].processed = stats.processed
-		(*p)[ (*pstate).index].valid = stats.valid
-		(*p)[ (*pstate).index].clipped = stats.clipped
-		(*p)[ (*pstate).index].bad_xy = stats.bad_xy
 
+		j = (*pstate).index
+		stats = (*(*pd).pnew).stats
 		charge =  (*(*pep).pdata).charge
 		output =  (*(*pep).pdata).output
-		(*p)[ (*pstate).index].charge = charge
-		(*p)[ (*pstate).index].output = output
+
+		(*p)[j].processed = stats.processed
+		(*p)[j].valid = stats.valid
+		(*p)[j].clipped = stats.clipped
+		(*p)[j].bad_xy = stats.bad_xy
+		(*p)[j].charge = charge
+		(*p)[j].output = output
+		
+;		Note that setting (*p)[].on here is important, as this is used to determine the next 
+;		row to process in 'wizard_batch_process_blog'. It must be set to something other
+;		than 1 ("On"), or the row will get repeated endlessly.
+
+		if (*pep).error then begin
+			(*p)[j].on = 3				; Error
+		endif else begin
+			(*p)[j].on = 2				; Done
+		endelse
 
 		wizard_batch_update_table, pstate
 		ptr_free, pfiles
@@ -1874,6 +1909,10 @@ pro wizard_batch_process_setup, pstate, error=error
 						'Change Device droplist or select another DAI file.']
 		return
 	endif
+
+;	Maintain options agreement between 3 Device Object instances: 1/ One in 'pdai', 2/ one in *(*pstate).pDevObj,
+;	and 3/ one in the Sort EVT window.
+
 	options = (*(*pstate).pdai).DevObj->get_options()
 	(*(*pstate).pDevObj)->set_options, options
 
@@ -1883,7 +1922,7 @@ pro wizard_batch_process_setup, pstate, error=error
 	wz.command = 'sort-setup'						
 	wz.pdata = ptr_new( {	$
 		device:			(*(*pstate).pDevObj)->name(), $	; device name
-		device_options:	options, $						; internal device options
+		device_options:	options, $						; internal device options in Sort EVT
 		image_mode:		0, $							; sort mode (images)
 		type:			(*(*pstate).pdai).detector, $	; data type
 		array:			(*(*pstate).pdai).array, $		; array detector?
@@ -1947,7 +1986,10 @@ pro wizard_batch_process_blog, pstate, error=error
 	endif
 
 	wizard_check_windows, pstate, error=error
-	if error then return
+	if error then begin
+		(*pstate).busy = 0
+		return
+	endif
 
 	error = 1
 	if ptr_good( (*pstate).pdai) eq 0 then begin
@@ -1956,6 +1998,9 @@ pro wizard_batch_process_blog, pstate, error=error
 		(*pstate).busy = 0
 		return
 	endif
+
+;	This checks for first row set to 1 ("On"), which depends on 'wizard_batch_callback_image_done' to 
+;	set (*p)[j].on to 2 ("Done") or 3 (Error") (i.e. not 1 ("On")) after a sort completes.
 
 	no_data = 1
 	p = (*pstate).presults
@@ -1967,18 +2012,17 @@ pro wizard_batch_process_blog, pstate, error=error
 		endif
 	endif
 	
-	i = (*pstate).loop									; our loop index
-	if i ge n then begin
+	if n eq 0 then begin
 		print,'	process_blog: no more to process.'
 		(*pstate).busy = 0
 		wizard_batch_update_summary, pstate
 		wizard_batch_update_table, pstate
 		return
 	endif
-	j = q[i]
+
+	j = q[0]											; next row
 	(*pstate).index = j
 	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
-	(*pstate).busy = 1
 
 	output = wizard_batch_output_file( pstate, (*p)[j].blog, error=err)
 	if err then begin
@@ -1997,7 +2041,10 @@ pro wizard_batch_process_blog, pstate, error=error
 	widget_control, (*pstate).conv_text, get_value=s
 	conv = 1.0
 	if s ne '' then conv = float2(s)
-	
+
+	first = (*pstate).first
+	(*pstate).first = 0
+
 	save = 0
 	load = 0
 	for k=0,n_elements( (*pstate).options_export)-1 do save = save or (*pstate).options_export[k]
@@ -2094,7 +2141,7 @@ pro wizard_batch_process_blog, pstate, error=error
 ;	flipx = 1 - (((*pstate).current_sort - (*pstate).first_sort) mod 2)
 	flipx = 1 - (((*pstate).index - 0) mod 2)
 
-	*(*pstate).parg1 = {first:((*pstate).loop eq 0), save:save, html:'', bw:'', $
+	*(*pstate).parg1 = {first:first, save:save, html:'', bw:'', $
 					export:'', overwrite:over, correctX:(*pstate).options_process[1], $
 					mirrorX:(*pstate).options_process[2] and flipx, tiff:'', tiff_type:0, $
 					rgb:(*pstate).options_export[6], metadata:(*pstate).options_export[7]}
@@ -2160,9 +2207,10 @@ pro wizard_batch_process_blog, pstate, error=error
 ;	Send off the linked list to be actioned ...
 ;	The first wizard data pointer may still be in use, so we use a new one for the next row ...	
 
-	(*pl).loop = 1							; last command, so check for loop to next
+	(*pl).loop = 1								; last command, so check for loop to next
+	(*pstate).busy = 1
 
-	if (*pstate).loop mod 2 then begin
+	if (*pstate).index mod 2 then begin
 		clear_wizard, (*pstate).pwizard1
 		*(*pstate).pwizard1 = *p0
 		ptr_free, p0
@@ -2173,6 +2221,8 @@ pro wizard_batch_process_blog, pstate, error=error
 		ptr_free, p0
 		notify, 'wizard-action', (*pstate).pwizard2	
 	endelse
+
+	wizard_batch_update_table, pstate
 	error = 0
 	return
 end
@@ -2872,6 +2922,9 @@ endcase
 	if no_data eq 0 then begin
 		for i=0,n-1 do begin
 			t[0,i] = str_tidy(i)									; first column is just index #
+			if (*p)[i].on eq 3 then begin
+				for l=0,nc-1 do c[*,l,i] = spec_colour('yellow',/rgb)
+			endif
 
 			if (*pstate).busy and (i eq (*pstate).index) then begin
 				for l=0,nc-1 do c[*,l,i] = spec_colour('green',/rgb)
@@ -3447,7 +3500,8 @@ file_base2c = widget_base( file_base2b, /row, xpad=0, ypad=0, space=5, /base_ali
 button = widget_button( file_base2c, value='Template:', uname='template-sort-button', tracking=tracking, $
 						uvalue='Click to browse for a template image DAI file to use to set default sort settings such as the DAM file.', scr_xsize=button_xsize )
 template_sort_text = widget_text( file_base2c, uname='template-sort-text', value='', tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for a template image DAI file to use to set default sort settings such as the DAM file.'}, scr_xsize=text_xsize, /edit)
+						uvalue={xresize:left_resize, help:'Enter file-name for a template image DAI file to use to set default sort settings such as the DAM file. ' + $
+						'Parameters in the Sort EVT window will be set from this file.'}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_batch_template_sort_text')
 
 ;file_base3 = widget_base( file_base, /row, xpad=1, ypad=0, space=20, /align_center, /base_align_center)
@@ -3649,8 +3703,9 @@ table_base1 = widget_base( table_base, /column, xpad=0, ypad=0, space=1, /base_a
 
 table_base1a = widget_base( table_base1, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
 
-button = widget_button( table_base1a, value='Scan Raw Dir for data', uname='scan-blog-button', tracking=tracking, $
-						uvalue='Click to scan the selected raw dir (tab 1) for all raw data and populate the table. Click on "Start processing" to begin processing.', scr_xsize=2*button_xsize )
+button = widget_button( table_base1a, value='Scan Raw and Analysis folders for data', uname='scan-blog-button', tracking=tracking, $
+						uvalue='Click to scan the selected raw and analysis folders (Tab 1) for all raw data and associated analysis results to populate the table. ' + $
+						'Click on "Start processing" to begin processing.', scr_xsize=4*button_xsize )
 label = widget_label( table_base1a, value='    Conv:')
 conv_text = widget_text( table_base1a, uname='conv-text', value='', tracking=tracking, $
 						uvalue={xresize:left_resize, help:'Enter the conversion from flux to charge.'}, scr_xsize=button_xsize2, /edit)
@@ -3684,6 +3739,8 @@ button = widget_button( table_base2, value='Clear', uname='table-clear-button', 
 label = widget_label( table_base2, value='            ')
 button = widget_button( table_base2, value='Start Processing', uname='process-button', tracking=tracking, $
 						uvalue='Click to start the calculation of the calibration factors "conv". Make sure the table entries are correct first. ', scr_xsize=1.5*button_xsize )
+button = widget_button( table_base2, value='Abort', uname='abort-button', tracking=tracking, $
+						uvalue='Click to abort the processing loop. Current row will complete sorting, image operations and exports first.', scr_xsize=button_xsize )
 		
 ;------------------------------------------------------------------------------------------------
 
@@ -3719,7 +3776,9 @@ state = { $
 		tab_used:				intarr(n_elements(tab_names)), $	; flags that figure is displayed
 		windows_needed:			windows_needed, $				; list of needed window names
 		windows_open:			ptrarr(n_elements(windows_needed), /allocate_heap), $	; lists unique window IDs found to be open.
-		windows_veto:			0, $									; veto Timer when pop-up is open
+
+		message: {	pwizard:	ptr_new(/allocate_heap), $		; message about another Wizard being open
+					pwindow:	ptr_new(/allocate_heap)}, $		; message about duplicate windows being open
 
 		pwizard1:				ptr_new(/allocate_heap), $		; data area for wizard notify commands to GeoPIXE
 		pwizard2:				ptr_new(/allocate_heap), $		; data area for wizard notify commands to GeoPIXE
@@ -3757,9 +3816,10 @@ state = { $
 		root:					ptr_new(/allocate_heap), $		; storage foor 'build_output_path' root path
 
 ;		pconfig:				ptr_new(/allocate_heap), $		; room for standards.csv config table
-		loop:					0, $							; loop counter
+		first:					0, $							; first run to process
 		index:					0, $							; table row index
-		busy:					0, $							; processing bisy flag
+		busy:					0, $							; processing busy flag
+		abort:					0, $							; abort loop flag	
 		pdai:					ptr_new(/allocate_heap), $		; pointer to template DAI image struct
 		pcel:					ptr_new(/allocate_heap), $		; element names from template DAI file
 
