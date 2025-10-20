@@ -431,16 +431,18 @@ case uname of
 	'template-rgb-button': begin
 		F = file_requester( /read, title='Select an RGB export "Learn" file', path=(*pstate).output_dir, file=(*pstate).template_sort_dai, $
 							filter='*.rgb.csv', group=event.top )
-		if F[0] ne '' then begin
-			(*pstate).template_rgb_export = F[0]
-			set_widget_text, (*pstate).template_rgb_text, F[0]
+		(*pstate).template_rgb_export = F[0]
+		set_widget_text, (*pstate).template_rgb_text, F[0]
+		(*pstate).options_export[6] = 0
+		widget_control, (*pstate).options_export_id, set_value=(*pstate).options_export
+		if F[0] eq '' then begin
+			*(*pstate).prgb = ''
+			wizard_batch_update_rgb_table, pstate
+			goto, finish
 		endif
 
 		table = wizard_batch_load_rgb( pstate, title=title, type=type, error=error)
-		if error then begin
-;			warning,'wizard_batch_event','No raw files found.'		
-			goto, finish
-		endif
+		if error then goto, finish
 		*(*pstate).prgb = table
 		*(*pstate).prtitle = title
 		*(*pstate).prtype = type
@@ -451,8 +453,26 @@ case uname of
 		end
 		
 	'template-rgb-text': begin
-		widget_control, event.id, get_value=s
-		(*pstate).template_rgb_export = s
+		widget_control, event.id, get_value=F
+		(*pstate).template_rgb_export = F
+		set_widget_text, (*pstate).template_rgb_text, F[0]
+		(*pstate).options_export[6] = 0
+		widget_control, (*pstate).options_export_id, set_value=(*pstate).options_export
+		if F[0] eq '' then begin
+			*(*pstate).prgb = ''
+			wizard_batch_update_rgb_table, pstate
+			goto, finish
+		endif
+
+		table = wizard_batch_load_rgb( pstate, title=title, type=type, error=error)
+		if error then goto, finish
+		*(*pstate).prgb = table
+		*(*pstate).prtitle = title
+		*(*pstate).prtype = type
+		wizard_batch_update_rgb_table, pstate
+
+		(*pstate).options_export[6] = 1			; enable RGB exports
+		widget_control, (*pstate).options_export_id, set_value=(*pstate).options_export
 		end
 					
 	'corrections-table': begin
@@ -3430,7 +3450,7 @@ image_process, return_list=uv
 
 ; 	top-level base
 
-tlb = widget_base( /column, title='Batch Processing Wizard [under construction] ' + wversion + ' (GeoPIXE '+version+')', /TLB_KILL_REQUEST_EVENTS, $
+tlb = widget_base( /column, title='Batch Processing Wizard ' + wversion + ' (GeoPIXE '+version+')', /TLB_KILL_REQUEST_EVENTS, $
 					group_leader=group, uname='wizard-batch-tlb', /TLB_SIZE_EVENTS, SPACE=2 ,XPAD=2 ,YPAD=2 ,xoffset=xoffset, $
 					yoffset=yoffset, /base_align_center)
 tbase = widget_base( tlb, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)

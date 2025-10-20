@@ -30,6 +30,8 @@ endif
 	current = *windows_open[q[0]]						; current open IDs
 
 	nc = n_elements(current)
+	if nc eq 0 then return, 0
+
 	good = intarr(nc)
 	for i=0,nc-1 do begin
 		good[i] = widget_info( current[i], /valid)		; check all to be valid
