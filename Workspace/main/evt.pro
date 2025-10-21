@@ -337,7 +337,7 @@ snap_done:
 									(*p).flux = 0.0
 									widget_control, hourglass=1
 									evt_start, pstate, group=event.top, pprefs=(*pstate).pprefs, $
-													verify=verify, file_return=sret, error=err
+													verify=verify, /notify, file_return=sret, error=err
 									pp = (*pstate).pimage
 								endif
 

@@ -6345,6 +6345,7 @@ snap_done:
 						file = *(*pw).pdata
 						print,'*** Wizard Image: load image= '+file
 						Image_Load2, pstate, file, error=err
+						notify, 'images-changed', (*pstate).p, from=event.top
 						(*pw).error = err
 						notify, 'wizard-return', pw
 						end
@@ -6429,6 +6430,7 @@ snap_done:
 						image_Save, event, /default, overwrite=(*pd).overwrite
 		
 						draw_images, pstate
+						notify, 'images-changed', (*pstate).p, from=event.top
 						(*pw).error = 0
 						notify, 'wizard-return', pw
 						end
@@ -6471,6 +6473,9 @@ snap_done:
 						endif
 
 						draw_images, pstate
+						if (*pd).save then begin
+							notify, 'images-changed', (*pstate).p, from=event.top
+						endif
 						(*pw).error = 0
 						notify, 'wizard-return', pw
 						end

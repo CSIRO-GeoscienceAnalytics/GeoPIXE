@@ -107,12 +107,12 @@ case tag_names( event,/structure) of
 
 	'NOTIFY': begin												; events from other GeoPIXE windows
 		case event.tag of
-			'path': begin
-				if ptr_valid( event.pointer) then begin
-					*(*pstate).path = (*event.pointer)
-				endif
-				goto, finish
-				end
+;			'path': begin
+;				if ptr_valid( event.pointer) then begin
+;					*(*pstate).path = (*event.pointer)
+;				endif
+;				goto, finish
+;				end
 			'new-detectors': begin
 				present = (*(*pstate).detector_list)[(*pstate).detector_mode]
 				detector_update, list=list, title=title, present=present, new=new
@@ -257,6 +257,7 @@ case uname of
 			if lenchr(s) gt 0 then begin
 				(*pstate).output_dir = s
 				set_widget_text, (*pstate).output_dir_text, s
+				notify, 'dpath', (*pstate).path, from=event.top
 			endif
 		endif
 		end
@@ -268,6 +269,7 @@ case uname of
 		if lenchr(s) gt 0 then begin
 			(*pstate).output_dir = s
 			set_widget_text, (*pstate).output_dir_text, s
+				notify, 'dpath', (*pstate).path, from=event.top
 		endif
 		end
 					
@@ -293,12 +295,14 @@ case uname of
 			set_widget_text, (*pstate).output_dir_text, (*pstate).output_dir 
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 			*(*pstate).path = (*pstate).output_dir 
+			notify, 'path', (*pstate).path, from=event.top
 		endif
 		end
 		
 	'output-dir-text': begin
 		widget_control, event.id, get_value=s
 		(*pstate).output_dir = s
+		notify, 'path', (*pstate).path, from=event.top
 		end
 				
 	'same-dir-button': begin
@@ -1504,16 +1508,17 @@ cont:
 		endif
 
 		mp = get_header_info( *(*pstate).pDevObj, (*p[i]).file, error=err)	; output=output, silent=silent
-		if err then begin
-			warning,'wizard_batch_scan_dir','Error in header read for file: '+(*p[i]).file
-			return, 0
-		endif
-		
-		detector = mp.metadata.detector_identity
-		serial = mp.metadata.sample_serial
-		sample_type = mp.metadata.sample_type
-;		if sample_type eq 'standard' then continue			; skip 'standard_type' = "standard"
-		
+		if err eq 0 then begin
+			detector = mp.metadata.detector_identity
+			serial = mp.metadata.sample_serial
+			sample_type = mp.metadata.sample_type
+;			if sample_type eq 'standard' then continue			; skip 'standard_type' = "standard"
+		endif else begin
+			detector = ''
+			serial = ''
+			sample_type = ''
+		endelse
+
 ;		If a DAI was not found in scan and a template DAI is available, use that ...
 
 		if ptr_good( (*pstate).pdai) then begin
@@ -2028,7 +2033,7 @@ pro wizard_batch_process_blog, pstate, error=error
 	if ptr_good(p) eq 1 then begin
 		if size( (*p)[0],/tname) eq 'STRUCT' then begin
 			no_data = 0
-			q = where( (*p)[*].on eq 1, n) 				; ignores 'Off', 'Done', 'Error'
+			q = where( (*p)[*].on eq 1, n) 			; ignores 'Off', 'Done', 'Error'
 		endif
 	endif
 	
@@ -2040,7 +2045,7 @@ pro wizard_batch_process_blog, pstate, error=error
 		return
 	endif
 
-	j = q[0]											; next row
+	j = q[0]										; next row (assumes that last one was set to "Done" or "Error") on completion
 	(*pstate).index = j
 	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
 
@@ -2065,12 +2070,16 @@ pro wizard_batch_process_blog, pstate, error=error
 	first = (*pstate).first
 	(*pstate).first = 0
 
+;	load = need to load any existing images (if not sorted afresh) so that corrections can
+;	be applied or exports done.
+;	save = save the resulting images as a fresh image (or over-written, if 'over' set).
+
 	save = 0
 	load = 0
-	for k=0,n_elements( (*pstate).options_export)-1 do save = save or (*pstate).options_export[k]
-	for k=0,n_elements( (*pstate).options_process)-1 do load = load or (*pstate).options_process[k]
+	for k=0,n_elements( (*pstate).options_process)-1 do save = save or (*pstate).options_process[k]
+	for k=0,n_elements( (*pstate).options_export)-1 do load = load or (*pstate).options_export[k]
 	load = save or load
-	save = load
+;	save = load
 
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
@@ -2091,7 +2100,7 @@ pro wizard_batch_process_blog, pstate, error=error
 		verify:			1, $							; enable file verification
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			conv, $							; initial 'conv'
-		charge:			0.0, $							; for the returned charge
+		charge:			(*p)[j].charge, $				; set charge, and for the returned charge
 ;		charge_mode:	(*(*pstate).pdai).IC.mode, $	; flux/charge mode (IC w/ PV)
 ;		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
 ;		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
@@ -3293,7 +3302,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 
-wversion = '8.9c'							; wizard version
+wversion = '8.9d'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.

@@ -1807,7 +1807,7 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1                           ; enable error CATCHing
 if debug then catch_errors_on = 0             ; disable error CATCHing
 
-wversion = '8.9c'							; wizard version
+wversion = '8.9d'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not already running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
