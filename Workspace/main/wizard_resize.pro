@@ -72,6 +72,9 @@ if catch_errors_on then begin
       return
     endif
 endif
+
+	print,'Resize Uname = ', widget_info( tlb, /uname)
+
 if n_elements(tlb) eq 0 then return
 if n_elements(oldx) eq 0 then return
 if n_elements(oldy) eq 0 then return
