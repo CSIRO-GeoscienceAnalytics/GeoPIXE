@@ -3731,7 +3731,7 @@ options_export_id = cw_bgroup2( options_base3c, ['Save images as colour PNG to H
 ; Results table  -----------------------------------------
 
 table_base = widget_base( tab_panel, title=' 5. Processing Table  ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center) ;, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( table_base, value='Work Table and Processing Progress')
 results_text = widget_text( table_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='table-explanation', tracking=tracking, $
 				value=['Scan for the details of the raw files (set raw path on tab 1). ' + $
@@ -3750,7 +3750,7 @@ conv_text = widget_text( table_base1a, uname='conv-text', value='', tracking=tra
 						uvalue={xresize:left_resize, help:'Enter the conversion from flux to charge, for those devices that measure charge indirectly and need to convert some flux measure to charge using "conv".'}, scr_xsize=button_xsize2, /edit)
 
 table1_base = widget_base( table_base1, title='  Results Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center) ;, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
 
 headings = strarr(12)			; dummy values (see 'wizard_batch_update_table' for actual headings)
 nc = n_elements(headings)
