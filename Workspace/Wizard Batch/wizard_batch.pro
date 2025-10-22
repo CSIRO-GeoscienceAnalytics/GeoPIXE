@@ -3407,8 +3407,8 @@ case !version.os_family of
 		space5 = 5
 		space10 = 10
 		space15 = 15
-		left_xsize = 760
-		left_ysize = 600
+		left_xsize = 800
+		left_ysize = 700
 		right_xsize = 400
 		right_ysize = left_ysize + 36
 		right_ylines = 28
@@ -3480,7 +3480,7 @@ tab_names = ['input','corrections','rgb','options','table']
 
 ; Files and paths -----------------------------------------
 
-file_base = widget_base( tab_panel, title='  1. User Input    ', /column, xpad=1, ypad=1, space=5, $
+file_base = widget_base( tab_panel, title=' 1. User Input  ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( file_base, value='Select raw data directory')
 text = widget_text( file_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
@@ -3550,7 +3550,7 @@ template_sort_text = widget_text( file_base2c, uname='template-sort-text', value
 
 ; Template image corrections table  -----------------------------------------
 
-ctable_base = widget_base( tab_panel, title='  2. Corrections Table    ', /column, xpad=1, ypad=1, space=5, $
+ctable_base = widget_base( tab_panel, title=' 2. Corrections Table  ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( ctable_base, value='Table of image corrections and display parameters')
 text = widget_text( ctable_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='ctable-explanation', tracking=tracking, $
@@ -3617,7 +3617,7 @@ button = widget_button( ctable_base2b, value='Apply', uname='display-apply-butto
 
 ; Template RGB exports table  -----------------------------------------
 
-rgbtable_base = widget_base( tab_panel, title='  3. RGB Exports    ', /column, xpad=1, ypad=1, space=5, $
+rgbtable_base = widget_base( tab_panel, title=' 3. RGB Exports  ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( rgbtable_base, value='Table of RGB export options')
 text = widget_text( rgbtable_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgbtable-explanation', tracking=tracking, $
@@ -3678,7 +3678,7 @@ button = widget_button( rgbtable_base2, value='Save', uname='rgb-save-button', t
 
 ; Processing and save/export options  -----------------------------------------
 
-options_base = widget_base( tab_panel, title='  4. Options    ', /column, xpad=1, ypad=1, space=5, $
+options_base = widget_base( tab_panel, title=' 4. Options  ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( options_base, value='Processing, Save & Export Options')
 text = widget_text( options_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='options-explanation', tracking=tracking, $
@@ -3686,7 +3686,7 @@ text = widget_text( options_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='o
 				'The RGB Export options are setup on tab 3 (RGB Exports).'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the Options panel.'}, frame=1)
 
-options_base2 = widget_base( options_base, /row, xpad=5, ypad=0, space=2, /align_top, /base_align_top)
+options_base2 = widget_base( options_base, /row, xpad=10, ypad=0, space=2, /align_top, /base_align_top)
 
 options_base3a = widget_base( options_base2, /column, /frame, xpad=2, ypad=2, space=2, /align_top, /base_align_center)
 label = widget_label( options_base3a, value='File Options')
@@ -3729,7 +3729,7 @@ options_export_id = cw_bgroup2( options_base3c, ['Save images as colour PNG to H
 
 ; Results table  -----------------------------------------
 
-table_base = widget_base( tab_panel, title='  5. Processing Table    ', /column, xpad=1, ypad=1, space=5, $
+table_base = widget_base( tab_panel, title=' 5. Processing Table  ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( table_base, value='Work Table and Processing Progress')
 results_text = widget_text( table_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='table-explanation', tracking=tracking, $
