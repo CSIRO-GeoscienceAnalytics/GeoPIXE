@@ -10,31 +10,31 @@ COMPILE_OPT STRICTARR
 	endfor
 
 	widget_control, id, get_uvalue=uv
-	print,'Resize Uname = ', widget_info( id, /uname)
+;	print,'Resize Uname = ', widget_info( id, /uname)
 	
 	if size(uv,/tname) eq 'STRUCT' then begin
-		help,uv
+;		help,uv
 		geom = widget_info( id, /geometry)
 		if tag_present('XRESIZE',uv) then begin
 			delta = round( uv.xresize * dx)
 
-			if widget_info( id, /uname) eq 'results-table' then begin
-				print,'Resize table X by ',delta,' to ', geom.scr_xsize + delta
-			endif
+;			if widget_info( id, /uname) eq 'results-table' then begin
+;				print,'Resize table X by ',delta,' to ', (geom.scr_xsize + delta) > 20
+;			endif
 
 			if delta ne 0 then begin
-				widget_control, id, scr_xsize = (geom.scr_xsize + delta) > 10
+				widget_control, id, scr_xsize = (geom.scr_xsize + delta) > 20
 			endif
 		endif
 		if tag_present('YRESIZE',uv) then begin
 			delta = round( uv.yresize * dy)
 
-			if widget_info( id, /uname) eq 'results-table' then begin
-				print,'Resize table Y by ',delta,' to ', geom.scr_ysize + delta
-			endif
+;			if widget_info( id, /uname) eq 'results-table' then begin
+;				print,'Resize table Y by ',delta,' to ', (geom.scr_ysize + delta) > 20
+;			endif
 
 			if delta ne 0 then begin
-				widget_control, id, scr_ysize = (geom.scr_ysize + delta) > 10
+				widget_control, id, scr_ysize = (geom.scr_ysize + delta) > 20
 			endif
 		endif
 	endif

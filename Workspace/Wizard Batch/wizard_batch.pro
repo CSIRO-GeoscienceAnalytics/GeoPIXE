@@ -3570,7 +3570,7 @@ template_corrections_text = widget_text( ctable_base0, uname='template-sort-text
 ctable_base1 = widget_base( ctable_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
 
 ctable1_base = widget_base( ctable_base1, title='   Corrections Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180-20, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center) ; , scr_xsize=left_xsize, scr_ysize=left_ysize-180-20, uvalue={xresize:left_resize,yresize:1})
 
 cheadings = strarr(6)					; dummy values (see 'wizard_batch_update_ctable' for actual headings)
 ncc = n_elements(cheadings)
@@ -3636,7 +3636,7 @@ template_rgb_text = widget_text( rgbtable_base0, uname='template-rgb-text', valu
 rgbtable_base1 = widget_base( rgbtable_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
 
 rgbtable1_base = widget_base( rgbtable_base1, title='   RGB Export list Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center) ; , scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
 
 rgb_headings = strarr(12)			; dummy values (see 'wizard_batch_update_rgbtable' for actual headings)
 ncr = n_elements(rgb_headings)
