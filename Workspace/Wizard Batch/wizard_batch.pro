@@ -3731,7 +3731,7 @@ options_export_id = cw_bgroup2( options_base3c, ['Save images as colour PNG to H
 ; Results table  -----------------------------------------
 
 table_base = widget_base( tab_panel, title=' 5. Processing Table  ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center) ;, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( table_base, value='Work Table and Processing Progress')
 results_text = widget_text( table_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='table-explanation', tracking=tracking, $
 				value=['Scan for the details of the raw files (set raw path on tab 1). ' + $
