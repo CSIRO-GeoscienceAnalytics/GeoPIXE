@@ -5,9 +5,9 @@ COMPILE_OPT STRICTARR
 	if widget_info( id, /valid) eq 0 then return
 	child = widget_info( id, /all_children)
 
-;	for i=0,n_elements(child)-1 do begin
-;		wizard_resize_widget, child[i], dx,dy
-;	endfor
+	for i=0,n_elements(child)-1 do begin
+		wizard_resize_widget, child[i], dx,dy
+	endfor
 
 	widget_control, id, get_uvalue=uv
 	print,'Resize Uname = ', widget_info( id, /uname)
@@ -39,9 +39,9 @@ COMPILE_OPT STRICTARR
 		endif
 	endif
 
-	for i=0,n_elements(child)-1 do begin
-		wizard_resize_widget, child[i], dx,dy
-	endfor
+;	for i=0,n_elements(child)-1 do begin
+;		wizard_resize_widget, child[i], dx,dy
+;	endfor
 
 	return
 end
