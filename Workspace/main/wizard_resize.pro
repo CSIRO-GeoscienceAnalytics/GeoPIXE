@@ -3,7 +3,6 @@ pro wizard_resize_widget, id, dx,dy
 COMPILE_OPT STRICTARR
 
 	if widget_info( id, /valid) eq 0 then return
-
 	child = widget_info( id, /all_children)
 
 	for i=0,n_elements(child)-1 do begin
@@ -11,8 +10,10 @@ COMPILE_OPT STRICTARR
 	endfor
 
 	widget_control, id, get_uvalue=uv
-
+	print,'Resize Uname = ', widget_info( id, /uname)
+	
 	if size(uv,/tname) eq 'STRUCT' then begin
+		help,uv
 		geom = widget_info( id, /geometry)
 		if tag_present('XRESIZE',uv) then begin
 			delta = round( uv.xresize * dx)
