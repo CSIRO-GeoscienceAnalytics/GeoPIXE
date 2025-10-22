@@ -218,6 +218,7 @@ case uname of
 	'wizard-batch-tlb': begin
 		case Tag_Names(Event, /STRUCTURE_NAME) of
 			'WIDGET_BASE': begin
+				print,'Resize top level base ...'
 				wizard_resize, event.top, oldx=(*pstate).tlb_xsize, oldy=(*pstate).tlb_ysize, $
 								minx=700, miny=600
 				geom = widget_info( event.top, /geometry)
