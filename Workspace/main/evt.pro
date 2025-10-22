@@ -255,6 +255,7 @@ snap_done:
 								if tag_present('DEVICE', *pd) then evt_set_device, pstate, (*pd).device, event.top
 								if tag_present('DEVICE_OPTIONS', *pd) then (*(*pstate).pdev)->set_options, (*pd).device_options
 								if tag_present('IMAGE_MODE', *pd) then evt_set_sort_mode, pstate, (*pd).image_mode, event.top
+								if tag_present('OUTPUT', *pd) then evt_set_output_file, pstate, (*pd).output, event.top
 								if tag_present('BLOG', *pd) then evt_set_evt_file, pstate, (*pd).blog, event.top, /no_cal_adopt
 								evt_set_evt2_file, pstate, ''
 								if tag_present('PILEUP', *pd) then evt_set_pileup_file, pstate, (*pd).pileup
@@ -270,7 +271,6 @@ snap_done:
 								if tag_present('CAL', *pd) then evt_getcal, pstate, (*pd).cal, event.top
 								if tag_present('PROJ_MODE', *pd) then evt_set_proj_mode, pstate, (*pd).proj_mode, event.top
 								if tag_present('DAM', *pd) then evt_set_proj_file, pstate, (*pd).dam
-								if tag_present('OUTPUT', *pd) then evt_set_output_file, pstate, (*pd).output, event.top
 
 								(*pw).error = 0
 								notify, 'wizard-return', pw
@@ -282,7 +282,8 @@ snap_done:
 								pd = (*pw).pdata
 								if tag_present('DEVICE', *pd) then evt_set_device, pstate, (*pd).device, event.top
 								if tag_present('IMAGE_MODE', *pd) then evt_set_sort_mode, pstate, (*pd).image_mode, event.top
-								if tag_present('BLOG', *pd) then evt_set_evt_file, pstate, (*pd).blog, event.top, /no_cal_adopt
+								if tag_present('OUTPUT', *pd) then evt_set_output_file, pstate, (*pd).output, event.top
+								if tag_present('BLOG', *pd) then evt_set_evt_file, pstate, (*pd).blog, event.top, /no_output, /no_cal_adopt
 								evt_set_evt2_file, pstate, ''
 								if tag_present('PILEUP', *pd) then evt_set_pileup_file, pstate, (*pd).pileup
 								if tag_present('THROTTLE', *pd) then evt_set_throttle_file, pstate, (*pd).throttle
@@ -297,7 +298,6 @@ snap_done:
 								if tag_present('CAL', *pd) then evt_getcal, pstate, (*pd).cal, event.top
 								if tag_present('PROJ_MODE', *pd) then evt_set_proj_mode, pstate, (*pd).proj_mode, event.top
 								if tag_present('DAM', *pd) then evt_set_proj_file, pstate, (*pd).dam
-								if tag_present('OUTPUT', *pd) then evt_set_output_file, pstate, (*pd).output, event.top
 								skip = 1
 								load = 0
 								if tag_present('SKIP', *pd) then skip = (*pd).skip			; skip sort if output file exists
@@ -1379,8 +1379,8 @@ case uname of
 		dir_mode = (((*p).sort_mode eq 1) and (*p).XANES_dir)
 		F = file_requester( /read, filter = ((*p).sort_mode eq 1) ? '*' : ('*'+DevObj->extension()), $
 					path=dpath, group=event.top, file=file, dir=dir_mode, updir=4, $
-					title='Select the source list-mode data', fix_filter=0, $
-					numeric=(DevObj->multi_files() and DevObj->extension() eq '') )
+					title='Select the source list-mode data', fix_filter=0, multi_char=DevObj->multi_char(), $
+					numeric=(DevObj->multi_files() and (DevObj->extension() eq '') and (DevObj->multi_char() eq '.')) )
 		if F ne '' then begin
 			evt_set_evt_file, pstate, F[0], event.top
 			evt_set_evt2_file, pstate, ''
@@ -1405,8 +1405,8 @@ case uname of
 		endif
 		F = file_requester( /read, filter = ((*p).sort_mode eq 1) ? '*' : '*'+DevObj->extension(), $
 					path=dpath, group=event.top, file=file, dir=(((*p).sort_mode eq 1) and (*p).XANES_dir), $
-					title='Select the last list-mode data', fix_filter=0, /latest, $
-			numeric=(DevObj->multi_files() and (DevObj->extension() eq '')))
+					title='Select the last list-mode data', fix_filter=0, multi_char=DevObj->multi_char(), /latest, $
+					numeric=(DevObj->multi_files() and (DevObj->extension() eq '') and (DevObj->multi_char() eq '.')) )
 		if F ne '' then begin
 			evt_set_evt2_file, pstate, F
 		endif
@@ -2760,8 +2760,8 @@ endif
 			T = strip_file_m( T, ending=DevObj->multi_char() + ((adc_offset_device(DevObj) eq -1) ? '0' : '1'))
 		endif
 		if DevObj->embed_detector() then begin
-			m = locate_last( '_', T)				; "_" before detector number, after strip off sequence 0 above
-			if m gt 0 then begin
+			m = locate_last( DevObj->multi_char(), T)		; "_" before detector number, after strip off sequence 0 above
+			if m gt 0 then begin							; assumes now that mutli_char is before det# too.
 				T = strmid( T,0,m)
 			endif
 		endif

@@ -1,6 +1,6 @@
 function find_file2, file, extension_numeric=extension_numeric, virtual=virtual, $
 						name_numeric=name_numeric, test_directory=test_directory, $
-						part_numeric=part_numeric, n_big=n_big, _extra=extras
+						part_numeric=part_numeric, multi_char=multi_char, n_big=n_big, _extra=extras
 
 ; Find files, like 'file_search' for a single file. If /virtual, then limit number of 
 ; (dir) returns to a manageable number, by grouping them with "...". Group into purely
@@ -15,8 +15,9 @@ function find_file2, file, extension_numeric=extension_numeric, virtual=virtual,
 ; 
 ; /extension_numeric	extension must be numeric, reject non-numeric extensions
 ; /name_numeric			file name must be numeric, reject non-numeric names
-; /part_numeric			last part of file name must be numeric, reject non-numeric names
+; /part_numeric			last part of file name must be numeric
 ; 						else accept all and sort in numeric-alpha order.
+; multi_char			the character (e.g. from Device Obj) used to separate numeric part
 ; /virtual				if /test_dir then group returns into ranges "..."
 ; n_big					number after which we start to group virtual.
 ; /test_directory		only include directories
@@ -55,6 +56,7 @@ endif
 	if n_elements(extension_numeric) lt 1 then extension_numeric=0
 	if n_elements(name_numeric) lt 1 then name_numeric=0
 	if n_elements(part_numeric) lt 1 then part_numeric=0
+	if n_elements(multi_char) lt 1 then multi_char='_'
 	if n_elements(test_directory) lt 1 then test_directory=0
 	if n_elements(virtual) lt 1 then virtual=0
 	if n_elements(n_big) lt 1 then n_big = 50
@@ -107,7 +109,7 @@ endif
 	endif else if part_numeric then begin
 		sDebug = 'In "numeric name part" ...'
 		name = strip_file_ext(strip_path(t,/keep))
-		i = locate_last('_',name)
+		i = locate_last(multi_char,name)
 		q1 = where( (i ge 0) and (i lt strlen(name)), nq1)
 		if nq1 gt 0 then begin
 			name2 = strarr(nq1)

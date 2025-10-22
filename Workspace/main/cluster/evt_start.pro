@@ -78,6 +78,9 @@ file_title = [['Select DA Matrix file','Select CUTS specification file','Select 
 
 ;....................................................................................
 
+;	This section tests all input files, searches for them if necessary, and prepares
+;	a return struct of the updated file paths.
+
 	blog = {old:'',new:''}
 	pileup = {old:'',new:''}
 	throttle = {old:'',new:''}

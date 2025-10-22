@@ -33,7 +33,7 @@ endif
 	if obj->multi_files() then begin								; for multi-file sets, need to
 		s = (adc_offset_device(obj) eq -1) ? '0' : '1'				; search for only first file
 		if obj->embed_detector() then begin
-			evt = '*_00' + obj->multi_char() + s + ext
+			evt = '*' + obj->multi_char() + '00' + obj->multi_char() + s + ext
 		endif else begin
 			evt = '*' + obj->multi_char() + s + ext
 		endelse
@@ -46,11 +46,20 @@ endif
 	; Reject '', temp files like "1234.dai.0" and any files in a .zarr directory.
 
 	q = where( (s ne '') and (locate('.dai.',s) eq -1) and (locate('.zarr',s) eq -1), ns)		
-	
 	if ns eq 0 then begin
 		warning, 'scan_dir_evt', 'No list-mode files found.'
 		return, 0L
 	endif
+	if (ext eq '') and (obj->multi_char() ne '.') then begin		; If 'ext' is null and we are not
+		q1 = where( locate('.',s[q]) eq -1, ns1)					; using run numbers after a multi_char '.'
+		if ns1 eq 0 then begin										; then exclude all filenames with "."
+			warning, 'scan_dir_evt', 'No list-mode files found.'
+			return, 0L
+		endif
+		q = q[q1]
+		ns = ns1
+	endif
+	s = s[q]
 
 	if (n_elements(rmin) ge 1) or (n_elements(rmax) ge 1) then begin
 		if n_elements(rmin) eq 0 then rmin=0
@@ -62,7 +71,7 @@ endif
 			if nq ge 1 then name[q] = strmid2( name[q], 0,j[q])
 		endif
 		if obj->embed_detector() then begin
-			j = locate_last( "_", name)								; det # is before the multifile char
+			j = locate_last( obj->multi_char(), name)				; det # is before the multifile char
 			q = where( j ge 0, nq)
 			if nq ge 1 then name[q] = strmid2( name[q], 0,j[q])
 		endif
@@ -91,7 +100,7 @@ endif
 	endif else fs0 = fs
 	s0 = strip_file_ext(s)
 	
-	s2 = file_search( dai_dir, dai)									; all original dai files
+	s2 = file_search( dai_dir, dai)										; all original dai files
 	ok = file_test( s2, /read) and (file_test( s2, /zero_length) ne 1)
 	q = where( ok eq 1, nd)
 	if nd gt 0 then begin
@@ -131,7 +140,7 @@ endif
 		if image and (nd gt 0) then begin	
 			name = fs0[i]
 			if obj->embed_detector() then begin
-				j = locate_last( "_", name)										; det # is before the multifile char
+				j = locate_last( obj->multi_char(), name)						; det # is before the multifile char
 				q = where( j ge 0, nq)
 				if nq ge 1 then name[q] = strmid2( name[q], 0,j[q])
 			endif

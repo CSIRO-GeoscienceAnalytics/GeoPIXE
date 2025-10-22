@@ -252,25 +252,27 @@ case uname of
 							/dir, group=event.top )
 		if F[0] ne '' then begin
 			(*pstate).blog_dir = F[0]
+			*(*pstate).dpath = F[0]
 			set_widget_text, (*pstate).blog_dir_text, (*pstate).blog_dir
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 			if lenchr(s) gt 0 then begin
 				(*pstate).output_dir = s
 				set_widget_text, (*pstate).output_dir_text, s
-				notify, 'dpath', (*pstate).path, from=event.top
 			endif
+			notify, 'dpath', (*pstate).dpath, from=event.top
 		endif
 		end
 		
 	'blog-dir-text': begin
 		widget_control, event.id, get_value=s
 		(*pstate).blog_dir = s
+		*(*pstate).dpath = s
 		s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 		if lenchr(s) gt 0 then begin
 			(*pstate).output_dir = s
 			set_widget_text, (*pstate).output_dir_text, s
-				notify, 'dpath', (*pstate).path, from=event.top
 		endif
+		notify, 'dpath', (*pstate).dpath, from=event.top
 		end
 					
 	'energy-cal-file-button': begin
@@ -302,6 +304,7 @@ case uname of
 	'output-dir-text': begin
 		widget_control, event.id, get_value=s
 		(*pstate).output_dir = s
+		*(*pstate).path = (*pstate).output_dir 
 		notify, 'path', (*pstate).path, from=event.top
 		end
 				
@@ -1353,19 +1356,22 @@ function wizard_batch_output_file, pstate, blog, error=err
 	
 	err = 1
 	if n_elements(blog) eq 0 then return, ''
+	DevObj = *(*pstate).pDevObj
 
 	path = build_output_path( blog, (*pstate).output_dir, (*pstate).root)
-	f = path + strip_path( blog)
+;	f = path + strip_path( blog)
 
-;	f = blog
-;	j = locate('blog',f)
-;	if j ge 0 then begin
-;		f = strmid(f, 0,j) + 'analysis' + strmid(f, j+4)
-;	endif
-
-	if extract_extension( f) ne '' then begin
-		f = strip_file_ext( f) + '.dai'
+	T = strip_file_ext(blog)
+	if DevObj->multi_files() and (DevObj->multi_char() ne '.') then begin
+		T = strip_file_m( T, ending=DevObj->multi_char() + ((adc_offset_device(DevObj) eq -1) ? '0' : '1'))
 	endif
+	if DevObj->embed_detector() then begin
+		m = locate_last( DevObj->multi_char(), T)		; "_" before detector number, after strip off sequence 0 above
+		if m gt 0 then begin							; assumes now that mutli_char is before det# too.
+			T = strmid( T,0,m)
+		endif
+	endif
+	f = path + strip_path(T,/keep) + '.dai'
 	err = 0
 	
 finish:
@@ -2049,12 +2055,15 @@ pro wizard_batch_process_blog, pstate, error=error
 	(*pstate).index = j
 	print,'	process_blog: process index, raw =',j,'  ',(*p)[j].blog
 
-	output = wizard_batch_output_file( pstate, (*p)[j].blog, error=err)
-	if err then begin
-		warning,'wizard_batch_process_blog','Unable to form output file for raw: '+ strip_file_ext(strip_path((*p)[j].blog))
-		(*pstate).busy = 0
-		return
-	endif
+;	Don't create output file name here. It WAS done in 'scan_dir_evt' already (properly), 
+;	and users may edit it in the table.
+
+;	output = wizard_batch_output_file( pstate, (*p)[j].blog, error=err)
+;	if err then begin
+;		warning,'wizard_batch_process_blog','Unable to form output file for raw: '+ strip_file_ext(strip_path((*p)[j].blog))
+;		(*pstate).busy = 0
+;		return
+;	endif
 	
 ;	Setup struct for Sort EVT ...
 
@@ -2094,7 +2103,7 @@ pro wizard_batch_process_blog, pstate, error=error
 		pileup:			(*p)[j].pileup, $				; pileup file
 		throttle:		(*p)[j].throttle, $				; throttle file
 		linear:			(*p)[j].linear, $				; linearize file
-		output:			output, $						; output file
+		output:			(*p)[j].output, $				; output file
 		load:			load, $							; load (1) image file if exists
 		skip:			(*pstate).options_file[1], $	; skip (1) sort if exists already
 		verify:			1, $							; enable file verification
@@ -3737,7 +3746,7 @@ button = widget_button( table_base1a, value='Scan Raw and Analysis folders for d
 						'Click on "Start processing" to begin processing.', scr_xsize=4*button_xsize )
 label = widget_label( table_base1a, value='    Conv:')
 conv_text = widget_text( table_base1a, uname='conv-text', value='', tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter the conversion from flux to charge.'}, scr_xsize=button_xsize2, /edit)
+						uvalue={xresize:left_resize, help:'Enter the conversion from flux to charge, for those devices that measure charge indirectly and need to convert some flux measure to charge using "conv".'}, scr_xsize=button_xsize2, /edit)
 
 table1_base = widget_base( table_base1, title='  Results Table    ', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
@@ -3799,6 +3808,7 @@ endif else help=0L
 
 state = { $
 		path:					ptr_new(path), $				; pointer to current path
+		dpath:					ptr_new(dpath), $				; pointer to current dpath
 		tracking:				tracking, $						; tracking mode
 		tab:					0, $							; current Tab selected
 		tab_names:				tab_names, $					; tab names

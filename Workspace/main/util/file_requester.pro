@@ -903,6 +903,7 @@ endif else begin
 	numeric_part = (*pstate).numeric_part
 	numeric_ext = 0
 endelse
+multi_char = (*pstate).multi_char
 nle = locate('...', (*pstate).path)
 if (nle ge 1) or ((*pstate).path eq '') then begin
 	*(*pstate).pfiles = ''
@@ -919,7 +920,7 @@ if n gt 0 then begin
 	for i=0L,n-1 do begin
 		f = find_file2( (*pstate).path + str[i], test_regular=1-(*pstate).dir, $
 				extension_numeric=extension_numeric, name_numeric=name_numeric, part_numeric=numeric_part, $
-				test_directory=(*pstate).dir)
+				multi_char=multi_char, test_directory=(*pstate).dir)
 		files = [files, strip_path( f, keep=(*pstate).dir)]
 	endfor
 endif
@@ -1365,7 +1366,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 		dialog_parent=group, filter=filteri, fix_filter=fix_filter, group=group2, $
 		get_path=get_path, preview_routine=preview_routinei, image=image, debug=debug, $
 		read=readm, write=writem, must_exist=must_exist, directory=dir, $
-		numeric=numeric, latest=latest, ignore=ignore, cancel=cancel, $
+		numeric=numeric, multi_char=multi_char, latest=latest, ignore=ignore, cancel=cancel, $
 		skip_if_exists=skip_if_exists, skip_if_null=skip_if_nulli, translate=translate, $
 		updir=updir, within_modal=within_modal, $
 		
@@ -1399,6 +1400,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 ; filter			file filter string array (e.g. '*' or ['*.spec','*.trav'] )
 ; /fix_filter		fix the filter
 ; /numeric			show only numeric file extensions
+; multi_char		the character (e.g. from Device Obj) used to separate numeric part
 ; /latest			show latest files first
 ; /directory		select and return a path name only
 ; 					select in tree, unless /multiple, and then in list
@@ -1507,6 +1509,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 	if n_elements(multiple) lt 1 then multiple=0
 	if n_elements(dir) lt 1 then dir=0
 	if n_elements(numeric) lt 1 then numeric=0
+	if n_elements(multi_char) lt 1 then multi_char='_'
 	if n_elements(latest) lt 1 then latest=0
 	if n_elements(image) lt 1 then image=0
 	if dir then begin
@@ -2095,6 +2098,7 @@ state = { $
 		numeric_ext:	numeric, $				; numeric file extensions
 		date:			latest, $				; sort by latest date
 		numeric_part:	0, $					; sort by numeric final part of name
+		multi_char:		multi_char, $			; character separating numeric part
 		multiple:		multiple, $				; multiple file/dir selection
 		show_list:		show_list, $			; show the list
 		preview:		preview, $				; preview ON

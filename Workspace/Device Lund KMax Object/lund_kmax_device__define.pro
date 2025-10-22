@@ -105,6 +105,9 @@ common c_lund_4, lund_pixe_event
 ;		event_header1 = bytarr(362)		; These seem to have sizes out by 8 bytes
 ;		eventsize1 = intarr(185)
 
+;		Should really use the 'lund_header' routine to read the header, not jusyt skip it,
+;		and also put this in a 'get_header_info' method.
+
 		event_header1 = bytarr(354)		; To adjust start of sizes array
 		event_size = intarr(32)
 		event_header2 = intarr(157)
@@ -425,7 +428,7 @@ endif
 		name = 'LUND_KMAX_DEVICE', $	; unique name for this device object
 		title = 'Lund KMax - MAC data acquisition', $
 		ext = '', $				; not a fixed file extension for data
-		multi_files = 1, $		; multiple segment files per run
+		multi_files = 0, $		; multiple segment files per run
 		multi_char = '%', $		; separates run from segment number in file name
 		big_endian = 1, $		; blog data written with Unix byte order
 		vax_float = 0, $		; not VAX floating point

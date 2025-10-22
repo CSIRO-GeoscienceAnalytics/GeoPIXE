@@ -11,6 +11,7 @@ function select_evt_files, starti, finishi, multi, delim, ext, test=test, dir=di
 ;	delim		deliminator, if non-blank, after which the numeric part exists
 ;	ext			fixed file extension, if used
 ;	/embed_detector  detector number is embedded implictly in file-name
+;				(assumes same 'delim' between name, detector, numeric part).
 ;	/dir		files are directory names
 ;	/test		test mode, returns only a few files
 ;
