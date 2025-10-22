@@ -5,9 +5,9 @@ COMPILE_OPT STRICTARR
 	if widget_info( id, /valid) eq 0 then return
 	child = widget_info( id, /all_children)
 
-	for i=0,n_elements(child)-1 do begin
-		wizard_resize_widget, child[i], dx,dy
-	endfor
+;	for i=0,n_elements(child)-1 do begin
+;		wizard_resize_widget, child[i], dx,dy
+;	endfor
 
 	widget_control, id, get_uvalue=uv
 	print,'Resize Uname = ', widget_info( id, /uname)
@@ -23,7 +23,7 @@ COMPILE_OPT STRICTARR
 			endif
 
 			if delta ne 0 then begin
-				widget_control, id, scr_xsize = geom.scr_xsize + delta
+				widget_control, id, scr_xsize = (geom.scr_xsize + delta) > 10
 			endif
 		endif
 		if tag_present('YRESIZE',uv) then begin
@@ -34,10 +34,15 @@ COMPILE_OPT STRICTARR
 			endif
 
 			if delta ne 0 then begin
-				widget_control, id, scr_ysize = geom.scr_ysize + delta
+				widget_control, id, scr_ysize = (geom.scr_ysize + delta) > 10
 			endif
 		endif
 	endif
+
+	for i=0,n_elements(child)-1 do begin
+		wizard_resize_widget, child[i], dx,dy
+	endfor
+
 	return
 end
 
