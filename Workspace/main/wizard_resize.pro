@@ -16,12 +16,22 @@ COMPILE_OPT STRICTARR
 		geom = widget_info( id, /geometry)
 		if tag_present('XRESIZE',uv) then begin
 			delta = round( uv.xresize * dx)
+
+			if widget_info( id, /uname) eq 'results-table' then begin
+				print,'Resize table X by ',delta,' to ', geom.scr_xsize + delta
+			endif
+
 			if delta ne 0 then begin
 				widget_control, id, scr_xsize = geom.scr_xsize + delta
 			endif
 		endif
 		if tag_present('YRESIZE',uv) then begin
 			delta = round( uv.yresize * dy)
+
+			if widget_info( id, /uname) eq 'results-table' then begin
+				print,'Resize table Y by ',delta,' to ', geom.scr_ysize + delta
+			endif
+
 			if delta ne 0 then begin
 				widget_control, id, scr_ysize = geom.scr_ysize + delta
 			endif
