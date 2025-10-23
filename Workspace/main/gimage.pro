@@ -1576,10 +1576,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   title = 'GeoPIXE ' + version + ' (Lib: ' +str_tidy(lib_ver) + ')'
   if realtime then title='Maia Image Display  (GeoPIXE ' + version + ')'
   if xanes then title='3D Image Stack'
-  Image_TLB = Widget_Base( GROUP_LEADER=wGroup,  $
-      UNAME='Image_TLB' ,/TLB_KILL_REQUEST_EVENTS  $
-      ,/TLB_SIZE_EVENTS ,TITLE=title ,SPACE=2 ,XPAD=1 ,YPAD=1, /base_align_center  $
-      ,COLUMN=1 ,MBAR=Image_TLB_MBAR, _EXTRA=_VWBExtra_)
+  Image_TLB = Widget_Base( GROUP_LEADER=wGroup, UNAME='Image_TLB' ,/TLB_KILL_REQUEST_EVENTS,  $
+  		/TLB_SIZE_EVENTS ,TITLE=title ,SPACE=2 ,XPAD=1 ,YPAD=1, /base_align_center,  $
+		resource_name="geopixe_base", /COLUMN ,MBAR=Image_TLB_MBAR, _EXTRA=_VWBExtra_)
 
 
   Image_Draw_Base = Widget_Base(Image_TLB, UNAME='Image_Draw_Base' ,SPACE=0  $
