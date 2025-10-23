@@ -3413,7 +3413,7 @@ case !version.os_family of
 		right_xsize = 400
 		right_ysize = left_ysize + 36
 		right_ylines = 28
-		text_xsize = 680
+		text_xsize = 670
 		button_xsize = 100
 		button_xsize1 = 50
 		button_xsize2 = 170
