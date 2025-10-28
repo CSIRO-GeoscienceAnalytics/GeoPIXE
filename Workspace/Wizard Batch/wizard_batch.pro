@@ -261,19 +261,27 @@ case uname of
 				set_widget_text, (*pstate).output_dir_text, s
 			endif
 			notify, 'dpath', (*pstate).dpath, from=event.top
+			*p = 0												; clear processing table
+			wizard_batch_update_table, pstate
+			(*pstate).sel.top = -1
+			(*pstate).sel.bottom = -1
 		endif
 		end
 		
 	'blog-dir-text': begin
 		widget_control, event.id, get_value=s
 		(*pstate).blog_dir = s
-		*(*pstate).dpath = s
-		s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 		if lenchr(s) gt 0 then begin
+			*(*pstate).dpath = s
+			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 			(*pstate).output_dir = s
 			set_widget_text, (*pstate).output_dir_text, s
+			notify, 'dpath', (*pstate).dpath, from=event.top
+			*p = 0												; clear processing table
+			wizard_batch_update_table, pstate
+			(*pstate).sel.top = -1
+			(*pstate).sel.bottom = -1
 		endif
-		notify, 'dpath', (*pstate).dpath, from=event.top
 		end
 					
 	'energy-cal-file-button': begin
@@ -299,14 +307,24 @@ case uname of
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 			*(*pstate).path = (*pstate).output_dir 
 			notify, 'path', (*pstate).path, from=event.top
+			*p = 0												; clear processing table
+			wizard_batch_update_table, pstate
+			(*pstate).sel.top = -1
+			(*pstate).sel.bottom = -1
 		endif
 		end
 		
 	'output-dir-text': begin
 		widget_control, event.id, get_value=s
 		(*pstate).output_dir = s
-		*(*pstate).path = (*pstate).output_dir 
-		notify, 'path', (*pstate).path, from=event.top
+		if lenchr(s) gt 0 then begin
+			*(*pstate).path = (*pstate).output_dir 
+			notify, 'path', (*pstate).path, from=event.top
+			*p = 0												; clear processing table
+			wizard_batch_update_table, pstate
+			(*pstate).sel.top = -1
+			(*pstate).sel.bottom = -1
+		endif
 		end
 				
 	'same-dir-button': begin
@@ -710,12 +728,14 @@ case uname of
 ;		help,event,/str
 		case tag_names( event, /structure_name) of
 			'WIDGET_TABLE_CELL_SEL': begin
+				if no_data then goto, finish										; ignore if no rows loaded
+				np = n_elements(*p)
 				(*pstate).sel.left = event.sel_left
 				(*pstate).sel.top = event.sel_top
 				(*pstate).sel.right = event.sel_right
 				(*pstate).sel.bottom = event.sel_bottom
-				i = (*pstate).sel.top < (n_elements( *(*pstate).presults) - 1)
-				ibot = (*pstate).sel.bottom < (n_elements( *(*pstate).presults) - 1)
+				i = (*pstate).sel.top < (np - 1)
+				ibot = (*pstate).sel.bottom < (np - 1)
 				(*pstate).sel.bottom = ibot
 				if i lt 0 then goto, finish
 			
@@ -1945,20 +1965,26 @@ pro wizard_batch_process_setup, pstate, error=error
 ;	Maintain options agreement between 3 Device Object instances: 1/ One in 'pdai', 2/ one in *(*pstate).pDevObj,
 ;	and 3/ one in the Sort EVT window.
 
+	DevObj = *(*pstate).pDevObj
 	options = (*(*pstate).pdai).DevObj->get_options()
-	(*(*pstate).pDevObj)->set_options, options
+	DevObj->set_options, options
+
+	blog = file_requester( /read, filter = ('*'+DevObj->extension()), $
+		path=[*(*pstate).dpath,*(*pstate).path], file=(*(*pstate).pdai).source, $
+		title='Select the source list-mode data', fix_filter=0, /translate, updir=5, $
+		numeric=(DevObj->multi_files() and DevObj->extension() eq ''), /skip_if_exists )
 
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
 	wz.window = 'Sort EVT'								; Sort image
 	wz.command = 'sort-setup'						
 	wz.pdata = ptr_new( {	$
-		device:			(*(*pstate).pDevObj)->name(), $	; device name
+		device:			DevObj->name(), $				; device name
 		device_options:	options, $						; internal device options in Sort EVT
 		image_mode:		0, $							; sort mode (images)
 		type:			(*(*pstate).pdai).detector, $	; data type
 		array:			(*(*pstate).pdai).array, $		; array detector?
-		blog:			(*(*pstate).pdai).source, $		; blog file
+		blog:			blog, $							; blog file
 		pileup:			(*(*pstate).pdai).pileup, $		; pileup file
 		throttle:		(*(*pstate).pdai).throttle, $	; throttle file
 		linear:			(*(*pstate).pdai).linearize, $	; linearize file
@@ -1969,7 +1995,7 @@ pro wizard_batch_process_setup, pstate, error=error
 		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
 		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
 		gain_units:		(*(*pstate).pdai).IC.pv.unit, $	; for gain in 'nA/V' 
-;		cal:			(*pstate).energy_cal_file, $	; energy calibration file
+		cal:			(*pstate).energy_cal_file, $	; energy calibration file
 		proj_mode:		'DA', $							; DA projection mode
 		dam:			(*(*pstate).pdai).matrix.file }, /no_copy)		; DA matrix file
 	wz.local = 1
@@ -2090,6 +2116,7 @@ pro wizard_batch_process_blog, pstate, error=error
 	for k=0,n_elements( (*pstate).options_export)-1 do load = load or (*pstate).options_export[k]
 	load = save or load
 ;	save = load
+	output = (*p)[j].output
 
 	wz = define(/wizard_notify)
 	wz.wizard = 'batch'
@@ -2098,26 +2125,29 @@ pro wizard_batch_process_blog, pstate, error=error
 	wz.pdata = ptr_new( {	$
 		device:			(*(*pstate).pDevObj)->name(), $	; device name
 		image_mode:		0, $							; sort mode (images)
-;		type:			(*(*pstate).pdai).detector, $	; data type
-;		array:			(*(*pstate).pdai).array, $		; array detector?
 		blog:			(*p)[j].blog, $					; blog file
 		pileup:			(*p)[j].pileup, $				; pileup file
 		throttle:		(*p)[j].throttle, $				; throttle file
 		linear:			(*p)[j].linear, $				; linearize file
-		output:			(*p)[j].output, $				; output file
+		output:			output, $						; output file
 		load:			load, $							; load (1) image file if exists
 		skip:			(*pstate).options_file[1], $	; skip (1) sort if exists already
 		verify:			1, $							; enable file verification
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			conv, $							; initial 'conv'
 		charge:			(*p)[j].charge, $				; set charge, and for the returned charge
+		cal:			(*pstate).energy_cal_file}, /no_copy)	; energy calibration file
+
+;		These are set in 'sort-setup' ...
+;		type:			(*(*pstate).pdai).detector, $	; data type
+;		array:			(*(*pstate).pdai).array, $		; array detector?
 ;		charge_mode:	(*(*pstate).pdai).IC.mode, $	; flux/charge mode (IC w/ PV)
 ;		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
 ;		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
 ;		gain_units:		(*(*pstate).pdai).IC.pv.unit, $	; for gain in 'nA/V' 
-		cal:			(*pstate).energy_cal_file}, /no_copy)	; energy calibration file
 ;		proj_mode:		'DA', $							; DA projection mode
 ;		dam:			(*(*pstate).pdai).matrix.file }, /no_copy)		; DA matrix file
+
 	wz.local = 1
 	wz.callback = 'wizard_batch_callback_image_done'
 	pw = ptr_new(wz, /no_copy)

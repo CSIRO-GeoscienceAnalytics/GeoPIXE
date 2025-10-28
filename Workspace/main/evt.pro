@@ -1363,6 +1363,9 @@ case uname of
 		end
 		
 	'batch_button': begin
+		warning,'Sort EVT',['A new Wizard is avilable for Batch Processing.', '', $
+						'Try it on the "Process->Wizards" menu.']
+
 		batch_sort, group_leader=event.top, dpath=*(*pstate).dpath, path=*(*pstate).path, root=(*p).root, $
 						mode=(*p).mode[(*p).station], type=(*p).type[(*p).station], TLB=tlb, device=DevObj
 		register_notify, event.top, ['start-evt', $		; start sort from Batch_Sort
@@ -2314,6 +2317,7 @@ endif
 	if ptr_valid(pstate) eq 0 then return
 	if size(*pstate,/tname) ne 'STRUCT' then return
 	if n_elements(F) lt 1 then return
+	if F[0] eq '' then return
 	p = (*pstate).p
 	if ptr_valid(p) eq 0 then return
 	DevObj = (*(*p).pDevObjList)[(*p).device]			; current device object
@@ -2331,6 +2335,7 @@ endif
 	endelse
 	pp = read_spec(F)
 	npp = n_elements(pp)
+	if npp eq 0 then return
 	n = intarr(npp)
 	for j=0L,npp-1 do begin
 		if ptr_good(pp[j]) then n[j] = (*pp[j]).station + adc_offset_device((*pp[j]).DevObj)
