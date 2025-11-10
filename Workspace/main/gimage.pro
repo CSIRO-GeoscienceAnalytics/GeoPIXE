@@ -2346,12 +2346,6 @@ endif
 
   debug_line = 'register notify ...'
 
-if wGroup eq 0 then begin
-	register_notify, Image_TLB, $		; register these from anywhere (but only for main Image window, wGroup=0)
-			['batch-operations-open', $	; open Image operations window
-			'batch-rgb-open']			; open RGB Image window
-endif
-
 if wGroup ne 0 then begin
 	register_notify, Image_TLB, $
 		[	'path', $               ; new path
@@ -2411,7 +2405,14 @@ if wGroup ne 0 then begin
   endif
 
   register_notify, Image_TLB, 'snapshot'            ; snapshot windows
-  register_notify, Image_TLB, ['wizard-action']		; global notify from a wizard
+
+  if wGroup eq 0 then begin
+  	register_notify, Image_TLB, $		; register these from anywhere (but only for main Image window, wGroup=0)
+			['batch-operations-open', $	; open Image operations window
+			'batch-rgb-open']			; open RGB Image window
+	register_notify, Image_TLB, $
+			['wizard-action']			; global Action notify from a wizard
+  endif
 
   debug_line = 'xmanager ...'
   print,debug_line
