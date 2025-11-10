@@ -2345,11 +2345,19 @@ if ptr_valid((*pstate).p) then begin
 endif
 
   debug_line = 'register notify ...'
+
+if wGroup eq 0 then begin
+	register_notify, Image_TLB, $		; register these from anywhere (but only for main Image window, wGroup=0)
+			['batch-operations-open', $	; open Image operations window
+			'batch-rgb-open']			; open RGB Image window
+endif
+
 if wGroup ne 0 then begin
 	register_notify, Image_TLB, $
 		[	'path', $               ; new path
 			'dpath' $               ; new raw data path
 		], from=wGroup
+
 	if xanes then begin
 		register_notify, Image_TLB, $
 		[	'image-clone', $          ; new image from Image clone

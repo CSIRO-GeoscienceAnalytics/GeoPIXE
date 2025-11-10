@@ -4191,7 +4191,7 @@ child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 
 widget_control, event.id, get_uvalue=file
-if n_elements(file) lt 1 then goto, done
+if n_elements(file) lt 1 then return
 
 routine = strip_path( file)
 routine = strip_file_ext( routine)
@@ -4199,10 +4199,6 @@ routine = strip_file_ext( routine)
 restore, file, /verbose
 call_procedure, routine
 
-register_notify, event.top, ['batch-operations-open', $	; open Image operations window
-							'batch-rgb-open']			; open RGB Image window
-
-done:
 end
 
 ;-----------------------------------------------------------------
