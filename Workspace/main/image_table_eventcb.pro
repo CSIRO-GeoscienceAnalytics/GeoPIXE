@@ -974,7 +974,7 @@ pro OnButton_Image_Table_Import_Regions, Event
 							if n_str ge 2 then (*p).el = ptr_new(str[1:*])
 							n_el = n_str-1
 							if n_el ne (*p).n_el then begin
-								warning,'OnButton_Image_Table_Import_Regions','Inconsistent "n_el" encountered on read.'
+								warning,'','Inconsistent "n_el" encountered on read.'
 							endif
 							end
 						'conc': begin
@@ -1007,7 +1007,7 @@ get_data:
 				if (lenchr(line) gt 0) and (extract(line,0,0) ne '#') then begin
 					str = strsplit( line, ',', /extract)
 					n_str = n_elements(str)
-					if n_str ge 2 then *(*p).q = [ *(*p).q, long2(str[1:*]) ]
+					if n_str ge 1 then *(*p).q = [ *(*p).q, long2(str[*]) ]
 				endif
 			endwhile
 		endif
@@ -1020,7 +1020,7 @@ get_data:
 			endfor
 			(*p).centroid = ptr_new(c)
 		endif
-		(*p).mode = 1		; fixed by convention
+		(*p).mode = 1		; fixed by convention (shape info lost, all now just pixels)
 done:
 		on_ioerror, null
 		close_file, unit
