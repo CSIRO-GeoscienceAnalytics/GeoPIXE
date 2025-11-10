@@ -4199,6 +4199,9 @@ routine = strip_file_ext( routine)
 restore, file, /verbose
 call_procedure, routine
 
+register_notify, event.top, ['batch-operations-open', $	; open Image operations window
+							'batch-rgb-open']			; open RGB Image window
+
 done:
 end
 
@@ -5805,16 +5808,16 @@ snap_done:
 ;		If the Image Operations window is not open then batch processing will stall.
 ;		Test here and open it, if needed. Remember that the call expects 'state' back.
 
-		print,'Image: batch-operations-open ...........................................................'
 		if (*pstate).operations eq 0 then begin
+			print,'Image: batch-operations-open ...........................................................'
 			image_Image_Operations, Event
 			return
 		endif
 		end
 
     'batch-rgb-open': begin
-		print,'Image: batch-RGB-open ...........................................................'
 		if (*pstate).RGB_open eq 0 then begin
+			print,'Image: batch-RGB-open ...........................................................'
 			image_Image_RGB, Event
 			return
 		endif

@@ -100,7 +100,10 @@ case tag_names( event,/structure) of
 			warning, 'Batch Wizard', *(*pstate).message.pwindow
 			*(*pstate).message.pwindow  = !null
 		endif
-		wizard_test_windows, 'batch', pstate					; periodically check which GeoPIXE windows are
+		notify, 'batch-operations-open'							; just opens Operations window
+		notify, 'batch-RGB-open'								; just opens RGB window
+
+		wizard_test_windows, 'batch', pstate					; periodically check which GeoPIXE windows are open
 		widget_control, event.id, timer=20.0	
 		goto, finish
 		end
@@ -3984,7 +3987,7 @@ register_notify, tlb, ['wizard-return', $				; returns from GeoPIXE windows
 xmanager, 'wizard_batch', tlb, /no_block
 
 wizard_test_windows, 'batch', pstate					; check for open GeoPIXE windows and
-widget_control, tlb, timer=8.0							; start timer to check periodically
+widget_control, tlb, timer=2.0							; start timer to check periodically
 return
 end
 				
