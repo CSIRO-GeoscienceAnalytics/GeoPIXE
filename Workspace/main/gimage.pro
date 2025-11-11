@@ -1423,6 +1423,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 	image_eventcb							; Load event callback routines
 	register_notify							; notification routines
 	interelement_operations					; to define 'INTERELEMENT_TRANSFORM'
+	dynamic_correct
 ;	image_compiled = 1
 ;	endif
 
@@ -2356,21 +2357,6 @@ if wGroup ne 0 then begin
 		register_notify, Image_TLB, $
 		[	'image-clone', $          ; new image from Image clone
 			'images' $				; new images loaded somewhere
-;			'image-corr-q', $          ; pass on notify of qc set by corr
-;			'image-corr-clear', $      ; clear corr pixels in other images
-;			'image-display', $          ; image display needs updating (smooth...)
-;			'image-elements', $			; refresh element droplist for new elements
-;			'image-results', $          ; new conc results (pass on)
-;			'image-update-time', $       ; q region vector --> TimeAmp
-;			'image-analyze-type', $      ; analyze type changed
-;			'image-analyze-mode', $      ; analyze mode chanhged
-;			'image-analyze-clear', $   ; shape cleared off screen
-;			'image-analyze-mark', $      ; shape has changed
-;			'image-analyze-q', $       ; q region vector has changed
-;			'image-analyze-all-clear', $  ; clear all marker settings and droplists
-;			'image-region-clear', $      ; clear current marker, just prior to select
-;			'image-region-select', $      ; pass on notify of image_table region-select
-;			'image-region-throttle' $   ; pass on notify of image region throttle to image_table
 		], from=wGroup
 	endif else begin
 		register_notify, Image_TLB, $

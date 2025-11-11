@@ -29,6 +29,7 @@ endif
 	if ptr_good(pstate,/struct) eq 0 then goto, bad_state
 	p = (*pstate).p
 	changed = 0
+	operations = define(/operations)
 
 	case tag_names( event,/structure) of
 		'NOTIFY': begin
@@ -87,7 +88,25 @@ endif
 			end
 		'operation': begin
 			(*p).modify.operation = event.index
-			(*p).modify.scale = 0.0001
+			op = operations[(*p).modify.operation]		
+			case op of
+				'Subtract': begin												; subtract
+					(*p).modify.scale = 0.0001
+					end
+				'Add': begin													; add
+					(*p).modify.scale = 1.0
+					end
+				'Multiply': begin												; multiply
+					(*p).modify.scale = 1.0
+					end
+				'Divide': begin													; divide
+					(*p).modify.scale = 1.0
+					end
+				'Correct Y step': begin											; Correct Y step
+					(*p).modify.scale = 1.0
+					end
+				else:
+			endcase
 			(*p).modify.strength = 1.0
 			widget_control, (*pstate).scale, set_value=str_tidy((*p).modify.scale)
 			widget_control, (*pstate).strength, set_value=(*p).modify.strength
@@ -109,15 +128,47 @@ endif
 			goto, update_display
 			end
 		'auto-button': begin
-			if (*p).modify.operation ne 1 then begin
-				warning,'interelement_operations_event','"Auto" scale setting only works for "subtract" for now.'
-				return
-			endif
+;			if (*p).modify.operation ne 1 then begin
+;				warning,'interelement_operations_event','"Auto" scale setting only works for "subtract" for now.'
+;				return
+;			endif
 			if ptr_good((*p).modify.image) eq 0 then begin
 				*(*p).modify.image = (*(*p).image)[*,*,(*p).modify.source]
 				interelement_filter, p, error=err
 				(*pstate).last_filter = (*p).modify.filter
 			endif
+			op = operations[(*p).modify.operation]		
+			case op of
+				'Add': begin													; add
+					(*p).modify.scale = mean((*(*p).image)[*,*,(*p).modify.target])/mean(*(*p).modify.image)
+					widget_control, (*pstate).scale, set_value=str_tidy((*p).modify.scale)
+					(*p).modify.strength = 1.0
+					widget_control, (*pstate).strength, set_value=(*p).modify.strength
+					goto, update_display
+					end
+				'Multiply': begin												; multiply
+					(*p).modify.scale = 1/mean(*(*p).modify.image)
+					widget_control, (*pstate).scale, set_value=str_tidy((*p).modify.scale)
+					(*p).modify.strength = 1.0
+					widget_control, (*pstate).strength, set_value=(*p).modify.strength
+					goto, update_display
+					end
+				'Divide': begin													; divide
+					(*p).modify.scale = 1/mean(*(*p).modify.image)
+					widget_control, (*pstate).scale, set_value=str_tidy((*p).modify.scale)
+					(*p).modify.strength = 1.0
+					widget_control, (*pstate).strength, set_value=(*p).modify.strength
+					goto, update_display
+					end
+				'Correct Y step': begin											; Correct Y step
+					(*p).modify.scale = 1/mean(*(*p).modify.image)
+					widget_control, (*pstate).scale, set_value=str_tidy((*p).modify.scale)
+					(*p).modify.strength = 1.0
+					widget_control, (*pstate).strength, set_value=(*p).modify.strength
+					goto, update_display
+					end
+				else:
+			endcase
 
 ;			img1 is (filtered) source image
 ;			img2 is target image
@@ -276,7 +327,7 @@ endif
 			end
 		'Multiply': begin												; multiply
 			f = (*p).modify.scale * (*p).modify.strength
-			img *= f * *(*p).modify.image
+			img *= f * (*(*p).modify.image)
 			end
 		'Divide': begin													; divide
 			f = (*p).modify.scale * (*p).modify.strength
@@ -475,28 +526,28 @@ endcase
 	Top = Widget_Base(TLB, UNAME='Top_base', SPACE=1, /ROW, /ALIGN_CENTER, /BASE_ALIGN_CENTER)
 
 	target = widget_combobox(Top, UNAME='target', VALUE=els, /tracking,  $
-		xsize=xsize_element, uvalue='Target element map. This element map will be modified upon "Apply".')
+		xsize=xsize_element, uvalue='"Target" element map. This element map will be modified upon "Apply".')
 
 	operation = widget_combobox(Top, UNAME='operation', VALUE=ops, /tracking,  $
-		xsize=xsize_ops, uvalue='Operation (on source) to apply to target element map.')
+		xsize=xsize_ops, uvalue='Operation (on "Source") to apply to "Target" element map.')
 
 	source = widget_combobox(Top, UNAME='source', VALUE=els, /tracking,  $
-		xsize=xsize_element, uvalue='Source element map. Operation (on source) will be applied to target map.')
+		xsize=xsize_element, uvalue='"Source" element map. Operation (on source) will be applied to "Target" map.')
 
 	button = widget_button( Top, value='Auto', uname='auto-button', /tracking, scr_xsize=xsize_button, $
-		uvalue='Set the "Scale" automatically for "subtract" to (partially) null cross-over features from source in target image. Watch "target" image and Association between "source" and "target".')
+		uvalue='For "Subtract", set the "Scale" automatically to (partially) null cross-over features from source in target image. Watch "Target" image and Association between source and target elements.')
 
 	scale = widget_text( Top, value='0.01', uname='scale', /tracking, /editable, $
-		uvalue='Scale of source element contribution. Adjust further using the "strength" slider below.', scr_xsize=xsize_element)
+		uvalue='"Scale" of "Source" element contribution. Adjust further using the "Strength" slider below.', scr_xsize=xsize_element)
 
 	Bot = Widget_Base(TLB, UNAME='Bot_base', SPACE=1, /ROW, /ALIGN_CENTER, /BASE_ALIGN_CENTER)
 
 	filter = widget_combobox(Bot, UNAME='filter', VALUE=filts, /tracking, xsize=xsize_filters,  $
-		uvalue='Digital filter to apply to source map before operation. Use this for noisy source image')
+		uvalue='Digital filter to apply to "Source" map before operation. Use this for a noisy source image')
 
 	strength = cw_fslider2( Bot, format='(F6.2)', minimum=0.1, maximum=20.0, layout=1, scroll=0.1, $
 				value=1.0, uname='strength', xsize=xsize_slider, /tracking, /edit, /drag, $
-				uvalue='Adjust the "strength" of the source element action on the "target" element map. Watch "target" image and Association between "source" and "target".')
+				uvalue='Adjust the "Strength" of the source element action on the "Target" element map. Watch "Target" image and Association between "source" and "target" elements.')
 
 	button = widget_button( Bot, value='Apply', uname='apply-button', /tracking, scr_xsize=xsize_button, $
 		uvalue='Apply the scaled source contribution to the target element map. This is needed before modified image can be saved.')

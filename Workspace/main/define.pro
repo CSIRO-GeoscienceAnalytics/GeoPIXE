@@ -2013,9 +2013,10 @@ endif else if correct_yields ge 1 then begin
 
 endif else if operations ge 1 then begin
 
-; The "operations" list for interelement_operations, dynamic_corrections.
+; The "operations" list for interelement_operations\.
 
-	def_struct = ['Off','Subtract','Add','Multiply','Divide','Correct Y step']
+;	def_struct = ['Off','Subtract','Add','Multiply','Divide','Correct Y step']
+	def_struct = ['Off','Subtract','Add','Multiply','Divide']
 
 ;--------------------------------------------------------------------------------------------
 
