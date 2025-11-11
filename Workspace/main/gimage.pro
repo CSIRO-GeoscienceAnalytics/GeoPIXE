@@ -1423,7 +1423,6 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 	image_eventcb							; Load event callback routines
 	register_notify							; notification routines
 	interelement_operations					; to define 'INTERELEMENT_TRANSFORM'
-	dynamic_correct
 ;	image_compiled = 1
 ;	endif
 
