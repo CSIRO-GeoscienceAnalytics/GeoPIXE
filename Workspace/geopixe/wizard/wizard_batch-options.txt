@@ -9,10 +9,10 @@ Here you can select to Skip the sort if an image DAI file
 already exists, indicating that the processing has been done.
 
 Use the Overwrite option to force overwriting the sorted DAI
-filename, rather than the default behaviour to append a 
-"-m.dai" or "-x.dai" to create a "modified" image file. This
-saves disk space. But it may be better to keep the original
-images.
+filename, rather than the default behaviour to create a new
+filename with "-m.dai" or "-x.dai" appended for the "modified" 
+image data. This saves disk space. But it may be better to 
+keep the original images.
 
 Processing and Corrections Options
 

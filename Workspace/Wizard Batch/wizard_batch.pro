@@ -3519,7 +3519,7 @@ file_base = widget_base( tab_panel, title=' 1. User Input  ', /column, xpad=1, y
 label = widget_label( file_base, value='Select raw data directory')
 text = widget_text( file_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
 				value=['Select the data directory to scan for all raw data. Select an output path, and select a template DAI image file to set initial sort parameters. ' + $
-					'You can edit some sort parameters in the Table on tab 4.'], $
+					'You can edit some sort parameters in the Table on tab 5.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the User Input panel.'}, frame=1)
 
 
@@ -3558,9 +3558,9 @@ button = widget_button( file_base1e, value='Same as Raw', uname='same-dir-button
 
 file_base1d = widget_base( file_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base1d, value='Energy Cal:', uname='energy-cal-file-button', tracking=tracking, $
-						uvalue='Click to browse for the energy calibration SPEC file for all good detectors. Delete any detectors in the SPEC file to exclude these detector channels.', scr_xsize=button_xsize )
+						uvalue='Click to browse for the energy calibration SPEC file for all good detectors. You can delete any detectors in the SPEC file to exclude these detector channels.', scr_xsize=button_xsize )
 energy_cal_file_text = widget_text( file_base1d, uname='energy-cal-file-text', value='', tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for the energy cal SPEC file for the detector, or click on button to browse for the file. Delete any detectors in the SPEC file to exclude these detector channels.'}, scr_xsize=text_xsize, /edit)
+						uvalue={xresize:left_resize, help:'Enter file-name for the energy cal SPEC file for the detector, or click on button to browse for the file. You can delete any detectors in the SPEC file to exclude these detector channels.'}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_batch_energy_cal_file_text')
 
 
@@ -3570,10 +3570,11 @@ file_base2b = widget_base( file_base2, /column, xpad=0, ypad=0, space=5, /base_a
 
 file_base2c = widget_base( file_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( file_base2c, value='Template:', uname='template-sort-button', tracking=tracking, $
-						uvalue='Click to browse for a template image DAI file to use to set default sort settings such as the DAM file.', scr_xsize=button_xsize )
+						uvalue='Click to browse for a template image DAI file to use to set default sort settings such as the DAM file. ' + $
+						'Parameters in the Sort EVT window will be set from this file.', scr_xsize=button_xsize )
 template_sort_text = widget_text( file_base2c, uname='template-sort-text', value='', tracking=tracking, $
 						uvalue={xresize:left_resize, help:'Enter file-name for a template image DAI file to use to set default sort settings such as the DAM file. ' + $
-						'Parameters in the Sort EVT window will be set from this file.'}, scr_xsize=text_xsize, /edit)
+						'Parameters in the Sort EVT window will be set from this file. Hit <return> to load the file.'}, scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_batch_template_sort_text')
 
 ;file_base3 = widget_base( file_base, /row, xpad=1, ypad=0, space=20, /align_center, /base_align_center)
@@ -3598,7 +3599,7 @@ ctable_base0 = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_c
 button = widget_button( ctable_base0, value='Template:', uname='template-corrections-button', tracking=tracking, $
 						uvalue='Click to browse for a template image DAI file to use for image corrections, digital filters and display settings.', scr_xsize=button_xsize )
 template_corrections_text = widget_text( ctable_base0, uname='template-sort-text', value='', tracking=tracking, $
-						uvalue={xresize:left_resize, help:'Enter file-name for a template image DAI file to use for image corrections, digital filters and display settings.'}, scr_xsize=text_xsize, /edit)
+						uvalue={xresize:left_resize, help:'Enter file-name for a template image DAI file to use for image corrections, digital filters and display settings. Hit <return> to load the file.'}, scr_xsize=text_xsize, /edit)
 
 ctable_base1 = widget_base( ctable_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
 
@@ -3623,7 +3624,7 @@ ctable_base2a = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_
 label = widget_label( ctable_base2a, value='Edit Correction:')
 corrections_element = widget_combobox( ctable_base2a, value=['Back'], uname='corrections-element', /tracking, xsize=button_xsize, $
 ;					notify_realize='OnRealize_wizard_batch_corrections_element', $
-					uvalue='Select an image processing function to add.')
+					uvalue='Select a target image plane for a correction.')
 corrections_mode = widget_combobox( ctable_base2a, value=uv.list, uname='corrections-mode', /tracking, xsize=button_xsize2, $
 ;					notify_realize='OnRealize_wizard_batch_corrections_mode', $
 					uvalue='Select an image processing function to add.')
@@ -3656,7 +3657,7 @@ rgbtable_base = widget_base( tab_panel, title=' 3. RGB Exports  ', /column, xpad
 label = widget_label( rgbtable_base, value='Table of RGB export options')
 text = widget_text( rgbtable_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgbtable-explanation', tracking=tracking, $
 				value=['Table showing selected RGB images/plots to export. The table can be set from a "Learn" RGB.csv file created in the RGB Image window ' + $
-				'(see the "Learn" menu) or edited here.'], $
+				'(see the "Learn" menu) or edited here. Hit <return> to load the file.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the RGB Export panel.'}, frame=1)
 
 rgbtable_base0 = widget_base( rgbtable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
@@ -3707,7 +3708,7 @@ button = widget_button( rgbtable_base2, value='Delete', uname='rgb-delete-button
 button = widget_button( rgbtable_base2, value='Clear', uname='rgb-clear-button', tracking=tracking, $
 						uvalue='Click to clear the RGB table.', scr_xsize=button_xsize )
 button = widget_button( rgbtable_base2, value='Save', uname='rgb-save-button', tracking=tracking, $
-						uvalue='Click to save the RGB table to a ".rgb.csv" file for the "Learn" function here and in the RGB Image window', scr_xsize=button_xsize )
+						uvalue='Click to save the RGB table to a ".rgb.csv" file for use here or with the "Learn" function in the RGB Image window', scr_xsize=button_xsize )
 		
 
 ; Processing and save/export options  -----------------------------------------
@@ -3792,7 +3793,8 @@ t = strarr(nc,256)
 
 results_table = Widget_Table(table1_base, UNAME='results-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
 				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182, /no_row_headers, $
-				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows the raw data to process and tracks processing progress.'}, $
+				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows the raw data to process and tracks processing progress. ' + $
+				'You may need to enter "Charge" for those device raw data sets that do not supply it.'}, $
 				column_labels=headings, column_widths=widths, $
 				NOTIFY_REALIZE='OnRealize_wizard_batch_results_table')
 			
@@ -3810,7 +3812,7 @@ button = widget_button( table_base2, value='Clear', uname='table-clear-button', 
 						uvalue='Click to clear the entire table. ', scr_xsize=button_xsize )
 label = widget_label( table_base2, value='            ')
 button = widget_button( table_base2, value='Start Processing', uname='process-button', tracking=tracking, $
-						uvalue='Click to start the calculation of the calibration factors "conv". Make sure the table entries are correct first. ', scr_xsize=1.5*button_xsize )
+						uvalue='Click to start processing. Make sure the table entries are correct first and a "conv" is provided for device raw data sets that infer charge indirectly. ', scr_xsize=1.5*button_xsize )
 button = widget_button( table_base2, value='Abort', uname='abort-button', tracking=tracking, $
 						uvalue='Click to abort the processing loop. Current row will complete sorting, image operations and exports first.', scr_xsize=button_xsize )
 		

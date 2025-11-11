@@ -18,12 +18,12 @@ the RGB Images window or previously in the Batch Wizard.
 
 Edit Export
 
-To add a new combination, select the elements for R, G and B
-and hit "Add". You can optionally change the display "Log"
-parameter, as described above.
+Add: To add a new combination, select the elements for R, G 
+and B and hit "Add". You can optionally change the display 
+"Log" parameter, as described above.
 
-Add: To delete an entry, select the row by clicking in a cell 
-and hit "Delete". 
+Delete: To delete an entry, select the row by clicking in a 
+cell and hit "Delete". 
 
 Clear: Clear the table using "Clear".
 
