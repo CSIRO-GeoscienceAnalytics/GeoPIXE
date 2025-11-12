@@ -7,17 +7,17 @@
 ;	Registers that widget 'id' wants to hear about the events in 'tags'.
 ;	'tags' is just a string name (or array), with the name(s) of the
 ;	events that 'id' wants to know about. Optionally specifying a specifc 
-;	'from' ID
+;	'from' ID.
 ;
 ; notify, tag
 ;
-;	Sends out notification events to all widgets registered to hear about a
-;	'tag' event, optionally specifying a data pointer and a specifc 'from' ID.
+;	Sends out a notification event to all widgets registered to hear about a
+;	'tag' event, optionally specifying a data 'pointer' and a specifc 'from' ID.
 ;
 ; cancel_notify, id
 ;
 ;	Cancels all notifications that were requested by 'id'. They also get
-;	cancelled if an id is found to be invalid.
+;	cancelled automatically if an id is found to be invalid.
 ;
 ; N.B. Check_notify will kill any notifications that are to/from widgets that
 ; are not realized. Hence, do not use any register_notifys, etc. between creating
@@ -186,7 +186,7 @@ common c_notify_3, notify_from, notify_to
 				notify_to[i] = 1
 			endif else if (from eq notify_from[i]) then begin
 				notify_to[i] = 1
-				test_notify, itag, notify_id[i]		; propogate/chain notify
+				test_notify, itag, notify_id[i]		; propogate/chain notifies
 			endif
 		endif
 	endfor
@@ -460,7 +460,8 @@ end
 
 ;-------------------------------------------------------------------------------
 ;
-; Show all register 'id' to receive notifications on any of 'tags' events.
+; Show all registered ids' to receive notifications on any events.
+; They are sorted in target widget id numerical order.
 
 pro show_notify
 
@@ -468,24 +469,28 @@ common c_notify_1, n_notify_id, notify_id, notify_flags
 common c_notify_3, notify_from, notify_to
 
 	if n_elements(n_notify_id) lt 1 then n_notify_id = 0
+	if n_notify_id eq 0 then return
 	
+	q = sort(notify_id)
 	for i=0L, n_notify_id-1 do begin
-		if notify_id[i] ne 0L then begin
-			if widget_info( notify_id[i], /valid_id) then begin
-				uname = widget_info( notify_id[i], /uname)
+		if notify_id[q[i]] ne 0L then begin
+			if widget_info( notify_id[q[i]], /valid_id) then begin
+				uname = widget_info( notify_id[q[i]], /uname)
 			endif else begin
 				uname = '-invalid-'
 			endelse
-			if notify_from[i] ne 0L then begin
-				if widget_info( notify_from[i], /valid_id) then begin
-					ufrom = widget_info( notify_from[i], /uname)
+			if notify_from[q[i]] ne 0L then begin
+				if widget_info( notify_from[q[i]], /valid_id) then begin
+					ufrom = widget_info( notify_from[q[i]], /uname)
 				endif else begin
 					ufrom = '-invalid-'
 				endelse
-				print, notify_id[i],' (',uname,')   ', notify_tags( notify_flags[i]), $
-					'           from ',notify_from[i],' (',ufrom,')'
+				print, notify_id[q[i]],'('+uname+')', notify_tags( notify_flags[q[i]]), $
+					notify_from[q[i]],' ('+ufrom+')', $
+					format='(I10,1x,A25,T40,A30,T72,"from",T78,I10,1x,A25)'
 			endif else begin
-				print, notify_id[i],' (',uname,')   ', notify_tags( notify_flags[i])
+				print, notify_id[q[i]],'('+uname+')', notify_tags( notify_flags[q[i]]), $
+					format='(I10,1x,A25,T40,A30)'
 			endelse
 		endif
 	endfor

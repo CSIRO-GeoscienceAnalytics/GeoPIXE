@@ -104,7 +104,7 @@ case tag_names( event,/structure) of
 		notify, 'batch-RGB-open'								; just opens RGB window
 
 		wizard_test_windows, 'batch', pstate					; periodically check which GeoPIXE windows are open
-		widget_control, event.id, timer=20.0	
+		widget_control, event.id, timer=10.0	
 		goto, finish
 		end
 
