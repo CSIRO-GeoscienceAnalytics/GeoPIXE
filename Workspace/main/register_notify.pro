@@ -26,6 +26,7 @@
 ;-------------------------------------------------------------------------------
 ;
 ; Return an index into the list of registered tags for a single notify string 'name'
+; If not found, add it as a new entry.
 
 function notify_bits, name
 
@@ -202,13 +203,16 @@ end
 ; from a particular widget id. We supply this id using 'from'. By convention,
 ; the from id is the top-level-base id of the current widget program.
 ;
+; If you do not specify 'from', then we target ids that have registered to
+; receive 'itag' from any source.
+;
 ; This only really makes sense if we pass the id of a group_leader. Then if
 ; the from widget is detroyed (the group leader), which would make this notify
 ; invalid, then our destination widget is destroyed too.
 ;
 ; As well as notifying any ids that specify this 'from' as their requested from,
 ; we also search for the resulting id as a requested 'from' for other notifies,
-; as so forth, so that all connected ids get notified.
+; using same itag, as so forth, so that all connected ids get notified.
 
 pro notify, itag, pointer, from=from
 
@@ -247,7 +251,6 @@ common c_notify_4, track_notify
 	notify_event = {NOTIFY, ID:0L, TOP:0L, HANDLER:0L, TAG:'', POINTER:ptr_new(), FROM:0L }
 
 	if n_elements(track_notify) lt 1 then track_notify=0
-;	if track_notify then print,'---> enter NOTIFY: itag=',itag,' FROM=',from
 	if n_elements(from) lt 1 then from=0L
 
 	if n_elements( n_notify_id) lt 1 then begin
@@ -266,7 +269,7 @@ common c_notify_4, track_notify
 
 ;	Test each registered entry for this 'from' source. If found, continue
 ;	search using found id as new from. This recursive process sets the
-;	'notify_to' vector to flag which ids to send notifys to.
+;	'notify_to' vector to flag which ids to send notifies to.
 
 	notify_to[*] = 0
 	test_notify, itag, from			; sets the 'notify_to' flag for all that should receive 'itag'
@@ -281,6 +284,7 @@ common c_notify_4, track_notify
 				tag = notify_tags( mask[0])
 				notify_event = {NOTIFY, ID:notify_id[i], TOP:top, HANDLER:0L, $
 							TAG:tag, POINTER:pointer, FROM:from }
+
 				if track_notify then begin
 					s0 = '### NOTIFY: tag=  '
 					s1 = '   FROM='
@@ -289,6 +293,7 @@ common c_notify_4, track_notify
 					s3 = ' ( ' + widget_info( notify_id[i], /uname) + ' )'
 					print,s0,tag,s1,from,s2,notify_id[i],s3
 				endif
+
 				if widget_info( notify_id[i],/realized) then begin
 					widget_control, notify_id[i], send_event=notify_event
 				endif
@@ -368,8 +373,7 @@ common c_notify_3, notify_from, notify_to
 	
 	test_realized_too = 0
 	
-;	Test for any invalid widget IDs. They are just zeroed, and left in list, to keep
-;	the 'notify_flags' indices correct.
+;	Test for any invalid widget IDs. They are just zeroed, and left in list.
 
 	for i=0L,n_notify_id-1 do begin
 
@@ -409,7 +413,7 @@ common c_notify_3, notify_from, notify_to
 	endfor
 	
 ;	Eliminate duplicates ...
-;	They are just zeroed, and left in list, to keep the 'notify_flags' indices correct.
+;	They are just zeroed, and left in list.
 
 	for i=0L,n_notify_id-1 do begin
 		if notify_id[i] ne 0 then begin
@@ -562,7 +566,8 @@ end
 ; Register 'id' to receive notifications on any of 'tags' events.
 ;
 ; If 'from' is specified, then we only want to get notification from notify's
-; listed that specify this 'from' id in a from keyword.
+; listed that specify this 'from' id in a from keyword. If 'from' is not speified,
+; then the ID expects notifies from any source.
 
 pro register_notify, id, tags, from=from
 
