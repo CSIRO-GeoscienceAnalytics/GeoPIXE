@@ -32,13 +32,13 @@ script in the 'Workspace/geopixe/bin/' directory to launch GeoPIXE. Just add thi
 After downloading, you will need to enable execution of these scripts (chmod a+x bin/\*).
 
 It helps to have a working understanding of the *Fundamental Parameter* approach as used for
-quantitative analysis in the workflow through GeoPIXE, and some experience with the Demo data.
+quantitative analysis in the workflow through GeoPIXE, and some experience with the *Demo data*.
 See the GeoPIXE Users Guide and the **GeoPIXE Worked Examples PDF** for worked examples with
 step-by-step tips. Both provide examples of the main tasks of fitting spectra to generate the
-Dynamic Analysis (DA) image projection matrix; using this DA matrix to process full-spectral data
+*Dynamic Analysis* (DA) image projection matrix; using this DA matrix to process full-spectral data
 to deconvolute elemental components and project separated elemental images; and exploration and
 processing of the images to first verify their accuracy, including extracting spectra from
-observed features (region shapes or element-element Associations), and make corrections and then
+observed features (region shapes or element-element *Associations*), and make corrections and then
 to explore their content.
 
 ### GeoPIXE Demo data
@@ -63,7 +63,7 @@ IDL pref file (idl-linux.pref). *NOTE: Edit full paths in both the script and pr
 
 Launching the runtime version of IDL to run a compiled version of GeoPIXE is illustrated in the
 script "Example Runtime GeoPIXE.bat". It also shows how GeoPIXE can be used in a workflow to perform
-some work. See the documentation "doc/GeoPIXE Software Organization - open.pdf" for details.
+some work. See the documentation "**doc/GeoPIXE Software Organization - open.pdf**" for details.
 
 ### Setting up the Eclipse IDLDE environment
 
@@ -86,7 +86,7 @@ points to "startup.spro" in this directory.
 
 ### Obtaining IDL
 
-IDL, the interactive data language, can be obtaned from L3Harris Geospatial. A free "Virtual Machine"
+IDL, the interactive data language, can be obtained from NV5. A free "Virtual Machine"
 provides runtime support, which can be used for most GeoPIXE functionality by executing the SAV files.
 
 However, some advanced methods, such as parallel processing of large data-sets such as Maia blog data,
