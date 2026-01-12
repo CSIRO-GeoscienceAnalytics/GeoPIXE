@@ -86,7 +86,7 @@ points to "startup.spro" in this directory.
 
 ### Obtaining IDL
 
-IDL, the interactive data language, can be obtained from NV5. A free "Virtual Machine"
+IDL, the interactive data language, can be obtained from *NV5 Geospatial*. A free "Virtual Machine"
 provides runtime support, which can be used for most GeoPIXE functionality by executing the SAV files.
 
 However, some advanced methods, such as parallel processing of large data-sets such as Maia blog data,
