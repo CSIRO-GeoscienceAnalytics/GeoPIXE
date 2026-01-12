@@ -422,6 +422,14 @@ endif
        Image_Colours, Event, -1
        end
 
+    'Inferno_Colour_Table': begin
+       Image_Colours, Event, 76
+       end
+
+    'Viridis_Colour_Table': begin
+       Image_Colours, Event, 77
+       end
+
     'Grey_Scale': begin
        Image_Colours, Event, 0
        end
@@ -1936,6 +1944,10 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   W_MENU_231 = Widget_Button(W_MENU_23, UNAME='Default_Colour_Table', VALUE='Default Colours' , font=def_font)
 
   W_MENU_231b = Widget_Button(W_MENU_23, UNAME='TenStep_Colour_Table', VALUE='10 Step Colours' )
+
+  W_MENU_231c = Widget_Button(W_MENU_23, UNAME='Inferno_Colour_Table', VALUE='Inferno Colours' )
+
+  W_MENU_231d = Widget_Button(W_MENU_23, UNAME='Viridis_Colour_Table', VALUE='Viridis Colours' )
 
   W_MENU_232 = Widget_Button(W_MENU_23, UNAME='Grey_Scale', VALUE='Grey Scale')
 
