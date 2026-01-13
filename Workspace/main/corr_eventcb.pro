@@ -806,6 +806,8 @@ end
 
 pro OnRealize_corr, wWidget
 
+;	The association draw area
+
 COMPILE_OPT STRICTARR
 top = tlb_id( wWidget)
 child = widget_info( top, /child)
@@ -839,7 +841,92 @@ window, /free, xsize=w, ysize=h, /pixmap
 window, /free, xsize=w, ysize=h, /pixmap
 (*pstate).pix2 = !d.window
 
-if ptr_valid( (*pstate).p) then begin
+(*pstate).count++
+if ptr_valid( (*pstate).p) and ((*pstate).count ge 3) then begin
+	if n_elements( *(*pstate).p) gt 0 then begin
+		draw_corrs, pstate
+	endif
+endif
+end
+
+;-----------------------------------------------------------------
+
+pro OnRealize_corrX, wWidget
+
+;	The X histogram draw area
+
+COMPILE_OPT STRICTARR
+top = tlb_id( wWidget)
+child = widget_info( top, /child)
+widget_control, child, get_uvalue=pstate
+
+draw_trim = 0
+scr_trim = 15
+if !version.os_family eq 'MacOS' then begin
+	draw_trim = 15
+	scr_trim = 21
+endif
+
+widget_control, wWidget, get_value=widX
+wset,widX
+(*pstate).widX = widX
+(*pstate).drawX = wWidget
+
+w = (*pstate).width + (*pstate).margin.low + (*pstate).margin.high
+h = (*pstate).height + (*pstate).margin.bottom + (*pstate).margin.top
+
+(*pstate).w = (w + scr_trim) < 600
+(*pstate).h = (h + scr_trim) < 600
+widget_control, (*pstate).drawX, draw_xsize=w+draw_trim, draw_ysize=h+draw_trim, $
+		scr_xsize=(*pstate).w, scr_ysize=(*pstate).h
+
+(*pstate).dw =		16
+(*pstate).dh =		0
+
+(*pstate).count++
+if ptr_valid( (*pstate).p) and ((*pstate).count ge 3) then begin
+	if n_elements( *(*pstate).p) gt 0 then begin
+		draw_corrs, pstate
+	endif
+endif
+end
+
+;-----------------------------------------------------------------
+
+pro OnRealize_corrY, wWidget
+
+;	The Y histogram draw area
+
+COMPILE_OPT STRICTARR
+top = tlb_id( wWidget)
+child = widget_info( top, /child)
+widget_control, child, get_uvalue=pstate
+
+draw_trim = 0
+scr_trim = 15
+if !version.os_family eq 'MacOS' then begin
+	draw_trim = 15
+	scr_trim = 21
+endif
+
+widget_control, wWidget, get_value=widY
+wset, widY
+(*pstate).widY = widY
+(*pstate).drawY = wWidget
+
+w = (*pstate).width + (*pstate).margin.low + (*pstate).margin.high
+h = (*pstate).height + (*pstate).margin.bottom + (*pstate).margin.top
+
+(*pstate).w = (w + scr_trim) < 600
+(*pstate).h = (h + scr_trim) < 600
+widget_control, (*pstate).drawY, draw_xsize=w+draw_trim, draw_ysize=h+draw_trim, $
+		scr_xsize=(*pstate).w, scr_ysize=(*pstate).h
+
+(*pstate).dw =		16
+(*pstate).dh =		0
+
+(*pstate).count++
+if ptr_valid( (*pstate).p) and ((*pstate).count ge 3) then begin
 	if n_elements( *(*pstate).p) gt 0 then begin
 		draw_corrs, pstate
 	endif
@@ -1201,6 +1288,9 @@ h = ((event.y - (*pstate).scr_ysize_off) > (64 + scr_trim)) < (toty + scr_trim)
 widget_control, (*pstate).draw2, scr_xsize=w, scr_ysize=h, $
 			draw_xsize=totx+draw_trim, draw_ysize=toty+draw_trim
 
+widget_control, (*pstate).drawX, scr_xsize=w, scr_ysize=h
+widget_control, (*pstate).drawY, scr_xsize=w, scr_ysize=h
+
 (*pstate).w = w
 (*pstate).h = h
 (*pstate).xview = w - (*pstate).dw
@@ -1208,6 +1298,8 @@ widget_control, (*pstate).draw2, scr_xsize=w, scr_ysize=h, $
 
 (*pstate).position = [float((*pstate).margin.low)/float(totx), float((*pstate).margin.bottom)/float(toty), $
 		1.-(float((*pstate).margin.high)/float(totx)), 1.-(float((*pstate).margin.top)/float(toty))]
+
+draw_corrs, pstate
 return
 end
 
@@ -1324,10 +1416,16 @@ state = {	p:			pimages, $		; pointer to Images pointer array
 
 			pexport:	ptr_new(/allocate_heap), $	; heap for export parameters
 
-			wid2:		0L, $			; draw 2 window id
+			wid2:		0L, $			; draw 2 window id		draw area
 			draw2:		0L, $			; draw 2 widget ID
 			pix:		0L, $			; pixmap window id
 			pix2:		0L, $			; pixmap 2 window id
+
+			widX:		0L, $			; draw X window id		histogram areas
+			drawX:		0L, $			; draw X widget ID
+			widY:		0L, $			; draw Y window id
+			drawY:		0L, $			; draw Y widget ID
+			count:		0, $			; count of realized draw widgets
 
 			element_idx:	0L, $		; element droplist ID
 			element_idy:	0L, $		; element droplist ID

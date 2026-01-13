@@ -200,79 +200,187 @@ if catch_errors_on then begin
 	endif
 endif
 
-p = (*pstate).p
-if ptr_good(p) eq 0 then return
-if ptr_valid( (*p).image ) eq 0 then return
-xanes_stack_test, p, xanes, n_el, el, el_xanes
+	p = (*pstate).p
+	if ptr_good(p) eq 0 then return
+	if ptr_valid( (*p).image ) eq 0 then return
+	xanes_stack_test, p, xanes, n_el, el, el_xanes
 
-wset, (*pstate).wid2
-tb = !p.background
-!p.background = 16				; use image colour base as erase background
-erase
-!p.background = tb
-if n_elements( (*(*p).image)[0,0,*]) lt 1 then return
+;	Draw Corr plot ...
 
-!p.charsize = 1.0
-!p.charthick = 1.0
-!p.linestyle = 0
-!p.multi = 0
-!p.psym = 0
-!p.thick = 1.0
-!p.title = ''
-!x.charsize = 1.0
-!x.style = 1
-!x.thick = 1.0
-!x.ticks = 0
-!x.title = ''
-!y.charsize = 1.0
-!y.style = 1
-!y.thick = 1.0
-!y.ticks = 0
-!y.title = ''
-tvlct, ro,go,bo, /get
-if long(ro[16])+long(go[16])+long(bo[16]) lt 384 then begin
+	wset, (*pstate).wid2
+	tb = !p.background
+	!p.background = 16				; use image colour base as erase background
+	erase
+	!p.background = tb
+	if n_elements( (*(*p).image)[0,0,*]) lt 1 then return
+	
+	!p.charsize = 1.0
+	!p.charthick = 1.0
+	!p.linestyle = 0
+	!p.multi = 0
+	!p.psym = 0
+	!p.thick = 1.0
+	!p.title = ''
+	!x.charsize = 1.0
+	!x.style = 1
+	!x.thick = 1.0
+	!x.ticks = 0
+	!x.title = ''
+	!y.charsize = 1.0
+	!y.style = 1
+	!y.thick = 1.0
+	!y.ticks = 0
+	!y.title = ''
+	tvlct, ro,go,bo, /get
+	if long(ro[16])+long(go[16])+long(bo[16]) lt 384 then begin
+		!p.background = spec_colour('black')
+		!p.color = spec_colour('white')
+	endif else begin
+		!p.background = spec_colour('white')
+		!p.color = spec_colour('black')
+	endelse
+	
+	b = make_corr_tvb( pstate, (*pstate).corr_x, (*pstate).corr_y, range=range)
+	if n_elements(b) le 1 then goto, do_xy_hist
+	(*pstate).range = range
+	
+	tv, b, (*pstate).margin.low, (*pstate).margin.bottom, /device		; show corr
+	
+	!p.position = (*pstate).position
+;	print,!p.position
+	plot,[0,0],[0,0],xrange=range.x,yrange=range.y, /noerase,/nodata, $
+			xlog=(*pstate).logx,ylog=(*pstate).logy, xticklen=-0.01,yticklen=-0.01, charsize=1.2
+	!p.position = [0.,0.,0.,0.]
+;	print,'Corr: actual w,h=',!d.x_size,!d.y_size
+
+	xyouts,0.985,0.015,el[(*pstate).corr_x],charsize=1.8,charthick=15.0,color=16,/norm, align=1.0
+	xyouts,0.985,0.015,el[(*pstate).corr_x],charsize=1.8,charthick=1.7,color=spec_colour('green'),/norm, align=1.0
+	xyouts,0.015,0.94,el[(*pstate).corr_y],charsize=1.8,charthick=15.0,color=16,/norm
+	xyouts,0.015,0.94,el[(*pstate).corr_y],charsize=1.8,charthick=1.7,color=spec_colour('green'),/norm
+	
+	if ptr_valid ((*pstate).b) then ptr_free, (*pstate).b
+	(*pstate).b = ptr_new( b, /no_copy)
+	
+	wset, (*pstate).pix
+	w = (*pstate).width + (*pstate).margin.low + (*pstate).margin.high
+	h = (*pstate).height + (*pstate).margin.bottom + (*pstate).margin.top
+	device,copy=[0,0,w,h, 0,0,(*pstate).wid2]
+
+;	p = (*pstate).pmark
+;	conc_corr_to_xy, pstate, (*p).cx,(*p).cy, x,y, /nozoom
+;	(*p).x = x
+;	(*p).y = y
+
+	clear_corr_spline, pstate, /init
+	wset, (*pstate).wid2
+	plot_corr_spline, pstate, /use_conc
+
+;	Draw X histogram plot ...
+
+do_xy_hist:
+	wset, (*pstate).widX
 	!p.background = spec_colour('black')
 	!p.color = spec_colour('white')
-endif else begin
-	!p.background = spec_colour('white')
-	!p.color = spec_colour('black')
-endelse
+	erase
+	!p.charsize = 1.0
+	!p.charthick = 1.0
+	!p.linestyle = 0
+	!p.multi = 0
+	!p.psym = 0
+	!p.thick = 1.0
+	!x.charsize = 1.0
+	!x.style = 1
+	!x.thick = 1.0
+	!x.ticks = 0
+	!x.title = el[(*pstate).corr_x]
+	!y.charsize = 1.0
+	!y.style = 1
+	!y.thick = 1.0
+	!y.ticks = 0
+	!y.title = '# Pixels'
+	h = histogram( *(*pstate).image_x, nbins=50, locations=loc)
+	
+	special = special_elements()
+	scale = 1.0
+	if (*p).type eq 1 then begin
+		unitsx = ''
+		stylex = ' fraction'
+	endif else if (*p).type eq 2 then begin
+		unitsx = ''
+		stylex = ' counts'
+	endif else begin
+		unitsx = ' ppm'
+		stylex = xanes ? '' : ' conc'
+		q = where(el[(*pstate).corr_x] eq special,nq)
+		if nq ne 0 then begin
+			unitsx = ''
+			stylex = ''
+		endif else begin
+			if(max(loc) gt 999.9) and ((*pstate).logx eq 0) then begin
+				scale = 10000.
+				unitsx = ' wt%'
+			endif
+		endelse
+	endelse
+	
+	!x.title = !x.title + unitsx
+	!p.title = stylex
+	plot, loc/scale, h, xrange=range.x/scale, yrange=[0.5,1.1*max(h)], /nodata, xlog=(*pstate).logx, /ylog
+	oplot, loc/scale, h, color=spec_colour('green'), psym=10
 
-b = make_corr_tvb( pstate, (*pstate).corr_x, (*pstate).corr_y, range=range)
-if n_elements(b) le 1 then return
-(*pstate).range = range
+;	Draw Y histogram plot ...
 
-tv, b, (*pstate).margin.low, (*pstate).margin.bottom, /device		; show corr
+	wset, (*pstate).widY
+	!p.background = spec_colour('black')
+	!p.color = spec_colour('white')
+	erase
+	!p.charsize = 1.0
+	!p.charthick = 1.0
+	!p.linestyle = 0
+	!p.multi = 0
+	!p.psym = 0
+	!p.thick = 1.0
+	!x.charsize = 1.0
+	!x.style = 1
+	!x.thick = 1.0
+	!x.ticks = 0
+	!x.title = el[(*pstate).corr_y]
+	!y.charsize = 1.0
+	!y.style = 1
+	!y.thick = 1.0
+	!y.ticks = 0
+	!y.title = '# Pixels'
+	h = histogram( *(*pstate).image_y, nbins=50, locations=loc)
+	
+	special = special_elements()
+	scale = 1.0
+	if (*p).type eq 1 then begin
+		unitsy = ''
+		styley = ' fraction'
+	endif else if (*p).type eq 2 then begin
+		unitsy = ''
+		styley = ' counts'
+	endif else begin
+		unitsy = ' ppm'
+		styley = xanes ? '' : ' conc'
+		q = where(el[(*pstate).corr_y] eq special,nq)
+		if nq ne 0 then begin
+			unitsy = ''
+			styley = ''
+		endif else begin
+			if (max(loc) gt 999.9) and ((*pstate).logy eq 0) then begin
+				scale = 10000.
+				unitsy = ' wt%'
+			endif
+		endelse
+	endelse
+	
+	!x.title = !x.title + unitsy
+	!p.title = styley
+	plot, loc/scale, h, xrange=range.y/scale, yrange=[0.5,1.1*max(h)], /nodata, xlog=(*pstate).logy, /ylog
+	oplot, loc/scale, h, color=spec_colour('green'), psym=10
 
-!p.position = (*pstate).position
-;print,!p.position
-plot,[0,0],[0,0],xrange=range.x,yrange=range.y, /noerase,/nodata, $
-		xlog=(*pstate).logx,ylog=(*pstate).logy, xticklen=-0.01,yticklen=-0.01, charsize=1.2
-!p.position = [0.,0.,0.,0.]
-;print,'Corr: actual w,h=',!d.x_size,!d.y_size
-
-xyouts,0.985,0.015,el[(*pstate).corr_x],charsize=1.8,charthick=15.0,color=16,/norm, align=1.0
-xyouts,0.985,0.015,el[(*pstate).corr_x],charsize=1.8,charthick=1.7,color=spec_colour('green'),/norm, align=1.0
-xyouts,0.015,0.94,el[(*pstate).corr_y],charsize=1.8,charthick=15.0,color=16,/norm
-xyouts,0.015,0.94,el[(*pstate).corr_y],charsize=1.8,charthick=1.7,color=spec_colour('green'),/norm
-
-if ptr_valid ((*pstate).b) then ptr_free, (*pstate).b
-(*pstate).b = ptr_new( b, /no_copy)
-
-wset, (*pstate).pix
-w = (*pstate).width + (*pstate).margin.low + (*pstate).margin.high
-h = (*pstate).height + (*pstate).margin.bottom + (*pstate).margin.top
-device,copy=[0,0,w,h, 0,0,(*pstate).wid2]
-
-;p = (*pstate).pmark
-;conc_corr_to_xy, pstate, (*p).cx,(*p).cy, x,y, /nozoom
-;(*p).x = x
-;(*p).y = y
-
-clear_corr_spline, pstate, /init
-wset, (*pstate).wid2
-plot_corr_spline, pstate, /use_conc
-return
+	return
 end
 
 ;-----------------------------------------------------------------
@@ -963,6 +1071,9 @@ endif
 
 	widget_control, (*pstate).draw2, draw_xsize=w+draw_trim, $
 		draw_ysize=h+draw_trim, scr_xsize=(*pstate).w, scr_ysize=(*pstate).h
+
+	widget_control, (*pstate).drawX, scr_xsize=(*pstate).w, scr_ysize=(*pstate).h
+	widget_control, (*pstate).drawY, scr_xsize=(*pstate).w, scr_ysize=(*pstate).h
 
 	if (clone eq 0) and (full eq 0) and (izoom eq 0) then begin
 ;		clear_all_markers, pstate

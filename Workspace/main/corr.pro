@@ -316,19 +316,34 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
 	retain=1
   endelse
 
-  corr_Draw_Base = Widget_Base(corr_TLB, UNAME='corr_Draw_Base' ,SPACE=0  $
-      ,XPAD=0 ,YPAD=0 ,/column, /base_align_center)
-
 	w = pixx + margin.low + margin.high
 	h = pixy + margin.bottom + margin.top
 	print,'Corr: request w,h=',w,h
 	
-  corr_Draw = Widget_Draw(corr_Draw_Base, UNAME='corr_Draw'  $
-;      ,SCR_XSIZE=w+scr_trim ,SCR_YSIZE=h+scr_trim  $
-      ,x_scroll_SIZE=w+scr_trim ,y_scroll_SIZE=h+scr_trim  $
-      ,NOTIFY_REALIZE='OnRealize_corr'  $
-      ,KILL_NOTIFY='OnDestroy_corr' ,/SCROLL ,XSIZE=w+draw_trim  $
-      ,YSIZE=h+draw_trim ,RETAIN=retain ,/BUTTON_EVENTS,/VIEWPORT_EVENTS)
+  corr_draw_tab = widget_tab( corr_TLB, location=3, /align_center, uname='tab-panel')	; , scr_xsize=help_xsize
+
+  corr_Draw_Base = Widget_Base(corr_draw_tab, title=' Association ', UNAME='corr_Draw_Base' ,SPACE=0, XPAD=0 ,YPAD=0, $
+  		/column, /base_align_center)
+
+  corr_Draw = Widget_Draw(corr_Draw_Base, UNAME='corr_Draw', SCR_XSIZE=w+scr_trim, SCR_YSIZE=h+scr_trim,  $
+      	x_scroll_SIZE=w+scr_trim, y_scroll_SIZE=h+scr_trim, NOTIFY_REALIZE='OnRealize_corr',  $
+		KILL_NOTIFY='OnDestroy_corr', /SCROLL, XSIZE=w+draw_trim, YSIZE=h+draw_trim, RETAIN=retain, $
+		/BUTTON_EVENTS, /VIEWPORT_EVENTS)
+
+
+  corr_DrawX_Base = Widget_Base(corr_draw_tab, title=' X Histogram ', UNAME='corr_DrawX_Base' ,SPACE=0, XPAD=0 ,YPAD=0, $
+  		/column, /base_align_center)
+
+  corr_DrawX = Widget_Draw(corr_DrawX_Base, UNAME='corr_DrawX', SCR_XSIZE=w+scr_trim, SCR_YSIZE=h+scr_trim,  $
+      	NOTIFY_REALIZE='OnRealize_corrX',  XSIZE=w+draw_trim, YSIZE=h+draw_trim, RETAIN=retain)
+
+
+  corr_DrawY_Base = Widget_Base(corr_draw_tab, title=' Y Histogram ', UNAME='corr_DrawY_Base' ,SPACE=0, XPAD=0 ,YPAD=0, $
+  		/column, /base_align_center)
+
+  corr_DrawY = Widget_Draw(corr_DrawY_Base, UNAME='corr_DrawY', SCR_XSIZE=w+scr_trim, SCR_YSIZE=h+scr_trim,  $
+      	NOTIFY_REALIZE='OnRealize_corrY',  XSIZE=w+draw_trim, YSIZE=h+draw_trim, RETAIN=retain)
+
 
 
   corr_Button_Base = Widget_Base(corr_TLB, UNAME='corr_Button_Base'  $
