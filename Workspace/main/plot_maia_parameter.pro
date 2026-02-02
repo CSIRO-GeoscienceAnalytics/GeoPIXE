@@ -1,5 +1,5 @@
 pro plot_maia_parameter, id, par, cgm=cgm, ps=ps, white=white, bw=bw, title=title, true=true, $
-			min=ymin, max=ymax, screen=screen, layout=file1
+			min=ymin, max=ymax, screen=screen, layout=file1, wset_done=wset_done
 
 ; Plot a parameter 'par' on the detector map, with labels 'id' on each detector
 ;
@@ -9,9 +9,10 @@ pro plot_maia_parameter, id, par, cgm=cgm, ps=ps, white=white, bw=bw, title=titl
 ; min, max	set display range
 ; /cgm		CGM plot output
 ; /ps		postscript output
+; /white	on white background, else black
 ; /screen	screen output 
 ;			else defaults to printer output, which will fallback to screen
-; /white	on white background, else black
+; /wset_done true to use an existing window (wset done), else make window #0 here
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -21,7 +22,7 @@ catch_errors_on=0
 
 sz = 0.95	; 2.2
 !p.charsize=sz
-startupp, /colours, /database
+if wset_done eq 0 then startupp, /colours, /database
 
 if n_elements(screen) lt 1 then screen = 0
 if n_elements(cgm) lt 1 then cgm = 0
@@ -33,6 +34,7 @@ if n_elements(title) lt 1 then title = ''
 if n_elements(true) lt 1 then true = 0
 if n_elements(file1) lt 1 then file1 = "Maia_384C.csv"
 if file1 eq '' then file1 = "Maia_384C.csv"
+if n_elements(wset_done) lt 1 then wset_done = 0
 
 ; Note: 'file_search2' in 'file_requester' below may have set a draw id for progress bar.
 ; So don't call 'file_requester' after opening window, before plotting to it.
@@ -62,29 +64,43 @@ endif else if ps then begin
 	used_printer = 1
 endif else if screen then begin
 	used_printer = 0
-	window, 0, xsize=800, ysize=800, retain=retain
+	if wset_done eq 0 then window, 0, xsize=800, ysize=800, retain=retain
 endif else begin
 	if new_dialog_printersetup() then begin
 		used_printer = 1
 		white = 1
 	endif else begin
 		used_printer = 0
-		window, 0, xsize=800, ysize=800, retain=retain
+		if wset_done eq 0 then window, 0, xsize=800, ysize=800, retain=retain
 	endelse
 endelse
 
 default_plot, thick, athick, csize, cthick, thick_scale=1.2
 
-if true then begin
-	wlo = 0.10
-	base = 0.08
-	whi = 0.97
-	top = 0.95
-endif else begin
-	wlo = 0.08
-	base = 0.06
-	whi = 0.99
-	top = 0.97
+if wset_done then begin
+	if true then begin
+		wlo = 0.09
+		base = 0.05
+		whi = 0.98
+		top = 0.97
+	endif else begin
+		wlo = 0.07
+		base = 0.01
+		whi = 0.99
+		top = 0.97
+	endelse
+endif else  begin
+	if true then begin
+		wlo = 0.10
+		base = 0.08
+		whi = 0.97
+		top = 0.95
+	endif else begin
+		wlo = 0.08
+		base = 0.06
+		whi = 0.99
+		top = 0.97
+	endelse
 endelse
 
 ;if (!d.name eq 'CGM') then begin

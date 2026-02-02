@@ -194,6 +194,7 @@ if catch_errors_on then begin
 endif
 
 error = 1
+if n_elements(file) eq 0 then goto, bad_file
 da = 0L
 phase_dai = '
 mpda = 0

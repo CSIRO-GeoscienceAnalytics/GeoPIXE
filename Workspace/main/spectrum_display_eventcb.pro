@@ -1798,6 +1798,7 @@ state = {	p:			pp, $				; pointer to spectrum pointer array
 			pflux:		ptr_new(/allocate_heap), $		; pointer to IC, flux details
 			pdepth:		ptr_new(/allocate_heap), $		; pointer to depth profile yield calc details
 			pregions:	ptr_new(/alloc), $				; pointer to 'image-regions'
+			pdmap:		ptr_new(/allocate_heap), $		; pointer to detector_map parameters
 			
 			tlb:		0L, $				; TLB base ID
 			wid1:		0L, $				; draw 1 window id
@@ -2590,6 +2591,24 @@ if n_elements(keep_zero) eq 0 then keep_zero=0
 	*(*pstate).p = pq
 	*(*pstate).pshow = s
 	return
+end
+
+;-----------------------------------------------------------------
+
+pro spectrum_detector_map, Event
+
+child = widget_info( event.top, /child)
+widget_control, child, get_uvalue=pstate
+
+detector_map, (*pstate).p, group=event.top, tlb=tlb, path=*(*pstate).path, pars=(*pstate).pdmap
+
+;register_notify, event.top, $
+;          ['fit-display', $   ; pass on result of fit for display
+;          'new-results', $    ; means that presults has new data to pass on
+;          'path' $         ; new path
+;          ], from=tlb
+
+return
 end
 
 ;-----------------------------------------------------------------

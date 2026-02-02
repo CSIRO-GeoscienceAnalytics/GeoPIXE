@@ -422,6 +422,10 @@ common c_working_dir, geopixe_root
             Spectrum_Edit_Detectors, Event
        end
 
+	'detector_map_menu': begin
+		spectrum_detector_map, event
+		end
+
     'Blog_Browser_Menu': begin
             Spectrum_Blog_Browser, Event
        end
@@ -993,6 +997,7 @@ if chart eq 0 then begin
   W_MENU_52c = Widget_Button(W_MENU_5, UNAME='Identify_Menu', VALUE='Identify X-rays' )
 
   W_MENU_53 = Widget_Button(W_MENU_5, UNAME='cut_setup_menu', VALUE='Cuts Setup' )
+  W_MENU_53b = Widget_Button(W_MENU_5, UNAME='detector_map_menu', VALUE='Detector Map' )
 
   W_MENU_54 = Widget_Button(W_MENU_5, UNAME='pixe_fit_menu' ,VALUE='X-ray Spectrum Fit',/separator)
 

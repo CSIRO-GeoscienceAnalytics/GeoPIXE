@@ -365,9 +365,9 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
       ,COLUMN=1 ,MBAR=time_amp_TLB_MBAR, _EXTRA=_VWBExtra_)
 
   if !version.os_family eq 'unix' then begin
-	retain=2
+	retain = 2
   endif else begin
-	return=1
+	retain = 1
   endelse
 
   time_amp_Draw_Base = Widget_Base(time_amp_TLB, UNAME='time_amp_Draw_Base' ,SPACE=0  $
