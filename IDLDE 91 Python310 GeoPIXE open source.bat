@@ -1,7 +1,7 @@
 rem
 rem Launch IDLDE for GeoPIXE-source workspace under Windows
 rem	Switched from Anaconda to Mini-forge
-rem
+rem	(using a local envirnment with python 3.10)
 
 rem "Use IDL 9.1 and python 3.10"
 
