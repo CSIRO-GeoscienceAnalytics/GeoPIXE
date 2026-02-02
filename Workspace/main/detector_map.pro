@@ -158,6 +158,26 @@ pro detector_map_event, event
 					widget_control, (*pstate).element_id, set_value=*(*pars).pelement
 					widget_control, (*pstate).element_id, set_combobox_select = (*pars).element_index
 				endif
+
+				if ptr_good((*pars).pdetector) eq 0 then begin
+					detector_update, /array, present=(*(*pars).detector_list)[(*pars).detector_mode], file=f
+					detector = read_detector( f, error=error)
+					if error then begin
+						warning, 'detector_map_event','Error reading Detector file '+f, /error
+						goto, finish
+					endif else begin
+						*(*pars).pdetector = *detector
+						d = read_detector_layout( (*(*pars).pdetector).layout, error=error)
+						if error eq 0 then begin
+							play = (*pars).playout
+							*play = d
+							if ptr_good(play,/struct) eq 0 then begin
+								warning,'detector_map_event','No detector layout found for selected array.'
+								return
+							endif
+						endif
+					endelse
+				endif
 				goto, update
 			endif
 			end
