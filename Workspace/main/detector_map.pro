@@ -88,12 +88,8 @@ pro detector_map_event, event
 		'array-mode': begin
 			n = n_elements(*(*pars).detector_list)
 			if n lt 1 then goto, finish
-			(*pars).detector_mode = event.index < (n-1)
-			detector_update, /array, list=list, title=title, present=(*(*pars).detector_list)[(*pars).detector_mode], new=i, file=f
-			*(*pars).detector_list = list
-			(*pars).detector_file = f
-			(*pars).detector_mode = i
-			widget_control, (*pstate).detector_id, set_value=title, set_combobox_select=i
+			detector_update, /array, present=(*(*pars).detector_list)[event.index], file=f
+			(*pars).detector_mode = event.index
 			detector = read_detector( f, error=error)
 			if error then begin
 				warning, 'detector_map_event','Error reading Detectors file '+f, /error
@@ -108,21 +104,6 @@ pro detector_map_event, event
 						warning,'detector_map_event','No detector layout found for selected array.'
 						return
 					endif
-					(*play).data.bad = 0
-					n_detectors = (*play).n
-					n = n_detectors + ((*play).start > 0)
-
-;					if n_elements(*(*p).pactive) lt n_detectors then *(*p).pactive = indgen(n_detectors)
-;					*(*p).pselect = bytarr(n)				
-;					if n_elements(*(*p).pshow) gt 0 then begin
-;						q = where( (*(*p).pshow ge 0) and (*(*p).pshow lt n), nq)
-;						if nq ge 1 then (*(*p).pselect)[ (*(*p).pshow)[q] ] = 1
-;					endif else begin
-;						if n_elements(*(*p).pactive) gt 0 then begin
-;							q = where( (*(*p).pactive ge 0) and (*(*p).pactive lt n), nq)
-;							if nq ge 1 then (*(*p).pselect)[ (*(*p).pactive)[q] ] = 1
-;						endif
-;					endelse
 				endif
 			endelse
 			goto, update
@@ -323,8 +304,8 @@ pro detector_map_draw, pstate
 
 	n = clip( n_elements(p), 1,384)
 	nd = (*(*pars).playout).n
-	id = indgen(nd)
-	signal = fltarr(nd)
+	id = indgen(nd) + (*(*pars).playout).start
+	signal = fltarr(nd + (*(*pars).playout).start)
 	k = (*pars).element_index
 	cda = da.cal.a
 	cdb = da.cal.b
@@ -345,16 +326,16 @@ pro detector_map_draw, pstate
 			s = strmid( (*p[i]).label, m+m2)
 			ichan = fix(s)
 		endif
-		if (ichan eq -1) or (ichan ge nd) then continue
+		if (ichan-(*(*pars).playout).start lt 0) or (ichan-(*(*pars).playout).start ge nd) then continue
 
 		a = (*p[i]).cal.poly[1]
 		b = (*p[i]).cal.poly[0]
 		j = round( (e-b)/a)
 		q = where( (j ge 0) and (j lt (*p[i]).size), nq)
 		if nq eq 0 then continue
-		if ichan ge n_elements( da.array.rgamma[*,0]) then continue
+		if ichan-(*(*pars).playout).start ge n_elements( da.array.rgamma[*,0]) then continue
 		y = da.matrix[x[q],k] * (*(*p[i]).data)[j[q]]
-		if (*pars).rGamma_norm then y = y / da.array.rgamma[ichan,k]
+		if (*pars).rGamma_norm then y = y / da.array.rgamma[ichan-(*(*pars).playout).start,k]
 		signal[ichan] = total( y )
 
 ;		if ichan eq 58 then begin
@@ -368,11 +349,13 @@ pro detector_map_draw, pstate
 ;			oplot, e[q], (*(*p[i]).data)[j] , color=spec_colour('red')
 ;		endif
 	endfor
+	if (*(*pars).playout).start gt 0 then signal=signal[(*(*pars).playout).start:*]
 
+;	wset, (*pstate).wid
 	wset, (*pstate).pix
 	ymax = image_weighted_max( signal)
 	plot_maia_parameter, id, signal, /white, title='Element "'+(*(*pars).pelement)[ (*pars).element_index]+'" using DA "'+(*(*pars).pmatrix)[ (*pars).matrix_index]+'"', $
-			min=0.0, max=ymax, /screen, layout=(*(*pars).pdetector).layout, /wset_done, true=(*pars).Geom_true
+			min=0.0, max=ymax, /screen, layout=(*(*pars).pdetector).layout, /wset_done, true=(*pars).Geom_true, only_maia=0
 
 	wset, (*pstate).wid
 	device, copy=[0,0, (*pstate).width,(*pstate).height, 0,0,(*pstate).pix]
@@ -421,7 +404,25 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 	
 	if make_pars then begin
 		detector_update,  list=detector_list, title=detector_title, /array
-		detector_update, present=detector_list[0], new=idet, file=fdet
+		good = intarr(n_elements(detector_list))
+		for i=0,n_elements(detector_list)-1 do begin
+			detector_update, /array, present=detector_list[i], new=j, file=f
+			print, 'was i=',i,'  now: j=',j
+			detector = read_detector( f, error=error)
+			if error then continue
+			d = read_detector_layout( (*detector).layout, maia=maia_like, error=error)
+			ptr_free, detector
+			if error or (maia_like eq 0) then continue
+			print, 'Good f=',f
+			good[i] = 1
+		endfor
+		q = where( good eq 1, nq)
+		if nq eq 0 then begin
+			warning,'detector_map','No valid array detectors found in your installation.'
+			return
+		endif
+		detector_list = detector_list[q]
+		detector_title = detector_title[q]
 		matrix = ['Add a DA matrix -->']
 		element = ['?']
 
@@ -434,8 +435,7 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 			pda:			ptr_new( /alloc), $			; current DA
 			detector_list: 	ptr_new(detector_list), $	; list of detector files
 			detector_title: ptr_new(detector_title), $	; list of detectors
-			detector_mode: 	idet, $						; current detector
-			detector_file:	fdet, $						; current detector file
+			detector_mode: 	0, $						; current detector
 			pdetector:		ptr_new(/alloc), $			; detector struct
 			rGamma_norm:	0, $						; normalize out rGamma variation across array
 			Geom_true:		0, $						; show true sizes of detectors

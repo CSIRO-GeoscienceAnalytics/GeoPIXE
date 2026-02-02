@@ -194,11 +194,11 @@ finish:
 	return, mp
 
 err:
-	warning, 'read_detector_layout', 'Serious format error in layout file.'
+;	warning, 'read_detector_layout', 'Serious format error in layout file.'
 	mp = 0
 	goto, finish
 bad_file:
-	warning, 'read_detector_layout', 'File "'+file+'" not found.'
+;	warning, 'read_detector_layout', 'File "'+file+'" not found.'
 	mp = 0
 	goto, finish
 	end

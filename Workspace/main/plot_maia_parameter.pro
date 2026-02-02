@@ -1,5 +1,5 @@
 pro plot_maia_parameter, id, par, cgm=cgm, ps=ps, white=white, bw=bw, title=title, true=true, $
-			min=ymin, max=ymax, screen=screen, layout=file1, wset_done=wset_done
+			min=ymin, max=ymax, screen=screen, layout=file1, wset_done=wset_done, only_maia=only_maia
 
 ; Plot a parameter 'par' on the detector map, with labels 'id' on each detector
 ;
@@ -13,6 +13,7 @@ pro plot_maia_parameter, id, par, cgm=cgm, ps=ps, white=white, bw=bw, title=titl
 ; /screen	screen output 
 ;			else defaults to printer output, which will fallback to screen
 ; /wset_done true to use an existing window (wset done), else make window #0 here
+; /only_maia only return error=0 for maia detectors
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -32,6 +33,7 @@ if n_elements(id) lt 1 then return
 if n_elements(id) ne n_elements(par) then return
 if n_elements(title) lt 1 then title = ''
 if n_elements(true) lt 1 then true = 0
+if n_elements(only_maia) lt 1 then only_maia = 1
 if n_elements(file1) lt 1 then file1 = "Maia_384C.csv"
 if file1 eq '' then file1 = "Maia_384C.csv"
 if n_elements(wset_done) lt 1 then wset_done = 0
@@ -41,8 +43,11 @@ if n_elements(wset_done) lt 1 then wset_done = 0
 
 path1 = extract_path( file1)
 file1 = file_requester(/read, filter='*.csv', updir=2, file=file1, /skip_if_exists)
-d = read_detector_layout( file1, maia=maia, error=error)
-if error or (maia eq 0) then return
+d = read_detector_layout( file1, maia=maia_like, error=error)
+if error then return
+if maia_like eq 0 then return
+maia = (d.n eq 384)
+if only_maia and (maia eq 0) then return
 
 case !version.os_family of
 	'MacOS': begin
@@ -121,9 +126,22 @@ endif
 !x.title = 'X (mm)'
 !y.title = 'Y (mm)'
 
-g = 10.				; plot box size
-yof = 0.1			; Y offset for index label
-delta = 0.02		; increase size so that hole is within lines
+g = max([max(d.data[*].x + d.data[*].width), max(d.data[*].y + d.data[*].height)])	; plot box size
+dg = g/10.
+yof = 0.1											; Y offset for index label
+delta = 0.0	;0.02										; increase size so that hole is within lines
+xo = 0.
+yo = 0.
+ao = 0.5
+dy1 = 1
+dy2 = -1
+if maia eq 0 then begin
+	xo = -g + 2*dg
+	yo = -g
+	ao = 0
+	dy1 = 2*dg
+	dy2 = dg
+endif
 
 if true then begin
 	c = !p.color
@@ -138,8 +156,8 @@ plot, [0,0],[0,0], /nodata, xrange=[-g,g],yrange=[-g,g], $
     position=[wlo,base,whi,top], xstyle=1, thick=thick, charthick=cthick*1.2, $
     charsize=csize*1.4, xthick=athick, ythick=athick, color=c
 
-xyouts, 0.0,1.0, 'Max = '+str_tidy(max(par)), color=!p.color, align=0.5, charsize=1.2*csize, charthick=cthick
-xyouts, 0.0,-1.0, 'Min = '+str_tidy(min(par)), color=!p.color, align=0.5, charsize=1.2*csize, charthick=cthick
+xyouts, xo,yo+dy1, 'Max = '+str_tidy(max(par)), color=!p.color, align=ao, charsize=1.2*csize, charthick=cthick
+xyouts, xo,yo+dy2, 'Min = '+str_tidy(min(par)), color=!p.color, align=ao, charsize=1.2*csize, charthick=cthick
 
 col = 16B + bytscl( par, min=ymin, max=ymax, top=99)
 n = n_elements(par)
@@ -165,12 +183,17 @@ for k=0,n-1 do begin
 	y = d.data[i].y
 ;	j = d.data[i].index
 	j = id[k]
-	boxx = [-w,w,w,-w,-w]/2
-	boxy = [-h,-h,h,h,-h]/2
+	if d.shape eq 0 then begin
+		circle_diam, x-w/2,y, x+w/2,y, xc,yc
+		polyfill, xc,yc, color=col[k], /data
+		if true then plots, xc,yc, thick=thick*0.6
+	endif else begin
+		boxx = [-w,w,w,-w,-w]/2
+		boxy = [-h,-h,h,h,-h]/2
+		polyfill, x+boxx, y+boxy, color=col[k], /data
+		if true then plots, x+boxx, y+boxy, thick=thick*0.6
+	endelse
 
-	polyfill, x+boxx, y+boxy, color=col[k], /data
-
-	if true then plots, x+boxx, y+boxy, thick=thick*0.6
 	if fix(rr[col[k]])+fix(gg[col[k]])+fix(bb[col[k]]) gt 3*128 then begin
 		c = spec_colour('black')
 	endif else begin
@@ -181,16 +204,30 @@ endfor
 
 ; Legend bar
 
-if true then begin
-	w = 0.7
-	h = 7.0/100.
-	x = -11.4
-	y0 = 2.5
+if maia then begin
+	if true then begin
+		w = 0.7
+		h = 7.0/100.
+		x = -11.4
+		y0 = 2.5
+	endif else begin
+		w = 0.9
+		h = 9.0/100.
+		x = -10.7
+		y0 = -1.0
+	endelse
 endif else begin
-	w = 0.9
-	h = 9.0/100.
-	x = -10.7
-	y0 = -1.0
+	if true then begin
+		w = 0.7
+		h = 7.0/100.
+		x = -g + dg
+		y0 = -g + dg
+	endif else begin
+		w = 0.9
+		h = 9.0/100.
+		x = -g
+		y0 = -g
+	endelse
 endelse
 boxx = [-w,w,w,-w,-w]/2
 boxy = [-h,-h,h,h,-h]/2

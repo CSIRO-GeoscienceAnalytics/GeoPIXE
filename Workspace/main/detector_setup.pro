@@ -676,6 +676,8 @@ pro detector_draw, pstate
 	top = 1.2*max(eff)
 	bot = 0.5*min(eff) > 0.5e-4*top
 
+	!p.color = spec_colour('white')
+	!p.background = spec_colour('black')
 	!x.title = 'Photon Energy (keV)'
 	!y.title = 'Efficiency'
 	!p.title = ''
