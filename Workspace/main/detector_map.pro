@@ -407,13 +407,11 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 		good = intarr(n_elements(detector_list))
 		for i=0,n_elements(detector_list)-1 do begin
 			detector_update, /array, present=detector_list[i], new=j, file=f
-			print, 'was i=',i,'  now: j=',j
 			detector = read_detector( f, error=error)
 			if error then continue
 			d = read_detector_layout( (*detector).layout, maia=maia_like, error=error)
 			ptr_free, detector
 			if error or (maia_like eq 0) then continue
-			print, 'Good f=',f
 			good[i] = 1
 		endfor
 		q = where( good eq 1, nq)
@@ -513,7 +511,7 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 
 	lab = widget_label( array_base, value=' ', scr_xsize=20)
 	label = widget_label( array_base, value='Detector array options:')
-	rgamma = cw_bgroup2( array_base, ['rGamma norm','True size'], /row, set_value=[(*pars).rGamma_norm, (*pars).Geom_true], /return_index, uname='rgamma-norm',/ nonexclusive, /tracking, $
+	rgamma = cw_bgroup2( array_base, ['rGamma norm','True masked size'], /row, set_value=[(*pars).rGamma_norm, (*pars).Geom_true], /return_index, uname='rgamma-norm',/ nonexclusive, /tracking, $
 					uvalue=['Enable correction of the detector map for the "rGamma" relative efficiency factors.', $
 							'Show true sizes of detector cells.'], xpad=0, ypad=0, space=1)
 
