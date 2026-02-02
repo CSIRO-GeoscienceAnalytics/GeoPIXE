@@ -532,8 +532,8 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 	lab = widget_label( array_base, value=' ', scr_xsize=20)
 	label = widget_label( array_base, value='Detector array options:')
 	rgamma = cw_bgroup2( array_base, ['rGamma norm','True masked size'], /row, set_value=[(*pars).rGamma_norm, (*pars).Geom_true], /return_index, uname='rgamma-norm',/ nonexclusive, /tracking, $
-					uvalue=['Enable correction of the detector map for the "rGamma" relative efficiency factors.', $
-							'Show true sizes of detector cells.'], xpad=0, ypad=0, space=1)
+					uvalue=['Enable correction of the detector map for the "rGamma" Relative Efficiency Factors.', $
+							'Show true effective sizes of detector cells after masking.'], xpad=0, ypad=0, space=1)
 
 	row1 = Widget_Base(base1, UNAME='button_row_base', SPACE=4, XPAD=1, YPAD=0, /row, /base_align_center)
 
