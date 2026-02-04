@@ -101,22 +101,33 @@ try:
 						endcase
 						end
 					'darwin': begin
-						case !version.MEMORY_BITS of
-							32: begin
-								f = file_search( path+'image_lib.32bit.dylib')
-								if f ne '' then begin
-									geopixe_library_file = path+'image_lib.32bit.dylib'
-									geopixe_library_suffix = 'm32'
-								endif
-								end
-							64: begin
-								f = file_search( path+'image_lib.64bit.dylib')
-								if f ne '' then begin
-									geopixe_library_file = path+'image_lib.64bit.dylib'
-									geopixe_library_suffix = 'm64'
-								endif
-								end
-						endcase
+						f = file_search( path+'image_lib.dylib')
+						if f ne '' then begin
+							geopixe_library_file = path+'image_lib.dylib'
+							geopixe_library_suffix = 'mac'
+						endif else begin
+							case !version.MEMORY_BITS of
+								32: begin
+									f = file_search( path+'image_lib.32bit.dylib')
+									if f ne '' then begin
+										geopixe_library_file = path+'image_lib.32bit.dylib'
+										geopixe_library_suffix = 'm32'
+									endif
+									end
+								64: begin
+									f = file_search( path+'image_lib.64bit.dylib')
+									if f ne '' then begin
+										geopixe_library_file = path+'image_lib.64bit.dylib'
+										geopixe_library_suffix = 'm64'
+									endif
+									f = file_search( path+'image_lib.arm64.dylib')
+									if f ne '' then begin
+										geopixe_library_file = path+'image_lib.arm64.dylib'
+										geopixe_library_suffix = 'arm'
+									endif
+									end
+							endcase
+						endelse
 						end
 					else: warning,'geopixe_library','un-supported unix operating system ('+ !version.os +')'
 				endcase
