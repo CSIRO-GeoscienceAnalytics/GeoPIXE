@@ -35,6 +35,14 @@
 #define INTEGER_ARCH integer*4
 #endif
 
+! ensure integer arguments to iand() and ior() match in "kind"
+! https://stackoverflow.com/questions/59756525/iand-with-different-kind-parameters-using-new-gfortran-version
+
+#define empty()
+#define fixkind(f, i, j)	f empty() (int(i, kind(j)), j)
+#define iand(i, j)		fixkind(iand, i, j)
+#define ior(i, j)		fixkind(ior, i, j)
+
 !  !DLL_EXPORT geopixe_lib_version
 !  INTEGER_ARCH argc, argv(*)
 
