@@ -7312,12 +7312,15 @@ state = {	p:			pimage, $			; pointer to image pointer array
 			mode_id:	0L, $				; ID of display mode droplist
 			left_button: 0, $				; flags left mouse button
 			right_button: 0, $				; right mouse
+			middle_button: 0, $				; middle mouse
 
 			max_set:	max_set, $			; number of normal marker sets
 			pmark:		ptrarr(2), $		; pointers to include, exclude markers
 			id:			-1, $				; id of current vertex
-			oldx:		0, $				; old mouse X (zoomed to image coords)
+			oldx:		0, $				; old mouse X, at last DOWN (zoomed to image coords)
 			oldy:		0, $				; old mouse Y
+			movex:		0, $				; old mouse X, at last MOTION (zoomed to image coords)
+			movey:		0, $				; old mouse Y
 			px:			ptr_new(), $		; pointer to temp X array
 			py:			ptr_new(), $		; pointer to temp Y array
 			theta:		0.0, $				; temp theta angle

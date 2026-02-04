@@ -36,44 +36,61 @@ if catch_errors_on then begin
 endif
 common image_region_window_1, region_window
 
-possible = ['DOWN','UP','MOTION','SCROLL']
+;print,'event: type=',event.type, '  press=',event.press
 if event.type gt 2 then begin
-	print,'OnButton_image: Found illegal button type'
+	print,'OnButton_image: Found illegal button "type" =',event.type
 	return
 endif
-;print,'event: type=',event.type, '  press=',event.press
+if event.press gt 4 then begin
+	print,'OnButton_image: Found illegal button "press" =',event.press
+	return
+endif
+possible = ['DOWN','UP','MOTION','SCROLL']
+button = ['none','LEFT','MIDDLE','VIEW','RIGHT']
 
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 
-pm = (*pstate).pmark[ (*pstate).analyze_mode ]
+pm = (*pstate).pmark[ (*pstate).analyze_mode ]						; shape struct
 if ptr_valid(pm) eq 0 then goto, finish
-p = (*pm)[(*pstate).analyze_type[(*pstate).analyze_mode]]
+p = (*pm)[(*pstate).analyze_type[(*pstate).analyze_mode]]			; control points
 if ptr_valid(p) eq 0 then goto, finish
 pimg = (*pstate).p
 if ptr_valid(pimg) eq 0 then goto, finish
+
+mag_xy = 10
+magnify = 10
 
 case possible[ event.type] of
 	'DOWN': begin
 		(*pstate).left_button = 0
 		(*pstate).right_button = 0
-		if (event.press AND 1B) ne 0 then begin
-;			print,'OnButton_image: left mouse button press ...'
-			(*pstate).left_button = 1
-		endif
-		if (event.press AND 4B) ne 0 then begin
-;			print,'OnButton_image: right mouse button press ...'
-			(*pstate).right_button = 1
-		endif
-;		print,'Down: analyze_type=',(*pstate).analyze_type[(*pstate).analyze_mode],' present=',(*p).present
+		(*pstate).middle_button = 0
+		case button[event.press] of
+			'LEFT': begin
+;				print,'OnButton_image: left mouse button press ...'
+				(*pstate).left_button = 1
+				end
+			'RIGHT': begin
+;				print,'OnButton_image: right mouse button press ...'
+				(*pstate).right_button = 1
+				end
+			'MIDDLE': begin
+;				print,'OnButton_image: right mouse button press ...'
+				(*pstate).middle_button = 1
+				end
+			else:
+		endcase
+
 		(*pstate).id = -1
-		pixel_to_xy, pstate, event.x,event.y, x,y
+		pixel_to_xy, pstate, event.x,event.y, x,y					; coords on map
 		pixel_to_xy, pstate, event.x,event.y, xf,yf, /fractional
 		x = xf
 		y = yf
-;		print,'zoomed mouse x,y=',x,y
 		(*pstate).oldx = x
 		(*pstate).oldy = y
+		(*pstate).movex = x
+		(*pstate).movey = y
 
 		if (*pstate).right_button then begin
 			if near_xy( xf,yf, (*p).x,(*p).y, zoom=(*pstate).zoom) eq -1 then begin
@@ -84,6 +101,21 @@ case possible[ event.type] of
 				endif
 			endif
 		endif
+		if (*pstate).middle_button then begin
+			b = make_tvb( pstate, (*pstate).image, /nozoom)
+			b2 = congrid( b[x-10:x+9,y-10:y+9], 100,100)
+			wset, (*pstate).pix2
+			tv, b2, 0,0
+			plots,[0,99,99,0,0],[0,0,99,99,0],/device,color=spec_colour('white')
+			xyouts,3,3,'x5',/device,color=spec_colour('white')
+			xy_to_pixel, pstate, x,y, px,py
+			wset, (*pstate).wid2
+			device, copy=[0,0,100,100, px+10,py+10, (*pstate).pix2]
+			goto, motion_on
+		endif
+
+;		print,'Down: analyze_type=',(*pstate).analyze_type[(*pstate).analyze_mode],' present=',(*p).present
+;		print,'zoomed mouse x,y=',x,y
 
 		case (*pstate).analyze_type[(*pstate).analyze_mode] of
 			0: begin																; distance
@@ -308,11 +340,9 @@ case possible[ event.type] of
 		(*pstate).px = ptr_new( (*p).x)
 		(*pstate).py = ptr_new( (*p).y)
 		if ((*pstate).analyze_type[(*pstate).analyze_mode] eq 1) or $
-			((*pstate).analyze_type[(*pstate).analyze_mode] eq 4) or $
-			((*pstate).analyze_type[(*pstate).analyze_mode] eq 5) then begin
-
+					((*pstate).analyze_type[(*pstate).analyze_mode] eq 4) or $
+					((*pstate).analyze_type[(*pstate).analyze_mode] eq 5) then begin
 			(*pstate).theta = (*p).theta
-
 			if ((*pstate).analyze_type[(*pstate).analyze_mode] eq 4) then begin
 				(*pstate).shear = (*p).shear
 				(*pstate).curvature = (*p).curvature
@@ -325,25 +355,49 @@ case possible[ event.type] of
 			wset, (*pstate).pix
 			plot_mark, pstate, /include
 		endif
+motion_on:
 ;		print,'set motion events ON'
-		widget_control, event.id, draw_motion_events=1
+		widget_control, event.id, draw_motion_events=1						; enable motion events
 		notify, 'image-analyze-clear', from=event.top
 		end
 
 	'MOTION': begin
-;		print,'Motion: id=',(*pstate).id
-		if (*pstate).id lt 0 then begin
-;			widget_control, event.id, draw_motion_events=0
-			goto, finish
-		endif
 		xc = 0
 		yc = 0
 		pixel_to_xy, pstate, event.x,event.y, x,y
 		pixel_to_xy, pstate, event.x,event.y, xf,yf, /fractional
 		x = xf
 		y = yf
-		wset, (*pstate).wid2
 		
+		if (*pstate).middle_button then begin
+;			print,'Middle motion ...'
+			xc = xf
+			yc = yf
+			xy_to_pixel, pstate, (*pstate).movex,(*pstate).movey, px,py
+			wset, (*pstate).wid2
+			device, copy=[px+8,py+8,106,106, px+8,py+8, (*pstate).pix]
+
+			b = make_tvb( pstate, (*pstate).image, /nozoom)
+			b2 = congrid( b[x-10:x+9,y-10:y+9], 100,100)
+			wset, (*pstate).pix2
+			tv, b2, 0,0
+			plots,[0,99,99,0,0],[0,0,99,99,0],/device,color=spec_colour('white')
+			xyouts,3,3,'x5',/device,color=spec_colour('white')
+			xy_to_pixel, pstate, x,y, px,py
+			wset, (*pstate).wid2
+			device, copy=[0,0,100,100, px+10,py+10, (*pstate).pix2]
+		endif
+		(*pstate).movex = x
+		(*pstate).movey = y
+		if (*pstate).middle_button then goto, legend2
+
+;		print,'Motion: id=',(*pstate).id
+		if (*pstate).id lt 0 then begin
+;			widget_control, event.id, draw_motion_events=0
+			goto, finish
+		endif
+
+		wset, (*pstate).wid2
 		case (*pstate).analyze_type[(*pstate).analyze_mode] of
 			0: begin																; distance
 				if (x ne (*p).x[(*pstate).id]) or (y ne (*p).y[(*pstate).id]) then begin
@@ -506,7 +560,7 @@ case possible[ event.type] of
 				endif
 				end
 			3: begin																; curve traverse
-				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, more
+				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, legend
 				if (*pstate).left_button then begin
 					clear_mark, pstate
 					case (*pstate).id of
@@ -617,7 +671,7 @@ case possible[ event.type] of
 				endif
 				end
 			4: begin																; line traverse
-				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, more
+				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, legend
 				if (*pstate).left_button then begin
 					clear_mark, pstate
 					case (*pstate).id of
@@ -908,7 +962,7 @@ case possible[ event.type] of
 				plot_mark, pstate
 				end
 			8: begin																; project X
-				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, more
+				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, legend
 				if (*pstate).left_button then begin
 					clear_mark, pstate
 					case (*pstate).id of
@@ -968,7 +1022,7 @@ case possible[ event.type] of
 				endif
 				end
 			9: begin																; project Y
-				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, more
+				if (x eq (*p).x[(*pstate).id]) and (y eq (*p).y[(*pstate).id]) then goto, legend
 				if (*pstate).left_button then begin
 					clear_mark, pstate
 					case (*pstate).id of
@@ -1069,7 +1123,7 @@ case possible[ event.type] of
 				end
 			else:
 		endcase
-more:
+legend:
 		case (*pstate).analyze_type[(*pstate).analyze_mode] of
 			0: begin													; distance
 				(*pstate).sizex = (*p).x[1] - (*p).x[0]
@@ -1080,24 +1134,35 @@ more:
 				(*pstate).size_units = sunits
 				s = 'Distance =' + string(d) + ' ' + (*pstate).size_units+', angle = '+str_tidy(angle * !radeg, places=2)
 				widget_control, (*pstate).help, set_value=s
+				goto, finish
 				end
 			11: begin													; S pixel
 				xy_to_microns, pstate, (*p).x[0], (*p).y[0], sx,sy,sunits
 				s = 'pixel = ' + str_tidy((*p).x[0])+','+str_tidy((*p).y[0]) + ' (' + str_tidy(sx)+','+str_tidy(sy)+ ' '+(*pstate).size_units+')'
 				widget_control, (*pstate).help, set_value=s
+				goto, finish
 				end
-			else: begin
-				if (xc ne 0) and (yc ne 0) then begin
-					s1 = 'Centre  X =' + str_tidy(xc) + '  Y =' + str_tidy(yc)
-					s2 = 'Absolute  X =' + str_tidy(xc+(*pimg).xoffset) + '  Y =' + str_tidy(yc+(*pimg).yoffset)
-					s3 = '(uncompress: X =' + str_tidy((xc+(*pimg).xoffset)*(*pimg).xcompress) + '  Y =' + str_tidy((yc+(*pimg).yoffset)*(*pimg).ycompress) + ')'
-					widget_control, (*pstate).help, set_value=[s1,s2,s3]
-				endif
-				end
+			else:
 		endcase
+legend2:
+		if (xc ne 0) and (yc ne 0) then begin
+			s1 = 'Centre  X =' + str_tidy(xc) + '  Y =' + str_tidy(yc)
+			s2 = 'Absolute  X =' + str_tidy(xc+(*pimg).xoffset) + '  Y =' + str_tidy(yc+(*pimg).yoffset)
+			s3 = '(uncompress: X =' + str_tidy((xc+(*pimg).xoffset)*(*pimg).xcompress) + '  Y =' + str_tidy((yc+(*pimg).yoffset)*(*pimg).ycompress) + ')'
+			widget_control, (*pstate).help, set_value=[s1,s2,s3]
+		endif
 		end
 
 	'UP': begin
+		pixel_to_xy, pstate, event.x,event.y, x,y
+		pixel_to_xy, pstate, event.x,event.y, xf,yf, /fractional
+
+		if (*pstate).middle_button then begin
+			xy_to_pixel, pstate, (*pstate).movex,(*pstate).movey, px,py
+			wset, (*pstate).wid2
+			device, copy=[px+8,py+8,106,106, px+8,py+8, (*pstate).pix]
+			goto, motion_off
+		endif
 		if ((*pstate).corr_on eq 0) and ptr_valid((*pstate).qc) then begin
 			(*pstate).corr_on = 1
 			draw_images, pstate
@@ -1302,13 +1367,14 @@ more:
 				notify, 'image-analyze-q', (*pstate).pq, from=event.top
 			endif
 		endelse
+
+motion_off:
 		widget_control, event.id, draw_motion_events=0
 		notify, 'image-analyze-mark', from=event.top
 		end
 endcase
 
 finish:
-
 	if n_elements(pstate) eq 0 then goto, die
 	if ptr_valid(pstate) eq 0 then goto, die
 	if size(*pstate,/tname) ne 'STRUCT' then goto, die

@@ -305,6 +305,8 @@ endif else begin
 	image.n_el = n_el
 	el = strarr(image.n_el)
 	readu,1, el
+	q = where(el eq '', nq)
+	if nq ge 1 then el[q] = str_tidy(q)
 	image.el = ptr_new(el, /no_copy)
 	if version le -57 then begin
 		readu,1, energy_proxy_axis
