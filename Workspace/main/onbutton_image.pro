@@ -58,8 +58,17 @@ if ptr_valid(p) eq 0 then goto, finish
 pimg = (*pstate).p
 if ptr_valid(pimg) eq 0 then goto, finish
 
-mag_xy = 10
-magnify = 10
+screen = get_screen_size()
+magnify = 150									; size of magnified view
+magpix = 15										; half-size of pixel view
+if screen[1] gt 1700 then begin
+	magnify = 400
+	magpix = 40
+endif else if screen[1] gt 1000 then begin
+	magnify = 250
+	magpix = 25
+endif
+;print,'left=',(*pstate).left_button,' middle=',(*pstate).middle_button,' type=',possible[ event.type]
 
 case possible[ event.type] of
 	'DOWN': begin
@@ -89,8 +98,6 @@ case possible[ event.type] of
 		y = yf
 		(*pstate).oldx = x
 		(*pstate).oldy = y
-		(*pstate).movex = x
-		(*pstate).movey = y
 
 		if (*pstate).right_button then begin
 			if near_xy( xf,yf, (*p).x,(*p).y, zoom=(*pstate).zoom) eq -1 then begin
@@ -103,14 +110,17 @@ case possible[ event.type] of
 		endif
 		if (*pstate).middle_button then begin
 			b = make_tvb( pstate, (*pstate).image, /nozoom)
-			b2 = congrid( b[x-10:x+9,y-10:y+9], 100,100)
+			b2 = congrid( b[x-magpix:x+magpix-1,y-magpix:y+magpix-1], magnify,magnify)
 			wset, (*pstate).pix2
 			tv, b2, 0,0
-			plots,[0,99,99,0,0],[0,0,99,99,0],/device,color=spec_colour('white')
-			xyouts,3,3,'x'+str_tidy( 5.0/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
+			plots,[0,magnify-1,magnify-1,0,0],[0,0,magnify-1,magnify-1,0],/device,color=spec_colour('white')
+			mag = float(magnify) / (2.0*magpix)
+			xyouts,3,3,'x'+str_tidy( mag/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
 			xy_to_pixel, pstate, x,y, px,py
 			wset, (*pstate).wid2
-			device, copy=[0,0,100,100, px+10,py+10, (*pstate).pix2]
+			device, copy=[0,0,magnify,magnify, px+10,py+10, (*pstate).pix2]
+			(*pstate).movex = x
+			(*pstate).movey = y
 			goto, motion_on
 		endif
 
@@ -375,20 +385,21 @@ motion_on:
 			yc = yf
 			xy_to_pixel, pstate, (*pstate).movex,(*pstate).movey, px,py
 			wset, (*pstate).wid2
-			device, copy=[px+8,py+8,106,106, px+8,py+8, (*pstate).pix]
+			device, copy=[px+8,py+8,magnify+6,magnify+6, px+8,py+8, (*pstate).pix]
 
 			b = make_tvb( pstate, (*pstate).image, /nozoom)
-			b2 = congrid( b[x-10:x+9,y-10:y+9], 100,100)
+			b2 = congrid( b[x-magpix:x+magpix-1,y-magpix:y+magpix-1], magnify,magnify)
 			wset, (*pstate).pix2
 			tv, b2, 0,0
-			plots,[0,99,99,0,0],[0,0,99,99,0],/device,color=spec_colour('white')
-			xyouts,3,3,'x'+str_tidy( 5.0/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
+			plots,[0,magnify-1,magnify-1,0,0],[0,0,magnify-1,magnify-1,0],/device,color=spec_colour('white')
+			mag = float(magnify) / (2.0*magpix)
+			xyouts,3,3,'x'+str_tidy( mag/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
 			xy_to_pixel, pstate, x,y, px,py
 			wset, (*pstate).wid2
-			device, copy=[0,0,100,100, px+10,py+10, (*pstate).pix2]
+			device, copy=[0,0,magnify,magnify, px+10,py+10, (*pstate).pix2]
+			(*pstate).movex = x
+			(*pstate).movey = y
 		endif
-		(*pstate).movex = x
-		(*pstate).movey = y
 		if (*pstate).middle_button then goto, legend2
 
 ;		print,'Motion: id=',(*pstate).id
@@ -1160,7 +1171,7 @@ legend2:
 		if (*pstate).middle_button then begin
 			xy_to_pixel, pstate, (*pstate).movex,(*pstate).movey, px,py
 			wset, (*pstate).wid2
-			device, copy=[px+8,py+8,106,106, px+8,py+8, (*pstate).pix]
+			device, copy=[px+8,py+8,magnify+6,magnify+6, px+8,py+8, (*pstate).pix]
 			goto, motion_off
 		endif
 		if ((*pstate).corr_on eq 0) and ptr_valid((*pstate).qc) then begin
@@ -1168,6 +1179,9 @@ legend2:
 			draw_images, pstate
 		endif
 		(*pstate).corr_on = 1
+		(*pstate).left_button = 0
+		(*pstate).right_button = 0
+		(*pstate).middle_button = 0
 
 		case (*pstate).analyze_type[(*pstate).analyze_mode] of
 			0: begin
