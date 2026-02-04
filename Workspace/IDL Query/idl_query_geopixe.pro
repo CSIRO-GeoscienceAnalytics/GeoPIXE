@@ -198,7 +198,7 @@ cont4:
 			endelse
 			end
 		'9.2': begin
-			if (pmain eq 3) and (pfrac ge 9) and (pfrac le 13) then begin		; IDL 9.1 works with python 3.10-3.13 (guessed?)
+			if (pmain eq 3) and (pfrac ge 11) and (pfrac le 13) then begin		; IDL 9.1 works with python 3.11-3.13 
 
 			endif else begin
 				goto, kill_kvs

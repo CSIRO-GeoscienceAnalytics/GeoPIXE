@@ -16,7 +16,7 @@ function python_valid, message=message
 ;	8.9                                    y    y    y
 ;	9.0                                    y    y    y     y
 ;	9.1                                         y    y     y     y
-;	9.2                                         y    y     y     y     y?  (guess for now)
+;	9.2                                                    y     y     y
 
 	message = 'python {3.6-3.8, 3.8-3.10, 3.8-3.11, 3.9-3.12} with IDL {8.8, 8.9, 9.0, 9.1}'
 
@@ -47,7 +47,7 @@ function python_valid, message=message
 			if (pmain eq 3) and (pfrac ge 9) and (pfrac le 12) then goto, good	; IDL 9.1 works with python 3.9-3.12
 			end
 		'9.2': begin
-			if (pmain eq 3) and (pfrac ge 9) and (pfrac le 13) then goto, good	; IDL 9.2 works with python 3.9-3.13 (gues for now)
+			if (pmain eq 3) and (pfrac ge 11) and (pfrac le 13) then goto, good	; IDL 9.2 works with python 3.11-3.13 
 			end
 		else:
 	endcase
