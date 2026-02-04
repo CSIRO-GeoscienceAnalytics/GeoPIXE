@@ -8,7 +8,7 @@ function python_valid, message=message
 ; Also, historically, we assume that IDL 8.5 and 8.5.1 are only used with python 2.7.
 ;
 ;							Python version
-; IDL version    2.7  3.4  3.5  3.6  3.7  3.8  3.9  3.10  3.11  3.12
+; IDL version    2.7  3.4  3.5  3.6  3.7  3.8  3.9  3.10  3.11  3.12  3.13
 ;	8.5           y    x
 ;	8.6           y    y    y
 ;	8.7           y    y    y    y
@@ -16,6 +16,7 @@ function python_valid, message=message
 ;	8.9                                    y    y    y
 ;	9.0                                    y    y    y     y
 ;	9.1                                         y    y     y     y
+;	9.2                                         y    y     y     y     y?  (guess for now)
 
 	message = 'python {3.6-3.8, 3.8-3.10, 3.8-3.11, 3.9-3.12} with IDL {8.8, 8.9, 9.0, 9.1}'
 
@@ -44,6 +45,9 @@ function python_valid, message=message
 			end
 		'9.1': begin
 			if (pmain eq 3) and (pfrac ge 9) and (pfrac le 12) then goto, good	; IDL 9.1 works with python 3.9-3.12
+			end
+		'9.2': begin
+			if (pmain eq 3) and (pfrac ge 9) and (pfrac le 13) then goto, good	; IDL 9.2 works with python 3.9-3.13 (gues for now)
 			end
 		else:
 	endcase

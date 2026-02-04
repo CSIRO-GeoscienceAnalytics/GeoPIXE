@@ -107,7 +107,7 @@ case possible[ event.type] of
 			wset, (*pstate).pix2
 			tv, b2, 0,0
 			plots,[0,99,99,0,0],[0,0,99,99,0],/device,color=spec_colour('white')
-			xyouts,3,3,'x5',/device,color=spec_colour('white')
+			xyouts,3,3,'x'+str_tidy( 5.0/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
 			xy_to_pixel, pstate, x,y, px,py
 			wset, (*pstate).wid2
 			device, copy=[0,0,100,100, px+10,py+10, (*pstate).pix2]
@@ -382,7 +382,7 @@ motion_on:
 			wset, (*pstate).pix2
 			tv, b2, 0,0
 			plots,[0,99,99,0,0],[0,0,99,99,0],/device,color=spec_colour('white')
-			xyouts,3,3,'x5',/device,color=spec_colour('white')
+			xyouts,3,3,'x'+str_tidy( 5.0/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
 			xy_to_pixel, pstate, x,y, px,py
 			wset, (*pstate).wid2
 			device, copy=[0,0,100,100, px+10,py+10, (*pstate).pix2]
