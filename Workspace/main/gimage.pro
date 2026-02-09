@@ -1598,8 +1598,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
     retain=1
   endelse
 
-  Image_Draw = Widget_Draw(Image_Draw_Base, UNAME='Image_Draw'  $
-      ,SCR_XSIZE=360+scr_trim ,SCR_YSIZE=360+scr_trim  $
+  Image_Draw = Widget_Draw(Image_Draw_Base, UNAME='Image_Draw', /tracking  $
+      ,SCR_XSIZE=360+scr_trim ,SCR_YSIZE=360+scr_trim, uvalue='Left mouse: click and hold to drag shape or control point. ' + $
+	  		'Middle mouse/wheel: click and hold to magnify view. Right mouse: alt function for some control points.'  $
       ,NOTIFY_REALIZE='OnRealize_Image'  $
       ,KILL_NOTIFY='OnDestroy_Image' ,/SCROLL ,XSIZE=360+draw_trim  $
       ,YSIZE=360+draw_trim, retain=retain, /BUTTON_EVENTS,/VIEWPORT_EVENTS)
@@ -1679,14 +1680,14 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   Analyze_Type = widget_combobox(Image_Button_Top_Base, xsize=xsize_analyze_type,  $
       UNAME='Analyze_Type_combobox' ,NOTIFY_REALIZE='OnRealize_Analyze_Type'  $
       ,VALUE=[ 'Distance', 'Box', 'Circle', 'Curve 8', 'Traverse', 'Ellipse', 'Spline 10', 'Spline 32', 'Project X', 'Project Y', 'Spline 100', 'S pixel' ], tracking_events=1, $
-      uvalue='Select area analyze type. Use mouse to drag out a shape, ' + $
-      'or move/adjust an existing shape. Clear all shapes using menu.')
+      uvalue='Select area analyze type. Use mouse to drag out a shape, or move/adjust an existing shape. Clear all shapes using menu. ' + $
+	  	'Left mouse: click and hold to drag shape or control point. Right mouse: alt function for some controls.')
 
 
   Analyze_Mode = widget_combobox(Image_Button_Top_Base, xsize=xsize_analyze_mode,  $
       UNAME='Analyze_Mode_combobox' ,NOTIFY_REALIZE='OnRealize_Analyze_Mode'  $
       ,VALUE=[ '+', '-' ], tracking_events=1, $
-      uvalue='Select area analyze mode, to INCLUDE an area (+), or EXCLUDE it (-) from a prior include.')
+      uvalue='Select area analyze mode, to INCLUDE an area (+), or EXCLUDE it (-) from a prior include. Drag shape using Left mouse button.')
 
 
   Analyze_Button = Widget_Button( Image_Button_Top_Base, UNAME='Analyze_Button'  $
@@ -1698,7 +1699,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   Mode_combobox = widget_combobox( Image_Button_Bot_Base, sensitive=(realtime eq 0), $
       UNAME='Mode_combobox' ,NOTIFY_REALIZE='OnRealize_Image_Mode',  $
       VALUE=[ 'Conc', 'Var' ], tracking_events=1, xsize=mode_xsize, $
-      uvalue='Droplist to select the data to display: concentration, variance.')
+      uvalue='Droplist to select the data to display: Concentration image, image Variance.')
 
 
   interp_base = widget_base(Image_Button_Bot_Base, /nonexclusive, xsize=20, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=2)
