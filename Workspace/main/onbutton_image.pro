@@ -58,16 +58,24 @@ if ptr_valid(p) eq 0 then goto, finish
 pimg = (*pstate).p
 if ptr_valid(pimg) eq 0 then goto, finish
 
-screen = get_screen_size()
-magnify = 150									; size of magnified view
-magpix = 15										; half-size of pixel view
-if screen[1] gt 1700 then begin
-	magnify = 400
-	magpix = 40
-endif else if screen[1] gt 1000 then begin
+geom = widget_info( (*pstate).draw2, /geometry)
+;print,'Y size=',geom.ysize
+if geom.ysize gt 1800 then begin
+	magnify = 400										; size of magnified view
+	magpix = 40											; half-size of pixel view
+endif else if geom.ysize gt 1100 then begin
+	magnify = 400							
+	magpix = 40							
+endif else if geom.ysize gt 680 then begin
 	magnify = 250
 	magpix = 25
-endif
+endif else if geom.ysize gt 390 then begin
+	magnify = 150
+	magpix = 15
+endif else begin
+	magnify = 100
+	magpix = 10
+endelse
 ;print,'left=',(*pstate).left_button,' middle=',(*pstate).middle_button,' type=',possible[ event.type]
 
 case possible[ event.type] of
