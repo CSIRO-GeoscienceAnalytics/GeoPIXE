@@ -1131,7 +1131,11 @@ endif
 		compare_fits
 		end
 
-   'Help_User': begin
+	'Help_Worked_examples': begin
+		geopixe_browser, 'Help/GeoPIXE Worked Examples Open Notes.htm', title='GeoPIXE Worked Examples', group=event.top
+		end
+
+	'Help_User': begin
 	   	warning,'image',['','GeoPIXE Information (see the "Help" directory):', $
 	   		'','   Reference and users guide:', $
 	   		'        See the "GeoPIXE Users Guide.pdf".', $
@@ -1145,50 +1149,10 @@ endif
 	   		'','Maia detector information:', $
 	   		'','   Technical description and set-up:', $
 	   		'        See "Maia-384-user-help.pdf".'], /info
-;       case !version.os_family of
-;	   	'Windows': begin
-;			hfile2 = geopixe_root+'Help'+path_sep()+'GeoPIXE Users Guide.htm'
-;			hfile = geopixe_root+'Help'+path_sep()+'GeoPIXE-Users-Guide.htm'
-;			if file_test(hfile) then begin
-;				s = 'Browser.lnk "' + hfile + '"'
-;				spawn, s, /nowait, /hide
-;			endif else begin
-;				s = 'Browser.lnk "' + hfile2 + '"'
-;				spawn, s, /nowait, /hide
-;			endelse
-;			end
-;		'unix': begin
-;			hfile2 = geopixe_root+'Help'+path_sep()+'GeoPIXE-Users-Guide.htm'
-;			s = 'Browser "' + hfile2 + '" &'
-;			spawn, s
-;			end
-;         else: begin
-;		 	warning,'image_event',['Spawn not supported on this platform.','Open help file manually.']
-;			end
-;       endcase
        end
 
-   'Help_Maia_User': begin
-	   	warning,'image',['','Maia detector information:', $
-	   		'     Technical description, set-up and calibration:', $
-	   		'          See "Maia-384-user-help.pdf" in the Help directory.'], /info
-;       case !version.os_family of
-;	   	'Windows': begin
-;			hfile = geopixe_root+'Help'+path_sep()+'Maia-384-user-help.htm'
-;			if file_test(hfile) then begin
-;				s = 'Browser.lnk "' + hfile + '"'
-;				spawn, s, /nowait, /hide
-;			endif
-;			end
-;		'unix': begin
-;			hfile = geopixe_root+'Help'+path_sep()+'Maia-384-user-help.htm'
-;			s = 'Browser "' + hfile + '" &'
-;			spawn, s
-;			end
-;         else: begin
-;		 	warning,'image_event',['Spawn not supported on this platform.','Open help file manually.']
-;			end
-;       endcase
+	'Help_Maia_User': begin
+   		geopixe_browser, 'Help/Maia-384-user-help.htm', title='Maia 384 User Guide', group=event.top
        end
 
 	'Update_GeoPIXE': begin
@@ -2324,6 +2288,8 @@ endif else wizard_menus=0L
 ; Help menus
 
   W_MENU_70 = Widget_Button(Image_TLB_MBAR, UNAME='W_MENU_70', /MENU ,VALUE='Help')
+
+  W_MENU_70b = Widget_Button(W_MENU_70, UNAME='Help_Worked_examples' ,VALUE="GeoPIXE Worked Examples Guide")
 
   W_MENU_71 = Widget_Button(W_MENU_70, UNAME='Help_User' ,VALUE="GeoPIXE User's Guide")
 

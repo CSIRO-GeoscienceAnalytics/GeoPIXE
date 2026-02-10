@@ -19,6 +19,7 @@ build.spro
 equip*.*
 Rio*
 Workspace/Rio?Equip/
+Workspace/Test/
 crunch*.*
 stand.csv
 good.spec
