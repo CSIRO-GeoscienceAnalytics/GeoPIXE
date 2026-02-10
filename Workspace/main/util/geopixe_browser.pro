@@ -159,7 +159,7 @@ pro geopixe_browser, file, group=group, title=title, key=key
 ;	if n_elements(key) lt 1 then key = 'H.  XANES Imaging'
 
 	filename = geopixe_root + file
-	print, filenam
+;	print, filename
 	s = strsplit( filename, ' ', /extract, count=n)
 	if n gt 1 then s = strjoin( s, '%20')
 
