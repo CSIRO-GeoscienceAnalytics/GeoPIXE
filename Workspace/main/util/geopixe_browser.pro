@@ -78,6 +78,7 @@ function gbrowser_toc, file, error=error, count=nn
 ;	Scan HTML file for all <a href="link">key</a> links
 ;	Return array of nodes {key:'', link: ''} with these.
 ;	All keys are compressed (single whitespace only).
+;	Note that these "keys" need to be unique in a HTML document.
 
 	r = 0
 	nn = 0L
@@ -147,8 +148,9 @@ pro geopixe_browser, file, group=group, title=title, key=key
 ; Store parameters back in '*pars' (from parent), if present.
 ; If a valid window is still open, then reuse it.
 ;
-; If 'toc' supplied, search a table of contents in file for any hits to 'toc' key, and 
-; if found, display that section.
+; If 'key' supplied, search a table of contents in file for any hits to 'key' key, and 
+; if found, display that section. For now the whole key must be given.
+; Note that these "keys" need to be unique in a HTML document.
 
 	COMPILE_OPT STRICTARR
 	common c_working_dir, geopixe_root

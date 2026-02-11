@@ -430,31 +430,32 @@ common c_working_dir, geopixe_root
             Spectrum_Blog_Browser, Event
        end
 
+	'Help_Overview': begin
+		geopixe_browser, 'Help/GeoPIXE Overview.htm', title='GeoPIXE Overview', group=event.top
+		end
+
+	'Help_Worked_examples': begin
+		geopixe_browser, 'Help/GeoPIXE Worked Examples Open Notes.htm', title='GeoPIXE Worked Examples', group=event.top
+		end
+
+	'Help_Maia_User': begin
+   		geopixe_browser, 'Help/Maia-384-user-help.htm', title='Maia 384 User Guide', group=event.top
+       end
+
     'Help_User': begin
 	   	warning,'image',['','GeoPIXE Information (see the "Help" directory):', $
-	   		'','   Reference and users guide:', $
+	   		'','Reference and users guide:', $
 	   		'        See the "GeoPIXE Users Guide.pdf".', $
 	   		'        New features: "Update Notes.pdf".', $
-	   		'','   Workshop notes and Worked examples:', $
+	   		'','Workshop notes and Worked examples:', $
 	   		'        "GeoPIXE Worked Examples.pdf".', $
-	   		'','   View the workshop talk slides:', $
+	   		'','View the workshop talk slides:', $
 			'        "GeoPIXE-...-wshop1.pdf", ', $
 	   		'        "GeoPIXE-...-wshop2.pdf".', $
-	   		'','   Technical notes (see "Help" dir):', $
+	   		'','Technical notes (see "Help" dir):', $
 	   		'','Maia detector information:', $
-	   		'','   Technical description and set-up:', $
-	   		'        See "Maia-384-user-help.pdf".'], /info
-;       case !version.os_family of
-;         'Windows': begin
-;          spawn, 'Browser.lnk "' + geopixe_root+'help'+path_sep()+'GeoPIXE-Users-Guide.htm"', /nowait, /hide
-;          end
-;         'unix': begin
-;          spawn, geopixe_root+'Browser "' + geopixe_root+'Help'+path_sep()+'GeoPIXE-Users-Guide.htm" &'
-;          end
-;         else: begin
-;          warning,'spectrum_display_event',['Spawn not supported on this platform.','Open help file manually.']
-;          end
-;       endcase
+	   		'','     Technical description and set-up:', $
+	   		'             See "Maia-384-user-help.pdf".'], /info
        end
 
     'Help_Query': begin
@@ -1024,7 +1025,13 @@ endif
 
   W_MENU_70 = Widget_Button(Spectrum_TLB_MBAR, UNAME='W_MENU_70', /MENU ,VALUE='Help')
 
+  W_MENU_70a = Widget_Button(W_MENU_70, UNAME='Help_Overview' ,VALUE="GeoPIXE Overview")
+
+  W_MENU_70b = Widget_Button(W_MENU_70, UNAME='Help_Worked_examples' ,VALUE="GeoPIXE Worked Examples Guide")
+
   W_MENU_71 = Widget_Button(W_MENU_70, UNAME='Help_User' ,VALUE="GeoPIXE User's Guide")
+
+  W_MENU_71b = Widget_Button(W_MENU_70, UNAME='Help_Maia_User' ,VALUE="Maia User's Guide")
 
   W_MENU_72 = Widget_Button(W_MENU_70, UNAME='Help_Query' ,VALUE="Query IDL Environment")
 

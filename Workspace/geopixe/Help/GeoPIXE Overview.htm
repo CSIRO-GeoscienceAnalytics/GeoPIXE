@@ -1,0 +1,925 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 15 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"MS Mincho";
+	panose-1:2 2 6 9 4 2 5 8 3 4;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:"\@MS Mincho";
+	panose-1:2 2 6 9 4 2 5 8 3 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+h1
+	{mso-style-link:"Heading 1 Char";
+	margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Arial",sans-serif;}
+h2
+	{mso-style-link:"Heading 2 Char";
+	margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Arial",sans-serif;
+	font-style:italic;}
+h3
+	{mso-style-link:"Heading 3 Char";
+	margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:13.0pt;
+	font-family:"Arial",sans-serif;}
+h4
+	{mso-style-link:"Heading 4 Char";
+	margin-top:2.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:11.0pt;
+	font-family:"Cambria",serif;
+	color:#365F91;
+	font-weight:normal;
+	font-style:italic;}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:5.0pt;
+	margin-left:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:12.0pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:24.0pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	text-indent:-18.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	text-indent:-18.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	text-indent:-18.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	text-indent:-18.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoTocHeading, li.MsoTocHeading, div.MsoTocHeading
+	{margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:0cm;
+	line-height:107%;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Cambria",serif;
+	color:#365F91;}
+span.Heading1Char
+	{mso-style-name:"Heading 1 Char";
+	mso-style-link:"Heading 1";
+	font-family:"Arial",sans-serif;
+	font-weight:bold;}
+span.Heading2Char
+	{mso-style-name:"Heading 2 Char";
+	mso-style-link:"Heading 2";
+	font-family:"Arial",sans-serif;
+	font-weight:bold;
+	font-style:italic;}
+span.Heading3Char
+	{mso-style-name:"Heading 3 Char";
+	mso-style-link:"Heading 3";
+	font-family:"Arial",sans-serif;
+	font-weight:bold;}
+span.Heading4Char
+	{mso-style-name:"Heading 4 Char";
+	mso-style-link:"Heading 4";
+	font-family:"Cambria",serif;
+	color:#365F91;
+	font-style:italic;}
+.MsoChpDefault
+	{font-family:"Calibri",sans-serif;}
+.MsoPapDefault
+	{margin-bottom:10.0pt;
+	line-height:115%;}
+ /* Page Definitions */
+ @page WordSection1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 54.0pt 72.0pt 54.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-AU link=blue vlink=purple style='word-wrap:break-word'>
+
+<div class=WordSection1>
+
+<h1><a name="_Toc221706145">GeoPIXE Overview</a></h1>
+
+<p class=MsoTocHeading><span lang=EN-US>Contents</span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc221706145">GeoPIXE
+Overview<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>1</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc221706146">GeoPIXE
+workflow<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706147">Interactive
+GeoPIXE<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706148">Batch
+GeoPIXE<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706149">GeoPIXE as a
+callable module in another workflow<span style='color:windowtext;display:none;
+text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc221706150">GeoPIXE
+Windows<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>7</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706151">Typical
+windows at startup<span style='color:windowtext;display:none;text-decoration:
+none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>7</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706152">Windows
+launched from <i>Image</i><span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>9</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706153">Windows
+launched from <i>Spectrum Display</i><span style='color:windowtext;display:
+none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>14</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706154">Windows
+launched from <i>Xray Spectrum Fit</i><span style='color:windowtext;display:
+none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><a href="#_Toc221706155">GeoPIXE from
+GitHub<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706156">Downloading<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc221706157">Install IDL<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>17</span></a></span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<h2><a name="_Toc221703392"></a><a name="_Toc221706146">GeoPIXE workflow</a></h2>
+
+<h3><a name="_Toc221703393"></a><a name="_Toc221706147">Interactive GeoPIXE</a></h3>
+
+<p class=MsoNormal style='page-break-after:avoid'>The data flow in GeoPIXE has
+two main phases: (i) transforming raw data into spectra or element images, and
+(ii) correction and exploration of these images, including extracting spectra
+from spatial (or concentration correlated) features seen in images (or element
+data). The first phase includes <i>Dynamic Analysis</i> (DA)<i>,</i> or the
+construction of the matrix transform used in processing raw event data, which
+entails modelling the physics of the interaction of the beam particles (X-rays,
+protons) with the sample and how they are then detected in a detector (or array
+of detectors). The second phase includes a host of tools for exploration and
+viewing data in various ways as well as a number of tools for the correction of
+various artefacts caused by a range of instrumental issues.</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>The workflow in GeoPIXE
+typically starts with fitting spectra (displayed in the <i>Spectrum Display</i>
+window and fitted using the <i>Xray Spectrum fit</i> window) to generate the <i>Dynamic
+Analysis</i> (DA) image projection matrix, using this DA matrix to process
+full-spectral data to deconvolute elemental components and project separated
+elemental images (displayed in the main <i>GeoPIXE Image</i> window) and
+exploration and processing of the images to first verify their accuracy and
+make corrections or to explore their content. This involves these windows (<i>Spectrum
+Display</i>, <i>X-ray Spectrum Fit</i>, <i>Sort EVT</i>, <i>Image</i>) …</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><img width=604 height=592
+id="Picture 2" src="GeoPIXE%20Overview_files/image001.gif"
+alt=Sample11-to-images></p>
+
+<p class=MsoNormal>Once images are created, the focus shifts to exploring the
+data, which often involves selecting pixels (in the <i>Image</i> <i>Regions </i>window)
+and determining the average concentrations for these pixels and extraction of
+the spectra from these pixels. Pixels can be selected using a simple shape
+(Box, Circle, Spline curves, etc.) or by using element-element correlations in
+the <i>Associations</i> window.</p>
+
+<p class=MsoNormal><img width=608 height=575 id="Picture 111"
+src="GeoPIXE%20Overview_files/image002.jpg" alt=Sample11-verify-regions></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>A common thing to look out for is “missing” elements. In
+other words, an element that was not included in the fit to build the DA
+matrix, but later found in one of the regions, usually by examination of the
+spectrum extracted for the region’s pixels. Often “missing” elements show up as
+extra signal, or hot spots, in the “Back” image (e.g. Sr in this example – note
+that the Sr peaks are not “explained” by the model shown in violet because Sr
+was missing from the fit to generate the initial DA matrix).</p>
+
+<p class=MsoNormal><img width=540 height=474 id="Picture 112"
+src="GeoPIXE%20Overview_files/image003.jpg"
+alt=Sample11-verify-regions-less-Sr></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>See the <i>GeoPIXE Users Guide</i> section “<a
+name="_Toc18907907"></a><a name="_Toc18929336"></a><a name="_Toc18929522"></a><a
+name="_Toc19013309"></a><a name="_Toc19015585">GeoPIXE Analysis Scenarios, Data
+Flow</a>” for more details and then try the Demo data, following the detailed
+follow-along notes in the “<b><i>GeoPIXE Worked examples</i></b>”.</p>
+
+<h3><a name="_Toc221703396"></a><a name="_Toc221703395"></a><a
+name="_Toc221706148">Batch GeoPIXE</a></h3>
+
+<p class=MsoNormal>This is a bit of a misnomer. The <i>Batch Sort</i> in
+GeoPIXE is a window, which allows you to queue up a number of raw data-sets to
+be processed into images, with options to also do image processing (e.g.
+replicate image operations done on a previous image DAI file) on each image or
+generate derived outputs (e.g. RGB images, HTML web page summaries, TIFF files
+in various units, ASCII dumps, some image corrections, metadata files, etc.).
+It uses the settings in <i>Sort EVT</i> as a template (after successfully
+processing the first data-set, for example). <i>Batch Sort</i> displays a table
+which shows many image parameters (e.g. X,Y size) and input and output file
+names and paths and has buttons to enable image processing and output options.</p>
+
+<h3><a name="_Toc221703394"></a><a name="_Toc221706149">GeoPIXE as a callable
+module in another workflow</a></h3>
+
+<p class=MsoNormal>Certain repetitive data-intensive operations in GeoPIXE can
+be performed with GeoPIXE acting as a callable module in some other workflow,
+such as triggered by data acquisition. The operations supported in this way
+are:</p>
+
+<p class=MsoListParagraphCxSpFirst style='margin-left:72.0pt;text-indent:-36.0pt'>(i)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Sorting raw data into images (i.e. as in <i>Sort EVT</i> window,
+evt.pro), </p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:72.0pt;text-indent:-36.0pt'>(ii)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Extraction of spectra from image pixels selected in <i>Image Regions</i>,
+and </p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:72.0pt;text-indent:-36.0pt'>(iii)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Export of image data (from DAI) to ZARR format for AWS data exploration
+and statistics.</p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:72.0pt;text-indent:-36.0pt'>(iv)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Exporting image (DAI) metadata.</p>
+
+<p class=MsoListParagraphCxSpLast style='margin-left:72.0pt;text-indent:-36.0pt'>(v)<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Model results comparisons for testing (as a form of unit test).</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>GeoPIXE can now be called from the command-line of the O/S
+with additional parameters, which specify a &quot;GeoPIXE Command File&quot;
+and optionally input and output file-names to redirect the instructions in the
+command file to process the 'input' file(s) and produce the 'output' file. This
+then can be used in a script, for example, to call GeoPIXE to process a given
+(set of) input file(s) in some automation scheme, perhaps triggered by the data
+acquisition system following the finishing of a run.&nbsp;</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>If the first argument is not a GCF file (no “.gcf” extension
+found), then the argument will be interpreted as a GeoPIXE procedure and
+executed, passing any supplied parameters.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>The &quot;geopixe&quot; Linux script (without arguments
+launches GeoPIXE) accepts these new parameters ...</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='text-indent:36.0pt'><span style='font-family:"Courier New"'>geopixe
+command-file input output</span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Arguments</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>contents</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>command-file</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Full path to a <b>GeoPIXE Command File</b> (extension
+  &quot;.gcf&quot;), which contains the name of a GeoPIXE command and all its
+  parameters for execution, including &quot;cluster=1&quot; to trigger
+  cluster-mode execution across multiple cores, if the data device supports it.
+  Typically, enclose the GCF file-name (including full-path) in double quotes
+  &quot;&quot;, which enables paths with spaces to be used.</p>
+  <p class=MsoNormal>&nbsp;</p>
+  <p class=MsoNormal>The parameters in the GCF file are command dependent. The
+  GCF files are simple ASCII text files, typically generated by GeoPIXE (e.g.
+  &quot;C*&quot; buttons in the windows <i>Sort EVT</i>, <i>Image Regions,
+  Image History</i> or the menu “<i>Create GeoPIXE Command File to Export as
+  ZARR (C*)</i>” in the main <i>GeoPIXE Image</i> window.</p>
+  <p class=MsoNormal>&nbsp;</p>
+  <p class=MsoNormal><b><i>NOTE: If the first argument is not a GCF file (no
+  “.gcf” extension found), then the argument will be interpreted as a GeoPIXE
+  procedure and executed, passing any supplied parameters.</i></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>input</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>An optional input data file-name (or list of file-names in
+  &quot;stringify&quot; format) to replace the &quot;file=&quot; entry in the
+  GCF file. There are three options here:</p>
+  <p class=MsoListParagraphCxSpFirst>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>A simple data file-name (in &quot;stringify&quot; format, perhaps with
+  a wildcard, enclosed in double quotes: &quot;file1.*&quot;)</p>
+  <p class=MsoListParagraphCxSpMiddle>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>A file-name (preceded by a &quot;@&quot; character) of a text file
+  (e.g. &quot;@file&quot;), which contains a list of all input files, one file
+  per line.</p>
+  <p class=MsoListParagraphCxSpLast>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>A list of&nbsp;data file-names (in &quot;stringify&quot; format, i.e.
+  as a string array or list with files enclosed in double quotes:
+  [&quot;file1&quot;,&quot;file2&quot;,&quot;file3&quot;, ...])</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>output</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>An optional output file-name to replace the
+  &quot;output=&quot; entry in the GCF file. Generally, the 'input' and
+  'output' args would be set together. For ‘input’ file lists, the ‘output’
+  file would evolve following GeoPIXE rules for derived filenames.</p>
+  </td>
+ </tr>
+</table>
+
+<h4>&nbsp;</h4>
+
+<h4>Commands</h4>
+
+<p class=MsoNormal><b><i>imaging</i></b></p>
+
+<p class=MsoNormal>The following commands generate 2D or 3D image files
+(extension .dai, .xan, respectively): 'da_evt' (2D image using a DA matrix),
+'cut_evt' (2D image using CUTs), 'da_stack_evt' (3D image using a DA matrix and
+perhaps an energy table) and 'da_tomo_evt' (3D image, e.g. tomographic image).
+The GeoPIXE Command File can be generated using the &quot;C*&quot; button on
+the <i>Sort EVT</i> window, typically after successful processing of an initial
+data-set. This GCF file then provides a &quot;template&quot; for processing of
+further input data files, with the same process settings, specifying an output
+file for each.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal><b><i>region spectra extraction</i></b></p>
+
+<p class=MsoNormal>The following commands generate a SPEC file containing an
+array of spectra: 'spec_evt' (spectra, one&nbsp;for each region in a REGION
+file).&nbsp;The GeoPIXE Command File can be generated using the &quot;C*&quot;
+button on the <i>Image Regions</i> window (&quot;Extract&quot; tab), typically
+after successful specifying regions on an image, for example using the&nbsp;<i>Associations</i>
+window and the Hot-spot separation tools. This GCF file then provides a
+&quot;template&quot; for processing the input data files offline, specifying an
+output file. In this case, the spatial regions are very image data-set specific
+and would not generally be applied to a different image data-set.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal><b><i>export</i></b></p>
+
+<p class=MsoNormal>Some simple export options are supported. Using the
+&quot;C*&quot; button on the&nbsp;<i>Image History</i>&nbsp;window will produce
+a GCF file for metadata output from images. The&nbsp;<i>Image History</i>&nbsp;window
+outputs GCF that uses the '<b>print_image_metadata</b>' command. It has only
+one parameter, aside from the &quot;files=&quot; and &quot;output=&quot;
+arguments, called &quot;stats=&quot;, which can be used to optionally enable
+the output of image pixel statistics for the selected input file (“stats=1”).
+The second is a ZARR export, '<b>export_zarr</b>', which just uses the
+&quot;files=&quot; and &quot;output=&quot; arguments to dump an image in ZARR
+format for applications in the AWS cloud. If 'files' is not found, including a
+local dir tree search, it will pop-up a file requester to select it. This is
+less useful in a work-flow environment, so make sure the file path is correct.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal><b><i>Simple commands</i></b></p>
+
+<p class=MsoNormal>If the first argument is not a GCF file (no “.gcf” extension
+found), then the argument will be interpreted as a GeoPIXE procedure and
+executed, passing any supplied parameters.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal><b><i>unit tests</i></b></p>
+
+<p class=MsoNormal>Unit tests will be implemented as such a simple IDL
+procedure, which accept one argument (a vector [“old”,”new”]), the files to be
+compared, and an optional second argument, the name of the output file. These
+arguments follow the name of the procedure, which is used in place of a GCF
+file. The output report goes to a file given by the second argument, which
+defaults to the name of the new file (second file in vector argument) with
+extension .txt.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b>Routine</b></p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal><b>Function</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare_yields</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare two [old, new] yield files (.yield) for
+  consistency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare_fits</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare two [old, new] fit result files (.pfr) for
+  consistency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare_source</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare two [old, new] lab source files (.source) for
+  consistency</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=113 valign=top style='width:84.8pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare_pink</p>
+  </td>
+  <td width=536 valign=top style='width:402.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal>Compare two [old, new] pink beam files (.pink) for
+  consistency</p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>The idea is to generate new calculated model files (e.g.
+.yield) after changes to the code and then use a compare routine (e.g.
+“compare_yields”) to test the output for consistency with an original output
+file. This can be done directly in the Eclipse IDLDE environment (just click
+run and it will prompt for a “Reference” file and a “New” file to be compared
+with the Reference), or using this <i>callable GeoPIXE</i> approach.</p>
+
+<h2><a name="_Toc221706150">GeoPIXE Windows</a></h2>
+
+<h3><a name="_Toc221703397"></a><a name="_Toc221706151">Typical windows at
+startup</a></h3>
+
+<p class=MsoNormal>Some window can be flagged to be opened on GeoPIXE startup,
+using the “startup” entries in the “geopixe.conf” file.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal><img width=650 height=209 id="Picture 5"
+src="GeoPIXE%20Overview_files/image004.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>“<i>Image</i>” is the main GeoPIXE window. <i>Spectrum
+Display</i> is launched from <i>Image</i> for display of (multiple) spectra. Multiple
+instances of each can be opened (e.g. use “display<span style='font-family:
+Wingdings'>à</span>clone” menu in “image” to open image clones or select from
+the “Windows” menus in <i>Image</i> or <i>Spectrum Display</i>). <i>Sort EVT</i>
+is the window controlling sorting of raw data into images. “Xray spectrum fit” is
+for fitting spectra and generating a DA matrix for imaging. A number of other
+windows are launched from <i>Xray spectrum fit</i> (see below).</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal><span style='position:absolute;z-index:251659264;margin-left:
+131px;margin-top:88px;width:49px;height:22px'><img width=49 height=22
+src="GeoPIXE%20Overview_files/image005.gif" alt=Image></span><span
+style='position:absolute;z-index:251661312;margin-left:109px;margin-top:386px;
+width:115px;height:22px'><img width=115 height=22
+src="GeoPIXE%20Overview_files/image006.gif" alt="Spectrum Display"></span><span
+style='position:absolute;z-index:251662336;margin-left:368px;margin-top:375px;
+width:117px;height:22px'><img width=117 height=22
+src="GeoPIXE%20Overview_files/image007.gif" alt="Xray Spectrum Fit"></span><span
+style='position:absolute;z-index:251660288;margin-left:408px;margin-top:187px;
+width:58px;height:22px'><img width=58 height=22
+src="GeoPIXE%20Overview_files/image008.gif" alt="Sort Evt"></span><img
+width=650 height=529 id="Picture 6" src="GeoPIXE%20Overview_files/image009.jpg"></p>
+
+<h3><a name="_Toc221706152"></a><a name="_Toc221703398">Windows launched from </a><i>Image</i></h3>
+
+<p class=MsoNormal style='page-break-after:avoid'>A number of windows are
+launched from <i>Image</i>, mostly for display of image data in various ways,
+to look at Image regions of interest (shapes on the image that define selected
+pixels, or pixels selected by element-element <i>Association</i>) or to apply
+processing or corrections to images. This first set shows a clone of <i>Image</i>,
+<i>Image History</i>, which shows details of a loaded image, <i>Image Regions</i>,
+which lists image regions applied to an image, <i>Image Process</i>, which
+provides a one-click list of operations, digital filters, etc. to apply to an
+image,<i> Multi Image</i>, which shows a grid of many simple image windows and <i>Interelement
+Operations</i>, which permits correction of artefacts caused by interaction
+between elements/ images. </p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251663360;margin-left:90px;margin-top:420px;width:157px;height:22px'><img
+width=157 height=22 src="GeoPIXE%20Overview_files/image010.gif"
+alt="Interelement Operations"></span><span style='position:absolute;z-index:
+251669504;margin-left:432px;margin-top:330px;width:84px;height:22px'><img
+width=84 height=22 src="GeoPIXE%20Overview_files/image011.gif" alt="Multi Image"></span><span
+style='position:absolute;z-index:251668480;margin-left:290px;margin-top:289px;
+width:97px;height:22px'><img width=97 height=22
+src="GeoPIXE%20Overview_files/image012.gif" alt="Image Process"></span><span
+style='position:absolute;z-index:251667456;margin-left:78px;margin-top:312px;
+width:99px;height:22px'><img width=99 height=22
+src="GeoPIXE%20Overview_files/image013.gif" alt="Image Regions"></span><span
+style='position:absolute;z-index:251666432;margin-left:486px;margin-top:121px;
+width:95px;height:22px'><img width=95 height=22
+src="GeoPIXE%20Overview_files/image014.gif" alt="Image History"></span><span
+style='position:absolute;z-index:251665408;margin-left:289px;margin-top:97px;
+width:94px;height:22px'><img width=94 height=22
+src="GeoPIXE%20Overview_files/image015.gif" alt="Image (clone)"></span><span
+style='position:absolute;z-index:251664384;margin-left:102px;margin-top:117px;
+width:49px;height:22px'><img width=49 height=22
+src="GeoPIXE%20Overview_files/image016.gif" alt=Image></span><img width=650
+height=457 id="Picture 21" src="GeoPIXE%20Overview_files/image017.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>The second set of windows
+launched from gimage.pro shows <i>Image RGB</i>, which displays 3 element
+planes as Red, Green, Blue to make a 24-bit false-colour image, <i>Associations</i>,
+which displays the <i>Association</i> window to plot the image pixel data for 2
+selected elements as a scatter plot/2D histogram (colour provides histogram
+intensity axis), <i>Correct Yields</i>, which provides a tool for correction of
+images for complex matrix effects and <i>PCA Clusters</i>, which provides a
+tool for simple PCA and cluster analysis (K-means).</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251674624;margin-left:497px;margin-top:355px;width:86px;height:22px'><img
+width=86 height=22 src="GeoPIXE%20Overview_files/image018.gif"
+alt="PCA Clusters"></span><span style='position:absolute;z-index:251673600;
+margin-left:55px;margin-top:400px;width:92px;height:22px'><img width=92
+height=22 src="GeoPIXE%20Overview_files/image019.gif" alt="Correct Yields"></span><span
+style='position:absolute;z-index:251672576;margin-left:522px;margin-top:96px;
+width:85px;height:22px'><img width=85 height=22
+src="GeoPIXE%20Overview_files/image020.gif" alt=Associations></span><span
+style='position:absolute;z-index:251671552;margin-left:0px;margin-top:95px;
+width:78px;height:22px'><img width=78 height=22
+src="GeoPIXE%20Overview_files/image021.gif" alt="Image RGB"></span><span
+style='position:absolute;z-index:251670528;margin-left:93px;margin-top:88px;
+width:49px;height:22px'><img width=49 height=22
+src="GeoPIXE%20Overview_files/image022.gif" alt=Image></span><img width=650
+height=478 id="Picture 22" src="GeoPIXE%20Overview_files/image023.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>The third set of windows
+launched from <i>Image</i> shows <i>Detector Setup</i>, which defines the
+parameters for a detector specification, <i>Filter Setup</i>, which defines the
+parameters for a filter stack, <i>Image 3D Stack</i>, which opens a 3D stack
+for XANES images and an <i>Energy Association</i> window, which is to display a
+scatter plot/2D histogram of the association between energy planes in a XANES
+image stack or Line-XANES data.</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251679744;margin-left:895px;margin-top:258px;width:129px;height:22px'><img
+width=129 height=22 src="GeoPIXE%20Overview_files/image024.gif"
+alt="Energy Associations"></span><span style='position:absolute;z-index:251678720;
+margin-left:310px;margin-top:332px;width:104px;height:22px'><img width=104
+height=22 src="GeoPIXE%20Overview_files/image025.gif" alt="Image 3D Stack"></span><span
+style='position:absolute;z-index:251677696;margin-left:164px;margin-top:378px;
+width:79px;height:22px'><img width=79 height=22
+src="GeoPIXE%20Overview_files/image026.gif" alt="Filter Setup"></span><span
+style='position:absolute;z-index:251676672;margin-left:387px;margin-top:109px;
+width:100px;height:22px'><img width=100 height=22
+src="GeoPIXE%20Overview_files/image027.gif" alt="Detector Setup"></span><span
+style='position:absolute;z-index:251675648;margin-left:80px;margin-top:91px;
+width:49px;height:22px'><img width=49 height=22
+src="GeoPIXE%20Overview_files/image028.gif" alt=Image></span><img width=650
+height=457 id="Picture 23" src="GeoPIXE%20Overview_files/image029.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>The fourth set of windows
+launched from <i>Image</i> shows <i>Standards Wizard</i>, which is a Wizard for
+processing standards samples for flux calibration, <i>Export Images</i>, which
+is a modal/blocking popup to setup for the export of image data as a plot with
+axes, etc. and the “file requester”, which is also a modal/blocking widget used
+throughout GeoPIXE for file browsing and selection.</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251683840;margin-left:23px;margin-top:351px;width:97px;height:22px'><img
+width=97 height=22 src="GeoPIXE%20Overview_files/image030.gif"
+alt="Export Images"></span><span style='position:absolute;z-index:251682816;
+margin-left:344px;margin-top:305px;width:96px;height:22px'><img width=96
+height=22 src="GeoPIXE%20Overview_files/image031.gif" alt="File Requester"></span><span
+style='position:absolute;z-index:251681792;margin-left:355px;margin-top:86px;
+width:117px;height:22px'><img width=117 height=22
+src="GeoPIXE%20Overview_files/image032.gif" alt="Standards Wizard"></span><span
+style='position:absolute;z-index:251680768;margin-left:79px;margin-top:82px;
+width:49px;height:22px'><img width=49 height=22
+src="GeoPIXE%20Overview_files/image033.gif" alt=Image></span><img width=650
+height=427 id="Picture 24" src="GeoPIXE%20Overview_files/image034.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>The fifth set of windows
+launched from <i>Image</i> shows <i>Depth Wizard</i>, which guides the user
+through depth analysis using the Maia detector array geometry (it also displays
+instructions and pops up figures to illustrate the process).</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251685888;margin-left:308px;margin-top:365px;width:93px;height:22px'><img
+width=93 height=22 src="GeoPIXE%20Overview_files/image035.gif"
+alt="Depth Wizard"></span><span style='position:absolute;z-index:251686912;
+margin-left:403px;margin-top:203px;width:151px;height:22px'><img width=151
+height=22 src="GeoPIXE%20Overview_files/image036.gif"
+alt="Depth Wizard (figure 1)"></span><span style='position:absolute;z-index:
+251684864;margin-left:92px;margin-top:85px;width:49px;height:22px'><img
+width=49 height=22 src="GeoPIXE%20Overview_files/image037.gif" alt=Image></span><img
+width=649 height=465 id="Picture 39" src="GeoPIXE%20Overview_files/image038.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<h3><a name="_Toc221703399"></a><a name="_Toc221706153">Windows launched from <i>Spectrum
+Display</i></a></h3>
+
+<p class=MsoNormal style='page-break-after:avoid'>The first set of windows
+launched from <i>Spectrum Display</i> shows <i>Spectrum History</i>, which
+shows details for spectral data, <i>Spectrum Select</i>, which shows a list of
+spectra loaded and enables selection of selected spectra and <i>Detector Select</i>,
+which is launched from <i>Spectrum Select</i> using “Array …” button, to permit
+detailed selection of members of the detector array.</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251687936;margin-left:129px;margin-top:97px;width:114px;height:22px'><img
+width=114 height=22 src="GeoPIXE%20Overview_files/image039.gif"
+alt="Spectrum History"></span><span style='position:absolute;z-index:251691008;
+margin-left:418px;margin-top:264px;width:106px;height:22px'><img width=106
+height=22 src="GeoPIXE%20Overview_files/image040.gif" alt="Spectrum Select"></span><span
+style='position:absolute;z-index:251689984;margin-left:115px;margin-top:313px;
+width:115px;height:22px'><img width=115 height=22
+src="GeoPIXE%20Overview_files/image041.gif" alt="Spectrum Display"></span><span
+style='position:absolute;z-index:251688960;margin-left:359px;margin-top:58px;
+width:138px;height:22px'><img width=138 height=22
+src="GeoPIXE%20Overview_files/image042.gif" alt="Array Detector Select"></span><img
+width=650 height=434 id="Picture 42" src="GeoPIXE%20Overview_files/image043.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>The second set of windows
+launched from <i>Spectrum Display</i> shows <i>Identify</i> shown in two instances
+as a periodic table to mark lines for an element on the spectrum and as a list
+to search for a match in the sorted list of X-ray lines, <i>Time Amplitude</i>,
+which displays raw Maia events as a scatter plot of E versus T to enable a
+pileup field to be defined, <i>Energy Cal</i>, which permits energy calibration
+of spectra and <i>CUT Setup</i>, which allows portions of spectra to be defined
+as CUTs using X (with background subtraction) or Cut (simple energy range) markers.
+</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251695104;margin-left:256px;margin-top:118px;width:118px;height:22px'><img
+width=118 height=22 src="GeoPIXE%20Overview_files/image044.gif"
+alt="Line Identification"></span><span style='position:absolute;z-index:251697152;
+margin-left:86px;margin-top:366px;width:75px;height:22px'><img width=75
+height=22 src="GeoPIXE%20Overview_files/image045.gif" alt="Energy Cal"></span><span
+style='position:absolute;z-index:251696128;margin-left:463px;margin-top:358px;
+width:69px;height:22px'><img width=69 height=22
+src="GeoPIXE%20Overview_files/image046.gif" alt="Cut Setup"></span><span
+style='position:absolute;z-index:251694080;margin-left:42px;margin-top:77px;
+width:118px;height:22px'><img width=118 height=22
+src="GeoPIXE%20Overview_files/image047.gif" alt="Line Identification"></span><span
+style='position:absolute;z-index:251693056;margin-left:496px;margin-top:183px;
+width:105px;height:22px'><img width=105 height=22
+src="GeoPIXE%20Overview_files/image048.gif" alt="Time Amplitude"></span><span
+style='position:absolute;z-index:251692032;margin-left:73px;margin-top:259px;
+width:115px;height:22px'><img width=115 height=22
+src="GeoPIXE%20Overview_files/image049.gif" alt="Spectrum Display"></span><img
+width=650 height=404 id="Picture 43" src="GeoPIXE%20Overview_files/image050.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<h3><a name="_Toc221706154"></a><a name="_Toc221703400">Windows launched from </a><i>Xray
+Spectrum Fit</i></h3>
+
+<p class=MsoNormal style='page-break-after:avoid'>The set of windows launched
+from <i>Xray Spectrum Fit</i> (which is launched from S<i>pectrum Display)</i>
+shows <i>Layer Setup</i>, which defines a layered sample structure and
+calculates yields and X-ray line intensities and <i>Source Setup</i>, which
+defines a laboratory X-ray source model and calculates a continuum (plus
+characteristic anode lines) spectrum to be used in the yield calculation. <i>Source
+Setup</i> is launched from <i>Layer Setup</i>.</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='position:absolute;
+z-index:251700224;margin-left:351px;margin-top:122px;width:88px;height:22px'><img
+width=88 height=22 src="GeoPIXE%20Overview_files/image051.gif"
+alt="Source Setup"></span><span style='position:absolute;z-index:251701248;
+margin-left:102px;margin-top:178px;width:81px;height:22px'><img width=81
+height=22 src="GeoPIXE%20Overview_files/image052.gif" alt="Layer Setup"></span><span
+style='position:absolute;z-index:251699200;margin-left:379px;margin-top:403px;
+width:117px;height:22px'><img width=117 height=22
+src="GeoPIXE%20Overview_files/image053.gif" alt="Xray Spectrum Fit"></span><span
+style='position:absolute;z-index:251698176;margin-left:143px;margin-top:374px;
+width:115px;height:23px'><img width=115 height=23
+src="GeoPIXE%20Overview_files/image054.gif" alt="Spectrum Display"></span><img
+width=649 height=466 id="Picture 44" src="GeoPIXE%20Overview_files/image055.jpg"></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<h2><a name="_Toc221703378"></a><a name="_Toc221706155">GeoPIXE from GitHub</a></h2>
+
+<p class=MsoNormal>The archive on GitHub contains all source files and
+essential data and documentation. It does NOT include a metadata
+(Workspace/.metadata directory) for the IDL DE Eclipse environment. What is
+missing are Eclipse project definitions and the build settings for each
+project. Import of the projects is easy (see below). But we must set a couple
+of settings regarding management of the !path in IDL. These are detailed below.
+</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>Building can be easily handled using “Builder.pro” (see
+below). However, you can setup Eclipse IDL build settings if you like, as
+described in section “Eclipse environment and organization”.</p>
+
+<h3><a name="_Toc221703379"></a><a name="_Toc221706156">Downloading</a></h3>
+
+<p class=MsoNormal>If you are reading this, then perhaps this is done for the
+software… But for worked example data, you need to also download the Demo data,
+which is archived in the CSIRO DAP. There are two archives, a simple one (e.g.
+for a Windows system at DOI: <a href="https://doi.org/10.25919/ff5b-wr11">https://doi.org/10.25919/ff5b-wr11</a>
+) and one designed to serve multiple users in a Linux workshop environment (at
+DOI: <a href="https://doi.org/10.25919/3yrz-7x38">https://doi.org/10.25919/3yrz-7x38</a>
+). See the “Read me.txt” files for details.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>NOTE: See the Readme file notes on how to get the <b><i>GeoPIXE
+Demo data</i></b> for the worked example tutorials.</p>
+
+<h3><a name="_Toc221703380"></a><a name="_Toc221706157">Install IDL</a></h3>
+
+<p class=MsoNormal>Running GeoPIXE requires at least IDL runtime support. With
+IDL installed, but not licensed, you can run GeoPIXE using IDL <i>Virtual
+Machine</i> runtime support. To program in IDL and build GeoPIXE source, you
+will need an IDL license.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

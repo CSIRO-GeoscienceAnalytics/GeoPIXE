@@ -1131,34 +1131,38 @@ endif
 		compare_fits
 		end
 
+	'Help_Overview': begin
+		geopixe_browser, 'Help/GeoPIXE Overview.htm', title='GeoPIXE Overview', group=event.top
+		end
+
 	'Help_Worked_examples': begin
 		geopixe_browser, 'Help/GeoPIXE Worked Examples Open Notes.htm', title='GeoPIXE Worked Examples', group=event.top
 		end
-
-	'Help_User': begin
-	   	warning,'image',['','GeoPIXE Information (see the "Help" directory):', $
-	   		'','   Reference and users guide:', $
-	   		'        See the "GeoPIXE Users Guide.pdf".', $
-	   		'        New features: "Update Notes.pdf".', $
-	   		'','   Workshop notes and Worked examples:', $
-	   		'        "GeoPIXE Worked Examples.pdf".', $
-	   		'','   View the workshop talk slides:', $
-			'        "GeoPIXE-...-wshop1.pdf", ', $
-	   		'        "GeoPIXE-...-wshop2.pdf".', $
-	   		'','   Technical notes (see "Help" dir):', $
-	   		'','Maia detector information:', $
-	   		'','   Technical description and set-up:', $
-	   		'        See "Maia-384-user-help.pdf".'], /info
-       end
 
 	'Help_Maia_User': begin
    		geopixe_browser, 'Help/Maia-384-user-help.htm', title='Maia 384 User Guide', group=event.top
        end
 
 	'Update_GeoPIXE': begin
-		Image_update_geopixe, event
+		geopixe_browser, 'Help/GeoPIXE Overview.htm', title='GeoPIXE Overview', group=event.top, key='GeoPIXE from GitHub'
 		end
 			
+	'Help_User': begin
+	   	warning,'image',['','GeoPIXE Information (see the "Help" directory):', $
+	   		'','Reference and users guide:', $
+	   		'        See the "GeoPIXE Users Guide.pdf".', $
+	   		'        New features: "Update Notes.pdf".', $
+	   		'','Workshop notes and Worked examples:', $
+	   		'        "GeoPIXE Worked Examples.pdf".', $
+	   		'','View the workshop talk slides:', $
+			'        "GeoPIXE-...-wshop1.pdf", ', $
+	   		'        "GeoPIXE-...-wshop2.pdf".', $
+	   		'','Technical notes (see "Help" dir):', $
+	   		'','Maia detector information:', $
+	   		'','     Technical description and set-up:', $
+	   		'             See "Maia-384-user-help.pdf".'], /info
+       end
+
     'Help_Query': begin
 		restore, geopixe_root+'idl_query.sav'
        IDL_Query_geopixe
@@ -2288,6 +2292,8 @@ endif else wizard_menus=0L
 ; Help menus
 
   W_MENU_70 = Widget_Button(Image_TLB_MBAR, UNAME='W_MENU_70', /MENU ,VALUE='Help')
+
+  W_MENU_70a = Widget_Button(W_MENU_70, UNAME='Help_Overview' ,VALUE="GeoPIXE Overview")
 
   W_MENU_70b = Widget_Button(W_MENU_70, UNAME='Help_Worked_examples' ,VALUE="GeoPIXE Worked Examples Guide")
 
