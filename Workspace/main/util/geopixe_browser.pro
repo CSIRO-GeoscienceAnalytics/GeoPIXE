@@ -37,8 +37,8 @@ pro geopixe_browser_event, event
 			case Tag_Names(Event, /STRUCTURE_NAME) of
 				'WIDGET_BASE': begin
 ;					print,event.x,event.y
-					x = (event.x > 400)
-					y = (event.y > 300)
+					x = (event.x > 400) - 6
+					y = (event.y > 300) - 30
 					widget_control, (*pstate).browser, scr_xsize=x, scr_ysize=y
 					end
 				else:
@@ -46,6 +46,13 @@ pro geopixe_browser_event, event
 			end
 
 		'browser': begin
+			end
+
+		'back-button': begin
+			widget_control, (*pstate).browser, /BROWSER_GO_BACK
+			end
+		'forward-button': begin
+			widget_control, (*pstate).browser, /BROWSER_GO_FORWARD
 			end
 
 		else:
@@ -179,10 +186,15 @@ pro geopixe_browser, file, group=group, title=title, key=key
 	endif
 	htmlfile = 'file:///' + s	
 
-	tlb = WIDGET_BASE(Title = Title+note[0], uname='browser-tlb', /TLB_SIZE_EVENTS, /TLB_KILL_REQUEST_EVENTS)
+	tlb = WIDGET_BASE(Title = Title+note[0], uname='browser-tlb', /column, $
+						/TLB_SIZE_EVENTS, /TLB_KILL_REQUEST_EVENTS)
 	base1 = WIDGET_BASE( tlb)
 	
 	browser = WIDGET_BROWSER(base1, group=group, VALUE=htmlfile[0], uname='browser', XSIZE=900, YSIZE=1000)
+
+	bbase = widget_base( tlb, /row, /base_align_center, ypad=0, xpad=0, space=5)
+	button = widget_button( bbase, value='Back', uname='back-button')
+	button = widget_button( bbase, value='Forward', uname='forward-button')
 
 	state = { $
 			file:		filename, $						; filename
