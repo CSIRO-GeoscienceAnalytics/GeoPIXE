@@ -443,19 +443,7 @@ common c_working_dir, geopixe_root
        end
 
     'Help_User': begin
-	   	warning,'image',['','GeoPIXE Information (see the "Help" directory):', $
-	   		'','Reference and users guide:', $
-	   		'        See the "GeoPIXE Users Guide.pdf".', $
-	   		'        New features: "Update Notes.pdf".', $
-	   		'','Workshop notes and Worked examples:', $
-	   		'        "GeoPIXE Worked Examples.pdf".', $
-	   		'','View the workshop talk slides:', $
-			'        "GeoPIXE-...-wshop1.pdf", ', $
-	   		'        "GeoPIXE-...-wshop2.pdf".', $
-	   		'','Technical notes (see "Help" dir):', $
-	   		'','Maia detector information:', $
-	   		'','     Technical description and set-up:', $
-	   		'             See "Maia-384-user-help.pdf".'], /info
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top
        end
 
     'Help_Query': begin
