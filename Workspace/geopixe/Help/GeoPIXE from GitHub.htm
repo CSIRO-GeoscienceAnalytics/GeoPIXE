@@ -1,0 +1,159 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 15 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:"MS Mincho";
+	panose-1:2 2 6 9 4 2 5 8 3 4;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"\@MS Mincho";
+	panose-1:2 2 6 9 4 2 5 8 3 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+h2
+	{mso-style-link:"Heading 2 Char";
+	margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Arial",sans-serif;
+	font-style:italic;}
+h3
+	{mso-style-link:"Heading 3 Char";
+	margin-top:12.0pt;
+	margin-right:0cm;
+	margin-bottom:3.0pt;
+	margin-left:0cm;
+	page-break-after:avoid;
+	font-size:13.0pt;
+	font-family:"Arial",sans-serif;}
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+	{mso-style-link:"Header Char";
+	margin:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+	{mso-style-link:"Footer Char";
+	margin:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+span.FooterChar
+	{mso-style-name:"Footer Char";
+	mso-style-link:Footer;
+	font-family:"Times New Roman",serif;}
+span.HeaderChar
+	{mso-style-name:"Header Char";
+	mso-style-link:Header;
+	font-family:"Times New Roman",serif;}
+span.Heading2Char
+	{mso-style-name:"Heading 2 Char";
+	mso-style-link:"Heading 2";
+	font-family:"Arial",sans-serif;
+	font-weight:bold;
+	font-style:italic;}
+span.Heading3Char
+	{mso-style-name:"Heading 3 Char";
+	mso-style-link:"Heading 3";
+	font-family:"Arial",sans-serif;
+	font-weight:bold;}
+.MsoChpDefault
+	{font-family:"Calibri",sans-serif;}
+.MsoPapDefault
+	{margin-bottom:10.0pt;
+	line-height:115%;}
+ /* Page Definitions */
+ @page WordSection1
+	{size:595.3pt 841.9pt;
+	margin:72.0pt 54.0pt 72.0pt 54.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-AU link=blue vlink=purple style='word-wrap:break-word'>
+
+<div class=WordSection1>
+
+<h2><a name="_Toc221703378"></a><a name="_Toc221706155">GeoPIXE from GitHub</a></h2>
+
+<p class=MsoNormal>GeoPIXE source and executable are available from <i>GitHub</i>
+as Open Source: <a href="https://github.com/CSIRO-GeoscienceAnalytics/GeoPIXE">https://github.com/CSIRO-GeoscienceAnalytics/GeoPIXE</a>
+</p>
+
+<p class=MsoNormal>The folder <b>Workspace/geopixe</b> contains a runtime
+version, which requires no compilation.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>The archive on GitHub contains all source files and
+essential data and documentation. It does NOT include a metadata
+(Workspace/.metadata directory) for the IDL DE Eclipse environment. What is
+missing are Eclipse project definitions and the build settings for each
+project. Import of the projects is easy (see below). But we must set a couple
+of settings regarding management of the !path in IDL. These are detailed below.
+</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>Building can be easily handled using “Builder.pro” (see
+below). However, you can setup Eclipse IDL build settings if you like, as
+described in section “Eclipse environment and organization”.</p>
+
+<h3><a name="_Toc221703379"></a><a name="_Toc221706156">Downloading</a></h3>
+
+<p class=MsoNormal>If you are reading this, then perhaps this is done for the
+software… But for worked example data, you need to also download the Demo data,
+which is archived in the CSIRO DAP. There are two archives, a simple one (e.g.
+for a Windows system at DOI: <a href="https://doi.org/10.25919/ff5b-wr11">https://doi.org/10.25919/ff5b-wr11</a>
+) and one designed to serve multiple users in a Linux workshop environment (at
+DOI: <a href="https://doi.org/10.25919/3yrz-7x38">https://doi.org/10.25919/3yrz-7x38</a>
+). See the “Read me.txt” files for details.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>NOTE: See the Readme file notes on how to get the <b><i>GeoPIXE
+Demo data</i></b> for the worked example tutorials.</p>
+
+<h3><a name="_Toc221703380"></a><a name="_Toc221706157">Install IDL</a></h3>
+
+<p class=MsoNormal>Running GeoPIXE requires at least IDL runtime support. With
+IDL installed, but not licensed, you can run GeoPIXE using IDL <i>Virtual
+Machine</i> runtime support. To program in IDL and build GeoPIXE source, you
+will need an IDL license.</p>
+
+<h3>Software Organization</h3>
+
+<p class=MsoNormal>For more details of installing GeoPIXE and software
+organization, see the “<b><i>GeoPIXE Software Organization - open</i></b>”
+docs.</p>
+
+</div>
+
+</body>
+
+</html>
