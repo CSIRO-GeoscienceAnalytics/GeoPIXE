@@ -1140,7 +1140,7 @@ endif
 		end
 
 	'Help_Maia_User': begin
-   		geopixe_browser, 'Help/Maia-384-user-help.htm', title='Maia 384 User Guide', group=event.top
+   		geopixe_browser, 'Help/Maia-384-user-help.htm', title='Maia 384 User Guide', group=event.top, key='Table of Contents'
        end
 
 	'Update_GeoPIXE': begin
@@ -1148,7 +1148,7 @@ endif
 		end
 			
 	'Help_User': begin
-		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Table of Contents'
        end
 
     'Help_Query': begin
