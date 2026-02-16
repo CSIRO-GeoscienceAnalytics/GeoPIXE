@@ -1026,6 +1026,10 @@ done:
 		close_file, unit
 	
 		if (*p).note eq '' then (*p).note = 'Import: ' + F[i]
+		if ptr_good( (*p).note) eq 0 then begin
+			(*p).el = ptr_new( strtrim(string(indgen(1)),2))
+			(*p).n_el = 1
+		endif
 		if n_elements( *(*pstate).p) eq 0 then begin
 			*(*pstate).p = p
 		endif else begin
