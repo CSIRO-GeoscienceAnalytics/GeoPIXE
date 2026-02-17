@@ -122,6 +122,10 @@ endif
        OnMove_Image_Top, Event
        end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Image Display (main GeoPIXE window)'
+		end
+
     'Load_Menu': begin
        Image_Load, Event
        end
@@ -1401,7 +1405,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        def_font = 'Geneva*10'
        draw_trim = 15
        scr_trim = 21
-       help1_xsize = 339
+       help1_xsize = 320		; 339
        mode_xsize = 63
        slide_xsize = 95			; 83
        button_height = 21
@@ -1417,7 +1421,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        def_font = '6x13'
        draw_trim = 0
        scr_trim = 0			; 15
-       help1_xsize = 361
+       help1_xsize = 342	; 361
        mode_xsize = 63
        slide_xsize = 95			; 85
        button_height = 21
@@ -1433,7 +1437,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        def_font = 'Arial*14'
        draw_trim = 0
        scr_trim = 15			; 15
-       help1_xsize = 359		; 261
+       help1_xsize = 340		; 359
        mode_xsize = 55
        slide_xsize = 101			; 92			; 83
        button_height = 21
@@ -1587,11 +1591,11 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 
   Image_Help1_Base = Widget_Base(Image_Button_Base, UNAME='Image_Help1_Base', map=1  $
-      ,SPACE=0 ,XPAD=0 ,YPAD=0 ,/row, /align_center, /base_align_center)
+      ,SPACE=3 ,XPAD=0 ,YPAD=0 ,/row, /align_center, /base_align_center)
 
 
   Image_Help2_Base = Widget_Base(Image_Button_Base1, UNAME='Image_Help2_Base', map=0  $
-      ,SPACE=0 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
+      ,SPACE=3 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
 
 
   debug_line = 'Postcreate ...'
@@ -1686,12 +1690,17 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
   Help_Text1 = Widget_Text(Image_Help1_Base, UNAME='Help_Text1', /wrap $
       ,NOTIFY_REALIZE='OnRealize_Image_Help1',scr_XSIZE=help1_xsize, frame=0 ,YSIZE=3, $
-      tracking_events=1, uvalue='Help window to show help prompts for widgets.', /align_center)
+      /tracking_events, uvalue='Help window to show help prompts for widgets.', /align_center)
 
+  query_button1 = Widget_Button(Image_Help1_Base, UNAME='query-button', xsize=20, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(Image_Help2_Base, UNAME='Help_Text2', /wrap $
       ,NOTIFY_REALIZE='OnRealize_Image_Help2',scr_XSIZE=1, frame=0 ,scr_YSIZE=help2_scr_ysize, ysize=3, $
-      tracking_events=1, uvalue='Help window to show help prompts for widgets.')
+      /tracking_events, uvalue='Help window to show help prompts for widgets.')
+
+  query_button2 = Widget_Button(Image_Help2_Base, UNAME='query-button', xsize=20, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
  ; File menus
@@ -2389,6 +2398,8 @@ if wGroup ne 0 then begin
 	(*pstate).plugin_menus_root = plugin_menus_root
 	(*pstate).wizard_menus = wizard_menus
 	(*pstate).wizard_menus_root = plugin_menus_root
+	(*pstate).query1 = query_button1
+	(*pstate).query2 = query_button2
 
 	debug_line = 'return ...'
 	print,debug_line

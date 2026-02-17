@@ -95,6 +95,7 @@ function gbrowser_toc, file, error=error, count=nn
 ;	Scan HTML file for all <a href="link">key</a> links
 ;	Return array of nodes {key:'', link: ''} with these.
 ;	All keys are compressed (single whitespace only).
+;
 ;	Note that these "keys" need to be unique in a HTML document.
 
 	r = 0

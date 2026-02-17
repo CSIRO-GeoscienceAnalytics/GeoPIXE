@@ -2882,6 +2882,8 @@ pro map_help, pstate
 		(*pstate).help = (*pstate).help2
 		widget_control, (*pstate).help1_base, map=0
 		widget_control, (*pstate).help1, scr_ysize=1
+		widget_control, (*pstate).query1, scr_ysize=1
+		widget_control, (*pstate).query2, scr_xsize=20
 		widget_control, (*pstate).help2_base, map=1
 	endif else begin
 		if (*pstate).help eq (*pstate).help1 then goto, more
@@ -2889,7 +2891,9 @@ pro map_help, pstate
 		(*pstate).help = (*pstate).help1
 		widget_control, (*pstate).help2_base, map=0
 		widget_control, (*pstate).help2, scr_xsize=1
+		widget_control, (*pstate).query2, scr_xsize=1
 		widget_control, (*pstate).help1, ysize=3
+		widget_control, (*pstate).query1, scr_ysize=20
 		widget_control, (*pstate).help1_base, map=1
 	endelse
 
@@ -2899,30 +2903,30 @@ more:
 			'MacOS': begin
 				(*pstate).scr_xsize_off =	1
 				(*pstate).scr_ysize_off =	68
-			end
+				end
 			'unix': begin
 				(*pstate).scr_xsize_off =	1
 				(*pstate).scr_ysize_off =	110
-			end
+				end
 			else: begin
 				(*pstate).scr_xsize_off =	10		; 8
-				(*pstate).scr_ysize_off =	74		; 68
-			end
+				(*pstate).scr_ysize_off =	93		; 74
+				end
 		endcase
 	endif else begin
 		case !version.os_family of
 			'MacOS': begin
 				(*pstate).scr_xsize_off =	1
 				(*pstate).scr_ysize_off =	100
-			end
+				end
 			'unix': begin
 				(*pstate).scr_xsize_off =	8
 				(*pstate).scr_ysize_off =	152
-			end
+				end
 			else: begin
 				(*pstate).scr_xsize_off =	8
-				(*pstate).scr_ysize_off =	123		; 102
-			end
+				(*pstate).scr_ysize_off =	115		; 123
+				end
 		endcase
 	endelse
 
@@ -2931,7 +2935,7 @@ more:
 			xoff = 367
 			end
 		else: begin
-			xoff = 363		; 363
+			xoff = 382		; 363
 			end
 	endcase
 
