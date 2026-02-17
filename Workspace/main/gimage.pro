@@ -1144,7 +1144,7 @@ endif
        end
 
 	'Update_GeoPIXE': begin
-		geopixe_browser, 'Help/GeoPIXE from GitHub.htm', title='GeoPIXE Overview', group=event.top
+		geopixe_browser, 'Help/GeoPIXE from GitHub.htm', title='GeoPIXE Update', group=event.top
 		end
 			
 	'Help_User': begin

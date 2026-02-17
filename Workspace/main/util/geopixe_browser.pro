@@ -39,6 +39,7 @@ pro geopixe_browser_event, event
 ;					print,event.x,event.y
 					x = (event.x > 400) - 6
 					y = (event.y > 300) - 30
+					print,'Browser: x,y=',x,y
 					widget_control, (*pstate).browser, scr_xsize=x, scr_ysize=y
 					end
 				else:
@@ -53,6 +54,15 @@ pro geopixe_browser_event, event
 			end
 		'forward-button': begin
 			widget_control, (*pstate).browser, /BROWSER_GO_FORWARD
+			end
+		'geopixe_overview': begin
+			geopixe_browser, 'Help/GeoPIXE Overview.htm', title='GeoPIXE Overview', group=event.top
+			end
+		'geopixe_ref_button': begin
+			geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Table of Contents'
+			end
+		'geopixe_worked_examples_button': begin
+			geopixe_browser, 'Help/GeoPIXE Worked Examples Open Notes.htm', title='GeoPIXE Worked Examples', group=event.top
 			end
 
 		else:
@@ -187,14 +197,18 @@ pro geopixe_browser, file, group=group, title=title, key=key
 	htmlfile = 'file:///' + s	
 
 	tlb = WIDGET_BASE(Title = Title+note[0], uname='browser-tlb', /column, $
-						/TLB_SIZE_EVENTS, /TLB_KILL_REQUEST_EVENTS)
+						/TLB_SIZE_EVENTS, /TLB_KILL_REQUEST_EVENTS, group=group)
 	base1 = WIDGET_BASE( tlb)
 	
-	browser = WIDGET_BROWSER(base1, group=group, VALUE=htmlfile[0], uname='browser', XSIZE=900, YSIZE=1000)
+	browser = WIDGET_BROWSER(base1, VALUE=htmlfile[0], uname='browser', XSIZE=740, YSIZE=800)
 
 	bbase = widget_base( tlb, /row, /base_align_center, ypad=0, xpad=0, space=5)
 	button = widget_button( bbase, value='Back', uname='back-button')
 	button = widget_button( bbase, value='Forward', uname='forward-button')
+
+	button = widget_button( bbase, value='GeoPIXE Overview', uname='geopixe_overview')
+	button = widget_button( bbase, value='GeoPIXE Manual', uname='geopixe_ref_button')
+	button = widget_button( bbase, value='Worked Examples', uname='geopixe_worked_examples_button')
 
 	state = { $
 			file:		filename, $						; filename
