@@ -7086,6 +7086,9 @@ if ptr_good((*pstate).pprefs,/struct) eq 0 then goto, done
 	if startup.sort then image_EVT, event
 	if startup.regions then image_Results_Table, event
 
+	wait, 2
+	geopixe_browser, 'Help/Recent News.htm', title='Recent News', group=event.top, /centre
+
 done:
 	return
 end

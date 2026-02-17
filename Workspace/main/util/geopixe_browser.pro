@@ -24,7 +24,7 @@ pro geopixe_browser_event, event
 			return
 			end
 		'WIDGET_KILL_REQUEST': begin
-			print,'Kill request ...'
+;			print,'Kill request ...'
 			goto, kill
 			end
 		else:
@@ -149,6 +149,8 @@ cont:
 	endfor
 
 	print,nn
+	if nn eq 0 then return,r
+
 	error = 0
 	return, table
 bad:
@@ -159,7 +161,7 @@ end
 
 ;---------------------------------------------------------------------------------------------------------
 
-pro geopixe_browser, file, group=group, title=title, key=key
+pro geopixe_browser, file, group=group, title=title, key=key, centre=centre
 
 ; Open an embedded browser to display 'file'.
 ; Store parameters back in '*pars' (from parent), if present.
@@ -176,6 +178,7 @@ pro geopixe_browser, file, group=group, title=title, key=key
 	if n_elements(Title) lt 1 then Title = 'GeoPIXE Worked Examples'
 	if n_elements(file) lt 1 then file = 'Help/' + 'GeoPIXE Worked Examples Open Notes.htm'
 ;	if n_elements(key) lt 1 then key = 'H.  XANES Imaging'
+	if n_elements(centre) lt 1 then centre = 0
 
 	filename = geopixe_root + file
 ;	print, filename
@@ -196,7 +199,17 @@ pro geopixe_browser, file, group=group, title=title, key=key
 	endif
 	htmlfile = 'file:///' + s	
 
+	if centre then begin
+		screen = get_screen_size()
+		xoffset = screen[0]/2 - (740+6)/2
+		yoffset = screen[1]/2 - (800+30)/2
+	endif else begin
+		xoffset = 0
+		yoffset = 0
+	endelse
+
 	tlb = WIDGET_BASE(Title = Title+note[0], uname='browser-tlb', /column, $
+						xoffset=xoffset, yoffset=yoffset,  $
 						/TLB_SIZE_EVENTS, /TLB_KILL_REQUEST_EVENTS, group=group)
 	base1 = WIDGET_BASE( tlb)
 	

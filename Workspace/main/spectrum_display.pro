@@ -430,6 +430,10 @@ common c_working_dir, geopixe_root
             Spectrum_Blog_Browser, Event
        end
 
+	'Help_Recent': begin
+		geopixe_browser, 'Help/Recent News.htm', title='Recent News', group=event.top, /centre
+		end
+
 	'Help_Overview': begin
 		geopixe_browser, 'Help/GeoPIXE Overview.htm', title='GeoPIXE Overview', group=event.top
 		end
@@ -1012,6 +1016,8 @@ endif
 ; Help menus
 
   W_MENU_70 = Widget_Button(Spectrum_TLB_MBAR, UNAME='W_MENU_70', /MENU ,VALUE='Help')
+
+  W_MENU_70x = Widget_Button(W_MENU_70, UNAME='Help_Recent' ,VALUE="Recent News")
 
   W_MENU_70a = Widget_Button(W_MENU_70, UNAME='Help_Overview' ,VALUE="GeoPIXE Overview")
 

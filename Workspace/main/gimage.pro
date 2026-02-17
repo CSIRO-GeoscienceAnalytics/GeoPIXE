@@ -1131,6 +1131,10 @@ endif
 		compare_fits
 		end
 
+	'Help_Recent': begin
+		geopixe_browser, 'Help/Recent News.htm', title='Recent News', group=event.top, /centre
+		end
+
 	'Help_Overview': begin
 		geopixe_browser, 'Help/GeoPIXE Overview.htm', title='GeoPIXE Overview', group=event.top
 		end
@@ -2281,6 +2285,8 @@ endif else wizard_menus=0L
 
   W_MENU_70 = Widget_Button(Image_TLB_MBAR, UNAME='W_MENU_70', /MENU ,VALUE='Help')
 
+  W_MENU_70x = Widget_Button(W_MENU_70, UNAME='Help_Recent' ,VALUE="Recent News")
+
   W_MENU_70a = Widget_Button(W_MENU_70, UNAME='Help_Overview' ,VALUE="GeoPIXE Overview")
 
   W_MENU_70b = Widget_Button(W_MENU_70, UNAME='Help_Worked_examples' ,VALUE="GeoPIXE Worked Examples Guide")
@@ -2383,6 +2389,7 @@ if wGroup ne 0 then begin
 	(*pstate).plugin_menus_root = plugin_menus_root
 	(*pstate).wizard_menus = wizard_menus
 	(*pstate).wizard_menus_root = plugin_menus_root
+
 	debug_line = 'return ...'
 	print,debug_line
 	return
