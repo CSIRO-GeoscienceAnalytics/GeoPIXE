@@ -175,6 +175,10 @@ endif
 		ImageRGB_Learn, Event, /execute
 		end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='RGB Three Element Images'
+		end
+
 	else:
   endcase
 	widget_control, hourglass=0
@@ -242,10 +246,10 @@ endif
 	;	widget_control, default_font='Arial*14'				; set font for all windows
 		draw_trim = 0
 		scr_trim = 15
-		help1_xsize = 43			; 42
+		help1_xsize = 280			; 
 		button_height = 21
-		element_xsize = 63			; 58
-		element_xsize2 = 63			; 58
+		element_xsize = 63			; 
+		element_xsize2 = 63			; 
 		end
   endcase
 
@@ -366,13 +370,22 @@ endif
 
 
   Help_Text1 = Widget_Text(ImageRGB_Help1_Base, UNAME='Help_Text1', /wrap $
-      ,NOTIFY_REALIZE='OnRealize_ImageRGB_Help1',XSIZE=help1_xsize, frame=0 ,YSIZE=3, $
+      ,NOTIFY_REALIZE='OnRealize_ImageRGB_Help1',scr_XSIZE=help1_xsize-19, frame=0 ,YSIZE=3, $
       tracking_events=1, uvalue='Help window to show help prompts for widgets.')
 
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button1 = Widget_text(ImageRGB_Help1_Base, UNAME='query-button', scr_xsize=15, scr_ysize=20, /frame, /all_events,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(ImageRGB_Help2_Base, UNAME='Help_Text2', /wrap $
       ,NOTIFY_REALIZE='OnRealize_ImageRGB_Help2',scr_XSIZE=1, frame=0 ,scr_YSIZE=1, ysize=3, $
       tracking_events=1, uvalue='Help window to show help prompts for widgets.')
+
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button2 = Widget_text(ImageRGB_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=20, /frame, /all_events,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
  ; File menus
@@ -449,8 +462,6 @@ endif
 
   Widget_Control, /REALIZE, ImageRGB_TLB
 
-  set_RGB_map_help, ImageRGB_TLB
-
   register_notify, ImageRGB_TLB, $
   				['images-changed', $					; new ImageRGBs loaded
 				'image-display', $						; pass on notify on spectra
@@ -461,6 +472,14 @@ endif
   register_notify, ImageRGB_TLB, ['wizard-action']		; global notify from a wizard
 
   XManager, 'ImageRGB', ImageRGB_TLB, /no_block
+
+	child = widget_info( ImageRGB_TLB, /child)
+	widget_control, child, get_uvalue=pstate
+	
+	(*pstate).query1 = query_button1
+	(*pstate).query2 = query_button2
+
+  set_RGB_map_help, ImageRGB_TLB
 
 end
 ;

@@ -897,6 +897,10 @@ case uname of
 		endif
 		end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Correction of Images for Sample Composition Effect on Yields'
+		end
+
 	'close': begin
 		goto, kill
 		end
@@ -1359,8 +1363,14 @@ spc = widget_label( bbase, value='', scr_xsize=20)
 button = widget_button( bbase, value='Close', uname='close', /tracking, $
 			uvalue='Close the correction/mineral projection window.', xsize=wtable-10)
 
-help = widget_text( tlb, scr_xsize=xhelp, ysize=2, /wrap, uname='HELP', /tracking, $
+Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
+
+help = widget_text( Help_Base, scr_xsize=xhelp-19, ysize=2, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays context sensitive information about widgets.',frame=0)
+
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
+
 
 state = {	component_drop:	component_drop, $		; components droplist ID
 			element_base:	element_base, $			; element droplists bases ID array

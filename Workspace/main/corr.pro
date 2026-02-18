@@ -564,8 +564,6 @@ endelse
 
   Widget_Control, /REALIZE, corr_TLB
 
-  set_corr_map_help, corr_TLB
-
   if wGroup ne 0 then begin
   	register_notify, corr_TLB, $
   				['images-changed', $			; new Images loaded
@@ -588,6 +586,8 @@ endelse
 	
 	(*pstate).query1 = query_button1
 	(*pstate).query2 = query_button2
+
+  set_corr_map_help, corr_TLB
 
 end
 ;

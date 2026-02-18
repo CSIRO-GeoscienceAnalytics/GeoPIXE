@@ -122,10 +122,6 @@ endif
        OnMove_Image_Top, Event
        end
 
-	'query-button':begin
-		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Image Display (main GeoPIXE window)'
-		end
-
     'Load_Menu': begin
        Image_Load, Event
        end
@@ -1133,6 +1129,15 @@ endif
 
 	'Compare_fits_Menu': begin
 		compare_fits
+		end
+
+	'query-button':begin
+		if (*pstate).xanes then begin
+			key = '3D Image Stack Display Window'
+		endif else begin
+			key = 'Image Display (main GeoPIXE window)'
+		endelse
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key=key
 		end
 
 	'Help_Recent': begin

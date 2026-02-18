@@ -1600,6 +1600,8 @@ state = {	p:			pimages, $		; pointer to images
 			help:		0L, $			; current help text widget ID
 			help1_base:	Help1_Base, $	; base to map for help 1
 			help2_base:	Help2_Base, $	; base to map for help 2
+			query1:		0L, $			; query (help) button 1 ID
+			query2:		0L, $			; query (help) button 2 ID
 
 			Image:		0, $			; current RED image
 			Image2:		0, $			; current GREEN image
