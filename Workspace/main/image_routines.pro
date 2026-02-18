@@ -2876,14 +2876,14 @@ pro map_help, pstate
 ; 'scr_xsize_off' and 'scr_ysize_off' provide offsets from window size x,y to
 ; window scr_xsize, scr_ysize size (w,h) in 'OnSize_image'.
 
-	if (*pstate).w gt 600 then begin
+	if (*pstate).w gt 630 then begin
 		if (*pstate).help eq (*pstate).help2 then goto, more
 
 		(*pstate).help = (*pstate).help2
 		widget_control, (*pstate).help1_base, map=0
 		widget_control, (*pstate).help1, scr_ysize=1
 		widget_control, (*pstate).query1, scr_ysize=1
-		widget_control, (*pstate).query2, scr_xsize=20
+		widget_control, (*pstate).query2, scr_xsize=15
 		widget_control, (*pstate).help2_base, map=1
 	endif else begin
 		if (*pstate).help eq (*pstate).help1 then goto, more
@@ -2892,25 +2892,26 @@ pro map_help, pstate
 		widget_control, (*pstate).help2_base, map=0
 		widget_control, (*pstate).help2, scr_xsize=1
 		widget_control, (*pstate).query2, scr_xsize=1
-		widget_control, (*pstate).help1, ysize=3
 		widget_control, (*pstate).query1, scr_ysize=20
+		widget_control, (*pstate).help1, ysize=3
 		widget_control, (*pstate).help1_base, map=1
 	endelse
 
 more:
-	if (*pstate).w gt 600 then begin
+;	print,'map_help: w,h=', (*pstate).w, (*pstate).h
+	if (*pstate).w gt 630 then begin
 		case !version.os_family of
 			'MacOS': begin
 				(*pstate).scr_xsize_off =	1
-				(*pstate).scr_ysize_off =	68
+				(*pstate).scr_ysize_off =	79		; 68
 				end
 			'unix': begin
 				(*pstate).scr_xsize_off =	1
-				(*pstate).scr_ysize_off =	110
+				(*pstate).scr_ysize_off =	129		; 110
 				end
 			else: begin
 				(*pstate).scr_xsize_off =	10		; 8
-				(*pstate).scr_ysize_off =	93		; 74
+				(*pstate).scr_ysize_off =	74		; 74
 				end
 		endcase
 	endif else begin
@@ -2935,7 +2936,7 @@ more:
 			xoff = 367
 			end
 		else: begin
-			xoff = 382		; 363
+			xoff = 376		; 363
 			end
 	endcase
 

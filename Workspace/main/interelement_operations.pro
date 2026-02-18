@@ -223,6 +223,9 @@ endif
 			widget_control, (*pstate).operation, set_combobox_select=(*p).modify.operation
 			changed = 1
 			end
+		'query-button':begin
+			geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Interelement Operations window'
+			end
 		else:
 	endcase
 	goto, finish
@@ -552,8 +555,13 @@ endcase
 	button = widget_button( Bot, value='Apply', uname='apply-button', /tracking, scr_xsize=xsize_button, $
 		uvalue='Apply the scaled source contribution to the target element map. This is needed before modified image can be saved.')
 
-	help = widget_text( tlb, scr_xsize=xsize_help, ysize=ysize_help, /wrap, uname='help', /tracking, $
+	Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
+
+	help = widget_text( Help_Base, scr_xsize=xsize_help-19, ysize=ysize_help, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', frame=0)
+
+	query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 	state = {  $
 		p:				p, $				; pointer to image struct

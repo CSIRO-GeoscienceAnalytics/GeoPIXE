@@ -80,6 +80,9 @@ case !version.os_family of
 		args = ['print_image_metadata','files='+str_tidy((*p).file),'stats=0','output='+strip_file_ext((*p).file)+'-metadata.txt']
 		geopixe_gen_commands, F, args
 		end
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Image History'
+		end
 	'Image_history_List': begin
 		p = (*pstate).p
 		if ptr_good(p,/struct) eq 0 then goto, bad_ptr
@@ -294,6 +297,11 @@ if n_elements(stats) lt 1 then stats=0
 	metadata_button = Widget_Button( base1, value='Output metadata', uname='metadata-button') 
 
 	GCF_button = Widget_Button( base1, value='C*', uname='GCF-button') 
+
+	space = widget_label(base1, value='',scr_xsize=150)
+
+	query_button = Widget_Button(base1, UNAME='query-button', xsize=15, ysize=20,  $
+		/ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 	Widget_Control, /REALIZE, Image_history_TLB
 

@@ -76,6 +76,10 @@ endif
     'Image_Process_Close': begin
        OnButton_Image_Process_Close, Event
        end
+
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Image Processing Window'
+		end
     else:
   endcase
 
@@ -356,6 +360,9 @@ endif
 
   Image_Process_Close = Widget_Button(Button_Base, UNAME='Image_Process_Close'  $
        ,/ALIGN_CENTER ,VALUE='Close')
+
+  query_button = Widget_Button(Button_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
   Widget_Control, /REALIZE, Image_Process_TLB

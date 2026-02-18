@@ -1591,11 +1591,11 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 
   Image_Help1_Base = Widget_Base(Image_Button_Base, UNAME='Image_Help1_Base', map=1  $
-      ,SPACE=3 ,XPAD=0 ,YPAD=0 ,/row, /align_center, /base_align_center)
+      ,SPACE=1 ,XPAD=0 ,YPAD=0 ,/row, /align_center, /base_align_center)
 
 
   Image_Help2_Base = Widget_Base(Image_Button_Base1, UNAME='Image_Help2_Base', map=0  $
-      ,SPACE=3 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
+      ,SPACE=1 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
 
 
   debug_line = 'Postcreate ...'
@@ -1630,12 +1630,12 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
   Zoom_In_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_In_Button'  $
       ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, font=large_font, $
-      uvalue='Magnify image view x2.',xsize=20, ysize=button_height)
+      uvalue='Magnify image view x2. Zoom into image.',xsize=20, ysize=button_height)
 
 
   Zoom_Out_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_Out_Button'  $
       ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, font=large_font, $
-      uvalue='Demagnify image view x2.',xsize=20, ysize=button_height)
+      uvalue='Demagnify image view x2. Zoom out.',xsize=20, ysize=button_height)
 
 
   space2 = widget_base(Image_Button_Top_Base, xsize=1)
@@ -1644,8 +1644,8 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   Analyze_Type = widget_combobox(Image_Button_Top_Base, xsize=xsize_analyze_type,  $
       UNAME='Analyze_Type_combobox' ,NOTIFY_REALIZE='OnRealize_Analyze_Type'  $
       ,VALUE=[ 'Distance', 'Box', 'Circle', 'Curve 8', 'Traverse', 'Ellipse', 'Spline 10', 'Spline 32', 'Project X', 'Project Y', 'Spline 100', 'S pixel' ], tracking_events=1, $
-      uvalue='Select area analyze type. Use mouse to drag out a shape, or move/adjust an existing shape. Clear all shapes using menu. ' + $
-	  	'Left mouse: click and hold to drag shape or control point. Right mouse: alt function for some controls.')
+      uvalue='Select area analyze type. Use mouse to drag out a shape, or move/adjust an existing shape. ' + $
+	  	'Left mouse: drag shape or control point. Right mouse: alt function for some controls.')
 
 
   Analyze_Mode = widget_combobox(Image_Button_Top_Base, xsize=xsize_analyze_mode,  $
@@ -1690,16 +1690,20 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
   Help_Text1 = Widget_Text(Image_Help1_Base, UNAME='Help_Text1', /wrap $
       ,NOTIFY_REALIZE='OnRealize_Image_Help1',scr_XSIZE=help1_xsize, frame=0 ,YSIZE=3, $
-      /tracking_events, uvalue='Help window to show help prompts for widgets.', /align_center)
+      /tracking_events, uvalue='Help window to show help prompts for widgets. Move mouse over widgets to see help on each here.', /align_center)
 
-  query_button1 = Widget_Button(Image_Help1_Base, UNAME='query-button', xsize=20, ysize=20,  $
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button1 = Widget_text(Image_Help1_Base, UNAME='query-button', scr_xsize=15, scr_ysize=20, /frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(Image_Help2_Base, UNAME='Help_Text2', /wrap $
       ,NOTIFY_REALIZE='OnRealize_Image_Help2',scr_XSIZE=1, frame=0 ,scr_YSIZE=help2_scr_ysize, ysize=3, $
-      /tracking_events, uvalue='Help window to show help prompts for widgets.')
+      /tracking_events, uvalue='Help window to show help prompts for widgets. Move mouse over widgets to see help on each here.')
 
-  query_button2 = Widget_Button(Image_Help2_Base, UNAME='query-button', xsize=20, ysize=20,  $
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button2 = Widget_text(Image_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=20, /frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 

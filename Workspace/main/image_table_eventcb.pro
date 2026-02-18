@@ -2519,7 +2519,7 @@ y = (event.y - (*pstate).yoffset +2) > 54
 ;y = (n + 2) * (*pstate).row_height
 
 widget_control, (*pstate).table, scr_xsize=x, scr_ysize=y
-widget_control, (*pstate).help, scr_xsize=x
+widget_control, (*pstate).help, scr_xsize=x-19
 end
 
 ;-----------------------------------------------------------------

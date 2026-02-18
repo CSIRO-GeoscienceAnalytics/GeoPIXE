@@ -146,6 +146,10 @@ common c_working_dir, geopixe_root
             OnButton_show_diff, Event
        end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Spectrum Display Window'
+		end
+
     'load_menu': begin
             Spectrum_Load, Event, opt=list_device_imports(find='generic_geopixe_spec')
        end
@@ -793,8 +797,14 @@ endif else Identify_Button=0L
 					uvalue=['Y: Show the difference between data and the first overlay (back).'])
   endelse
 
-  Help_Text = Widget_Text(Spectrum_TLB, UNAME='Help_Text' $
-      ,NOTIFY_REALIZE='OnRealize_Help',scr_XSIZE=463, frame=0 ,YSIZE=1)
+  Help_Base = Widget_Base(Spectrum_TLB, UNAME='Help_Base'  $
+      ,SPACE=1 ,XPAD=0 ,YPAD=0 ,/ROW, /base_align_center)
+
+  Help_Text = Widget_Text(Help_Base, UNAME='Help_Text' $
+      ,NOTIFY_REALIZE='OnRealize_Help',scr_XSIZE=legend_xsize+xsize2+scr_trim, frame=0 ,YSIZE=1)
+
+  query_button2 = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
   W_MENU_1 = Widget_Button(Spectrum_TLB_MBAR, UNAME='file_menu' ,/MENU  $

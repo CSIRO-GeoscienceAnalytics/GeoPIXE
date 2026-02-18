@@ -194,7 +194,7 @@ case uname of
 ;			print,w,h
 			widget_control, (*pstate).list, scr_xsize=w, scr_ysize=h
 			widget_control, (*pstate).thresh, scr_xsize=w+12
-			widget_control, (*pstate).help, scr_xsize=w+6
+			widget_control, (*pstate).help, scr_xsize=w+6-19
 			(*pstate).whelp[0] = w+6
 
 			widget_control, (*pstate).base1, scr_xsize=w+width_off
@@ -410,6 +410,9 @@ case uname of
 			widget_control, (*pstate).element, set_value=element_name((*((*pstate).pz)).z)
 			notify, 'mark-element', (*pstate).pz, from=event.top
 		endelse
+		end
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='X-ray Identification Window'
 		end
 	else:
 endcase
@@ -750,9 +753,13 @@ detector_mode = widget_combobox( filter_base, value=detector_title, uname='detec
 					uvalue='Select the detector calibration to use to modify X-ray relative intensities.', xsize=large_drop_width2)
 
 
+Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( tlb, scr_xsize=list_xsize, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
+help = widget_text( Help_Base, scr_xsize=list_xsize-19, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
+
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = { element:	element, $
 	base1:			base1, $				; ident list map base ID
