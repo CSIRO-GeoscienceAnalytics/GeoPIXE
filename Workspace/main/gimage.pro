@@ -1419,6 +1419,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 48
        xsize_loglin = 73
        help2_scr_ysize = 61
+       query_scr_xsize = 20
+       query_scr_ysize = 24
+	   query_frame = 0
        end
     'unix': begin
        symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
@@ -1435,6 +1438,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 54
        xsize_loglin = 79
        help2_scr_ysize = 60
+       query_scr_xsize = 20
+       query_scr_ysize = 24
+	   query_frame = 0
        end
     else: begin
        symbol = 'SYMBOL*BOLD*14'
@@ -1451,6 +1457,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 48
        xsize_loglin = 63
        help2_scr_ysize = 58
+       query_scr_xsize = 15
+       query_scr_ysize = 20
+	   query_frame = 1
       end
   endcase
 ;@2  widget_control, default_font=def_font        ; set font for all windows (no, let system manage this)
@@ -1699,7 +1708,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
 
-  query_button1 = Widget_text(Image_Help1_Base, UNAME='query-button', scr_xsize=15, scr_ysize=20, /frame, /all_events,  $
+  query_button1 = Widget_text(Image_Help1_Base, UNAME='query-button', scr_xsize=query_scr_xsize, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(Image_Help2_Base, UNAME='Help_Text2', /wrap $
@@ -1708,7 +1717,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
 
-  query_button2 = Widget_text(Image_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=20, /frame, /all_events,  $
+  query_button2 = Widget_text(Image_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
