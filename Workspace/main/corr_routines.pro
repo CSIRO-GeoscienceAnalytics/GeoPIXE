@@ -767,7 +767,7 @@ if (*pstate).w gt 560 then begin
 			(*pstate).scr_ysize_off =	106
 			end
 		'unix': begin
-			(*pstate).scr_xsize_off =	44
+			(*pstate).scr_xsize_off =	32
 			(*pstate).scr_ysize_off =	152
 			end
 		else: begin
@@ -783,7 +783,7 @@ endif else begin
 			end
 		'unix': begin
 			(*pstate).scr_xsize_off =	26		; 8
-			(*pstate).scr_ysize_off =	215
+			(*pstate).scr_ysize_off =	212
 			end
 		else: begin
 			(*pstate).scr_xsize_off =	35		; 8

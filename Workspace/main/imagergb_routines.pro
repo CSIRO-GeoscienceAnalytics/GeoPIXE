@@ -621,7 +621,7 @@ if (*pstate).w gt 450 then begin
 			(*pstate).scr_ysize_off =	64
 			end
 		'unix': begin
-			(*pstate).scr_xsize_off =	22
+			(*pstate).scr_xsize_off =	20
 			(*pstate).scr_ysize_off =	102
 			end
 		else: begin

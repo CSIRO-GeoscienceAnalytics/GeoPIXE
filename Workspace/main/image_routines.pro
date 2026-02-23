@@ -2884,7 +2884,7 @@ pro map_help, pstate
 				end
 			'unix': begin
 				(*pstate).scr_xsize_off =	25
-				(*pstate).scr_ysize_off =	104		; 110
+				(*pstate).scr_ysize_off =	103		; 110
 				end
 			else: begin
 				(*pstate).scr_xsize_off =	10		; 8
@@ -2899,7 +2899,7 @@ pro map_help, pstate
 				end
 			'unix': begin
 				(*pstate).scr_xsize_off =	2
-				(*pstate).scr_ysize_off =	158
+				(*pstate).scr_ysize_off =	157
 				end
 			else: begin
 				(*pstate).scr_xsize_off =	8
