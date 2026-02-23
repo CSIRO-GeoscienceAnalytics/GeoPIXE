@@ -1709,7 +1709,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
 
-  query_button1 = Widget_text(Image_Help1_Base, UNAME='query-button', scr_xsize=query_scr_xsize, scr_ysize=query_scr_ysize, frame=query_frame, /all_text_events, /all_events,  $
+  query_button1 = Widget_text(Image_Help1_Base, UNAME='query-button', scr_xsize=query_scr_xsize, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(Image_Help2_Base, UNAME='Help_Text2', /wrap $
@@ -1718,7 +1718,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
 
-  query_button2 = Widget_text(Image_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=query_scr_ysize, frame=query_frame, /all_text_events, /all_events,  $
+  query_button2 = Widget_text(Image_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
