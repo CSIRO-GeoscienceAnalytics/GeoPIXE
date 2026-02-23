@@ -228,6 +228,9 @@ endif
 		button_height = 21
 		element_xsize = 73
 		element_xsize2 = 69
+       query_scr_xsize = 25
+       query_scr_ysize = 29
+	   query_frame = 0
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
@@ -239,6 +242,9 @@ endif
 		button_height = 29
 		element_xsize = 73
 		element_xsize2 = 69
+       query_scr_xsize = 25
+       query_scr_ysize = 29
+	   query_frame = 0
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
@@ -250,6 +256,9 @@ endif
 		button_height = 21
 		element_xsize = 63			; 
 		element_xsize2 = 63			; 
+       query_scr_xsize = 15
+       query_scr_ysize = 20
+	   query_frame = 1
 		end
   endcase
 
@@ -375,7 +384,7 @@ endif
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
 
-  query_button1 = Widget_text(ImageRGB_Help1_Base, UNAME='query-button', scr_xsize=15, scr_ysize=20, /frame, /all_events,  $
+  query_button1 = Widget_text(ImageRGB_Help1_Base, UNAME='query-button', scr_xsize=query_scr_xsize, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(ImageRGB_Help2_Base, UNAME='Help_Text2', /wrap $
@@ -384,7 +393,7 @@ endif
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
 
-  query_button2 = Widget_text(ImageRGB_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=20, /frame, /all_events,  $
+  query_button2 = Widget_text(ImageRGB_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
