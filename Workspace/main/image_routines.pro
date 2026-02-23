@@ -2910,8 +2910,8 @@ pro map_help, pstate
 	case !version.os_family of
 		'unix': begin
 			xoff = 367
-	       query_scr_xsize = 20
-	       query_scr_ysize = 24
+	       query_scr_xsize = 22
+	       query_scr_ysize = 26
 			end
 		else: begin
 			xoff = 376		; 363
