@@ -1137,6 +1137,7 @@ endif
 		endif else begin
 			key = 'Image Display (main GeoPIXE window)'
 		endelse
+		print,'Gimage: Open Window Help, key=',key
 		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key=key
 		end
 
@@ -1438,8 +1439,8 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 54
        xsize_loglin = 79
        help2_scr_ysize = 60
-       query_scr_xsize = 20
-       query_scr_ysize = 24
+       query_scr_xsize = 22
+       query_scr_ysize = 26
 	   query_frame = 0
        end
     else: begin
