@@ -224,7 +224,7 @@ endif
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
 		draw_trim = 15
 		scr_trim = 21
-		help1_xsize = 88
+		help1_xsize = 280
 		button_height = 21
 		element_xsize = 73
 		element_xsize2 = 69
@@ -238,7 +238,7 @@ endif
 ;@2		widget_control, default_font='6x13'				; set font for all windows
 		draw_trim = 0
 		scr_trim = 15
-		help1_xsize = 43
+		help1_xsize = 280
 		button_height = 29
 		element_xsize = 73
 		element_xsize2 = 69
