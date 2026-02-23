@@ -1439,8 +1439,8 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 54
        xsize_loglin = 79
        help2_scr_ysize = 60
-       query_scr_xsize = 22
-       query_scr_ysize = 26
+       query_scr_xsize = 25
+       query_scr_ysize = 29
 	   query_frame = 0
        end
     else: begin
