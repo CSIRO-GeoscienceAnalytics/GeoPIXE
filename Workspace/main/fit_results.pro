@@ -247,6 +247,11 @@ case uname of
 		print,'Close fit results ...'
 		goto, kill
 		end
+
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Fit Results Window'
+		end
+
 	else:
 endcase
 
@@ -1213,7 +1218,7 @@ table_ppm = [1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 table_els = [1,1,1,1,1,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0]
 table_units = [' ppm (wt) ',' mmol / l',' ng / cm2']
 
-bbase = widget_base( tbase, /row, /base_align_center, xpad = 0, ypad=0, space=2)
+bbase = widget_base( tbase, /row, /base_align_center, xpad = 0, ypad=0, space=1)
 table_mode = widget_combobox( bbase, value=table_modes, $
 					uname='table-mode', tracking=tracking, xsize=mode_xsize, $
 					uvalue='Select content to display in the table above.')
@@ -1251,6 +1256,9 @@ button = widget_button( bbase, value='Clear', uname='clear-button', tracking=tra
 ;help = widget_text( tbase, scr_xsize=380, ysize=3, /wrap, uname='help', tracking=tracking, $
 ;				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 ;				frame=0)
+
+query_button = Widget_Button(bbase, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = { $
 		path:			ptr_new(path), $		; pointer to current path

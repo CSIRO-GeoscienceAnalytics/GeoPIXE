@@ -903,6 +903,10 @@ bad_export_io:
 			goto, finish
 		end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Calculating Thick, or Multi-layered, X-ray Yields'
+		end
+
 	'close-button': begin
 		print,'Close layer setup ...'
 		goto, kill
@@ -2030,9 +2034,14 @@ button = widget_button( bbase, value=' Close ', uname='close-button', /tracking,
 
 ;.................................................................................
 
-help = widget_text( tbase, scr_xsize=380, ysize=4, /wrap, uname='help', /tracking, $
+help_base = widget_base( tbase, /row, /base_align_center, ypad=0, space=2)
+
+help = widget_text( help_base, scr_xsize=380-22, ysize=4, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
+
+query_button = Widget_Button(help_base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {	$
 		path:			ptr_new(path), $		; pointer to current path

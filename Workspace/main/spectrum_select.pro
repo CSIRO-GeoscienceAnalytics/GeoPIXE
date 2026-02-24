@@ -131,6 +131,10 @@ endif
 		endif
 		end
 		
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Spectrum Select Window'
+		end
+
 ;	'No_XY_Button': begin
 ;		if( Tag_Names(Event, /STRUCTURE_NAME) eq 'WIDGET_BUTTON' )then begin
 ;			OnButton_NoXY_Spec_Select, Event
@@ -417,6 +421,10 @@ if realtime eq 0 then begin
 ;  del_fit_name = 'Del Fit'
 ;  xsize_delfit = xsize_delfit1
 endif
+
+	query_button = Widget_Button(Select_Button_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
+
 
 ;  Delete_Fit_Button = Widget_Button(Select_Button_Base, UNAME='Delete_Fit_Button'  $
 ;      ,/ALIGN_CENTER ,VALUE=del_fit_name, xsize=xsize_delfit)
