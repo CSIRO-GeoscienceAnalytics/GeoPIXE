@@ -673,6 +673,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 			
 ;			What is this 'throttle' code? Is it remnant debug code? Is it still used with Throttle?
 ;			It comes from the "Image->Analyze->Throttle" menu (not the spectrum one).
+;			Not used anymore - use the Spectrum Display menu.
 
 			if throttle then begin
 				conc[i] = max( median((*(*p).image)[qe + i*pixeln],5)) * pixels

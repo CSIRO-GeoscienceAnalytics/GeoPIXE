@@ -519,7 +519,7 @@ endif
        end
 
     'Throttle_Menu': begin
-       Image_Analyze, Event, /throttle
+       Image_Analyze, Event, /throttle		; not used anymore
        end
 
     'Median_Menu-2': begin
@@ -1999,9 +1999,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 	  W_MENU_43 = Widget_Button(W_MENU_40, UNAME='Analyze_Menu' ,VALUE='Region')
 
-	if xanes eq 0 then begin
-		W_MENU_44 = Widget_Button(W_MENU_40, UNAME='Throttle_Menu' ,VALUE='Throttle', /separator)
-	endif
+;	if xanes eq 0 then begin
+;		W_MENU_44 = Widget_Button(W_MENU_40, UNAME='Throttle_Menu' ,VALUE='Throttle', /separator)
+;	endif
   endif
   debug_line = 'Main Menus done.'
 
@@ -2184,7 +2184,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 ;  W_menu_556a = Widget_Button(W_menu_556, UNAME='flux-remove', VALUE='Remove flatten correction' )
 ;  W_menu_556c = Widget_Button(W_menu_556, UNAME='flux-apply', VALUE='Apply flatten correction' )
 
-  W_menu_557 = Widget_Button(W_menu_55, UNAME='Correct-Y-ripples', /menu, VALUE='Y Ripples' )
+   W_menu_557 = Widget_Button(W_menu_55, UNAME='Correct-Y-ripples', /menu, VALUE='Y Ripples' )
   
   W_MENU_5571 = Widget_Button(W_menu_557, UNAME='Correct-Y-ripples-5', VALUE='5' )
   W_MENU_5572 = Widget_Button(W_menu_557, UNAME='Correct-Y-ripples-10', VALUE='10' )
@@ -2198,7 +2198,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   	W_MENU_54 = Widget_Button(plugin_menus_root, UNAME='Merge_Gamma_Menu', VALUE='Merge PIGE', /separator )
   endif
 
-  W_MENU_59 = Widget_Button(plugin_menus_root, UNAME='Reset_Menu', VALUE='Reset process shared memory', /separator )
+;  W_MENU_59 = Widget_Button(plugin_menus_root, UNAME='Reset_Menu', VALUE='Reset process shared memory', /separator )
 
   if test then W_MENU_56 = Widget_Button(plugin_menus_root, UNAME='Test_Menu', VALUE='Test', /separator )
 
