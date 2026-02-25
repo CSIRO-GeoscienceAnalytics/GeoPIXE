@@ -582,6 +582,10 @@ case uname of
 
 		end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Setting Up Detector Definition Files'
+		end
+
 	'close-button': begin
 		print,'Close detector setup ...'
 		goto, kill
@@ -1827,9 +1831,14 @@ overlay_text = widget_text( obase, value='', uname='load-detector-overlay', /tra
 load_overlay_button = widget_button( obase, value='Load', uname='load-detector-overlay', /tracking, $
 					uvalue='Load detector parameters from a previous detector file to overlay on graph; main detector in "green", overlay in "red", ratio of total efficiency to overlay in "violet" (x0.1).', scr_xsize=38)
 
-help = widget_text( tbase, scr_xsize=387, ysize=4, /wrap, uname='help', /tracking, $
+Help_Base = Widget_Base(tbase, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
+
+help = widget_text( Help_Base, scr_xsize=392-22, ysize=4, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
+
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {	$
 		path:				ptr_new(path), $		; pointer to current path
