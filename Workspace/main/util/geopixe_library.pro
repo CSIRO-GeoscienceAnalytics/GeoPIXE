@@ -115,16 +115,35 @@ try:
 									endif
 									end
 								64: begin
-									f = file_search( path+'image_lib.64bit.dylib')
+									f = file_search( path+'image_lib.dylib')
 									if f ne '' then begin
-										geopixe_library_file = path+'image_lib.64bit.dylib'
-										geopixe_library_suffix = 'm64'
-									endif
-									f = file_search( path+'image_lib.arm64.dylib')
-									if f ne '' then begin
-										geopixe_library_file = path+'image_lib.arm64.dylib'
-										geopixe_library_suffix = 'arm'
-									endif
+										geopixe_library_file = path+'image_lib.dylib'
+										case !version.arch of
+											'arm64': begin
+												geopixe_library_suffix = 'arm'
+												end
+											'x86_64': begin
+												geopixe_library_suffix = 'm64'
+												end
+										endcase
+									endif else begin
+										case !version.arch of
+											'arm64': begin
+												f = file_search( path+'image_lib.arm64.dylib')
+												if f ne '' then begin
+													geopixe_library_file = path+'image_lib.arm64.dylib'
+													geopixe_library_suffix = 'arm'
+												endif
+												end
+											'x86_64': begin
+												f = file_search( path+'image_lib.64bit.dylib')
+												if f ne '' then begin
+													geopixe_library_file = path+'image_lib.64bit.dylib'
+													geopixe_library_suffix = 'm64'
+												endif
+												end
+										endcase
+									endelse
 									end
 							endcase
 						endelse
