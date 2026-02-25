@@ -63,7 +63,7 @@ SUBROUTINE geopixe_lib_version_b( version)
 
 INTEGER*4 version
 
-version = 53
+version = 54
 return
 end
 
@@ -2172,7 +2172,7 @@ integer function falconx_events4( argc, argv)
 INTEGER_ARCH argc, argv(*)
 
 j = LOC(argc)
-if(j.lt.35) then 		         ! needed # args
+if(j.lt.36) then 		         ! needed # args
 	falconx_events4 = 1
 	return
 endif
@@ -2184,7 +2184,7 @@ call falconx_events4_b( %val(argv(1)), %val(argv(2)), %val(argv(3)), &
 	 %val(argv(17)), %val(argv(18)), %val(argv(19)), %val(argv(20)), &
 	 %val(argv(21)), %val(argv(22)), %val(argv(23)), %val(argv(24)), &
 	 %val(argv(25)), %val(argv(26)), %val(argv(27)), %val(argv(28)), %val(argv(29)), %val(argv(30)), &
-	 %val(argv(31)), %val(argv(32)), %val(argv(33)), %val(argv(34)), %val(argv(35)) )
+	 %val(argv(31)), %val(argv(32)), %val(argv(33)), %val(argv(34)), %val(argv(35)), %val(argv(36)) )
 
 falconx_events4 = 0
 return
@@ -2202,14 +2202,14 @@ end
 !									 5		raw counts
 
 SUBROUTINE falconx_events4_b( ev,n_buffer, channel_on,nc, e,t,x,y,z,u,v,w,ste,veto,tags,n_events,n, &
-		fx,n_fx, flux_mode, x0,y0,z0,u0,v0,w0, ibranch,swap, tag,length,skip, bad,idebug, version,tick )
+		fx,n_fx, flux_mode, swap_icr_raw, x0,y0,z0,u0,v0,w0, ibranch,swap, tag,length,skip, bad,idebug, version,tick )
 
 ! assumes that n_buffer IS divisable by 4
 ! assume that n_fx is 4 (at least, for: DT, FC0, FC1, Dwell)
 
 INTEGER*4 i,j,k,l,m,n,nb,nc, n_buffer, n_max, jbuff, err
 INTEGER*8 dev
-INTEGER*4 n_events, n_fx, flux_mode, version, as_version, si_version
+INTEGER*4 n_events, n_fx, flux_mode, version, as_version, si_version, swap_icr_raw
 INTEGER*4 length, len2, skip, bad, swap, idebug
 INTEGER*2 tag, ibranch, x0,y0,z0,u0,v0,w0
 INTEGER*2 e(0:n_events-1), t(0:n_events-1), x(0:n_events-1), y(0:n_events-1), z(0:n_events-1), u(0:n_events-1), v(0:n_events-1)
@@ -2613,7 +2613,7 @@ goto (10,20,30,10,10,10,10,10,10,100), ibranch
 			busym(adr) = 1
 		endif
 
-	else if(tx.eq.spatial1_time_stamp_type) then
+	else if(tx.eq.spatial1_time_stamp_type) then					! following assumes 'time stamp' record comes last
 
 		do k=0,15
 		    if((n.lt.n_events).and.((k.eq.0).or.(busym(k).eq.1))) then
@@ -2643,9 +2643,24 @@ goto (10,20,30,10,10,10,10,10,10,100), ibranch
 			endif
 			if(busym(k).eq.1) then
 				ste(n) = k
-				if((icrm(k).gt.0).and.(icrm(k).ge.rawm(k))) then
-					fx(4,n) = float(icrm(k)) - float(rawm(k))	! lost counts
-					fx(5,n) = float(rawm(k))			! raw (OCR counts weight)
+				if(swap_icr_raw.eq.1) then
+					if(icrm(k).ge.rawm(k)) then					! normal ICR, RAW
+						if(rawm(k).gt.0) then
+							fx(4,n) = float(icrm(k)) - float(rawm(k))	! lost counts
+							fx(5,n) = float(rawm(k))			! raw (OCR counts weight)
+						endif
+					endif
+					if(rawm(k).gt.icrm(k)) then					! swapped ICR, RAW
+						if(icrm(k).gt.0) then
+							fx(4,n) = float(rawm(k)) - float(icrm(k))	! lost counts
+							fx(5,n) = float(icrm(k))			! raw (OCR counts weight)
+						endif
+					endif
+				else
+					if(rawm(k).gt.0) then
+						fx(4,n) = float(icrm(k)) - float(rawm(k))	! lost counts
+						fx(5,n) = float(rawm(k))			! raw (OCR counts weight)
+					endif
 				endif
 			endif
 			busym(k) = 0
