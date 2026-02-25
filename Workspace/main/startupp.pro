@@ -70,12 +70,16 @@ if !version.os_family eq 'MacOS' then device, decomposed=0
 ; is "geopixe" or a dir at same level (e.g. source "main"). It will also find "geopixe" from
 ; a subdir (e.g. "wizard" or "maia" within runtime "geopixe").
 
+	print,'startupp: starting directory: '+fix_path( file_expand_path('.'))
 	geopixe_root = ''
 	if file_test('../geopixe', /dir) then begin
 		geopixe_root = fix_path( file_expand_path('../geopixe'))
+		print,'startupp: found normal geopixe path: '+geopixe_root
 	endif else if file_test('../../geopixe', /dir) then begin
 		geopixe_root = fix_path( file_expand_path('../../geopixe'))
+		print,'startupp: found geopixe path from bin: '+geopixe_root
 	endif else begin
+		print,'startupp: no "geopixe" directory found ...'
 
 ;		No "geopixe" runtime dir found (did it get renamed?), so find "GeoPIXE.sav"
 
@@ -94,7 +98,7 @@ if !version.os_family eq 'MacOS' then device, decomposed=0
 					'some background process execution.']
 		endelse
 	endelse
-	print, 'GeoPIXE root: ', geopixe_root
+	print, 'startupp: GeoPIXE root: ', geopixe_root
 ;	warning,/info, 'Startupp', 'GeoPIXE root: '+ geopixe_root
 
 ; Find the subdir for database source data files (not the output database SAV file
