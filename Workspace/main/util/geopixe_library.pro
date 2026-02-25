@@ -125,6 +125,7 @@ try:
 											'x86_64': begin
 												geopixe_library_suffix = 'm64'
 												end
+											else: warning,'geopixe_library','un-supported architecture ('+!version.arch+') for unix operating system ('+ !version.os +')'
 										endcase
 									endif else begin
 										case !version.arch of
@@ -142,6 +143,7 @@ try:
 													geopixe_library_suffix = 'm64'
 												endif
 												end
+											else: warning,'geopixe_library','un-supported architecture ('+!version.arch+') for unix operating system ('+ !version.os +')'
 										endcase
 									endelse
 									end
@@ -181,7 +183,7 @@ if (ErrorNo ne 0) then begin
 	n = n_elements(s)
 	c = 'Call stack: '
 	if n gt 2 then c = [c, s[1:n-2]]
-	warning,'geopixe_library',['IDL run-time error caught.', '', $
+	warning,'geopixe_library',['Try Library: '+geopixe_library_file,'','IDL run-time error caught.', '', $
 		'Error:  '+strtrim(!error_state.name,2), $
 		!Error_state.msg,'',c], /error
 	
