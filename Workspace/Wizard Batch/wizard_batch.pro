@@ -3453,7 +3453,7 @@ case !version.os_family of
 		button_xsize2 = 170
 		help_xsize = left_xsize + right_xsize + 55
 		ch_scale = 1.25
-		yoff_table = 232
+		yoff_table = 180
 		retain = 2
 		end
 	else: begin
