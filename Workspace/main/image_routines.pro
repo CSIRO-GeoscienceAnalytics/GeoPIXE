@@ -1,5 +1,5 @@
 
-;	Image_Routines, for Image.pro
+;	Image_Routines, for gImage.pro
 ;
 ;--------------------------------------------------------------------------------
 
@@ -158,7 +158,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 				q = *(*pstate).q									; corr_mode 0, use region q
 			endelse
 		endelse
-	endif else begin												; corr_mode = 1
+	endif else begin												; corr_mode = 1 (spline from Corr provides qc)
 
 		if ptr_valid((*pstate).qc) then begin
 			q = *(*pstate).qc										; corr_mode 1, use spline selection
