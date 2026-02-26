@@ -3607,20 +3607,20 @@ template_corrections_text = widget_text( ctable_base0, uname='template-sort-text
 ctable_base1 = widget_base( ctable_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
 
 ctable1_base = widget_base( ctable_base1, title='   Corrections Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center) ; , scr_xsize=left_xsize, scr_ysize=left_ysize-180-20, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center)
 
 cheadings = strarr(6)					; dummy values (see 'wizard_batch_update_ctable' for actual headings)
 ncc = n_elements(cheadings)
 widths = replicate(6,ncc) * !d.x_ch_size * ch_scale
 t = strarr(ncc,256)
 
-ctable = Widget_Table(ctable1_base, UNAME='corrections-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-55, /no_row_headers, $
+print,'table Y size = ', left_ysize-yoff_table-170
+ctable = Widget_Table(ctable1_base, UNAME='corrections-table', /all_events, /editable, /scroll, $ Y_SCROLL_SIZE=12, $	;, X_SCROLL_SIZE=8, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-35, /no_row_headers, $
 				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows all element image corrections from the template DAI file. ' + $
 				'Operations that effect ALL planes (shown with a "*") are only shown againt the element selected to guide that operation. ' + $
 				'Corrections can be deleted or more added. The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'}, $
-				column_labels=headings, column_widths=widths, $
-				NOTIFY_REALIZE='OnRealize_wizard_batch_ctable')
+				column_labels=headings, column_widths=widths, NOTIFY_REALIZE='OnRealize_wizard_batch_ctable')
 			
 ctable_base2a = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
 
@@ -3673,7 +3673,7 @@ template_rgb_text = widget_text( rgbtable_base0, uname='template-rgb-text', valu
 rgbtable_base1 = widget_base( rgbtable_base, /column, xpad=0, ypad=0, space=1, /base_align_center, /align_center)
 
 rgbtable1_base = widget_base( rgbtable_base1, title='   RGB Export list Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center) ; , scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center)
 
 rgb_headings = strarr(12)			; dummy values (see 'wizard_batch_update_rgbtable' for actual headings)
 ncr = n_elements(rgb_headings)
@@ -3681,11 +3681,9 @@ widths = replicate(6,ncr) * !d.x_ch_size * ch_scale
 t = strarr(ncr,256)
 
 rgbtable = Widget_Table(rgbtable1_base, UNAME='rgb-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-28, /no_row_headers, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-5, /no_row_headers, $
 				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows selected RGB export combinations to export for each processed image ' + $
-				'using the selected Zoom factor.'}, $
-				column_labels=headings, column_widths=widths, $
-				NOTIFY_REALIZE='OnRealize_wizard_batch_rgbtable')
+				'using the selected Zoom factor.'}, column_labels=headings, column_widths=widths, NOTIFY_REALIZE='OnRealize_wizard_batch_rgbtable')
 			
 rgbtable_base2 = widget_base( rgbtable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
 
@@ -3981,6 +3979,9 @@ child = widget_info( tlb, /child)
 pstate = ptr_new(state, /no_copy)
 widget_control, child, set_uvalue=pstate
 widget_control, tlb, /realize
+
+g = widget_info( ctable, /geometry)
+print,' after realize = ', g.scr_ysize
 
 geom = widget_info( tlb, /geometry)
 (*pstate).tlb_xsize = geom.scr_xsize
