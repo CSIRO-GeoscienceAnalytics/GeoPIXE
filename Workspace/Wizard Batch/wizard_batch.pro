@@ -3473,7 +3473,7 @@ case !version.os_family of
 		button_xsize2 = 170
 		help_xsize = left_xsize + right_xsize + 55
 		ch_scale = 1.0
-		yoff_table = 182
+		yoff_table = 175
 		retain = 1
 		end
 endcase
@@ -3615,7 +3615,7 @@ widths = replicate(6,ncc) * !d.x_ch_size * ch_scale
 t = strarr(ncc,256)
 
 ctable = Widget_Table(ctable1_base, UNAME='corrections-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-35, /no_row_headers, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-55, /no_row_headers, $
 				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows all element image corrections from the template DAI file. ' + $
 				'Operations that effect ALL planes (shown with a "*") are only shown againt the element selected to guide that operation. ' + $
 				'Corrections can be deleted or more added. The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'}, $
@@ -3681,7 +3681,7 @@ widths = replicate(6,ncr) * !d.x_ch_size * ch_scale
 t = strarr(ncr,256)
 
 rgbtable = Widget_Table(rgbtable1_base, UNAME='rgb-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-15, /no_row_headers, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-28, /no_row_headers, $
 				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows selected RGB export combinations to export for each processed image ' + $
 				'using the selected Zoom factor.'}, $
 				column_labels=headings, column_widths=widths, $
