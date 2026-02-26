@@ -662,19 +662,22 @@ endif
 
 	if ptr_good( (*(*pep).pdata).pnew) then begin
 		pret = (*(*pep).pdata).pnew
-		p = (*pstate).presults
-		if (*pret).pileup.new ne '' then begin
-			q = where( *(*pstate).ptitle eq 'Pileup', nq)
-			if nq gt 0 then begin
-				q = where( (*p)[*].pileup eq (*pret).pileup.old, nq)
-				if nq gt 0 then (*p)[q].pileup = (*pret).pileup.new					
+		pfiles = (*pret).pfiles
+		if ptr_good(pfiles) then begin
+			p = (*pstate).presults
+			if (*pfiles).pileup.new ne '' then begin
+				q = where( *(*pstate).ptitle eq 'Pileup', nq)
+				if nq gt 0 then begin
+					q = where( (*p)[*].pileup eq (*pfiles).pileup.old, nq)
+					if nq gt 0 then (*p)[q].pileup = (*pfiles).pileup.new					
+				endif
 			endif
-		endif
-		if (*pret).throttle.new ne '' then begin
-			q = where( *(*pstate).ptitle eq 'Throttle', nq)
-			if nq gt 0 then begin
-				q = where( (*p)[*].throttle eq (*pret).throttle.old, nq)
-				if nq gt 0 then (*p)[q].throttle = (*pret).throttle.new					
+			if (*pfiles).throttle.new ne '' then begin
+				q = where( *(*pstate).ptitle eq 'Throttle', nq)
+				if nq gt 0 then begin
+					q = where( (*p)[*].throttle eq (*pfiles).throttle.old, nq)
+					if nq gt 0 then (*p)[q].throttle = (*pfiles).throttle.new					
+				endif
 			endif
 		endif
 		wizard_standards_update_table, pstate
