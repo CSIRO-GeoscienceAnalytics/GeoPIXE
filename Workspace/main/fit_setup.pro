@@ -1366,6 +1366,9 @@ case uname of
 		goto, kill
 		end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Fitting a PIXE or SXRF Spectrum'
+		end
 	else:
 endcase
 
@@ -3390,7 +3393,8 @@ case !version.os_family of
 	'MacOS': begin
 		trim = 20
 		xw = 500
-		yh = (gamma eq 1) ? 359 : 384
+;		yh = (gamma eq 1) ? 359 : 454
+		yh = (gamma eq 1) ? 372 : 467
 		xsize_help = 490
 		detector_xsize = 136
 		filter_xsize = 98
@@ -3407,7 +3411,7 @@ case !version.os_family of
 		xsize_flux = 22
 		mode_xsize = 320
 		xsize_tweek = 38
-		ysize_help = 3
+		ysize_help = 4
 		tgeneral = 'General'
 		tbackground = 'Back 1'
 		tbackground2 = 'Back 2'
@@ -3421,7 +3425,8 @@ case !version.os_family of
 	'unix': begin
 		trim = 20
 		xw = 472
-		yh = (gamma eq 1) ? 359 : 454
+;		yh = (gamma eq 1) ? 359 : 454
+		yh = (gamma eq 1) ? 372 : 467
 		xsize_help = 443
 		detector_xsize = 136
 		filter_xsize = 118
@@ -3438,7 +3443,7 @@ case !version.os_family of
 		xsize_flux = 22
 		mode_xsize = 320
 		xsize_tweek = 38
-		ysize_help = 3
+		ysize_help = 4
 		tgeneral = 'General'
 		tbackground = 'Back 1'
 		tbackground2 = 'Back 2'
@@ -3452,7 +3457,8 @@ case !version.os_family of
 	else: begin
 		trim = 20
 		xw = 449
-		yh = (gamma eq 1) ? 359 : 422
+;		yh = (gamma eq 1) ? 359 : 422
+		yh = (gamma eq 1) ? 372 : 435
 		xsize_help = 443
 		detector_xsize = 136
 		filter_xsize = 118
@@ -3469,7 +3475,7 @@ case !version.os_family of
 		xsize_flux = 22
 		mode_xsize = 320
 		xsize_tweek = 38
-		ysize_help = 2
+		ysize_help = 3
 		tgeneral = ' General '
 		tbackground = ' Back 1 '
 		tbackground2 = ' Back 2 '
@@ -4129,9 +4135,14 @@ button = widget_button( bbase, value='Close', uname='close-button', /tracking, $
 
 ;.................................................................................
 
-help = widget_text( tlb, scr_xsize=xsize_help, ysize=ysize_help, /wrap, uname='help', /tracking, $
+Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
+
+help = widget_text( Help_Base, scr_xsize=xsize_help-18, ysize=ysize_help, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
+
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {	$
 		path:			ptr_new(path), $		; pointer to current path

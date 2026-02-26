@@ -204,6 +204,9 @@ endif
 		corr_Linear_Luminance, Event
 		end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Element – Element Associations'
+		end
 	else:
   endcase
 	widget_control, hourglass=0
@@ -258,6 +261,9 @@ endif
 		xsize_element = 95
 		smooth_slide_xsize = 72
 		bot_slide_xsize = 73
+       query_scr_xsize = 25
+       query_scr_ysize = 29
+	   query_frame = 0
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
@@ -272,6 +278,9 @@ endif
 		xsize_element = 95
 		smooth_slide_xsize = 52
 		bot_slide_xsize = 81
+       query_scr_xsize = 25
+       query_scr_ysize = 29
+	   query_frame = 0
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
@@ -286,6 +295,9 @@ endif
 		xsize_element = 72					; 62
 		smooth_slide_xsize = 68				; 70
 		bot_slide_xsize = 79				; 73
+       query_scr_xsize = 15
+       query_scr_ysize = 20
+	   query_frame = 1
  		end
   endcase
 ;@2  widget_control, default_font=def_font        ; set font for all windows
@@ -371,11 +383,11 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
 
 
   corr_Help1_Base = Widget_Base(corr_Button_Base, UNAME='corr_Help1_Base', map=1  $
-      ,SPACE=0 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
+      ,SPACE=1 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
 
 
   corr_Help2_Base = Widget_Base(corr_Button_Base1, UNAME='corr_Help2_Base', map=0  $
-      ,SPACE=0 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
+      ,SPACE=1 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
 
 
   PostCreate_corr_Base, corr_Draw_Base, corr_Help1_Base, corr_Help2_Base, path=path, $
@@ -475,10 +487,19 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
       ,NOTIFY_REALIZE='OnRealize_corr_Help1',XSIZE=help1_xsize, frame=0 ,YSIZE=3, $
       tracking_events=1, uvalue='Help window to show help prompts for widgets.')
 
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button1 = Widget_text(corr_Help1_Base, UNAME='query-button', scr_xsize=query_scr_xsize, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(corr_Help2_Base, UNAME='Help_Text2', /wrap $
       ,NOTIFY_REALIZE='OnRealize_corr_Help2',scr_XSIZE=1, frame=0 ,scr_YSIZE=102, ysize=5, $
       tracking_events=1, uvalue='Help window to show help prompts for widgets.')
+
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button2 = Widget_text(corr_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
  ; File menus
@@ -552,8 +573,6 @@ endelse
 
   Widget_Control, /REALIZE, corr_TLB
 
-  set_corr_map_help, corr_TLB
-
   if wGroup ne 0 then begin
   	register_notify, corr_TLB, $
   				['images-changed', $			; new Images loaded
@@ -570,6 +589,14 @@ endelse
   endif
 
   XManager, 'corr', corr_TLB, /no_block
+
+	child = widget_info( corr_TLB, /child)
+	widget_control, child, get_uvalue=pstate
+	
+	(*pstate).query1 = query_button1
+	(*pstate).query2 = query_button2
+
+  set_corr_map_help, corr_TLB
 
 end
 ;

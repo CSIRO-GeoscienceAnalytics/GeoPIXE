@@ -673,6 +673,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 			
 ;			What is this 'throttle' code? Is it remnant debug code? Is it still used with Throttle?
 ;			It comes from the "Image->Analyze->Throttle" menu (not the spectrum one).
+;			Not used anymore - use the Spectrum Display menu.
 
 			if throttle then begin
 				conc[i] = max( median((*(*p).image)[qe + i*pixeln],5)) * pixels
@@ -2876,12 +2877,58 @@ pro map_help, pstate
 ; 'scr_xsize_off' and 'scr_ysize_off' provide offsets from window size x,y to
 ; window scr_xsize, scr_ysize size (w,h) in 'OnSize_image'.
 
-	if (*pstate).w gt 600 then begin
+	if (*pstate).w gt 630 then begin
+		case !version.os_family of
+			'MacOS': begin
+				(*pstate).scr_xsize_off =	1
+				(*pstate).scr_ysize_off =	79		; 68
+				end
+			'unix': begin
+				(*pstate).scr_xsize_off =	25
+				(*pstate).scr_ysize_off =	103		; 110
+				end
+			else: begin
+				(*pstate).scr_xsize_off =	10		; 8
+				(*pstate).scr_ysize_off =	74		; 74
+				end
+		endcase
+	endif else begin
+		case !version.os_family of
+			'MacOS': begin
+				(*pstate).scr_xsize_off =	1
+				(*pstate).scr_ysize_off =	100
+				end
+			'unix': begin
+				(*pstate).scr_xsize_off =	2
+				(*pstate).scr_ysize_off =	157
+				end
+			else: begin
+				(*pstate).scr_xsize_off =	8
+				(*pstate).scr_ysize_off =	115		; 123
+				end
+		endcase
+	endelse
+	case !version.os_family of
+		'unix': begin
+			xoff = 367
+	       query_scr_xsize = 25
+	       query_scr_ysize = 29
+			end
+		else: begin
+			xoff = 376		; 363
+	       query_scr_xsize = 15
+	       query_scr_ysize = 20
+			end
+	endcase
+
+	if (*pstate).w gt 630 then begin
 		if (*pstate).help eq (*pstate).help2 then goto, more
 
 		(*pstate).help = (*pstate).help2
 		widget_control, (*pstate).help1_base, map=0
 		widget_control, (*pstate).help1, scr_ysize=1
+		widget_control, (*pstate).query1, scr_ysize=1
+		widget_control, (*pstate).query2, scr_xsize=query_scr_xsize
 		widget_control, (*pstate).help2_base, map=1
 	endif else begin
 		if (*pstate).help eq (*pstate).help1 then goto, more
@@ -2889,51 +2936,14 @@ pro map_help, pstate
 		(*pstate).help = (*pstate).help1
 		widget_control, (*pstate).help2_base, map=0
 		widget_control, (*pstate).help2, scr_xsize=1
+		widget_control, (*pstate).query2, scr_xsize=1
+		widget_control, (*pstate).query1, scr_ysize=query_scr_ysize
 		widget_control, (*pstate).help1, ysize=3
 		widget_control, (*pstate).help1_base, map=1
 	endelse
 
 more:
-	if (*pstate).w gt 600 then begin
-		case !version.os_family of
-			'MacOS': begin
-				(*pstate).scr_xsize_off =	1
-				(*pstate).scr_ysize_off =	68
-			end
-			'unix': begin
-				(*pstate).scr_xsize_off =	1
-				(*pstate).scr_ysize_off =	110
-			end
-			else: begin
-				(*pstate).scr_xsize_off =	10		; 8
-				(*pstate).scr_ysize_off =	74		; 68
-			end
-		endcase
-	endif else begin
-		case !version.os_family of
-			'MacOS': begin
-				(*pstate).scr_xsize_off =	1
-				(*pstate).scr_ysize_off =	100
-			end
-			'unix': begin
-				(*pstate).scr_xsize_off =	8
-				(*pstate).scr_ysize_off =	152
-			end
-			else: begin
-				(*pstate).scr_xsize_off =	8
-				(*pstate).scr_ysize_off =	123		; 102
-			end
-		endcase
-	endelse
-
-	case !version.os_family of
-		'unix': begin
-			xoff = 367
-			end
-		else: begin
-			xoff = 363		; 363
-			end
-	endcase
+;	print,'map_help: w,h=', (*pstate).w, (*pstate).h
 
 	if (*pstate).help eq (*pstate).help2 then begin
 		widget_control, (*pstate).help2, scr_xsize=((*pstate).w - xoff)

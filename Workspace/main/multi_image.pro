@@ -117,6 +117,9 @@ case uname of
 		widget_control, event.id, set_value={select:1}
 		end
 		
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Multi Image Window'
+		end
 	else:
 endcase
 
@@ -386,6 +389,12 @@ for i=0L, nn-1 do begin
 					uvalue=numbers[i])
 endfor
 
+space = widget_label( cbase, value='', scr_ysize=100)
+
+query_button = Widget_Button(cbase, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
+
+ 
 bbase = widget_base( tbase)
 
 ; make layout in window

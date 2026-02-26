@@ -337,6 +337,10 @@ case uname of
 
 		end
 
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Setting Up Filter Definition Files'
+		end
+
 	'close-button': begin
 		print,'Close filter setup ...'
 		goto, kill
@@ -1153,9 +1157,14 @@ lab = widget_label( cursor_base, value='(2):')
 absorb2_text = widget_text( cursor_base, value=' ', uname='absorb2-text', /tracking, $
 				uvalue='Shows absorption at the cursor energy (Mayer & Rimini). Enter the Energy (keV) for the cursor in the left widget, or drag the cursor energy, or click line energy in X-ray Identification window.', scr_xsize=75)
 
-help = widget_text( tbase, scr_xsize=help_xsize, ysize=4, /wrap, uname='help', /tracking, $
+Help_Base = Widget_Base(tbase, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
+
+help = widget_text( Help_Base, scr_xsize=help_xsize-22, ysize=4, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
+
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {	$
 		path:			ptr_new(path), $		; pointer to current path

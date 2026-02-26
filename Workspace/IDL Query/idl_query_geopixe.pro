@@ -238,7 +238,7 @@ cont3:
 					'IDL Version = '+!version.release, $
 					'Environment = '+type, $
 					'Big endian = '+ (big_endian()?'yes':'no'), '', $
-					'Platform = '+splat, '', $							; !version.os_family
+					'Platform = ', splat, '', $							; !version.os_family
 					'GeoPIXE root = '+geopixe_root, $
 					'GeoPIXE SAV = '+gsav, $
 					'GeoPIXE version = '+gver, $

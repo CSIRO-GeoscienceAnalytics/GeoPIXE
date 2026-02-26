@@ -614,39 +614,19 @@ end
 pro map_RGB_help, pstate
 
 COMPILE_OPT STRICTARR
-if (*pstate).w gt 371 then begin
-	if (*pstate).help eq (*pstate).help2 then goto, more
-
-	(*pstate).help = (*pstate).help2
-	widget_control, (*pstate).help1_base, map=0
-	widget_control, (*pstate).help1, scr_ysize=1
-	widget_control, (*pstate).help2_base, map=1
-	widget_control, (*pstate).help2, ysize=3
-endif else begin
-	if (*pstate).help eq (*pstate).help1 then goto, more
-
-	(*pstate).help = (*pstate).help1
-	widget_control, (*pstate).help2_base, map=0
-	widget_control, (*pstate).help2, scr_xsize=1
-	widget_control, (*pstate).help1, ysize=3
-	widget_control, (*pstate).help1_base, map=1
-	widget_control, (*pstate).help2, scr_ysize=1
-endelse
-
-more:
-if (*pstate).w gt 371 then begin
+if (*pstate).w gt 450 then begin
 	case !version.os_family of
 		'MacOS': begin
 			(*pstate).scr_xsize_off =	1
 			(*pstate).scr_ysize_off =	64
 			end
 		'unix': begin
-			(*pstate).scr_xsize_off =	1
-			(*pstate).scr_ysize_off =	96
+			(*pstate).scr_xsize_off =	20
+			(*pstate).scr_ysize_off =	102
 			end
 		else: begin
 			(*pstate).scr_xsize_off =	8
-			(*pstate).scr_ysize_off =	65
+			(*pstate).scr_ysize_off =	59		; 65
 			end
 	endcase
 endif else begin
@@ -656,8 +636,8 @@ endif else begin
 			(*pstate).scr_ysize_off =	81
 			end
 		'unix': begin
-			(*pstate).scr_xsize_off =	8
-			(*pstate).scr_ysize_off =	133
+			(*pstate).scr_xsize_off =	2
+			(*pstate).scr_ysize_off =	158
 			end
 		else: begin
 			(*pstate).scr_xsize_off =	8
@@ -669,11 +649,41 @@ endelse
 case !version.os_family of
 	'unix': begin
 		xoff = 296
+	       query_scr_xsize = 25
+	       query_scr_ysize = 29
 		end
 	else: begin
-		xoff = 274			; 230
+		xoff = 293			; 274
+	       query_scr_xsize = 15
+	       query_scr_ysize = 20
 		end
 endcase
+
+if (*pstate).w gt 450 then begin
+	if (*pstate).help eq (*pstate).help2 then goto, more
+
+	(*pstate).help = (*pstate).help2
+	widget_control, (*pstate).help1_base, map=0
+	widget_control, (*pstate).help1, scr_ysize=1
+	widget_control, (*pstate).query1, scr_ysize=1
+	widget_control, (*pstate).query2, scr_xsize=query_scr_xsize
+	widget_control, (*pstate).help2_base, map=1
+	widget_control, (*pstate).help2, ysize=3
+endif else begin
+	if (*pstate).help eq (*pstate).help1 then goto, more
+
+	(*pstate).help = (*pstate).help1
+	widget_control, (*pstate).help2_base, map=0
+	widget_control, (*pstate).help2, scr_xsize=1
+	widget_control, (*pstate).query2, scr_xsize=1
+	widget_control, (*pstate).query1, scr_ysize=query_scr_ysize
+	widget_control, (*pstate).help1, ysize=3
+	widget_control, (*pstate).help1_base, map=1
+	widget_control, (*pstate).help2, scr_ysize=1
+endelse
+
+more:
+print,'map_RGB_help: w,h=', (*pstate).w, (*pstate).h
 
 if (*pstate).help eq (*pstate).help2 then begin
 	widget_control, (*pstate).help2, scr_xsize=((*pstate).w - xoff)

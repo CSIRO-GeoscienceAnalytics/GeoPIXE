@@ -519,7 +519,7 @@ endif
        end
 
     'Throttle_Menu': begin
-       Image_Analyze, Event, /throttle
+       Image_Analyze, Event, /throttle		; not used anymore
        end
 
     'Median_Menu-2': begin
@@ -1131,70 +1131,40 @@ endif
 		compare_fits
 		end
 
-   'Help_User': begin
-	   	warning,'image',['','GeoPIXE Information (see the "Help" directory):', $
-	   		'','   Reference and users guide:', $
-	   		'        See the "GeoPIXE Users Guide.pdf".', $
-	   		'        New features: "Update Notes.pdf".', $
-	   		'','   Workshop notes and Worked examples:', $
-	   		'        "GeoPIXE Worked Examples.pdf".', $
-	   		'','   View the workshop talk slides:', $
-			'        "GeoPIXE-...-wshop1.pdf", ', $
-	   		'        "GeoPIXE-...-wshop2.pdf".', $
-	   		'','   Technical notes (see "Help" dir):', $
-	   		'','Maia detector information:', $
-	   		'','   Technical description and set-up:', $
-	   		'        See "Maia-384-user-help.pdf".'], /info
-;       case !version.os_family of
-;	   	'Windows': begin
-;			hfile2 = geopixe_root+'Help'+path_sep()+'GeoPIXE Users Guide.htm'
-;			hfile = geopixe_root+'Help'+path_sep()+'GeoPIXE-Users-Guide.htm'
-;			if file_test(hfile) then begin
-;				s = 'Browser.lnk "' + hfile + '"'
-;				spawn, s, /nowait, /hide
-;			endif else begin
-;				s = 'Browser.lnk "' + hfile2 + '"'
-;				spawn, s, /nowait, /hide
-;			endelse
-;			end
-;		'unix': begin
-;			hfile2 = geopixe_root+'Help'+path_sep()+'GeoPIXE-Users-Guide.htm'
-;			s = 'Browser "' + hfile2 + '" &'
-;			spawn, s
-;			end
-;         else: begin
-;		 	warning,'image_event',['Spawn not supported on this platform.','Open help file manually.']
-;			end
-;       endcase
-       end
+	'query-button':begin
+		if (*pstate).xanes then begin
+			key = '3D Image Stack Display Window'
+		endif else begin
+			key = 'Image Display (main GeoPIXE window)'
+		endelse
+		print,'Gimage: Open Window Help, key=',key
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key=key
+		end
 
-   'Help_Maia_User': begin
-	   	warning,'image',['','Maia detector information:', $
-	   		'     Technical description, set-up and calibration:', $
-	   		'          See "Maia-384-user-help.pdf" in the Help directory.'], /info
-;       case !version.os_family of
-;	   	'Windows': begin
-;			hfile = geopixe_root+'Help'+path_sep()+'Maia-384-user-help.htm'
-;			if file_test(hfile) then begin
-;				s = 'Browser.lnk "' + hfile + '"'
-;				spawn, s, /nowait, /hide
-;			endif
-;			end
-;		'unix': begin
-;			hfile = geopixe_root+'Help'+path_sep()+'Maia-384-user-help.htm'
-;			s = 'Browser "' + hfile + '" &'
-;			spawn, s
-;			end
-;         else: begin
-;		 	warning,'image_event',['Spawn not supported on this platform.','Open help file manually.']
-;			end
-;       endcase
+	'Help_Recent': begin
+		geopixe_browser, 'Help/Recent News.htm', title='Recent News', group=event.top, /centre
+		end
+
+	'Help_Overview': begin
+		geopixe_browser, 'Help/GeoPIXE Overview.htm', title='GeoPIXE Overview', group=event.top
+		end
+
+	'Help_Worked_examples': begin
+		geopixe_browser, 'Help/GeoPIXE Worked Examples Open Notes.htm', title='GeoPIXE Worked Examples', group=event.top
+		end
+
+	'Help_Maia_User': begin
+   		geopixe_browser, 'Help/Maia-384-user-help.htm', title='Maia 384 User Guide', group=event.top, key='Table of Contents'
        end
 
 	'Update_GeoPIXE': begin
-		Image_update_geopixe, event
+		geopixe_browser, 'Help/GeoPIXE from GitHub.htm', title='GeoPIXE Update', group=event.top
 		end
 			
+	'Help_User': begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Table of Contents'
+       end
+
     'Help_Query': begin
 		restore, geopixe_root+'idl_query.sav'
        IDL_Query_geopixe
@@ -1441,7 +1411,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        def_font = 'Geneva*10'
        draw_trim = 15
        scr_trim = 21
-       help1_xsize = 339
+       help1_xsize = 320		; 339
        mode_xsize = 63
        slide_xsize = 95			; 83
        button_height = 21
@@ -1450,6 +1420,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 48
        xsize_loglin = 73
        help2_scr_ysize = 61
+       query_scr_xsize = 20
+       query_scr_ysize = 24
+	   query_frame = 0
        end
     'unix': begin
        symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
@@ -1457,7 +1430,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        def_font = '6x13'
        draw_trim = 0
        scr_trim = 0			; 15
-       help1_xsize = 361
+       help1_xsize = 342	; 361
        mode_xsize = 63
        slide_xsize = 95			; 85
        button_height = 21
@@ -1466,6 +1439,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 54
        xsize_loglin = 79
        help2_scr_ysize = 60
+       query_scr_xsize = 25
+       query_scr_ysize = 29
+	   query_frame = 0
        end
     else: begin
        symbol = 'SYMBOL*BOLD*14'
@@ -1473,7 +1449,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        def_font = 'Arial*14'
        draw_trim = 0
        scr_trim = 15			; 15
-       help1_xsize = 359		; 261
+       help1_xsize = 340		; 359
        mode_xsize = 55
        slide_xsize = 101			; 92			; 83
        button_height = 21
@@ -1482,6 +1458,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        xsize_analyze_mode = 48
        xsize_loglin = 63
        help2_scr_ysize = 58
+       query_scr_xsize = 15
+       query_scr_ysize = 20
+	   query_frame = 1
       end
   endcase
 ;@2  widget_control, default_font=def_font        ; set font for all windows (no, let system manage this)
@@ -1598,8 +1577,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
     retain=1
   endelse
 
-  Image_Draw = Widget_Draw(Image_Draw_Base, UNAME='Image_Draw'  $
-      ,SCR_XSIZE=360+scr_trim ,SCR_YSIZE=360+scr_trim  $
+  Image_Draw = Widget_Draw(Image_Draw_Base, UNAME='Image_Draw', /tracking  $
+      ,SCR_XSIZE=360+scr_trim ,SCR_YSIZE=360+scr_trim, uvalue='Left mouse: click and hold to drag shape or control point. ' + $
+	  		'Middle mouse/wheel: click and hold to magnify view. Right mouse: alt function for some control points.'  $
       ,NOTIFY_REALIZE='OnRealize_Image'  $
       ,KILL_NOTIFY='OnDestroy_Image' ,/SCROLL ,XSIZE=360+draw_trim  $
       ,YSIZE=360+draw_trim, retain=retain, /BUTTON_EVENTS,/VIEWPORT_EVENTS)
@@ -1626,11 +1606,11 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 
   Image_Help1_Base = Widget_Base(Image_Button_Base, UNAME='Image_Help1_Base', map=1  $
-      ,SPACE=0 ,XPAD=0 ,YPAD=0 ,/row, /align_center, /base_align_center)
+      ,SPACE=1 ,XPAD=0 ,YPAD=0 ,/row, /align_center, /base_align_center)
 
 
   Image_Help2_Base = Widget_Base(Image_Button_Base1, UNAME='Image_Help2_Base', map=0  $
-      ,SPACE=0 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
+      ,SPACE=1 ,XPAD=0 ,YPAD=0 ,/row, /align_center)
 
 
   debug_line = 'Postcreate ...'
@@ -1665,12 +1645,12 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
   Zoom_In_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_In_Button'  $
       ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, font=large_font, $
-      uvalue='Magnify image view x2.',xsize=20, ysize=button_height)
+      uvalue='Magnify image view x2. Zoom into image.',xsize=20, ysize=button_height)
 
 
   Zoom_Out_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_Out_Button'  $
       ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, font=large_font, $
-      uvalue='Demagnify image view x2.',xsize=20, ysize=button_height)
+      uvalue='Demagnify image view x2. Zoom out.',xsize=20, ysize=button_height)
 
 
   space2 = widget_base(Image_Button_Top_Base, xsize=1)
@@ -1679,14 +1659,14 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   Analyze_Type = widget_combobox(Image_Button_Top_Base, xsize=xsize_analyze_type,  $
       UNAME='Analyze_Type_combobox' ,NOTIFY_REALIZE='OnRealize_Analyze_Type'  $
       ,VALUE=[ 'Distance', 'Box', 'Circle', 'Curve 8', 'Traverse', 'Ellipse', 'Spline 10', 'Spline 32', 'Project X', 'Project Y', 'Spline 100', 'S pixel' ], tracking_events=1, $
-      uvalue='Select area analyze type. Use mouse to drag out a shape, ' + $
-      'or move/adjust an existing shape. Clear all shapes using menu.')
+      uvalue='Select area analyze type. Use mouse to drag out a shape, or move/adjust an existing shape. ' + $
+	  	'Left mouse: drag shape or control point. Right mouse: alt function for some controls.')
 
 
   Analyze_Mode = widget_combobox(Image_Button_Top_Base, xsize=xsize_analyze_mode,  $
       UNAME='Analyze_Mode_combobox' ,NOTIFY_REALIZE='OnRealize_Analyze_Mode'  $
       ,VALUE=[ '+', '-' ], tracking_events=1, $
-      uvalue='Select area analyze mode, to INCLUDE an area (+), or EXCLUDE it (-) from a prior include.')
+      uvalue='Select area analyze mode, to INCLUDE an area (+), or EXCLUDE it (-) from a prior include. Drag shape using Left mouse button.')
 
 
   Analyze_Button = Widget_Button( Image_Button_Top_Base, UNAME='Analyze_Button'  $
@@ -1698,7 +1678,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   Mode_combobox = widget_combobox( Image_Button_Bot_Base, sensitive=(realtime eq 0), $
       UNAME='Mode_combobox' ,NOTIFY_REALIZE='OnRealize_Image_Mode',  $
       VALUE=[ 'Conc', 'Var' ], tracking_events=1, xsize=mode_xsize, $
-      uvalue='Droplist to select the data to display: concentration, variance.')
+      uvalue='Droplist to select the data to display: Concentration image, image Variance.')
 
 
   interp_base = widget_base(Image_Button_Bot_Base, /nonexclusive, xsize=20, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=2)
@@ -1725,12 +1705,21 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
   Help_Text1 = Widget_Text(Image_Help1_Base, UNAME='Help_Text1', /wrap $
       ,NOTIFY_REALIZE='OnRealize_Image_Help1',scr_XSIZE=help1_xsize, frame=0 ,YSIZE=3, $
-      tracking_events=1, uvalue='Help window to show help prompts for widgets.', /align_center)
+      /tracking_events, uvalue='Help window to show help prompts for widgets. Move mouse over widgets to see help on each here.', /align_center)
 
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button1 = Widget_text(Image_Help1_Base, UNAME='query-button', scr_xsize=query_scr_xsize, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(Image_Help2_Base, UNAME='Help_Text2', /wrap $
       ,NOTIFY_REALIZE='OnRealize_Image_Help2',scr_XSIZE=1, frame=0 ,scr_YSIZE=help2_scr_ysize, ysize=3, $
-      tracking_events=1, uvalue='Help window to show help prompts for widgets.')
+      /tracking_events, uvalue='Help window to show help prompts for widgets. Move mouse over widgets to see help on each here.')
+
+; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
+
+  query_button2 = Widget_text(Image_Help2_Base, UNAME='query-button', scr_xsize=1, scr_ysize=query_scr_ysize, frame=query_frame, /all_events,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
  ; File menus
@@ -2010,9 +1999,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 	  W_MENU_43 = Widget_Button(W_MENU_40, UNAME='Analyze_Menu' ,VALUE='Region')
 
-	if xanes eq 0 then begin
-		W_MENU_44 = Widget_Button(W_MENU_40, UNAME='Throttle_Menu' ,VALUE='Throttle', /separator)
-	endif
+;	if xanes eq 0 then begin
+;		W_MENU_44 = Widget_Button(W_MENU_40, UNAME='Throttle_Menu' ,VALUE='Throttle', /separator)
+;	endif
   endif
   debug_line = 'Main Menus done.'
 
@@ -2195,7 +2184,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 ;  W_menu_556a = Widget_Button(W_menu_556, UNAME='flux-remove', VALUE='Remove flatten correction' )
 ;  W_menu_556c = Widget_Button(W_menu_556, UNAME='flux-apply', VALUE='Apply flatten correction' )
 
-  W_menu_557 = Widget_Button(W_menu_55, UNAME='Correct-Y-ripples', /menu, VALUE='Y Ripples' )
+   W_menu_557 = Widget_Button(W_menu_55, UNAME='Correct-Y-ripples', /menu, VALUE='Y Ripples' )
   
   W_MENU_5571 = Widget_Button(W_menu_557, UNAME='Correct-Y-ripples-5', VALUE='5' )
   W_MENU_5572 = Widget_Button(W_menu_557, UNAME='Correct-Y-ripples-10', VALUE='10' )
@@ -2209,7 +2198,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   	W_MENU_54 = Widget_Button(plugin_menus_root, UNAME='Merge_Gamma_Menu', VALUE='Merge PIGE', /separator )
   endif
 
-  W_MENU_59 = Widget_Button(plugin_menus_root, UNAME='Reset_Menu', VALUE='Reset process shared memory', /separator )
+;  W_MENU_59 = Widget_Button(plugin_menus_root, UNAME='Reset_Menu', VALUE='Reset process shared memory', /separator )
 
   if test then W_MENU_56 = Widget_Button(plugin_menus_root, UNAME='Test_Menu', VALUE='Test', /separator )
 
@@ -2324,6 +2313,12 @@ endif else wizard_menus=0L
 
   W_MENU_70 = Widget_Button(Image_TLB_MBAR, UNAME='W_MENU_70', /MENU ,VALUE='Help')
 
+  W_MENU_70x = Widget_Button(W_MENU_70, UNAME='Help_Recent' ,VALUE="Recent News")
+
+  W_MENU_70a = Widget_Button(W_MENU_70, UNAME='Help_Overview' ,VALUE="GeoPIXE Overview")
+
+  W_MENU_70b = Widget_Button(W_MENU_70, UNAME='Help_Worked_examples' ,VALUE="GeoPIXE Worked Examples Guide")
+
   W_MENU_71 = Widget_Button(W_MENU_70, UNAME='Help_User' ,VALUE="GeoPIXE User's Guide")
 
   W_MENU_71b = Widget_Button(W_MENU_70, UNAME='Help_Maia_User' ,VALUE="Maia User's Guide")
@@ -2422,6 +2417,9 @@ if wGroup ne 0 then begin
 	(*pstate).plugin_menus_root = plugin_menus_root
 	(*pstate).wizard_menus = wizard_menus
 	(*pstate).wizard_menus_root = plugin_menus_root
+	(*pstate).query1 = query_button1
+	(*pstate).query2 = query_button2
+
 	debug_line = 'return ...'
 	print,debug_line
 	return

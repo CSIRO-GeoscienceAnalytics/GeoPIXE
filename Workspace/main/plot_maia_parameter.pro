@@ -1,5 +1,6 @@
 pro plot_maia_parameter, id, par, cgm=cgm, ps=ps, white=white, bw=bw, title=title, true=true, $
-			min=ymin, max=ymax, screen=screen, layout=file1, wset_done=wset_done, only_maia=only_maia
+			min=ymin, max=ymax, screen=screen, layout=file1, wset_done=wset_done, only_maia=only_maia, $
+			size=sz
 
 ; Plot a parameter 'par' on the detector map, with labels 'id' on each detector
 ;
@@ -21,10 +22,6 @@ common c_errors_1, catch_errors_on
 common Colors, rrr,ggg,bbb, rr,gg,bb
 catch_errors_on=0
 
-sz = 0.95	; 2.2
-!p.charsize=sz
-if wset_done eq 0 then startupp, /colours, /database
-
 if n_elements(screen) lt 1 then screen = 0
 if n_elements(cgm) lt 1 then cgm = 0
 if n_elements(ps) lt 1 then ps = 0
@@ -37,6 +34,10 @@ if n_elements(only_maia) lt 1 then only_maia = 1
 if n_elements(file1) lt 1 then file1 = "Maia_384C.csv"
 if file1 eq '' then file1 = "Maia_384C.csv"
 if n_elements(wset_done) lt 1 then wset_done = 0
+if n_elements(sz) lt 1 then sz = 0.95
+
+!p.charsize=sz
+if wset_done eq 0 then startupp, /colours, /database
 
 ; Note: 'file_search2' in 'file_requester' below may have set a draw id for progress bar.
 ; So don't call 'file_requester' after opening window, before plotting to it.

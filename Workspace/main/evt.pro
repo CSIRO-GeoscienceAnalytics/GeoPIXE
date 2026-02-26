@@ -1937,6 +1937,9 @@ case uname of
 			set_widget_text, (*pstate).energy_file_text, (*p).xanes_energies_file
 		endif
 		end
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Sorting List-Mode Data using the Dynamic Analysis Matrix'
+		end
 	else:
 endcase
 
@@ -5055,8 +5058,13 @@ button = widget_button( bbase, value='Close', uname='close_button', /tracking, $
 
 ;.................................................................................
 
-help = widget_text( tbase, scr_xsize=help_xsize, ysize=4, /wrap, uname='HELP', /tracking, $
+Help_Base = Widget_Base(tbase, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
+
+help = widget_text( Help_Base, scr_xsize=help_xsize-18, ysize=4, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
+
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+      /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {  $
 		tlb:			tlb, $				; top level base

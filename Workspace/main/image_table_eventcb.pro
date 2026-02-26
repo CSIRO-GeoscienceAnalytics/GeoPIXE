@@ -1026,6 +1026,10 @@ done:
 		close_file, unit
 	
 		if (*p).note eq '' then (*p).note = 'Import: ' + F[i]
+		if ptr_good( (*p).el) eq 0 then begin
+			(*p).el = ptr_new( strtrim(string(indgen(1)),2))
+			(*p).n_el = 1
+		endif
 		if n_elements( *(*pstate).p) eq 0 then begin
 			*(*pstate).p = p
 		endif else begin
@@ -2515,7 +2519,7 @@ y = (event.y - (*pstate).yoffset +2) > 54
 ;y = (n + 2) * (*pstate).row_height
 
 widget_control, (*pstate).table, scr_xsize=x, scr_ysize=y
-widget_control, (*pstate).help, scr_xsize=x
+widget_control, (*pstate).help, scr_xsize=x-19
 end
 
 ;-----------------------------------------------------------------

@@ -51,7 +51,7 @@ for i=0L,n-1 do begin
 				q1 = where( q gt md, nq1)
 				if (nq1 gt 0) and relax then mz = q[q1[0]]-md-1 else mz = 0
 				last = (max(q) > md)										; at least up to decimal point 
-				if (relax eq 0) then last = last > (nplace+md)				; at least this many places, if specified
+				if (relax eq 0) then last = last < (nplace+md)				; at least this many places, if specified
 				s[i] = string( b[0:(last<(nb-1))])
 				if keep and (max(q) eq md) then begin
 					s[i] = s[i] + '0'

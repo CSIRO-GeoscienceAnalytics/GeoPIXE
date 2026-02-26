@@ -1534,23 +1534,23 @@ case !version.os_family of
     'MacOS': begin
        draw_trim = 15
        scr_trim = 21
-       help_trim = 90
+       help_trim = 72		; 90
        x_limit = (*pstate).chart ? 460: 570
        y_trim = 0
        y_trim2 = 0
        end
     'unix': begin
        draw_trim = 0
-       scr_trim = 30		; 15
-       help_trim = 90
+       scr_trim = 30	
+       help_trim = 72		; 90
        x_limit = (*pstate).chart ? 460: 570
        y_trim = 11
        y_trim2 = 55
        end
     else: begin
        draw_trim = 0
-       scr_trim = 21		; 15
-       help_trim = 90
+       scr_trim = 21	
+       help_trim = 72		; 90
        x_limit = (*pstate).chart ? 460: 570
        y_trim = 0
        y_trim2 = 0

@@ -118,6 +118,9 @@ endif
          OnButton_Cal_Close, Event
        endif
        end
+	'query-button':begin
+		geopixe_browser, 'Help/GeoPIXE-Users-Guide.htm', title='GeoPIXE Users Guide', group=event.top, key='Energy Calibration Window'
+		end
     else:
   endcase
 
@@ -344,9 +347,15 @@ endif
       ,/ALIGN_CENTER ,VALUE='Close', /tracking, $
       uvalue='Close the window.')
 
-  help = widget_text( Cal_TLB, xsize=65, ysize=1, /wrap, uname='HELP', /tracking, $
+  help_base = Widget_Base(Cal_TLB, UNAME='Button_base'  $
+      ,/ALIGN_CENTER ,/BASE_ALIGN_CENTER ,SPACE=1 ,ROW=1, xpad=0, ypad=0 )
+
+  help = widget_text( help_base, xsize=65, ysize=1, /wrap, uname='HELP', /tracking, $
           uvalue='Help window. Displays info about widgets.',frame=0, $
           notify_realize='OnRealize_Cal_Help')
+
+  query_button = Widget_Button(help_base, UNAME='query-button', xsize=15, ysize=20,  $
+		/ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Widget_Control, /REALIZE, Cal_TLB
 

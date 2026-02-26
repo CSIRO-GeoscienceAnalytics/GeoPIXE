@@ -1434,6 +1434,8 @@ state = {	p:			pimages, $		; pointer to Images pointer array
 			help:		0L, $			; current help text widget ID
 			help1_base:	Help1_Base, $	; base to map for help 1
 			help2_base:	Help2_Base, $	; base to map for help 2
+			query1:		0L, $			; query (help) button 1 ID
+			query2:		0L, $			; query (help) button 2 ID
 			Low_slider:	0L, $			; Low Z scale slider ID
 			High_slider: 0L, $			; High Z scale slider ID
 			X_slider:	0L, $			; X low-end slider ID

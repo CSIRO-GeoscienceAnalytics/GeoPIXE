@@ -331,21 +331,35 @@ pro detector_map_draw, pstate
 	cdb = da.cal.b
 	x = indgen( da.size)
 	e = cda*x + cdb
+	found_one = 0
 	for i=0,n-1 do begin
+		found = 0
 		ichan = -1
-		s = strsplit( (*p[i]).label, ' ', /extract, count=ns)	; find "label 0/E" form
+		s = strsplit( (*p[i]).label, ' #', /extract, count=ns)	; find "label 0/E" form
 		if ns ge 2 then begin
 			m = locate( '/E', s[ns-1])
 			if m ge 1 then begin
 				ichan = fix( strmid(s[ns-1], 0, m))
+				found = 1
+			endif else if m eq 0 then begin
+				ichan = fix( s[ns-2])
+				found = 1
 			endif
 		endif
-		m = locate( 'Detector', (*p[i]).label)				; find "Detector #0" form
-		if m ge 0 then begin
-			m2 = strlen('Detector')
-			s = strmid( (*p[i]).label, m+m2)
-			ichan = fix(s)
+		if found eq 0 then begin
+			s1 = replace( '#',' ', (*p[i]).label)
+			s1 = replace( '/',' ', s1)
+			m = locate( 'Detector', s1)							; find "Detector 0", "Detector #0" or "Detector /0" forms
+			if m ge 0 then begin
+				m2 = strlen('Detector')
+				s = strmid( s1, m+m2)
+				ichan = fix(s)
+				found = 1
+			endif
 		endif
+		if found then begin
+			found_one = 1
+		endif else continue
 		if (ichan-(*(*pars).playout).start lt 0) or (ichan-(*(*pars).playout).start ge nd) then continue
 
 		a = (*p[i]).cal.poly[1]
@@ -369,13 +383,17 @@ pro detector_map_draw, pstate
 ;			oplot, e[q], (*(*p[i]).data)[j] , color=spec_colour('red')
 ;		endif
 	endfor
+	if found_one eq 0 then begin
+		warning,'',['No detector number found in spectrum labels.','Are these spectra from individual detector channels?']
+	endif
 	if (*(*pars).playout).start gt 0 then signal=signal[(*(*pars).playout).start:*]
 
 ;	wset, (*pstate).wid
 	wset, (*pstate).pix
 	ymax = image_weighted_max( signal)
-	plot_maia_parameter, id, signal, /white, title='Element "'+(*(*pars).pelement)[ (*pars).element_index]+'" using DA "'+(*(*pars).pmatrix)[ (*pars).matrix_index]+'"', $
-			min=0.0, max=ymax, /screen, layout=(*(*pars).pdetector).layout, /wset_done, true=(*pars).Geom_true, only_maia=0
+	plot_maia_parameter, id, signal, /white, true=(*pars).Geom_true, only_maia=0, size=1.2, $
+			title='Element "'+(*(*pars).pelement)[ (*pars).element_index]+'" using DA "'+(*(*pars).pmatrix)[ (*pars).matrix_index]+'"', $
+			min=0.0, max=ymax, /screen, layout=(*(*pars).pdetector).layout, /wset_done
 
 	wset, (*pstate).wid
 	device, copy=[0,0, (*pstate).width,(*pstate).height, 0,0,(*pstate).pix]
