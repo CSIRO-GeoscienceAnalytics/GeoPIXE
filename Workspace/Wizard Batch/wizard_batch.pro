@@ -3442,7 +3442,7 @@ case !version.os_family of
 		space10 = 10
 		space15 = 15
 		left_xsize = 800
-		left_ysize = 750
+		left_ysize = 800
 		right_xsize = 400
 		right_ysize = left_ysize + 36
 		right_ylines = 28
