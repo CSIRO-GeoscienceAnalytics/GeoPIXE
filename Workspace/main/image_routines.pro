@@ -3134,6 +3134,7 @@ end
 
 pro plot_mark, pstate, include=include, compress=compress, wide=wide, xoff=xoff,yoff=yoff, $
 	xscale=xscale,yscale=yscale
+
 	ErrorNo = 0
 	common c_errors_1, catch_errors_on
 	if catch_errors_on then begin
@@ -3155,6 +3156,11 @@ pro plot_mark, pstate, include=include, compress=compress, wide=wide, xoff=xoff,
 
 	if n_elements(include) eq 0 then include=0
 	if n_elements(wide) eq 0 then wide=0
+
+	Write_XOR = 6
+	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+		device, get_graphics_function = oldg, set_graphics_function = Write_XOR		; XOR mode for shapes
+	endif
 
 	if include or ( (*pstate).analyze_mode eq 1) then begin
 		shade = (*pstate).analyze_mode
@@ -3192,12 +3198,12 @@ pro plot_mark, pstate, include=include, compress=compress, wide=wide, xoff=xoff,
 			(*pstate).analyze_mode  = 1
 			if include eq 0 then goto, more
 		endif
-		return
+		goto, done
 	endif
 
-	more:
+more:
 	if ((*pstate).analyze_type[(*pstate).analyze_mode] lt 1) $
-		and ((*pstate).analyze_mode eq 1) then return
+		and ((*pstate).analyze_mode eq 1) then goto, done
 
 	case (*pstate).analyze_type[(*pstate).analyze_mode] of
 		0: plot_distance, pstate, compress=compress, wide=wide, $
@@ -3229,6 +3235,10 @@ pro plot_mark, pstate, include=include, compress=compress, wide=wide, xoff=xoff,
 		else:
 	endcase
 
+done:
+	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+		device, set_graphics_function = oldg
+	endif
 	return
 end
 
@@ -4657,11 +4667,15 @@ pro tv_q_mask, pq, nx,ny,zoom, col
 	pattern = mask AND dot_fill(nx2,ny2,col)
 
 	Write_OR = 7
-	device, get_graphics_function = oldg, set_graphics_function = Write_OR
+	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+		device, get_graphics_function = oldg, set_graphics_function = Write_OR
+	endif
 	tv, pattern
 
-	device, set_graphics_function = oldg
-	return
+	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+		device, set_graphics_function = oldg
+	endif
+return
 end
 
 ;-----------------------------------------------------------------
