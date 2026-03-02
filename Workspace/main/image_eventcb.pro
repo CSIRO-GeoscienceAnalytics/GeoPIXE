@@ -40,17 +40,19 @@ end
 
 ;-----------------------------------------------------------------
 
-pro Image_Analyze, Event, throttle=throttle, get_stats=get_stats, uniform_element=uniform_element, error=err
+pro Image_Analyze, Event, throttle=throttle, refine=refine, $
+			get_stats=get_stats, uniform_element=uniform_element, error=err
 
 COMPILE_OPT STRICTARR
 if n_elements(uniform_element) lt 1 then uniform_element='nothing'
+if n_elements(refine) lt 1 then refine=0
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 
 (*pstate).corr_mode = 0
 err = 1
 if (*pstate).analyze_type[(*pstate).analyze_mode] gt 0 then begin
-    analyze_image, pstate, throttle=throttle, get_stats=get_stats, uniform_element=uniform_element, error=err
+    analyze_image, pstate, throttle=throttle, refine=refine, get_stats=get_stats, uniform_element=uniform_element, error=err
 
     if ((*pstate).analyze_type[0] eq 4) or ((*pstate).analyze_type[0] eq 3) or $
     	((*pstate).analyze_type[0] eq 8) or ((*pstate).analyze_type[0] eq 9) then begin

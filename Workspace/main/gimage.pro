@@ -518,6 +518,10 @@ endif
        Image_Analyze, Event
        end
 
+    'Analyze_Refine_Menu': begin
+       Image_Analyze, Event, /refine
+       end
+
     'Throttle_Menu': begin
        Image_Analyze, Event, /throttle		; not used anymore
        end
@@ -1997,7 +2001,9 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 	  W_MENU_429b = Widget_Button(W_MENU_42, UNAME='Single_pixel_Menu', VALUE='Single Pixel' )
 
 
-	  W_MENU_43 = Widget_Button(W_MENU_40, UNAME='Analyze_Menu' ,VALUE='Region')
+	  W_MENU_43 = Widget_Button(W_MENU_40, UNAME='Analyze_Menu' ,VALUE='Include pixels within spline')
+
+	  W_MENU_43b = Widget_Button(W_MENU_40, UNAME='Analyze_Refine_Menu' ,VALUE='Further refine highlighted pixels within spline')
 
 ;	if xanes eq 0 then begin
 ;		W_MENU_44 = Widget_Button(W_MENU_40, UNAME='Throttle_Menu' ,VALUE='Throttle', /separator)

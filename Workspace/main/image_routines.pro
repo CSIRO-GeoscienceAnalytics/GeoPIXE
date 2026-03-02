@@ -3,11 +3,13 @@
 ;
 ;--------------------------------------------------------------------------------
 
-pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
+pro Analyze_Image, pstate, i_update, throttle=throttle, refine=refine, error=aerror, $
 				uniform_element=uniform_element, get_stats=wizard_stats_needed
 
 ;	What is this Throttle option?
 ;	Wizard call: /get_stats and pass 'i_uniform' element index (will check this elememnt for uniformity)
+;
+;	/refine	refine pixels already in 'qc' by the applied new shape (corr_mode=0).
 
 	COMPILE_OPT STRICTARR
 	common c_hist_fudge, hist
@@ -36,6 +38,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 	p = (*pstate).p
 	if ptr_valid( p) eq 0 then return
 	if n_elements(throttle) lt 1 then throttle=0
+	if n_elements(refine) lt 1 then refine=0
 	if n_elements(wizard_stats_needed) lt 1 then wizard_stats_needed=0
 	if n_elements(uniform_element) lt 1 then uniform_element='nothing'
 
@@ -54,10 +57,12 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 		endif
 	endif
 
-	; (*pstate).corr_mode = 0		Normal image regions
-	;
-	; (*pstate).corr_mode = 1		Corr spline regions
-	;								Use (*pstate).qc for q, do not calculate q.
+;	(*pstate).corr_mode = 0		Normal image regions
+;	(*pstate).corr_mode = 1		Corr spline regions
+;								Use (*pstate).qc for q, do not calculate q here.
+;
+; 	refine = 1					Used with corr_mode=0, if refine_mode=1 and a valid 'qc'
+;								then set 'q' to intersection of 'qc' and applied shape's new 'q'
 
 	xanes_stack_test, p, xanes, n_el, el, el_xanes
 
@@ -117,11 +122,25 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 				x = round(x1)
 				y = round(y1)
 				q = polyfillv( x,y, (*p).xsize,(*p).ysize)
+				q0 = q
 				if q[0] eq -1 then goto, no_points
 			endelse
 
-			;		q_to_xy,q,(*p).xsize,tx,ty
-			;		print, tx,ty
+;			q_to_xy,q,(*p).xsize,tx,ty
+;			print, tx,ty
+
+;			Check for a 'refine' and a valid 'qc'. If so, then refine 'qc' 
+;			based on the new shape 'q', i.e. use the intersection of
+;			'qc' and this shape's 'q' as a new shape 'q'.
+
+			if refine then begin
+				if ptr_good( (*pstate).qc) then begin
+					mask = bytarr( (*p).xsize, (*p).ysize)
+					mask[q] = 1
+					q2 = where( mask eq 0)
+					q = veto( q2, *((*pstate).qc))				; exclude 'q' from corr selection
+				endif
+			endif
 
 			if ptr_valid((*pstate).q) then ptr_free, (*pstate).q
 			(*pstate).q = ptr_new(q)
@@ -251,19 +270,24 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 		;	Find 'x,y' coords of all points in selected region shape.
 		;	The determine the 'z' coordinate along the line/curve for each 'x,y'.
 
+		q_to_xy, q0, (*p).xsize, x0,y0
 		q_to_xy, q, (*p).xsize, x,y
 
 		if ((*pstate).analyze_type[0] eq 3) then begin								; spline curve 8
+			z0 = curve_projection( pstate, x0,y0, nc=n)
 			z = curve_projection( pstate, x,y, nc=n)
+			z = z + (min(z)-min(z0))
 			nq = n_elements(x)
 		endif else if ((*pstate).analyze_type[0] eq 4) then begin					; traverse
 			pm = (*(*pstate).pmark[0])[4]
-			rotatev, x,y, (*pm).x[0],(*pm).y[0], -(*pm).theta, xr0,yr0
-			shearv, xr0,yr0, (*pm).x[0],(*pm).y[0], -(*pm).shear, xr,yr
-			z = long(xr - min(xr))
+			rotatev, x0,y0, (*pm).x[0],(*pm).y[0], -(*pm).theta, xr1,yr1
+			shearv, xr1,yr1, (*pm).x[0],(*pm).y[0], -(*pm).shear, xr0,yr0
+			rotatev, x,y, (*pm).x[0],(*pm).y[0], -(*pm).theta, xr1,yr1
+			shearv, xr1,yr1, (*pm).x[0],(*pm).y[0], -(*pm).shear, xr,yr
+			z = long(xr - min(xr0))
 		endif else if ((*pstate).analyze_type[0] eq 8) then begin					; project X
 			pm = (*(*pstate).pmark[0])[8]
-			z = long(x - min(x))
+			z = long(x - min(x0))
 			if ptr_good((*p).px_coords) then begin
 				touch = intarr(max(x)+1)
 				touch[x] = 1
@@ -275,7 +299,7 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 			endif
 		endif else if ((*pstate).analyze_type[0] eq 9) then begin					; project Y
 			pm = (*(*pstate).pmark[0])[9]
-			z = long(y - min(y))
+			z = long(y - min(y0))
 			if ptr_good((*p).py_coords) then begin
 				touch = intarr(max(y)+1)
 				touch[y] = 1
@@ -321,13 +345,20 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 			for i=0L,n_el-1 do begin
 				qel1 = where( strlowcase(el[i]) eq misc_special, nqel1)
 				xmdl = xanes ? (*(*p).matrix.mdl)[(*p).ixanes] : (*(*p).matrix.mdl)[i<nmdl]
-				hmdl[*,i] = sqrt((*p).matrix.charge / (nqel1 ne 0 ? hcharge0 : hcharge) * xmdl)
-				hmdl[*,i] = smooth2( hmdl[*,i], 4)
+				hc = (nqel1 ne 0 ? hcharge0 : hcharge)
+				hmdl[*,i] = sqrt((*p).matrix.charge / hc * xmdl)
+				q1 = where( finite(hmdl[*,i]) eq 0, nq1)
+				if nq1 gt 0 then hmdl[q1,i] = 0.0
+				q2 = where( finite(hmdl[*,i]) eq 1, nq2)
+				hmdl[q2,i] = smooth2( hmdl[q2,i], 4)
 			endfor
 		endif
 		for i=0L,n_el-1 do begin
 			qel1 = where( strlowcase(el[i]) eq misc_special, nqel1)
-			hist[*,i] = hist[*,i] / (nqel1 ne 0 ? hcharge0 : hcharge)
+			hc = (nqel1 ne 0 ? hcharge0 : hcharge)
+			hist[*,i] = hist[*,i] / hc
+			q1 = where( finite(hist[*,i]) eq 0, nq1)
+			if nq1 gt 0 then hist[q1,i] = 0.0
 		endfor
 
 		has_errors = 0
@@ -381,23 +412,36 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 					nehist = smart_congrid( nehist, n_elements(nhist))
 				endif
 				if (*pstate).display_mode eq 1 then begin							; 'var' displayed
-					for i=0L,n_elements(ehist[0,*])-1 do begin										; so just plot histogram
+					for i=0L,n_elements(ehist[0,*])-1 do begin						; so just plot histogram
 						ehist[*,i] = ehist[*,i] / nehist							; of average var contents
+						q1 = where( finite(ehist[*,i]) eq 0, nq1)
+						if nq1 gt 0 then ehist[q1,i] = 0.0
 					endfor															; which is 'variance' or 'yield', ...
 				endif else begin
 					for i=0L,n_elements(ehist[0,*])-1 do begin
 						qel1 = where( strlowcase(el[i]) eq misc_special, nqel1)
 						ehist[*,i] = sqrt( ehist[*,i]) / (nqel1 ne 0 ? hcharge0 : hcharge)
+						q1 = where( finite(ehist[*,i]) eq 0, nq1)
+						if nq1 gt 0 then ehist[q1,i] = 0.0
 					endfor
 				endelse
 				n = min( [n, n_elements(ehist[*,0]) ])
 			endif
 		endif
 
-		conc = reform(hist[0,*])
+		conc = fltarr(n_el)
+		error = fltarr(n_el)
 		centroid = replicate( {X:0.0, Y:0.0}, n_el)
-		error = replicate(0.0, n_elements(hist[0,*]))
 		xmdl = fltarr(n_el)
+
+		q1 = where( finite(hist[*,0]) eq 1, nq1)
+		for k=0,n_el-1 do begin
+			conc[k] = mean( hist[q1,k])
+			if has_errors then begin
+				q2 = where( finite(hist[*,k]) eq 1, nq2)
+				error[k] = mean( ehist[q2,k]) / sqrt(nq2)
+			endif
+		endfor
 		if has_mdl then begin
 			if xanes then begin
 				xmdl = replicate((*(*p).matrix.mdl)[(*p).ixanes],n_el)
@@ -406,11 +450,12 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, error=aerror, $
 				xmdl[0:(nm<n_el)-1] = (*(*p).matrix.mdl)[0:(nm<n_el)-1]
 			endelse
 		endif
-		mdl = xmdl * sqrt((*p).matrix.charge / hcharge[0])			; ??
+		mdl = xmdl * sqrt((*p).matrix.charge / total(hcharge[q1]))			; ??
+		q1 = where( finite(mdl) eq 0, nq1)
+		if nq1 gt 0 then mdl[q1] = 0.0
 
 		if strmid(el[0],0,4) eq 'Back' then hist[*,0] = 100000.0 * hist[*,0]
 		if has_errors then begin
-			error = reform(ehist[0,*])
 			mdl = mdl < 3.*error
 			if strmid(el[0],0,4) eq 'Back' then ehist[*,0] = 100000.0 * ehist[*,0]
 		endif
