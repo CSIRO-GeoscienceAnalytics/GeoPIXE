@@ -1581,12 +1581,12 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
     retain=1
   endelse
 
-  Image_Draw = Widget_Draw(Image_Draw_Base, UNAME='Image_Draw', /tracking  $
-      ,SCR_XSIZE=360+scr_trim ,SCR_YSIZE=360+scr_trim, uvalue='Left mouse: click and hold to drag shape or control point. ' + $
-	  		'Middle mouse/wheel: click and hold to magnify view. Right mouse: alt function for some control points.'  $
-      ,NOTIFY_REALIZE='OnRealize_Image'  $
-      ,KILL_NOTIFY='OnDestroy_Image' ,/SCROLL ,XSIZE=360+draw_trim  $
-      ,YSIZE=360+draw_trim, retain=retain, /BUTTON_EVENTS,/VIEWPORT_EVENTS)
+  Image_Draw = Widget_Draw(Image_Draw_Base, UNAME='Image_Draw', /tracking,  $
+      SCR_XSIZE=360+scr_trim, SCR_YSIZE=360+scr_trim, uvalue='Left mouse: click and hold to drag shape or control point. ' + $
+	  		'Middle mouse/wheel: click and hold to magnify view. Right mouse: alt function for some control points.',  $
+      NOTIFY_REALIZE='OnRealize_Image', /wheel_events, /BUTTON_EVENTS, /VIEWPORT_EVENTS,  $
+      KILL_NOTIFY='OnDestroy_Image', /SCROLL, XSIZE=360+draw_trim,  $
+      YSIZE=360+draw_trim, retain=retain)
 
 
   Image_Button_Base = Widget_Base(Image_TLB, UNAME='Image_Button_Base'  $

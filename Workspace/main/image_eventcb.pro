@@ -7011,7 +7011,7 @@ endcase
 ;print, 'Resize ... '
 help,event
 widget_control, (*pstate).draw2	, get_draw_view=vv
-;print,'	Read back draw view =', vv
+print,'	Read back draw view =', vv
 
 if (event.x eq (*pstate).size_event_x) and (event.y eq (*pstate).size_event_y) then return
 (*pstate).size_event_x = event.x
@@ -7159,9 +7159,9 @@ print,'New View:', (*pstate).xlow, (*pstate).ylow
 pixel_to_xy, pstate, (*pstate).xlow, (*pstate).ylow, xorg,yorg
 pixel_to_xy, pstate, (*pstate).xlow+(*pstate).xview, (*pstate).ylow+(*pstate).yview, xtop,ytop
 
-s1 = '   View bottom-left  X =' + str_tidy(event.x) + '  Y =' + str_tidy(event.y)
-s2 = 'Image View origin  X =' + str_tidy(min([xorg,xtop])) + '  Y =' + str_tidy(min([yorg,ytop]))
-s3 = '   Image View top  X =' + str_tidy(max([xorg,xtop])) + '  Y =' + str_tidy(max([yorg,ytop]))
+s1 = '     Viewport bottom-left  X =' + str_tidy(event.x) + '  Y =' + str_tidy(event.y)
+s2 = 'Real Image View origin  X =' + str_tidy(min([xorg,xtop])) + '  Y =' + str_tidy(min([yorg,ytop]))
+s3 = '   Real Image View top  X =' + str_tidy(max([xorg,xtop])) + '  Y =' + str_tidy(max([yorg,ytop]))
 widget_control, (*pstate).help, set_value=[s1,s2,s3]
 
 end
@@ -7320,6 +7320,11 @@ state = {	p:			pimage, $			; pointer to image pointer array
 			left_button: 0, $				; flags left mouse button
 			right_button: 0, $				; right mouse
 			middle_button: 0, $				; middle mouse
+			shift_button: 0, $				; shift key modifier
+			alt_button: 0, $				; alt key modifier
+			control_button: 0, $			; control key modifier
+			mouse_x:	0, $			`	; mouse X position
+			mouse_y:	0, $			`	; mouse Y position
 
 			max_set:	max_set, $			; number of normal marker sets
 			pmark:		ptrarr(2), $		; pointers to include, exclude markers

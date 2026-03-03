@@ -36,16 +36,17 @@ if catch_errors_on then begin
 endif
 common image_region_window_1, region_window
 
+;help, event
 ;print,'event: type=',event.type, '  press=',event.press
-if event.type gt 2 then begin
-	print,'OnButton_image: Found illegal button "type" =',event.type
-	return
-endif
+;if event.type gt 2 then begin
+;	print,'OnButton_image: Found illegal button "type" =',event.type
+;	return
+;endif
 if event.press gt 4 then begin
 	print,'OnButton_image: Found illegal button "press" =',event.press
 	return
 endif
-possible = ['DOWN','UP','MOTION','SCROLL']
+possible = ['DOWN','UP','MOTION','viewport','visible','key','fnkey','SCROLL']
 button = ['none','LEFT','MIDDLE','VIEW','RIGHT']
 
 child = widget_info( event.top, /child)
@@ -76,9 +77,21 @@ endif else begin
 	magnify = 100
 	magpix = 10
 endelse
+
+(*pstate).shift_button = (event.modifiers and 1) ne 0
+(*pstate).control_button = (event.modifiers and 2) ne 0
+(*pstate).alt_button = (event.modifiers and 8) ne 0
+
+;print,'Control=',(*pstate).control_button,' shift=',(*pstate).shift_button,'alt=',(*pstate).alt_button
 ;print,'left=',(*pstate).left_button,' middle=',(*pstate).middle_button,' type=',possible[ event.type]
 
 case possible[ event.type] of
+	'SCROLL': begin
+		if (*pstate).control_button then begin
+			set_image_view, pstate, event.top, zoom=event.clicks
+		endif
+		end
+
 	'DOWN': begin
 		(*pstate).left_button = 0
 		(*pstate).right_button = 0
@@ -134,6 +147,16 @@ case possible[ event.type] of
 
 ;		print,'Down: analyze_type=',(*pstate).analyze_type[(*pstate).analyze_mode],' present=',(*p).present
 ;		print,'zoomed mouse x,y=',x,y
+
+		if (*pstate).control_button and (*pstate).left_button then begin
+			print,'OnButton_image: control left ON'
+			widget_control, (*pstate).draw2, get_draw_view=vv
+			(*pstate).xlow = vv[0]
+			(*pstate).ylow = vv[1]
+			(*pstate).mouse_x = event.x - vv[0]
+			(*pstate).mouse_y = event.y - vv[1]
+			return
+		endif
 
 		case (*pstate).analyze_type[(*pstate).analyze_mode] of
 			0: begin																; distance
@@ -1182,14 +1205,19 @@ legend2:
 			device, copy=[px+8,py+8,magnify+6,magnify+6, px+8,py+8, (*pstate).pix]
 			goto, motion_off
 		endif
+		if (*pstate).control_button and (*pstate).left_button then begin
+			dx = (event.x - (*pstate).xlow) - (*pstate).mouse_x
+			dy = (event.y - (*pstate).ylow) - (*pstate).mouse_y
+			print,'OnButton_image: control left UP, delta =',dx,dy,' (event x,y=',event.x,event.y,')'
+			widget_control, (*pstate).draw2, set_draw_view=[(*pstate).xlow-(dx),(*pstate).ylow-(dy)]
+			goto, finish
+		endif
+
 		if ((*pstate).corr_on eq 0) and ptr_valid((*pstate).qc) then begin
 			(*pstate).corr_on = 1
 			draw_images, pstate
 		endif
 		(*pstate).corr_on = 1
-		(*pstate).left_button = 0
-		(*pstate).right_button = 0
-		(*pstate).middle_button = 0
 
 		case (*pstate).analyze_type[(*pstate).analyze_mode] of
 			0: begin
@@ -1394,9 +1422,17 @@ motion_off:
 		widget_control, event.id, draw_motion_events=0
 		notify, 'image-analyze-mark', from=event.top
 		end
+
+	else:
 endcase
 
 finish:
+	(*pstate).left_button = 0
+	(*pstate).right_button = 0
+	(*pstate).middle_button = 0
+	(*pstate).shift_button = 0
+	(*pstate).control_button = 0
+	(*pstate).alt_button = 0
 	if n_elements(pstate) eq 0 then goto, die
 	if ptr_valid(pstate) eq 0 then goto, die
 	if size(*pstate,/tname) ne 'STRUCT' then goto, die
