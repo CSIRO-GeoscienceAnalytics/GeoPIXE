@@ -46,8 +46,8 @@ if catch_errors_on then begin
 endif
 
 	type = size(x, /type)
-	if type eq 11 then begin
 
+	if type eq 11 then begin
 		case typename(x) of
 			'LIST': type = 110
 			'HASH': type = 111

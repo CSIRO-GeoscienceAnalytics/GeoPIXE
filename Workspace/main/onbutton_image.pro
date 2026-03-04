@@ -35,8 +35,10 @@ if catch_errors_on then begin
 	endif
 endif
 common image_region_window_1, region_window
+common image_moves_1, mag_xoff, mag_yoff
 
 ;help, event
+if typevar(event) ne 'STRUCT' then return
 ;print,'event: type=',event.type, '  press=',event.press
 ;if event.type gt 2 then begin
 ;	print,'OnButton_image: Found illegal button "type" =',event.type
@@ -75,7 +77,7 @@ endif else if geom.ysize gt 390 then begin
 	magpix = 15
 endif else begin
 	magnify = 100
-	magpix = 10
+	magpix = 15
 endelse
 
 (*pstate).shift_button = (event.modifiers and 1) ne 0
@@ -106,7 +108,7 @@ case possible[ event.type] of
 				(*pstate).right_button = 1
 				end
 			'MIDDLE': begin
-;				print,'OnButton_image: right mouse button press ...'
+;				print,'OnButton_image: middle mouse button press ...'
 				(*pstate).middle_button = 1
 				end
 			else:
@@ -130,18 +132,44 @@ case possible[ event.type] of
 			endif
 		endif
 		if (*pstate).middle_button then begin
+;			Make a magnified view around cursor x,y in pix2
 			b = make_tvb( pstate, (*pstate).image, /nozoom)
-			b2 = congrid( b[x-magpix:x+magpix-1,y-magpix:y+magpix-1], magnify,magnify)
+			nbx = n_elements(b[*,0])
+			nby = n_elements(b[0,*])
+			b2 = congrid( b[(x-magpix)>0:(x+magpix-1)<(nbx-1),(y-magpix)>0:(y+magpix-1)<(nby-1)], magnify,magnify)
 			wset, (*pstate).pix2
 			tv, b2, 0,0
+
+;			Border box and magnification label ...
+			Write_XOR = 6
+			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+				device, get_graphics_function = oldg, set_graphics_function = Write_XOR		; XOR mode for shapes
+			endif
 			plots,[0,magnify-1,magnify-1,0,0],[0,0,magnify-1,magnify-1,0],/device,color=spec_colour('white')
 			mag = float(magnify) / (2.0*magpix)
 			xyouts,3,3,'x'+str_tidy( mag/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
-			xy_to_pixel, pstate, x,y, px,py
+			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+				device, set_graphics_function = oldg
+			endif
+
+;			Do we need to offset the box to avoid the viewport limits ...
+			widget_control, (*pstate).draw2, get_draw_view=vv
+			zscale = 2.0^(-(*pstate).zoom)
+			if x + magnify*zscale gt (vv[0] + (*pstate).xview)*zscale then begin
+				mag_xoff = -(10 + magnify)
+			endif else mag_xoff = 10
+			if y + magnify*zscale gt (vv[1] + (*pstate).yview)*zscale then begin
+				mag_yoff = -(10 + magnify)
+			endif else mag_yoff = 10
+
+;			Copy that box from 'pix2' into main viewport 'wid2' at px,py
 			wset, (*pstate).wid2
-			device, copy=[0,0,magnify,magnify, px+10,py+10, (*pstate).pix2]
-			(*pstate).movex = x
-			(*pstate).movey = y
+			xy_to_pixel, pstate, x,y, px,py
+			device, copy=[0,0,magnify,magnify, px+mag_xoff,py+mag_yoff, (*pstate).pix2]
+
+;			Save px,py for clearing during move and 'up'
+			(*pstate).movex = px
+			(*pstate).movey = py
 			goto, motion_on
 		endif
 
@@ -414,24 +442,55 @@ motion_on:
 ;			print,'Middle motion ...'
 			xc = xf
 			yc = yf
-			xy_to_pixel, pstate, (*pstate).movex,(*pstate).movey, px,py
-			wset, (*pstate).wid2
-			device, copy=[px+8,py+8,magnify+6,magnify+6, px+8,py+8, (*pstate).pix]
+;			Old px,py for clearing ...
+			px = (*pstate).movex
+			py = (*pstate).movey
 
+;			Make a new zoomed copy around x,y into pix2
 			b = make_tvb( pstate, (*pstate).image, /nozoom)
-			b2 = congrid( b[x-magpix:x+magpix-1,y-magpix:y+magpix-1], magnify,magnify)
+			nbx = n_elements(b[*,0])
+			nby = n_elements(b[0,*])
+			b2 = congrid( b[(x-magpix)>0:(x+magpix-1)<(nbx-1),(y-magpix)>0:(y+magpix-1)<(nby-1)], magnify,magnify)
 			wset, (*pstate).pix2
 			tv, b2, 0,0
+
+;			Border box and magnification label ...
+			Write_XOR = 6
+			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+				device, get_graphics_function = oldg, set_graphics_function = Write_XOR		; XOR mode for shapes
+			endif
 			plots,[0,magnify-1,magnify-1,0,0],[0,0,magnify-1,magnify-1,0],/device,color=spec_colour('white')
 			mag = float(magnify) / (2.0*magpix)
 			xyouts,3,3,'x'+str_tidy( mag/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
-			xy_to_pixel, pstate, x,y, px,py
+			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+				device, set_graphics_function = oldg
+			endif
+
+;			Copy copy of view in 'pix' to clear 'wid2'
 			wset, (*pstate).wid2
-			device, copy=[0,0,magnify,magnify, px+10,py+10, (*pstate).pix2]
-			(*pstate).movex = x
-			(*pstate).movey = y
+			device, copy=[px+mag_xoff-1,py+mag_yoff-1,magnify+2,magnify+2, px+mag_xoff-1,py+mag_yoff-1, (*pstate).pix]
+
+;			Do we need to offset the box to avoid the viewport limits ...
+			widget_control, (*pstate).draw2, get_draw_view=vv
+			zscale = 2.0^(-(*pstate).zoom)
+;			print,'View port: origin=',vv*zscale,' size=', [(*pstate).xview*zscale,(*pstate).yview*zscale], ' cursor=',[x,y], format='(A,1x,2I5,1x,A,2I5,1x,A,2I5)'
+			if x + magnify*zscale+10 gt (vv[0] + (*pstate).xview)*zscale then begin
+				mag_xoff = -(10 + magnify)
+			endif else mag_xoff = 10
+			if y + magnify*zscale+10 gt (vv[1] + (*pstate).yview)*zscale then begin
+				mag_yoff = -(10 + magnify)
+			endif else mag_yoff = 10
+
+;			Copy new box from 'pix2' into 'wid2'
+			wset, (*pstate).wid2
+			xy_to_pixel, pstate, x,y, px,py
+			device, copy=[0,0,magnify,magnify, px+mag_xoff,py+mag_yoff, (*pstate).pix2]
+
+;			Save px,py for clearing during next move and 'up'
+			(*pstate).movex = px
+			(*pstate).movey = py
+			goto, legend2
 		endif
-		if (*pstate).middle_button then goto, legend2
 
 ;		print,'Motion: id=',(*pstate).id
 		if (*pstate).id lt 0 then begin
@@ -1199,12 +1258,18 @@ legend2:
 		pixel_to_xy, pstate, event.x,event.y, x,y
 		pixel_to_xy, pstate, event.x,event.y, xf,yf, /fractional
 
+;		Clear magnify box on main 'wid2' from 'pix' ...
+
 		if (*pstate).middle_button then begin
-			xy_to_pixel, pstate, (*pstate).movex,(*pstate).movey, px,py
+			px = (*pstate).movex				
+			py = (*pstate).movey
 			wset, (*pstate).wid2
-			device, copy=[px+8,py+8,magnify+6,magnify+6, px+8,py+8, (*pstate).pix]
+			device, copy=[px+9,py+9,magnify+2,magnify+2, px+9,py+9, (*pstate).pix]
 			goto, motion_off
 		endif
+
+;		Pan viewport after delta move ...
+
 		if (*pstate).control_button and (*pstate).left_button then begin
 			dx = (event.x - (*pstate).xlow) - (*pstate).mouse_x
 			dy = (event.y - (*pstate).ylow) - (*pstate).mouse_y
@@ -1427,12 +1492,12 @@ motion_off:
 endcase
 
 finish:
-	(*pstate).left_button = 0
-	(*pstate).right_button = 0
-	(*pstate).middle_button = 0
-	(*pstate).shift_button = 0
-	(*pstate).control_button = 0
-	(*pstate).alt_button = 0
+;	(*pstate).left_button = 0
+;	(*pstate).right_button = 0
+;	(*pstate).middle_button = 0
+;	(*pstate).shift_button = 0
+;	(*pstate).control_button = 0
+;	(*pstate).alt_button = 0
 	if n_elements(pstate) eq 0 then goto, die
 	if ptr_valid(pstate) eq 0 then goto, die
 	if size(*pstate,/tname) ne 'STRUCT' then goto, die
