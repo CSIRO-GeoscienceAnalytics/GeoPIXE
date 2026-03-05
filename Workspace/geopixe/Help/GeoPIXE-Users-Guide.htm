@@ -6196,9 +6196,9 @@ for lab XRF).  SNIP uses the SNIP non-linear iterative peak-clipping
 algorithm.  SNIP is appropriate for most spectra involving fairly strong
 filters.  Boost is a modified SNIP where absorption effects are removed before
 application of SNIP.  This is recommended for spectra with strong absorption
-features, such as a strongly rolling-over bremsstrahlung peak at low energy in PIXE.
-See details below under “Advanced Fitting Parameters”. Use “SNIP + Bauer” for
-laboratory XRF.</p>
+features, such as a strongly rolling-over bremsstrahlung peak at low energy in
+PIXE. See details below under “Advanced Fitting Parameters”. Use “SNIP + Bauer”
+for laboratory XRF.</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -6594,9 +6594,9 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span
 <p class=Numeric-List style='margin-left:108.0pt;text-indent:-108.0pt'><span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span>i.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><b>Compton</b><b> Tail: </b>  Amplitude of the exponential tail on the Compton inelastic scattering peak (and also high-energy tailing). This parameter is
-refined when “Free” in the fit (see 4(i) above). This term approximates the
-strength or amplitude of the multiple scattering tail of the scattering peak.</p>
+</span><b>Compton</b><b> Tail: </b>  Amplitude of the exponential tail on the Compton inelastic scattering peak (and also high-energy tailing). This parameter is refined
+when “Free” in the fit (see 4(i) above). This term approximates the strength or
+amplitude of the multiple scattering tail of the scattering peak.</p>
 
 <p class=Numeric-List style='margin-left:108.0pt;text-indent:-108.0pt'><span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -8896,8 +8896,28 @@ style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nb
 </span></span>Middle mouse                        Click and hold the middle
 mouse (scroll wheel) to show a Zoom in view.</p>
 
-<h4 style='margin-left:6.55pt;text-indent:36.0pt'><a name="_Toc222916502">Show
-context sensitive help/prompt for widgets and controls:</a></h4>
+<h4 style='margin-left:6.55pt;text-indent:36.0pt'><a name="_Toc222916502">Pan
+view to a feature:</a></h4>
+
+<p class=Bulletlist style='margin-left:191.4pt;text-indent:-127.6pt'><span
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Ctrl-Left mouse                     Use&nbsp;<b><i>Control-Left
+mouse</i></b>&nbsp;to move the image. Control-Left click on a feature and drag
+to where you’d like that feature to be moved to. Nothing is drawn. On release
+the image is moved. For example, control-left click and hold on a feature and
+drag it and release at the centre of the window.</p>
+
+<h4 style='margin-left:6.55pt;text-indent:36.0pt'>Show zoom in view around
+mouse pointer:</h4>
+
+<p class=Bulletlist style='margin-left:191.4pt;text-indent:-127.6pt'><span
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Ctrl-scroll wheel                    Use&nbsp;<b><i>Control-Scroll
+wheel</i></b>&nbsp;to increment the Zoom level in and out. The display zooms
+around the current centre.</p>
+
+<h4 style='margin-left:6.55pt;text-indent:36.0pt'>Show context sensitive
+help/prompt for widgets and controls:</h4>
 
 <p class=Bulletlist style='margin-left:191.4pt;text-indent:-127.6pt'><span
 style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -10707,8 +10727,8 @@ for each distinct ‘clusters’ of pixels or ‘hot-spot’) using “Hotspot
 Separation”. Alternatively, the pixels surrounding each hot-spot can be
 selected as regions using “Neighbourhoods”. To undo these new regions, using
 the Delete option to delete all but region #0. If “Keep #0” is enabled, then
-region #0 will be updated to be the sum of all separated pixel regions as deletions
-are made (this is used for total hotspots maintenance in #0).</p>
+region #0 will be updated to be the sum of all separated pixel regions as
+deletions are made (this is used for total hotspots maintenance in #0).</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -11842,12 +11862,12 @@ the number of components (phases) to use and the elements to use to define
 these phases (in the drop-lists at the top of the table).  (For the moment, the
 number of elements must equal the number of phases.)  Select these elements as
 column headings and fill in the phase names as row headings.  Now in the table,
-enter the concentrations (in wt%) of each element in these phases (each row
-corresponds to a phase).  (These don't need to add up to 100% as there are
-usually missing elements, such as oxygen.)  The matrix created in this way must
-define independent phases.  i.e. No row can be a linear combination of other
-rows.  If the program warns you of an ill-conditioned matrix, or a zero
-determinant, then this matrix contains non-independent phases.</p>
+enter the concentrations (in wt%) of each element in these phases (each row corresponds
+to a phase).  (These don't need to add up to 100% as there are usually missing
+elements, such as oxygen.)  The matrix created in this way must define
+independent phases.  i.e. No row can be a linear combination of other rows.  If
+the program warns you of an ill-conditioned matrix, or a zero determinant, then
+this matrix contains non-independent phases.</p>
 
 <p class=MsoNormal>&nbsp;</p>
 
@@ -12160,11 +12180,11 @@ from the centre of the array (beam axis). Each symbol type represents the yield
 from a 1 µm layer of Pt at various depths within an olivine sample matrix.
 Subtle absorption-related effects of particle shape versus a simple layer have
 been ignored in this discussion. The interesting apparent scatter in these
-points reflects the non-equivalent positions and orientations of detectors around
-the square array. Masking, distance and angle gradually reduces the efficiency
-of the more peripheral detector elements. Depth to the Pt layer has a marked
-effect on yields, with stronger attenuation seen in the more peripheral
-detectors.</span></p>
+points reflects the non-equivalent positions and orientations of detectors
+around the square array. Masking, distance and angle gradually reduces the
+efficiency of the more peripheral detector elements. Depth to the Pt layer has
+a marked effect on yields, with stronger attenuation seen in the more
+peripheral detectors.</span></p>
 
 <p class=MsoNormal style='margin-left:36.0pt'><span style='layout-grid-mode:
 both'><img border=0 width=460 height=423 id="Chart 1"
@@ -13483,7 +13503,7 @@ style='font-family:Symbol'>a</span> peak.</p>
 height=331 id="Picture 102" src="GeoPIXE-Users-Guide_files/image137.jpg"></span></p>
 
 <p class=MsoNormal style='margin-left:0cm'><span style='position:relative;
-z-index:251658240'><span style='position:absolute;left:200px;top:-78105px;
+z-index:251658240'><span style='position:absolute;left:200px;top:-78252px;
 width:63px;height:1px'><img width=63 height=1
 src="GeoPIXE-Users-Guide_files/image138.png" alt="W La&#13;&#10;&#13;&#10;"></span></span>&nbsp;</p>
 
@@ -13546,7 +13566,7 @@ the main hotspot was tungsten not gold. Save the regions again in file
 <p class=MsoNormal>&nbsp;</p>
 
 <p class=MsoNormal><span style='position:relative;z-index:251657216'><span
-style='left:0px;position:absolute;left:201px;top:-79178px;width:63px;
+style='left:0px;position:absolute;left:201px;top:-79325px;width:63px;
 height:1px'><img width=63 height=1 src="GeoPIXE-Users-Guide_files/image138.png"
 alt="W La"></span></span> <span style='layout-grid-mode:both'><img border=0
 width=498 height=301 id="Picture 106"

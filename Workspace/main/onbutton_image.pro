@@ -36,6 +36,7 @@ if catch_errors_on then begin
 endif
 common image_region_window_1, region_window
 common image_moves_1, mag_xoff, mag_yoff
+common image_moves_2, is_moving
 
 ;help, event
 if typevar(event) ne 'STRUCT' then return
@@ -148,6 +149,10 @@ case possible[ event.type] of
 			plots,[0,magnify-1,magnify-1,0,0],[0,0,magnify-1,magnify-1,0],/device,color=spec_colour('white')
 			mag = float(magnify) / (2.0*magpix)
 			xyouts,3,3,'x'+str_tidy( mag/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
+			ds = (magnify/2)*0.2
+			ls = magnify*(0.5 + 1/magpix)
+			plots,[ls-ds,ls+ds],[ls,ls],/device,color=spec_colour('white')
+			plots,[ls,ls],[ls-ds,ls+ds],/device,color=spec_colour('white')
 			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
 				device, set_graphics_function = oldg
 			endif
@@ -170,6 +175,7 @@ case possible[ event.type] of
 ;			Save px,py for clearing during move and 'up'
 			(*pstate).movex = px
 			(*pstate).movey = py
+			is_moving = 1
 			goto, motion_on
 		endif
 
@@ -440,6 +446,7 @@ motion_on:
 		
 		if (*pstate).middle_button then begin
 ;			print,'Middle motion ...'
+			if is_moving eq 0 then goto, legend2
 			xc = xf
 			yc = yf
 ;			Old px,py for clearing ...
@@ -462,6 +469,10 @@ motion_on:
 			plots,[0,magnify-1,magnify-1,0,0],[0,0,magnify-1,magnify-1,0],/device,color=spec_colour('white')
 			mag = float(magnify) / (2.0*magpix)
 			xyouts,3,3,'x'+str_tidy( mag/(2.0^(*pstate).zoom), places=1),/device,color=spec_colour('white')
+			ds = (magnify/2)*0.2
+			ls = magnify*(0.5 + 1/magpix)
+			plots,[ls-ds,ls+ds],[ls,ls],/device,color=spec_colour('white')
+			plots,[ls,ls],[ls-ds,ls+ds],/device,color=spec_colour('white')
 			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
 				device, set_graphics_function = oldg
 			endif
@@ -1263,8 +1274,11 @@ legend2:
 		if (*pstate).middle_button then begin
 			px = (*pstate).movex				
 			py = (*pstate).movey
+			is_moving = 0
+
+;			Copy copy of view in 'pix' to clear 'wid2'
 			wset, (*pstate).wid2
-			device, copy=[px+9,py+9,magnify+2,magnify+2, px+9,py+9, (*pstate).pix]
+			device, copy=[px+mag_xoff-1,py+mag_yoff-1,magnify+2,magnify+2, px+mag_xoff-1,py+mag_yoff-1, (*pstate).pix]
 			goto, motion_off
 		endif
 
