@@ -8,15 +8,13 @@ INSTDIR = /opt/geopixe/latest
 
 # fortran flags common to all platforms ...
 #FFLAGS = -O0 -cpp -ffree-form -fno-range-check
-FFLAGS = -O3 -cpp -ffree-form -fno-range-check
+FFLAGS = -O3 -cpp -ffree-form -ffree-line-length-512 -fno-range-check
 
 # Linux
-LR = /opt/gcc-4.5.3
-LT = x86_64-unknown-linux-gnu
-LGF = $(LR)/bin/$(LT)-gfortran
+LGF = gfortran-14
 LGF32 = $(LGF) -D__32BIT__ -m32
 LGF64 = $(LGF) -D__64BIT__ -m64
-LGFFLAGS = -fPIC -fsecond-underscore $(FFLAGS)
+LGFFLAGS = -std=legacy -fallow-invalid-boz -fPIC -fsecond-underscore $(FFLAGS)
 #LLD32 = $(LGF) -m32
 #LLD64 = $(LGF) -m64
 #LLD32 = ld --oformat elf32-i386
@@ -28,15 +26,14 @@ LLDLIBS32 =
 LLDLIBS64 =
 
 # Windows
-WR = /opt/mingw-w64
-WT = x86_64-w64-mingw32
-WGF = $(WR)/bin/$(WT)-gfortran
-WGF32 = $(WGF) -D__32BIT__ -m32
-WGF64 = $(WGF) -D__64BIT__ -m64
-WGFFLAGS = -mdll $(FFLAGS)
-WLD32 = $(WGF) -m32
-WLD64 = $(WGF) -m64
+WGF32 = i686-w64-mingw32-gfortran -D__32BIT__ -m32
+WGF64 = x86_64-w64-mingw32-gfortran -D__64BIT__ -m64
+WGFFLAGS = -std=legacy -fallow-invalid-boz -mdll $(FFLAGS)
+WLD32 = i686-w64-mingw32-gfortran -m32
+WLD64 = x86_64-w64-mingw32-gfortran -m64
 WLDFLAGS = -shared $(FFLAGS)
+WLDLIBS32 =
+WLDLIBS64 =
 
 # Darwin
 DGF = gfortran-mp-15
@@ -75,20 +72,18 @@ endif
 
 # all possible intermediate files (aka object files)
 OBJS = $(foreach s,$(int-suffs),$(foreach w,$(word-sizes),$(SRCS:.f=.$w.$s)))
+.SECONDARY: $(OBJS)
 # all possible output files (aka library files)
 LIBS = $(foreach s,$(out-suffs),$(foreach w,$(word-sizes),$(DESTDIR)$(LIB).$w.$s))
 ifeq ($(OS),Darwin)
 # and on MacOS we also build a container dylib containing all possible MacOS dylibs
 LIBS += $(foreach s,$(out-suffs),$(DESTDIR)$(LIB).$s)
 endif
+.PRECIOUS: $(LIBS)
 
-.PHONY: default
 default:
 	$(call trace,Build one or more of the following targets:)
 	$(if $(NF),,@for l in $(LIBS); do echo "	$$l"; done)
-
-.SECONDARY: $(OBJS)
-.PRECIOUS: $(LIBS)
 
 all: $(LIBS)
 
