@@ -81,7 +81,8 @@ LIBS += $(foreach s,$(out-suffs),$(DESTDIR)$(LIB).$s)
 endif
 .PRECIOUS: $(LIBS)
 
-default:
+.PHONY: help
+help:
 	$(call trace,Build one or more of the following targets:)
 	$(if $(NF),,@for l in $(LIBS); do echo "	$$l"; done)
 
