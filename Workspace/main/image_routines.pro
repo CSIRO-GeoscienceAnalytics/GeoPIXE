@@ -3237,7 +3237,8 @@ more:
 
 done:
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, set_graphics_function = oldg
+		Write_over = 3
+		device, set_graphics_function = Write_over
 	endif
 	return
 end
@@ -4668,12 +4669,13 @@ pro tv_q_mask, pq, nx,ny,zoom, col
 
 	Write_OR = 7
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, get_graphics_function = oldg, set_graphics_function = Write_OR
+		device, get_graphics_function = oldg, set_graphics_function = Write_OR	; OR mode for hash pattern
 	endif
 	tv, pattern
 
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, set_graphics_function = oldg
+		Write_over = 3
+		device, set_graphics_function = Write_over
 	endif
 return
 end
