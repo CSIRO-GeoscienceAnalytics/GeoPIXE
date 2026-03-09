@@ -34,6 +34,8 @@ if ptr_valid( (*p).Image ) eq 0 then return
 ; Fill it with selected RGB colour maps.
 
 wset, (*pstate).wid2
+device, get_graphics_function = oldg
+print,'RGB: device, get_graphics_function:', oldg
 
 b = make_RGB_true( pstate)
 ;erase
