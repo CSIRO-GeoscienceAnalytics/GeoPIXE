@@ -8,7 +8,8 @@ INSTDIR = /opt/geopixe/latest
 
 # fortran flags common to all platforms ...
 #FFLAGS = -O0 -cpp -ffree-form -fno-range-check
-FFLAGS = -O3 -cpp -ffree-form -ffree-line-length-512 -fno-range-check
+#FFLAGS = -O3 -cpp -ffree-form -ffree-line-length-512 -fno-range-check
+FFLAGS = -O3 -cpp -ffree-form
 
 # Linux
 LGF = gfortran-14
@@ -36,18 +37,21 @@ WLDLIBS32 =
 WLDLIBS64 =
 
 # Darwin
-DGF = gfortran-mp-15
-DGF32 = $(DGF) -D__32BIT__ -m32
-DGF64 = $(DGF) -D__64BIT__ -m64
-DGFA64 = $(DGF) -D__64BIT__ -m64
-DGFFLAGS = -std=legacy -fallow-invalid-boz -fPIC $(FFLAGS)
-DLD32 = $(DGF32)
+#DGF = gfortran-mp-15
+DGF = flang-mp-22
+#DGF32 = $(DGF) -D__32BIT__ -m32 -specs=darwin-32bit.specs
+DGF64 = $(DGF) -D__64BIT__
+DGFA64 = $(DGF) -D__64BIT__
+#DGFFLAGS = -std=legacy -fallow-invalid-boz -fPIC $(FFLAGS)
+DGFFLAGS = -fPIC $(FFLAGS)
+#DLD32 = $(DGF32)
 DLD64 = $(DGF64)
-DLDA64 = $(DGF64)
-DLDFLAGS = -bundle -flat_namespace -undefined suppress $(FFLAGS)
-DLDLIBS32 = -static-libgfortran
-DLDLIBS64 = -static-libgfortran
-DLDLIBSA64 = -static-libgfortran
+DLDA64 = $(DGFA64)
+#DLDFLAGS = -static -static-libgfortran -bundle -flat_namespace $(FFLAGS)
+DLDFLAGS = $(FFLAGS) -shared
+#DLDLIBS32 =
+DLDLIBS64 =
+DLDLIBSA64 =
 
 # these source files ...
 SRCS = image_lib.f # ...
@@ -59,13 +63,16 @@ LIB = image_lib
 #
 # there are three platforms (Linux, Windows and Darwin)
 # and two word-sizes (32 and 64 bit)
-word-sizes = 32bit 64bit
 ifeq ($(OS),Darwin)
-# and on MacOS also M1/M2/M3/... aka arm64
-word-sizes += arm64
+ifeq ($(MACH),arm64)
+word-sizes = arm64
+else
+word-sizes = 64bit
+endif
 int-suffs = do
 out-suffs = dylib
 else
+word-sizes = 32bit 64bit
 int-suffs = lo wo
 out-suffs = so dll
 endif
@@ -114,9 +121,9 @@ clean:
 	$(call trace,[Windows 64bit] Compiling $^ ...)
 	@$(WGF64) $(WGFFLAGS) -c -o $@ $^
 
-%.32bit.do: %.f
-	$(call trace,[Darwin 32bit] Compiling $^ ...)
-	@$(DGF32) $(DGFFLAGS) -c -o $@ $^
+#%.32bit.do: %.f
+#	$(call trace,[Darwin 32bit] Compiling $^ ...)
+#	@$(DGF32) $(DGFFLAGS) -c -o $@ $^
 
 %.64bit.do: %.f
 	$(call trace,[Darwin 64bit] Compiling $^ ...)
@@ -144,9 +151,9 @@ $(DESTDIR)$(LIB).64bit.dll: $(SRCS:.f=.64bit.wo)
 	$(call trace,[Windows 64bit] Linking $@ ...)
 	@$(WLD64) $(WLDFLAGS) -o $@ $^ $(WLDLIBS64)
 
-$(DESTDIR)$(LIB).32bit.dylib: $(SRCS:.f=.32bit.do)
-	$(call trace,[Darwin 32bit] Linking $@ ...)
-	@$(DLD32) $(DLDFLAGS) -o $@ $^ $(DLDLIBS32)
+#$(DESTDIR)$(LIB).32bit.dylib: $(SRCS:.f=.32bit.do)
+#	$(call trace,[Darwin 32bit] Linking $@ ...)
+#	@$(DLD32) $(DLDFLAGS) -o $@ $^ $(DLDLIBS32)
 
 $(DESTDIR)$(LIB).64bit.dylib: $(SRCS:.f=.64bit.do)
 	$(call trace,[Darwin 64bit] Linking $@ ...)
