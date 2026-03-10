@@ -3158,8 +3158,10 @@ pro plot_mark, pstate, include=include, compress=compress, wide=wide, xoff=xoff,
 	if n_elements(wide) eq 0 then wide=0
 
 	Write_XOR = 6
+	Write_over = 3
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, get_graphics_function = oldg, set_graphics_function = Write_XOR		; XOR mode for shapes
+		write_mode = ((*pstate).corr_on eq 1) and ptr_good((*pstate).qc) ? Write_XOR : Write_over
+		device, get_graphics_function = oldg, set_graphics_function = write_mode	; XOR mode for shapes with Corr
 	endif
 
 	if include or ( (*pstate).analyze_mode eq 1) then begin
@@ -3237,7 +3239,8 @@ more:
 
 done:
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, set_graphics_function = oldg
+		Write_over = 3
+		device, set_graphics_function = Write_over
 	endif
 	return
 end
@@ -4668,12 +4671,13 @@ pro tv_q_mask, pq, nx,ny,zoom, col
 
 	Write_OR = 7
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, get_graphics_function = oldg, set_graphics_function = Write_OR
+		device, get_graphics_function = oldg, set_graphics_function = Write_OR	; OR over hash pattern
 	endif
 	tv, pattern
 
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, set_graphics_function = oldg
+		Write_over = 3
+		device, set_graphics_function = Write_over
 	endif
 return
 end

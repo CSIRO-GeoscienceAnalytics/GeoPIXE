@@ -33,9 +33,12 @@ if ptr_valid( (*p).Image ) eq 0 then return
 ; Set-up a 3D byte array for True colour image.
 ; Fill it with selected RGB colour maps.
 
+if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
+	Write_over = 3
+	device, set_graphics_function = Write_over
+endif
+
 wset, (*pstate).wid2
-device, get_graphics_function = oldg
-print,'RGB: device, get_graphics_function:', oldg
 
 b = make_RGB_true( pstate)
 ;erase

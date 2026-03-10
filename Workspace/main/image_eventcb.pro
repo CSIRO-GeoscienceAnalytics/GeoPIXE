@@ -20,6 +20,7 @@ if ptr_valid( (*pstate).ptype) then ptr_free, (*pstate).ptype
 (*pstate).ptype = ptr_new( (*pstate).analyze_type[(*pstate).analyze_mode])
 notify, 'image-analyze-type', (*pstate).ptype, from=event.top
 
+notify, 'image-analyze-mark'
 notify, 'image-analyze-all-clear', from=event.top
 end
 
@@ -36,6 +37,7 @@ if ptr_valid( (*pstate).qc) then ptr_free, (*pstate).qc
 draw_images, pstate
 
 notify, 'image-corr-clear', from=event.top
+notify, 'image-analyze-mark', from=event.top			; to clear on RGB
 end
 
 ;-----------------------------------------------------------------
@@ -6033,6 +6035,7 @@ snap_done:
        analyze_image, pstate
        notify, 'image-results', from=event.top
        notify, 'image-corr-q', (*pstate).qc, from=event.top
+	   notify, 'image-analyze-mark', from=event.top			; to update on RGB
        end
 
     'corr-analyze-clear': begin       ; returned from 'corr' to clear pixels inside spline

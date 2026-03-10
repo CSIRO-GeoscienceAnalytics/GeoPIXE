@@ -154,7 +154,8 @@ case possible[ event.type] of
 			plots,[ls-ds,ls+ds],[ls,ls],/device,color=spec_colour('white')
 			plots,[ls,ls],[ls-ds,ls+ds],/device,color=spec_colour('white')
 			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-				device, set_graphics_function = oldg
+				Write_over = 3
+				device, set_graphics_function = Write_over
 			endif
 
 ;			Do we need to offset the box to avoid the viewport limits ...
@@ -474,7 +475,8 @@ motion_on:
 			plots,[ls-ds,ls+ds],[ls,ls],/device,color=spec_colour('white')
 			plots,[ls,ls],[ls-ds,ls+ds],/device,color=spec_colour('white')
 			if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-				device, set_graphics_function = oldg
+				Write_over = 3
+				device, set_graphics_function = Write_over
 			endif
 
 ;			Copy copy of view in 'pix' to clear 'wid2'
