@@ -1,4 +1,5 @@
 OS := $(shell uname -s)
+MACH := $(shell uname -m)
 NF := $(findstring n,$(MAKEFLAGS))
 trace = $(if $(NF),,@echo "$(1)")
 
