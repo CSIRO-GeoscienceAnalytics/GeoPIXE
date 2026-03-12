@@ -1784,7 +1784,7 @@ endelse
 	if (ny1 lt 0) then goto, bad_index
 	if ny1 le top0 then begin
 		yfiles[ny1:top0] = 1
-		itag[ny1:top0] = n-1							; extend last to top
+		itag[ny1:top0] = ext[n-1]						; extend last to top
 	endif
 	for i=n-2,0,-1 do begin
 		j = long(ext[i])
@@ -1792,7 +1792,8 @@ endelse
 		ny2 = (*pYlut)[jlast] < top0
 		if ny2 ge ny1 then begin
 			yfiles[ny1:ny2] = 1
-			itag[ny1:ny2] = i							; index to files[]
+;			itag[ny1:ny2] = i							; index to files[]
+			itag[ny1:ny2] = j							; index to ext[]
 		endif
 		jlast = j
     endfor
@@ -1830,7 +1831,13 @@ endelse
 	q = where( yfiles2 and (ymask eq 1), nq)
 	if nq eq 0 then goto, bad_files
 	for i=0L,nq-1 do begin
-		fmask[ itag2[q[i]] : itag2[ (q[i]+1) < top ] ] = 1	; flags file indices needed
+		for j=q[i],(q[i]+1)<top do begin
+			q2 = where( ext eq itag2[j], nq2)			; this 'ext' is needed
+			if nq2 ne 0 then begin
+				fmask[q2] = 1							; all files with this 'ext'
+			endif
+		endfor
+;		fmask[ itag2[q[i]] : itag2[ (q[i]+1) < top ] ] = 1	; flags file indices needed
 	endfor
     
 	q = where(fmask eq 1, nq)

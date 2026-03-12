@@ -35,6 +35,12 @@ if eventname eq 'WIDGET_TIMER' then begin
     event.id = event.handler
     return, event
 endif
+
+if (event.type eq 3) or (event.type eq 4) then begin	; 'expose' event
+	state_button_realize, event.handler
+	return, 0
+endif
+
 ;									press	release
 ; type 0 'press'      	'left'		  1		  1
 ;      1 'release'      'right' 	  4		  4
@@ -444,8 +450,10 @@ q = where(contrast3 gt 1.42*contrast0, nq)
 if nq gt 0 then label_colours[q] = colours[3]
 
   if !version.os_family eq 'unix' then begin
-    retain=2
+  	expose = 1				; 0
+    retain = 0				; 2
   endif else begin
+  	expose = 0
     retain=1
   endelse
 
@@ -454,7 +462,7 @@ tlb = widget_base( parent, uname=uname, uvalue=uvalue, $
          pro_set_value='state_button_set', func_get_value='state_button_get', $
          xoffset=xoff, yoffset=yoff, _extra=extra)
 
-drawID = widget_draw( tlb, xsize=xsize, ysize=ysize, retain=retain, $
+drawID = widget_draw( tlb, xsize=xsize, ysize=ysize, retain=retain, expose=expose, $
 		/button_events, tracking=tracking)
 
 state = {   select:     initial, $       ; current select state
