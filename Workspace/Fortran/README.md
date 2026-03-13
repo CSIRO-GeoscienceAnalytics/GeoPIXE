@@ -22,11 +22,26 @@ as a failing build) - so the latest version was used instead, version 15.
 
 ## Linux
 
-TBA ...
+Currently built on Ubuntu 24.04 using gcc14.
+
+I installed these packages:
+* gfortran-14 
+* gcc-14-locales 
+* cpp-14-doc 
+* gcc-14-multilib 
+* gcc-14-doc 
+* gfortran-14-multilib 
+* gfortran-14-doc
+then ran `make all` (builds both linux and windows libs)
 
 ## Windows
 
-TBA ...
+The windows libs can be built on Linux via the MinGW packages.
+
+I installed these packages:
+* mingw-w64
+* gfortran-mingw-w64 
+then ran `make all` (builds both linux and windows libs)
 
 ## MacOS
 

@@ -4671,7 +4671,7 @@ pro tv_q_mask, pq, nx,ny,zoom, col
 
 	Write_OR = 7
 	if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
-		device, get_graphics_function = oldg, set_graphics_function = Write_OR	; OR over hash pattern
+		device, get_graphics_function = oldg, set_graphics_function = Write_OR	; OR mode for hash pattern
 	endif
 	tv, pattern
 

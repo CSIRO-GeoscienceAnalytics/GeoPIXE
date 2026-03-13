@@ -39,6 +39,8 @@ if (!d.name eq 'WIN') or (!d.name eq 'X') or (!d.name eq 'Z') then begin
 endif
 
 wset, (*pstate).wid2
+device, get_graphics_function = oldg
+print,'RGB: graphics function=',oldg
 
 b = make_RGB_true( pstate)
 ;erase
