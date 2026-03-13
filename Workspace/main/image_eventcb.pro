@@ -5302,7 +5302,9 @@ endif else begin
 	endcase
 endelse
 
-if n_elements(F) lt 1 then begin
+if n_elements(F) gt 0 then begin
+    ipath = extract_path( F[0])
+endif else begin
     file = find_file2( (*pstate).file)
     path = extract_path( file[0])
     if lenchr(path) eq 0 then path = *(*pstate).path
@@ -5319,7 +5321,7 @@ if n_elements(F) lt 1 then begin
 
     F = file_requester( /write, filter = '*.html', fix_filter=1, path=path, $
        title='Write a details HTML file (and TIFF files)', file = file, dialog_parent=event.top)
-endif
+endelse
 if F ne '' then begin
 
 ;   This uses an old 'element_select' modal popup
