@@ -63,7 +63,7 @@ SUBROUTINE geopixe_lib_version_b( version)
 
 INTEGER*4 version
 
-version = 54
+version = 55
 return
 end
 
@@ -173,7 +173,7 @@ INTEGER*1 bev(0:3)
 logical first
 parameter (n_mon_buff = 20000)
 INTEGER*1 mon_buff(0:n_mon_buff-1)
-Integer*2 ldone, rdone, ldone2, rdone2
+Integer*2 ldone, rdone, ldone2, rdone2, xy_on
 REAL*4 dtsum, raw, dwell_last, dwell_first
 integer*4 xlast, ylast, xlastp, ylastp
 
@@ -2038,7 +2038,7 @@ INTEGER_ARCH argc, argv(*)
 integer*4 remain, x0_last, y0_last, z0_last, tcount
 integer*4 stats_type, stats_ovf, jbuff, i
 INTEGER*1 bev(0:3)
-Integer*2 ldone, rdone, ldone2, rdone2, busym
+Integer*2 ldone, rdone, ldone2, rdone2, busym, xy_on
 integer*4 u0_last, v0_last, w0_last, fc0, fc1, fc2, fc3, icr, raw, busy, icrm, rawm
 real*4 dwell_last
 
@@ -2050,6 +2050,7 @@ common /c_fx_8/ fc0, fc1, fc2, fc3, u0_last, v0_last, w0_last
 common /c_fx_9/ icr, raw
 common /c_fx_10/ busy
 common /c_fx_11/ icrm(0:15), rawm(0:15), busym(0:15)
+common /c_fx_13/ xy_on
 
 jbuff = 0
 remain = 0
@@ -2057,6 +2058,7 @@ ldone = 1
 rdone = 1
 ldone2 = 1
 rdone2 = 1
+xy_on = 0
 x0_last = 0
 y0_last = 0
 z0_last = 0
@@ -2162,6 +2164,564 @@ e = tev
 f = remain
 
 return
+end
+
+!-------------------------------------------------------------------------------
+
+integer function falconx_events5( argc, argv)
+
+!DLL_EXPORT falconx_events5
+INTEGER_ARCH argc, argv(*)
+
+j = LOC(argc)
+if(j.lt.39) then 		         ! needed # args
+	falconx_events5 = 1
+	return
+endif
+
+call falconx_events5_b( %val(argv(1)), %val(argv(2)), %val(argv(3)), &
+	 %val(argv(4)), %val(argv(5)), %val(argv(6)), %val(argv(7)), &
+	 %val(argv(8)), %val(argv(9)), %val(argv(10)), %val(argv(11)), %val(argv(12)), &
+	 %val(argv(13)), %val(argv(14)), %val(argv(15)), %val(argv(16)), &
+	 %val(argv(17)), %val(argv(18)), %val(argv(19)), %val(argv(20)), &
+	 %val(argv(21)), %val(argv(22)), %val(argv(23)), %val(argv(24)), &
+	 %val(argv(25)), %val(argv(26)), %val(argv(27)), %val(argv(28)), %val(argv(29)), %val(argv(30)), &
+	 %val(argv(31)), %val(argv(32)), %val(argv(33)), %val(argv(34)), %val(argv(35)), %val(argv(36)), &
+	 %val(argv(37)), %val(argv(38)), %val(argv(39)) )
+
+falconx_events5 = 0
+return
+end
+
+!-------------------------------------------------------------------------------
+!
+! First Version of falconx_events for FalconX List-mode, after additions for flux.
+!
+!	xy_correct			0 normal, 1 Y encoder advance mode (only in X margins)
+!	xmargin 			pixel X margin boundary width
+!	width				width of scan needed for Y encoder mode
+!					number of detector channels (spectrum mode) ???
+!
+!	flux_mode	0		-- not used? --		fx index 0		selected FCn
+!			1		FC0 h/w				 1		FC0
+!			2		FC1 h/w				 2		FC1
+!			3		FC2 h/w				 3		Dwell
+!			4		FC3 h/w				 4		lost counts
+!									 5		raw counts
+
+SUBROUTINE falconx_events5_b( ev,n_buffer, channel_on,nc, e,t,x,y,z,u,v,w,ste,veto,tags,n_events,n, &
+		fx,n_fx, flux_mode, swap_icr_raw, x0,y0,z0,u0,v0,w0, xy_correct,xmargin,width, &
+		ibranch,swap, tag,length,skip, bad,idebug, version,tick )
+
+! assumes that n_buffer IS divisable by 4
+! assume that n_fx is 4 (at least, for: DT, FC0, FC1, Dwell)
+
+INTEGER*4 i,j,k,l,m,n,nb,nc, n_buffer, n_max, jbuff, err
+INTEGER*8 dev
+INTEGER*4 n_events, n_fx, flux_mode, version, as_version, si_version, swap_icr_raw, xy_correct, xmargin, width
+INTEGER*4 length, len2, skip, bad, swap, idebug
+REAL*4 fx(0:n_fx-1,0:n_events-1), tick
+
+INTEGER*2 tag, ibranch, x0,y0,z0,u0,v0,w0
+INTEGER*2 e(0:n_events-1), t(0:n_events-1), x(0:n_events-1), y(0:n_events-1), z(0:n_events-1), u(0:n_events-1), v(0:n_events-1)
+INTEGER*2 ste(0:n_events-1), tags(0:n_events-1), channel_on(0:nc-1), veto(0:n_events-1), w(0:n_events-1)
+INTEGER*1 ev(0:n_buffer-1), bev(0:3)
+LOGICAL incomplete
+
+INTEGER*4 data_type_mask, data_type_offset
+INTEGER*4 clock1_length, gstats1_length, position_length, spatial1_length, periodic_length
+INTEGER*4 gate1_length, error_length, pulse1_length, pulse2_length
+INTEGER*4 pulse1_valid_mask, pulse1_valid_offset, pulse1_energy_mask, pulse1_energy_offset
+INTEGER*4 pulse1_adr_offset, pulse1_adr_mask
+INTEGER*4 pulse2_toa_mask
+INTEGER*4 position_type_mask, position_type_offset, position_data_mask, spatial1_rate_bit
+INTEGER*4 spatial1_type_mask, spatial1_type_offset, spatial1_data_mask, spatial1_rate_mask
+INTEGER*4 spatial1_sample_msb_offset, spatial1_rate_offset
+INTEGER*4 spatial1_sample_countl_type, spatial1_sample_countm_type
+INTEGER*4 error_type_mask, error_type_offset, error_analogue_status_type, error_overflow_type
+INTEGER*4 error_saturate_mask, error_saturate_offset, error_time_stamp_mask
+
+INTEGER*2 pulse1_data_type, pulse2_data_type, position_data_type, spatial1_data_type, error_data_type
+
+INTEGER*4 position_axis0_type, position_axis1_type, position_axis2_type, position_axis3_type 
+INTEGER*4 position_axis4_type, position_axis5_type, spatial1_sample_msb_mask
+INTEGER*4 spatial1_time_stamp_type, spatial1_erasure_count_type, spatial1_raw_icr_type, spatial1_est_icr_type
+INTEGER*4 spatial1_generic_count1_type, spatial1_generic_count2_type, spatial1_generic_count3_type, spatial1_generic_count4_type
+INTEGER*4 pa_sign_bit_mask4, pa_sign_extend
+
+! NOTE: for now the "E" value is defined as top 13 bits of 24 bit 'amplitude' (for raw FalconX data)
+!       for AS/XFM data, this will be shifted down 4 bits, so E becomes top 13 bits of 20 bit data. 
+
+parameter (data_type_mask = z'F0000000', data_type_offset=-28)
+parameter (pulse1_data_type=0, pulse2_data_type=1, position_data_type=12, spatial1_data_type=11, error_data_type=15)
+parameter (pulse1_valid_mask = z'08000000', pulse1_valid_offset = -27, spatial1_data_mask = z'00FFFFFF')
+parameter (pulse2_toa_mask = z'000FFFFF')
+parameter (position_type_mask =	z'0F000000', position_type_offset = -24, position_data_mask = z'00FFFFFF')
+parameter (spatial1_type_mask = z'0F000000', spatial1_type_offset = -24)
+parameter (spatial1_sample_msb_offset = 24)
+parameter (spatial1_sample_countl_type = 0, spatial1_sample_countm_type = 1)
+parameter (error_type_mask = z'0F000000', error_type_offset = -24, error_analogue_status_type = 0, error_overflow_type = 1)
+parameter (error_saturate_mask = z'000C0000', error_saturate_offset = -18, error_time_stamp_mask = z'00FFFFFF')
+parameter (pa_sign_bit_mask4 = z'00800000', pa_sign_extend = z'FF000000')
+
+! Version 0.6.0 (use A postfix) --> SI version 600
+
+INTEGER*4 pulse1_energy_maskA, pulse1_energy_offsetA, pulse1_adr_offsetA, pulse1_adr_maskA
+INTEGER*4 position_lengthA, spatial1_lengthA, spatial1_rate_maskA, spatial1_sample_msb_maskA
+INTEGER*4 position_axis0_typeA, position_axis1_typeA, position_axis2_typeA, position_axis3_typeA 
+INTEGER*4 position_axis4_typeA, position_axis5_typeA, spatial1_rate_bitA
+INTEGER*4 spatial1_time_stamp_typeA, spatial1_erasure_count_typeA
+INTEGER*4 spatial1_est_icr_typeA, spatial1_raw_icr_typeA, spatial1_rate_offsetA
+INTEGER*4 spatial1_generic_count1_typeA, spatial1_generic_count2_typeA, spatial1_generic_count3_typeA, spatial1_generic_count4_typeA
+
+parameter (position_lengthA = 7, spatial1_lengthA = 9, spatial1_sample_msb_maskA = z'000000FF')
+parameter (pulse1_energy_maskA = z'00FFF800', pulse1_energy_offsetA = -11)
+parameter (pulse1_adr_offsetA = 0, pulse1_adr_maskA = 0, spatial1_rate_maskA = z'00FFFFFF')
+parameter (position_axis0_typeA = 0, position_axis1_typeA = 1, position_axis2_typeA = 2, position_axis3_typeA = 3)
+parameter (position_axis4_typeA = 4, position_axis5_typeA = 5, spatial1_rate_bitA = z'00000000')
+parameter (spatial1_erasure_count_typeA = 2, spatial1_raw_icr_typeA = 14, spatial1_rate_offsetA = 0)
+parameter (spatial1_generic_count1_typeA = 4, spatial1_generic_count2_typeA = 5, spatial1_generic_count3_typeA = 6)
+parameter (spatial1_est_icr_typeA = 3, spatial1_generic_count4_typeA = 7, spatial1_time_stamp_typeA = 15)
+
+! Version 0.8.1 (use B postfix) --> version 801
+
+INTEGER*4 position_lengthB, spatial1_lengthB
+INTEGER*4 gate1_lengthB, error_lengthB, pulse1_lengthB, pulse2_lengthB, spatial1_sample_msb_maskB
+INTEGER*4 position_axis0_typeB, position_axis1_typeB, position_axis2_typeB, position_axis3_typeB 
+INTEGER*4 position_axis4_typeB, position_axis5_typeB
+INTEGER*4 spatial1_time_stamp_typeB, spatial1_erasure_count_typeB, spatial1_est_icr_typeB, spatial1_raw_icr_typeB
+INTEGER*4 spatial1_generic_count1_typeB, spatial1_generic_count2_typeB, spatial1_generic_count3_typeB, spatial1_generic_count4_typeB
+
+parameter (position_lengthB = 7, spatial1_lengthB = 12, spatial1_sample_msb_maskB = z'000000FF')
+parameter (gate1_lengthB = 1, error_lengthB = 1, pulse1_lengthB = 1, pulse2_lengthB = 1)
+parameter (position_axis0_typeB = 0, position_axis1_typeB = 1, position_axis2_typeB = 2, position_axis3_typeB = 3)
+parameter (position_axis4_typeB = 4, position_axis5_typeB = 5)
+parameter (spatial1_erasure_count_typeB = 2, spatial1_est_icr_typeB = 4, spatial1_raw_icr_typeB = 5)
+parameter (spatial1_generic_count1_typeB = 6, spatial1_generic_count2_typeB = 7, spatial1_generic_count3_typeB = 8)
+parameter (spatial1_generic_count4_typeB = 9, spatial1_time_stamp_typeB = 15)
+
+! Version 0.8.7 (use C postfix) --> version 807, increased 'spatial1_length' from 11 to 12, and added test of tag bits
+
+INTEGER*4 position_lengthC, spatial1_lengthC
+INTEGER*4 gate1_lengthC, error_lengthC, pulse1_lengthC, pulse2_lengthC, spatial1_sample_msb_maskC
+INTEGER*4 position_axis0_typeC, position_axis1_typeC, position_axis2_typeC, position_axis3_typeC 
+INTEGER*4 position_axis4_typeC, position_axis5_typeC
+INTEGER*4 spatial1_time_stamp_typeC, spatial1_erasure_count_typeC, spatial1_est_icr_typeC, spatial1_raw_icr_typeC
+INTEGER*4 spatial1_generic_count1_typeC, spatial1_generic_count2_typeC, spatial1_generic_count3_typeC, spatial1_generic_count4_typeC
+
+parameter (position_lengthC = 7, spatial1_lengthC = 12, spatial1_sample_msb_maskC = z'00FFFFFF')
+parameter (gate1_lengthC = 1, error_lengthC = 1, pulse1_lengthC = 1, pulse2_lengthC = 1)
+parameter (position_axis0_typeC = 0, position_axis1_typeC = 1, position_axis2_typeC = 2, position_axis3_typeC = 3)
+parameter (position_axis4_typeC = 4, position_axis5_typeC = 5)
+parameter (spatial1_erasure_count_typeC = 2, spatial1_est_icr_typeC = 4, spatial1_raw_icr_typeC = 5)
+parameter (spatial1_generic_count1_typeC = 6, spatial1_generic_count2_typeC = 7, spatial1_generic_count3_typeC = 8)
+parameter (spatial1_generic_count4_typeC = 9, spatial1_time_stamp_typeC = 15)
+
+! Version AS/XFM (use P postfix) --> AS version 100
+!			increased 'spatial1_length' from 12 to 74 to allow up to 16 detectors
+!			reduced OCR, ICR mask to 19 bits, cater for LSB, MSB and 4 'adr' bits
+!			erased, saturated, veto only using single word for now.
+
+INTEGER*4 pulse1_energy_maskP, pulse1_energy_offsetP, pulse1_adr_offsetP, pulse1_adr_maskP
+INTEGER*4 spatial1_rate_maskP, spatial1_rate_bitP, spatial1_lengthP, spatial1_adr_maskP, spatial1_rate_offsetP
+
+parameter (pulse1_energy_maskP = z'000FFF80', pulse1_energy_offsetP = -7, spatial1_rate_bitP = z'00080000')
+parameter (pulse1_adr_offsetP = -20, pulse1_adr_maskP = z'00F00000', spatial1_rate_maskP = z'0007FFFF')
+parameter (spatial1_lengthP = 74, spatial1_adr_maskP = z'00F00000', spatial1_rate_offsetP = 19)
+
+! --------------
+
+INTEGER*4 tx, ty, tz, tt, tev, tcount
+integer*4 remain, x0_last, y0_last, z0_last, u0_last, v0_last, w0_last, fc0, fc1, fc2, fc3
+integer*4 stats_type, stats_ovf, icr, raw, busy, icrm, rawm
+real*4 dwell_last
+
+INTEGER*2 de, dtag, pdf, adr, busym
+integer*2 ldone, rdone, xy_on
+
+common /c_fx_1/ jbuff, bev, remain
+common /c_fx_4/ ldone, rdone, ldone2, rdone2
+common /c_fx_6/ dwell_last
+common /c_fx_7/ x0_last, y0_last, z0_last, stats_type, stats_ovf, tcount
+common /c_fx_8/ fc0, fc1, fc2, fc3, u0_last, v0_last, w0_last
+common /c_fx_9/ icr, raw
+common /c_fx_10/ busy
+common /c_fx_11/ icrm(0:15), rawm(0:15), busym(0:15)
+common /c_fx_13/ xy_on
+equivalence (bev(0), tev)
+
+as_version = version / 1000			! AS version part (truncate off SI part)
+si_version = version - 1000*as_version		! SI version part
+
+if(si_version.ge.807) then
+	position_length = position_lengthC
+	spatial1_length = spatial1_lengthC 
+	spatial1_sample_msb_mask = spatial1_sample_msb_maskC
+	position_axis0_type = position_axis0_typeC
+	position_axis1_type = position_axis1_typeC
+	position_axis2_type = position_axis2_typeC
+	position_axis3_type = position_axis3_typeC
+	position_axis4_type = position_axis4_typeC
+	position_axis5_type = position_axis5_typeC
+	spatial1_est_icr_type = spatial1_est_icr_typeC
+	spatial1_raw_icr_type = spatial1_raw_icr_typeC
+	spatial1_erasure_count_type = spatial1_erasure_count_typeC
+	spatial1_generic_count1_type = spatial1_generic_count1_typeC
+	spatial1_generic_count2_type = spatial1_generic_count2_typeC
+	spatial1_generic_count3_type = spatial1_generic_count3_typeC
+	spatial1_generic_count4_type = spatial1_generic_count4_typeC
+	spatial1_est_icr_type = spatial1_est_icr_typeC
+	spatial1_time_stamp_type = spatial1_time_stamp_typeC 
+else if(si_version.ge.801) then
+	position_length = position_lengthB 
+	spatial1_length = spatial1_lengthB 
+	spatial1_sample_msb_mask = spatial1_sample_msb_maskB
+	position_axis0_type = position_axis0_typeB
+	position_axis1_type = position_axis1_typeB
+	position_axis2_type = position_axis2_typeB
+	position_axis3_type = position_axis3_typeB
+	position_axis4_type = position_axis4_typeB
+	position_axis5_type = position_axis5_typeB
+	spatial1_est_icr_type = spatial1_est_icr_typeB
+	spatial1_raw_icr_type = spatial1_raw_icr_typeB
+	spatial1_erasure_count_type = spatial1_erasure_count_typeB
+	spatial1_generic_count1_type = spatial1_generic_count1_typeB
+	spatial1_generic_count2_type = spatial1_generic_count2_typeB
+	spatial1_generic_count3_type = spatial1_generic_count3_typeB
+	spatial1_generic_count4_type = spatial1_generic_count4_typeB
+	spatial1_est_icr_type = spatial1_est_icr_typeB
+	spatial1_time_stamp_type = spatial1_time_stamp_typeB 
+else
+	position_length = position_lengthA 
+	spatial1_length = spatial1_lengthA
+	spatial1_sample_msb_mask = spatial1_sample_msb_maskA
+	position_axis0_type = position_axis0_typeA
+	position_axis1_type = position_axis1_typeA
+	position_axis2_type = position_axis2_typeA
+	position_axis3_type = position_axis3_typeA
+	position_axis4_type = position_axis4_typeA
+	position_axis5_type = position_axis5_typeA
+	spatial1_est_icr_type = spatial1_est_icr_typeA
+	spatial1_raw_icr_type = spatial1_raw_icr_typeA
+	spatial1_erasure_count_type = spatial1_erasure_count_typeA
+	spatial1_generic_count1_type = spatial1_generic_count1_typeA
+	spatial1_generic_count2_type = spatial1_generic_count2_typeA
+	spatial1_generic_count3_type = spatial1_generic_count3_typeA
+	spatial1_generic_count4_type = spatial1_generic_count4_typeA
+	spatial1_est_icr_type = spatial1_est_icr_typeA
+	spatial1_time_stamp_type = spatial1_time_stamp_typeA 
+endif
+
+if(as_version.ge.100) then
+	pulse1_energy_mask = pulse1_energy_maskP
+	pulse1_energy_offset = pulse1_energy_offsetP
+	pulse1_adr_offset = pulse1_adr_offsetP
+	pulse1_adr_mask = pulse1_adr_maskP
+	spatial1_rate_mask = spatial1_rate_maskP
+	spatial1_rate_bit = spatial1_rate_bitP
+	spatial1_length = spatial1_lengthP
+	spatial1_rate_offset = spatial1_rate_offsetP
+else
+	pulse1_energy_mask = pulse1_energy_maskA
+	pulse1_energy_offset = pulse1_energy_offsetA
+	pulse1_adr_offset = pulse1_adr_offsetA
+	pulse1_adr_mask = pulse1_adr_maskA
+	spatial1_rate_mask = spatial1_rate_maskA
+	spatial1_rate_bit = spatial1_rate_bitA
+	spatial1_length = spatial1_lengthA
+	spatial1_rate_offset = spatial1_rate_offsetA
+endif
+
+if(n_fx.lt.6) return
+n_max = n_events
+n = 0
+i = 0
+nm = 0
+goto (10,20,30,10,10,10,10,10,10,100), ibranch
+
+10  call get_fx( ev, i, n_buffer, bev, 4, jbuff, incomplete, swap, err)
+	if(incomplete.or.(err.eq.1)) return          ! first long word (get_fx advances 'i' +4)
+	
+	tag = ishft( iand( tev, data_type_mask), data_type_offset)
+
+11	if(tag.eq.pulse1_data_type) then		! Pulse 1 event
+
+		pdf = ishft( iand( tev, pulse1_valid_mask ), pulse1_valid_offset )	! invalid
+		de = ishft( iand( tev, pulse1_energy_mask ), pulse1_energy_offset )	! energy
+		adr = ishft( iand( tev, pulse1_adr_mask), pulse1_adr_offset)		! channel
+
+		if((pdf.eq.0).and.(de.gt.0).and.(adr.ge.0).and.(adr.lt.nc)) then
+			if((channel_on(adr).eq.1).and.(n.lt.n_events)) then
+				x(n) = x0
+				y(n) = y0
+				z(n) = z0
+				u(n) = u0
+				v(n) = v0
+				w(n) = w0
+				e(n) = de
+				t(n) = 0
+				ste(n) = adr
+				tags(n) = pdf				! hijack "tags" to monitor valid bit
+				veto(n) = 0
+				do k=0,n_fx-1
+					fx(k,n) = 0.0
+				enddo
+				n = n+1
+			endif
+		endif
+
+		skip = 0
+		goto 100
+	endif
+
+	if(tag.eq.position_data_type) then		! position event
+		length = (position_length-1)*4						! remaining length
+		remain = length
+
+		x0_last = x0
+		x0 = iand( tev, position_data_mask )					! x
+
+		ibranch = 2
+		goto 20
+	endif
+
+	if(tag.eq.spatial1_data_type) then		! spatial event
+		length = (spatial1_length-1) *4
+		remain = length
+
+		tcount = iand( tev, spatial1_data_mask)					! sample LSB
+
+		ibranch = 3
+		goto 30
+	endif
+
+	if(tag.eq.error_data_type) then			! error1 event
+
+		tx = ishft( iand( tev, error_type_mask ), error_type_offset )		! type
+		if(tx.eq.error_analogue_status_type) then
+			tt = ishft( iand( tev, error_saturate_mask), error_saturate_offset )	! saturation (not used from 0.8.1)
+			bad = bad + 1								! sat'n data now in stats
+			idebug = 1000 + tt
+		else if(tx.eq.error_overflow_type) then
+			tt = iand( tev, error_time_stamp_mask)					! overflow
+			bad = bad + 1
+			idebug = 1000
+		endif
+
+		skip = 0
+		goto 100
+	endif
+
+	skip = 0					! skip done already for 1 word (in get_fx)
+
+100	if(i+skip.gt.n_buffer-1) then			! skip unwanted data
+		skip = (i+skip) - n_buffer
+		ibranch = 10
+!		idebug = 91
+		return
+	endif
+	i = i+skip
+	ibranch = 1
+	goto 10
+
+!...................................................................................
+!   Process the 'position' event ...
+
+20	if(remain.le.0) then                 	     ! skip insufficient data
+!		i = i+remain
+		ibranch = 1
+		if(remain.ne.0) idebug = 92
+		goto 10
+	endif
+
+!   Process payload data (encoder) ...
+
+	call get_fx( ev, i, n_buffer, bev, 4, jbuff, incomplete, swap, err)
+	if(incomplete.or.(err.eq.1)) return 
+
+	tag = ishft( iand( tev, data_type_mask), data_type_offset)
+	if(tag.ne.position_data_type) goto 11						! not a position event
+
+	tx = ishft( iand( tev, position_type_mask ), position_type_offset )		! type
+	if( iand(tx,pa_sign_bit_mask4).ne.0) tx = ior(tx,pa_sign_extend)
+
+	if(tx.eq.position_axis1_type) then
+		y0_last = y0
+		ty = iand( tev, position_data_mask )					! y
+
+		if(xy_correct.eq.1) then
+			if((x0.lt.xmargin).and.(x0.ge.0)) then
+				if((ty.ge.0).and.(ty.le.2)) then
+					if(xy_on.eq.0) then
+						y0 = ty
+						xy_on = 1
+						ldone = 1
+						rdone = 0
+					endif
+				endif
+				if(xy_on.eq.1) then
+					if(ldone.eq.0) y0 = y0+1
+					ldone = 1
+					rdone = 0
+				endif
+			else if((x0.gt.width-1-xmargin).and.(x0.lt.width)) then
+				if((ty.ge.0).and.(ty.le.2)) then
+					if(xy_on.eq.0) then
+						y0 = ty
+						xy_on = 1
+						ldone = 0
+						rdone = 1
+					endif
+				endif
+				if(xy_on.eq.1) then
+					if(rdone.eq.0) y0 = y0+1
+					ldone = 0
+					rdone = 1
+				endif
+			else if((x0.lt.width-1-xmargin-1).and.(x0.gt.xmargin+1)) then
+				rdone = 0
+				ldone = 0						
+			endif
+		else
+			y0 = ty
+		endif
+
+	else if(tx.eq.position_axis2_type) then
+		z0_last = z0
+		z0 = iand( tev, position_data_mask )					! z
+
+	else if(tx.eq.position_axis3_type) then
+		u0_last = u0
+		u0 = iand( tev, position_data_mask )					! u
+
+	else if(tx.eq.position_axis4_type) then
+		v0_last = v0
+		v0 = iand( tev, position_data_mask )					! v
+
+	else if(tx.eq.position_axis5_type) then
+		w0_last = w0
+		w0 = iand( tev, position_data_mask )					! w
+	endif	
+	remain = remain-4
+	goto 20
+
+!...................................................................................
+!   Process the 'spatial' event ...
+
+30	if(remain.le.0) then                 	     ! skip insufficient data
+!		i = i+remain
+		ibranch = 1
+		if(remain.ne.0) idebug = 93
+		goto 10
+	endif
+
+!   Process payload data (stats)...
+
+	call get_fx( ev, i, n_buffer, bev, 4, jbuff, incomplete, swap, err)
+	if(incomplete.or.(err.eq.1)) return 
+
+	tag = ishft( iand( tev, data_type_mask), data_type_offset)
+	if(tag.ne.spatial1_data_type) goto 11						! not a spatial event
+
+	tx = ishft( iand( tev, spatial1_type_mask ), spatial1_type_offset )		! type
+
+	if(tx.eq.spatial1_sample_countm_type) then
+!		tcount = ior( tcount, ishft( iand( tev, spatial1_sample_msb_mask), spatial1_sample_msb_offset))  ! samples 
+		dwell_last = tcount * tick
+		tcount = iand( tev, spatial1_sample_msb_mask)				! samples 
+		dwell_last = dwell_last + tcount * tick * 2.**spatial1_sample_msb_offset
+
+	else if(tx.eq.spatial1_generic_count1_type) then
+		fc0 = iand( tev, spatial1_data_mask)					! FC0
+
+	else if(tx.eq.spatial1_generic_count2_type) then
+		fc1 = iand( tev, spatial1_data_mask)					! FC1
+
+	else if(tx.eq.spatial1_generic_count3_type) then
+		fc2 = iand( tev, spatial1_data_mask)					! FC2
+
+	else if(tx.eq.spatial1_generic_count4_type) then
+		fc3 = iand( tev, spatial1_data_mask)					! FC3
+
+	else if(tx.eq.spatial1_est_icr_type) then
+		adr = ishft( iand( tev, pulse1_adr_mask), pulse1_adr_offset)
+		m = iand( tev, spatial1_rate_bit)
+		if((adr.ge.0).and.(adr.lt.15)) then
+			j = iand( tev, spatial1_rate_mask)				! ICR (estimated ICR count)
+			if(m.ne.0) j = ishft( j, spatial1_rate_offset)
+			icrm(adr) = ior( icrm(adr), j)
+			busym(adr) = 1
+		endif
+
+	else if(tx.eq.spatial1_raw_icr_type) then
+		adr = ishft( iand( tev, pulse1_adr_mask), pulse1_adr_offset)
+		m = iand( tev, spatial1_rate_bit)
+		if((adr.ge.0).and.(adr.lt.15)) then
+			j = iand( tev, spatial1_rate_mask)				! Raw (actual OCR count)
+			if(m.ne.0) j = ishft( j, spatial1_rate_offset)
+			rawm(adr) = ior( rawm(adr), j)
+			busym(adr) = 1
+		endif
+
+	else if(tx.eq.spatial1_time_stamp_type) then					! following assumes 'time stamp' record comes last
+
+		do k=0,15
+		    if((n.lt.n_events).and.((k.eq.0).or.(busym(k).eq.1))) then
+			do j=0,n_fx-1
+				fx(j,n) = 0.0
+			enddo
+			x(n) = x0_last	
+			y(n) = y0_last							! add a pseudo event
+			z(n) = z0_last							! for previous pixel address
+			u(n) = u0_last
+			v(n) = v0_last
+			w(n) = w0_last
+			e(n) = 0
+			t(n) = 0
+			tags(n) = 0
+			veto(n) = 1							! a pseudo event for counters, losses
+			if(k.eq.0) then
+				if(flux_mode.eq.1) fx(0,n) = fc0
+				if(flux_mode.eq.2) fx(0,n) = fc1
+				if(flux_mode.eq.3) fx(0,n) = fc2
+				if(flux_mode.eq.4) fx(0,n) = fc3
+				fx(1,n) = fc0
+				fx(2,n) = fc1
+				if(dwell_last.gt.0) then
+					fx(3,n) = dwell_last				! dwell (ms), assumes 4 ns clock
+				endif
+			endif
+			if(busym(k).eq.1) then
+				ste(n) = k
+				if(swap_icr_raw.eq.1) then
+					if(icrm(k).ge.rawm(k)) then					! normal ICR, RAW
+						if(rawm(k).gt.0) then
+							fx(4,n) = float(icrm(k)) - float(rawm(k))	! lost counts
+							fx(5,n) = float(rawm(k))			! raw (OCR counts weight)
+						endif
+					endif
+					if(rawm(k).gt.icrm(k)) then					! swapped ICR, RAW
+						if(icrm(k).gt.0) then
+							fx(4,n) = float(rawm(k)) - float(icrm(k))	! lost counts
+							fx(5,n) = float(icrm(k))			! raw (OCR counts weight)
+						endif
+					endif
+				else
+					if(rawm(k).gt.0) then
+						fx(4,n) = float(icrm(k)) - float(rawm(k))	! lost counts
+						fx(5,n) = float(rawm(k))			! raw (OCR counts weight)
+					endif
+				endif
+			endif
+			busym(k) = 0
+			rawm(k)= 0
+			icrm(k) = 0
+			n = n+1
+		    endif
+		enddo
+	endif
+	remain = remain-4
+	goto 30
 end
 
 !-------------------------------------------------------------------------------
