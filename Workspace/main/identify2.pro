@@ -135,52 +135,52 @@ endcase
 
 case !version.os_family of
 	'MacOS': begin
-		small_table_x = 199
-		small_table_y = 141				; 190
-		large_table_x = 428
-		large_table_y = 215				; 240
-		xoff = 12
-		yoff = 91						; 125
-		table_minx = 220
-		table_miny = 145
-		width_off = 10
-		height_off = 32					; 52
-		large_slider_width = 220
-		small_slider_width = 70
-		large_drop_width = 160
-		small_drop_width = 60
+		small_table_x = 199 *(*pstate).sxy
+		small_table_y = 141 *(*pstate).sxy				; 190
+		large_table_x = 428 *(*pstate).sxy
+		large_table_y = 215 *(*pstate).sxy				; 240
+		xoff = 12 *(*pstate).sxy
+		yoff = 91 *(*pstate).sxy						; 125
+		table_minx = 220 *(*pstate).sxy
+		table_miny = 145 *(*pstate).sxy
+		width_off = 10 *(*pstate).sxy
+		height_off = 32 *(*pstate).sxy					; 52
+		large_slider_width = 220 *(*pstate).sxy
+		small_slider_width = 70 *(*pstate).sxy
+		large_drop_width = 160 *(*pstate).sxy
+		small_drop_width = 60 *(*pstate).sxy
 		end
 	'unix': begin
-		small_table_x = 199
-		small_table_y = 95				; 144
-		large_table_x = 428
-		large_table_y = 195				; 220
-		xoff = 12
-		yoff = 106						; 140
-		table_minx = 190
-		table_miny = 145
-		width_off = 10
-		height_off = 43					; 63
-		large_slider_width = 220
-		small_slider_width = 70
-		large_drop_width = 160
-		small_drop_width = 60
+		small_table_x = 199 *(*pstate).sxy
+		small_table_y = 95 *(*pstate).sxy				; 144
+		large_table_x = 428 *(*pstate).sxy
+		large_table_y = 195 *(*pstate).sxy				; 220
+		xoff = 12 *(*pstate).sxy
+		yoff = 106 *(*pstate).sxy						; 140
+		table_minx = 190 *(*pstate).sxy
+		table_miny = 145 *(*pstate).sxy
+		width_off = 10 *(*pstate).sxy
+		height_off = 43 *(*pstate).sxy					; 63
+		large_slider_width = 220 *(*pstate).sxy
+		small_slider_width = 70 *(*pstate).sxy
+		large_drop_width = 160 *(*pstate).sxy
+		small_drop_width = 60 *(*pstate).sxy
 		end
 	else: begin
-		small_table_x = 199
-		small_table_y = 141				; 190
-		large_table_x = 428
-		large_table_y = 215				; 240
-		xoff = 10
-		yoff = 91						; 125
-		table_minx = 220
-		table_miny = 145
-		width_off = 10
-		height_off = 32					; 52
-		large_slider_width = 220
-		small_slider_width = 70
-		large_drop_width = 160
-		small_drop_width = 60
+		small_table_x = 199 *(*pstate).sxy
+		small_table_y = 141 *(*pstate).sxy				; 190
+		large_table_x = 428 *(*pstate).sxy
+		large_table_y = 215 *(*pstate).sxy				; 240
+		xoff = 10 *(*pstate).sxy
+		yoff = 91 *(*pstate).sxy						; 125
+		table_minx = 220 *(*pstate).sxy
+		table_miny = 145 *(*pstate).sxy
+		width_off = 10 *(*pstate).sxy
+		height_off = 32 *(*pstate).sxy					; 52
+		large_slider_width = 220 *(*pstate).sxy
+		small_slider_width = 70 *(*pstate).sxy
+		large_drop_width = 160 *(*pstate).sxy
+		small_drop_width = 60 *(*pstate).sxy
 		end
 endcase
 
@@ -193,9 +193,9 @@ case uname of
 			h = (event.y - yoff) > table_miny
 ;			print,w,h
 			widget_control, (*pstate).list, scr_xsize=w, scr_ysize=h
-			widget_control, (*pstate).thresh, scr_xsize=w+12
-			widget_control, (*pstate).help, scr_xsize=w+6-25
-			(*pstate).whelp[0] = w+6
+			widget_control, (*pstate).thresh, scr_xsize=w+12 *(*pstate).sxy
+			widget_control, (*pstate).help, scr_xsize=w+(6-25) *(*pstate).sxy
+			(*pstate).whelp[0] = w+6 *(*pstate).sxy
 
 			widget_control, (*pstate).base1, scr_xsize=w+width_off
 			widget_control, (*pstate).base1, scr_ysize=h+height_off
@@ -260,8 +260,8 @@ case uname of
 		widget_control, b1, map = 0
 		widget_control, b2, map = 1
 
-		widget_control, b1, scr_xsize = 100
-		widget_control, b1, scr_ysize = 100
+		widget_control, b1, scr_xsize = 100 *(*pstate).sxy
+		widget_control, b1, scr_ysize = 100 *(*pstate).sxy
 		widget_control, b2, scr_xsize = x2
 		widget_control, b2, scr_ysize = y2
 		end
@@ -588,6 +588,7 @@ pro identify2, group_leader=group, TLB=tlb, _extra=extra, xoffset=xoffset, yoffs
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
+common c_geopixe_scaling, sxy
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -628,44 +629,44 @@ detector_title = ['---   none   ---',detector_title]
   case !version.os_family of
 	'MacOS': begin
 		fnt = 'COURIER*BOLD*10'
-		large_table_x = 453
-		large_table_y = 240
-		large_slider_width = 220
-		large_drop_width = 160
-		large_drop_width2 = 160
-		space5 = 2
-		space10 = 5
-		texty = 21
-		list_xsize = 280
-		xw = 0
+		large_table_x = 453 *sxy
+		large_table_y = 240 *sxy
+		large_slider_width = 220 *sxy
+		large_drop_width = 160 *sxy
+		large_drop_width2 = 160 *sxy
+		space5 = 2 *sxy
+		space10 = 5 *sxy
+		texty = 21 *sxy
+		list_xsize = 280 *sxy
+		xw = 0 *sxy
 		ysize_help = 3
 		end
 	'unix': begin
 		fnt = '6x10'
-		large_table_x = 453
-		large_table_y = 220
-		large_slider_width = 220
-		large_drop_width = 160
-		large_drop_width2 = 170
-		space5 = 1
-		space10 = 0
-		texty = 29
-		list_xsize = 270
-		xw = 5
+		large_table_x = 453 *sxy
+		large_table_y = 220 *sxy
+		large_slider_width = 220 *sxy
+		large_drop_width = 160 *sxy
+		large_drop_width2 = 170 *sxy
+		space5 = 1 *sxy
+		space10 = 0 *sxy
+		texty = 29 *sxy
+		list_xsize = 270 *sxy
+		xw = 5 *sxy
 		ysize_help = 3
 		end
 	else: begin
 		fnt = 'COURIER*10'
-		large_table_x = 453
-		large_table_y = 214
-		large_slider_width = 220
-		large_drop_width = 160
-		large_drop_width2 = 160
-		space5 = 5
-		space10 = 8
-		texty = 21
-		list_xsize = 281
-		xw = 0
+		large_table_x = 453 *sxy
+		large_table_y = 214 *sxy
+		large_slider_width = 220 *sxy
+		large_drop_width = 160 *sxy
+		large_drop_width2 = 160 *sxy
+		space5 = 5 *sxy
+		space10 = 8 *sxy
+		texty = 21 *sxy
+		list_xsize = 281 *sxy
+		xw = 0 *sxy
 		ysize_help = 2
 		end
   endcase
@@ -698,12 +699,12 @@ tbase = widget_base( tlb, /column, xpad=0, ypad=0, space=0, /base_align_center)
 
 toggle = cw_bgroup2( tbase, ['Identify','Mark Element'], /row, $
 					/exclusive, /no_release, /return_index, /tracking, $
-					uname='TOGGLE', set_value=0, xpad=0, ypad=0, space=3, $
+					uname='TOGGLE', set_value=0, xpad=0, ypad=0, space=3 *sxy, $
 					uvalue='Select line identification or mark element lines')
 bbbase = widget_base( tlb, xpad=0, ypad=0, space=0)
 
 
-base1 = widget_base( bbbase, /column, map=1, /base_align_center, xpad=0, ypad=0, space=1, $
+base1 = widget_base( bbbase, /column, map=1, /base_align_center, xpad=0, ypad=0, space=1 *sxy, $
 				notify_realize='OnRealize_identify2_base1')
 
 s = xsort_list( 0.0001, list=xlist, /table)
@@ -716,30 +717,29 @@ set_bin_search,  xlist
 list = Widget_Table( base1, UNAME='LIST', /all_events, value=s, Notify_Realize='OnRealize_identify2_Table', $
 					/no_row_headers, column_widths=[9,4,7,8,9] * !d.x_ch_size, $
 					column_labels=['Energy','El','Line','Rel. Int','IUPAC'], $
-					/RESIZEABLE_COLUMNS, alignment=2, /tracking, scr_xsize=list_xsize, scr_ysize=300, $
-;					X_SCROLL_SIZE=7, Y_SCROLL_SIZE=6,	$		;	, font=fnt, $
+					/RESIZEABLE_COLUMNS, alignment=2, /tracking, scr_xsize=list_xsize, scr_ysize=300 *sxy, $
 					uvalue='Sorted X-ray table (energy, element, relative intensity, Siegbahn/IUPAC labels).' )
 
 
 thresh = cw_fslider2( base1, format='(f6.4)', minimum=0.0001, maximum=0.5, layout=1, $
-				value=0.0001, uname='THRESHOLD', xsize=list_xsize-58, /tracking, /edit, $
+				value=0.0001, uname='THRESHOLD', xsize=list_xsize-58 *sxy, /tracking, /edit, $
 				uvalue='Display only X-ray relative intensities above this level.')
 
 
-base2 = widget_base( bbbase, /column, map=0, xpad=1, ypad=0, space=1, /base_align_center)
+base2 = widget_base( bbbase, /column, map=0, xpad=1 *sxy, ypad=0, space=1, /base_align_center)
 
 ptable = periodic_table( base2, uname='PERIODIC', /tracking, /exclusive, n_states=2, /start_Li, $
 				uvalue='Periodic Table. Click on an element to view its markers on the spectrum.')
 
-check_base = widget_base( base2, xpad=2, ypad=0, space=5, /row, /base_align_bottom)
+check_base = widget_base( base2, xpad=2 *sxy, ypad=0, space=5 *sxy, /row, /base_align_bottom)
 zslide = widget_slider( check_base, minimum=1, maximum=103, /drag, /tracking, xsize=large_slider_width, $
 				uvalue='Select element X-ray lines by Z using this slider.', uname='ZSLIDE')
-element = widget_text( check_base, xsize=2, scr_ysize=texty, /editable, uname='ELEMENT', /tracking, $
+element = widget_text( check_base, xsize=2 *sxy, scr_ysize=texty, /editable, uname='ELEMENT', /tracking, $
 			uvalue='Currently marked element. Type a new one to mark lines.')
 lab = widget_label(check_base, value=' ')
 options = cw_bgroup2( check_base, ['K','L','M'], /row, set_value=[1,1,0], $
 				/return_index, uname='OPTIONS',/ nonexclusive, /tracking, $
-				uvalue='Enable X-ray lines by shell.', xpad=0, ypad=0, space=1)
+				uvalue='Enable X-ray lines by shell.', xpad=0, ypad=0, space=1 *sxy)
 
 filter_base = widget_base( base2, /row, map=1, /base_align_center, notify_realize='OnRealize_identify2_filter_base', $
 				ypad=0, xpad=0, space=space10)
@@ -753,12 +753,12 @@ detector_mode = widget_combobox( filter_base, value=detector_title, uname='detec
 					uvalue='Select the detector calibration to use to modify X-ray relative intensities.', xsize=large_drop_width2)
 
 
-Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=2, YPAD=0, /ROW, /base_align_center)
+Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=2 *sxy, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=list_xsize-26, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
+help = widget_text( Help_Base, scr_xsize=list_xsize-26 *sxy, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
 
-query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15 *sxy, ysize=20 *sxy,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = { element:	element, $
@@ -768,6 +768,7 @@ state = { element:	element, $
 	base2_xsize:	large_table_x, $		; X sizes of map bases
 	base1_ysize:	0, $					; Y sizes of map bases
 	base2_ysize:	large_table_y, $		; Y sizes of map bases
+	sxy:			sxy, $					; font scaling factor
 	toggle:			toggle, $				; mode toggle ID - line versus periodic table
 	mode:			0, $					; mode (0:list, 1:periodic table)
 	ptable:			ptable, $				; periodic table ID
@@ -795,8 +796,8 @@ state = { element:	element, $
 	pz:				ptr_new({z:0, e:ptr_new([0.0]), rel:ptr_new([0.0]) , shell:ptr_new([0]) }), $ ; pointer to lines for notify
 	shells:			[1,1,0] }				; shells on/off
 
-widget_control, base2, scr_xsize = 100
-widget_control, base2, scr_ysize = 100
+widget_control, base2, scr_xsize = 100 *sxy
+widget_control, base2, scr_ysize = 100 *sxy
 
 child = widget_info( tlb, /child)
 widget_control, child, set_uvalue=ptr_new(state, /no_copy)

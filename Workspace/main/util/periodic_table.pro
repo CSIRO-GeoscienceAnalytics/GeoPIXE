@@ -93,7 +93,7 @@ if n_elements(x) gt 0 then begin
 					widget_control, (*pstate).base2[tiny], scr_xsize=siz[0], scr_ysize=siz[1]
 
 					widget_control, (*pstate).base2[1-tiny], map=0
-					widget_control, (*pstate).base2[1-tiny], scr_xsize=100, scr_ysize=100
+					widget_control, (*pstate).base2[1-tiny], scr_xsize=100 *(*pstate).sxy, scr_ysize=100 *(*pstate).sxy
 				endif
 				end
 
@@ -109,7 +109,7 @@ if n_elements(x) gt 0 then begin
 					widget_control, (*pstate).base2[tiny], scr_xsize=siz[0], scr_ysize=siz[1]
 				endif else begin
 					widget_control, (*pstate).base2[tiny], map=0
-					widget_control, (*pstate).base2[tiny], scr_xsize=100, scr_ysize=100
+					widget_control, (*pstate).base2[tiny], scr_xsize=100 *(*pstate).sxy, scr_ysize=100 *(*pstate).sxy
 				endelse
 				end
 
@@ -207,6 +207,10 @@ function periodic_table, parent, tiny=tiny, no_tiny=no_tiny, exclusive=exclusive
 			legend=legend, start_Na=start_Na, start_Li=start_Li, $
 			no_ree=no_ree, colours=colours, _extra=extra
 
+common c_working_dir, geopixe_root
+common c_geopixe_scaling, sxy
+if n_elements(geopixe_root) lt 1 then startupp
+
 if n_elements(tiny) lt 1 then tiny=0
 if n_elements(no_tiny) lt 1 then no_tiny=0
 if n_elements(exclusive) lt 1 then exclusive=0
@@ -275,41 +279,41 @@ case !version.os_family of
 	'MacOS': begin
 		fnt1 = 'HELVETICA*9'
 		fnt2 = 'HELVETICA*BOLD*11'
-		spc = 0
-		spc_blank = 22
-		xs1 = 22		; normal
-		xse = 6
-		ys1 = 18
-		x21 = 10
-		xs2 = 9			; tiny
-		ys2 = 9
-		x22 = 1
+		spc = 0 *sxy
+		spc_blank = 22 *sxy
+		xs1 = 22 *sxy		; normal
+		xse = 6 *sxy
+		ys1 = 18 *sxy
+		x21 = 10 *sxy
+		xs2 = 9 *sxy			; tiny
+		ys2 = 9 *sxy
+		x22 = 1 *sxy
 		end
 	'unix': begin
 		fnt1 = '6x12'
 		fnt2 = '7x14'
-		spc = 1
-		spc_blank = 18
-		xs1 = 22		; normal
-		xse = 0
-		ys1 = 18
-		x21 = 10
-		xs2 = 9			; tiny
-		ys2 = 9
-		x22 = 1
+		spc = 1 *sxy
+		spc_blank = 18 *sxy
+		xs1 = 22 *sxy		; normal
+		xse = 0 *sxy
+		ys1 = 18 *sxy
+		x21 = 10 *sxy
+		xs2 = 9 *sxy			; tiny
+		ys2 = 9 *sxy
+		x22 = 1 *sxy
 		end
 	else: begin
 		fnt1 = 'ARIAL*12'
 		fnt2 = 'ARIAL*14'
-		spc = 1
-		spc_blank = 18
-		xs1 = 22		; normal
-		xse = 0
-		ys1 = 18
-		x21 = 10
-		xs2 = 9			; tiny
-		ys2 = 9
-		x22 = 1
+		spc = 1 *sxy
+		spc_blank = 18 *sxy
+		xs1 = 22 *sxy		; normal
+		xse = 0 *sxy
+		ys1 = 18 *sxy
+		x21 = 10 *sxy
+		xs2 = 9 *sxy			; tiny
+		ys2 = 9 *sxy
+		x22 = 1 *sxy
 		end
 endcase
 
@@ -406,14 +410,14 @@ m = 0
 				k = k+1
 			endif else begin
 				if (i eq 17) and (j eq 6) then begin
-					track[itiny] = widget_label( base2[itiny], scr_xsize=18, $
-						scr_ysize=14, font=fnt2, value=' ')
+					track[itiny] = widget_label( base2[itiny], scr_xsize=18 *sxy, $
+						scr_ysize=14 *sxy, font=fnt2, value=' ')
 				endif else if (i eq 16) and (j eq 6) then begin
-					blank[k] = widget_base( base2[itiny], scr_xsize=x2[itiny], scr_ysize=14)
+					blank[k] = widget_base( base2[itiny], scr_xsize=x2[itiny], scr_ysize=14 *sxy)
 					k = k+1
 				endif else begin
 					y = ys[itiny]
-					if j eq 6 then y=14
+					if j eq 6 then y=14 *sxy
 					blank[k] = widget_base( base2[itiny], xsize=xs[itiny], ysize=y )
 					k = k+1
 				endelse
@@ -439,7 +443,8 @@ state = { 	id:id, $					; widget ID's of all element buttons
 			allow: allow, $				; allow size change
 			xs:xs, $
 			ys:ys, $
-			x2:x2 $						; sizes
+			x2:x2, $					; sizes
+			sxy: sxy $					; font scaling factor
 	}
 
 child = widget_info( tlb, /child)
