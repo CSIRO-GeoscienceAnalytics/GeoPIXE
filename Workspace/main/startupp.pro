@@ -39,6 +39,7 @@ COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_working_dir2, geopixe_database_path
 common c_geopixe_adcs, geopixe_max_adcs
+common c_geopixe_scaling, sxy
 common c_errors_1, catch_errors_on
 common c_debug_warnings, enable_warning_popup
 if n_elements(error) eq 1 then catch_errors_on = error
@@ -181,6 +182,9 @@ loop:
 		if found then restore, file
 	endif
 	
+	sxy = graphics_y_scale()
+	warning,'Startupp','Y Scale factor = '+str_tidy(sxy, places=2)
+
 	if colours then begin
 		loadct,5, bottom=16, ncolors=100		; 100 colours for images
 		load_spec_colours						; bottom 16 colours for spectra and plots
