@@ -211,14 +211,17 @@ case !version.os_family of
 	'MacOS': begin
 		source_xsize = 45
 		axes_xsize = 365
+		encoder_xsize = 220
 		end
 	'unix': begin
 		source_xsize = 45
 		axes_xsize = 365
+		encoder_xsize = 220
 		end
 	else: begin
 		source_xsize = 45
 		axes_xsize = 305
+		encoder_xsize = 220
 		end
 endcase
 
@@ -232,6 +235,12 @@ self->BASE_DEVICE::render_options, parent
 falconxmode_base = widget_base( parent, /column,  space=3, xpad=0, ypad=0, /base_align_center, $
 		event_func='falconx_device_sort_option_event', uvalue=self, uname='obj-ref-here')
 lab = widget_label( falconxmode_base, value='FalconX Option Parameters')
+
+falconxybase = widget_base( falconxmode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
+
+falconx_yenable = widget_combobox( falconxybase, value=['Off','Encoder axis 1 correction'], uname='encoder-xy-correction', /tracking, $
+					notify_realize='OnRealize_falconx_device_sort_option_xy_correction',xsize=encoder_xsize,  $
+					uvalue='a) Enable correction of encoder noise on axis 1 to keep within scan line (axis 1 only increments within the axis 0 border margin) ')
 
 falconxtbase = widget_base( falconxmode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 lab = widget_label( falconxtbase, value='Slowest motor axis (for YLUT):')
@@ -462,6 +471,47 @@ end
 
 ;------------------------------------------------------------------------------------------
 
+pro OnRealize_falconx_device_sort_option_xy_correction, wWidget
+
+COMPILE_OPT STRICTARR
+common c_errors_1, catch_errors_on
+if n_elements(catch_errors_on) lt 1 then catch_errors_on=1
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'OnRealize_falconx_device_sort_option_xy_correction',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+	ObjBase = find_id( wWidget, uname='obj-ref-here')
+	if widget_info(ObjBase, /valid) eq 0L then begin
+		print,'OnRealize_falconx_device_sort_option_xy_correction: Object base not found.'
+		return
+	endif
+	widget_control, ObjBase, get_uvalue=obj
+	if obj_valid(obj) eq 0L then begin
+		print,'OnRealize_falconx_device_sort_option_xy_correction: Device Object ref not found.'
+		return
+	endif
+
+	options = obj->get_options()
+	
+	widget_control, wWidget, set_combobox_select=options.encoder_y_correct
+	return
+end
+
+;------------------------------------------------------------------------------------------
+;
 pro OnRealize_falconx_device_sort_option_x_source, wWidget
 
 COMPILE_OPT STRICTARR
@@ -630,6 +680,9 @@ case tag_names( event,/structure) of
 		
 		uname = widget_info( event.id, /uname)
 		case uname of
+			'encoder-xy-correction': begin
+				obj->set_options, encoder_y_correct = event.index
+				end
 			'falconx-slow': begin
 				obj->set_options, slowest = event.index
 				end
@@ -674,7 +727,7 @@ end
 ; "write_options" methods. Keep a local copy of device parameters and set them using
 ; "set_options". The keywords here are only used internally in FalconX device.
 
-pro falconx_device::set_options, p, $
+pro falconx_device::set_options, p, encoder_y_correct=encoder_y_correct, $
 				clear_x=clear_x, clear_y=clear_y, clear_z=clear_z, $			; x_margin=x_margin
 				source_x=source_x, source_y=source_y, source_z=source_z, $
 				slowest=slowest, flip_icr_raw=flip_icr_raw
@@ -708,6 +761,7 @@ endif
 	endif
 
 	if n_elements(falconx) eq 1 then begin
+		if tag_present('ENCODER_Y_CORRECT',falconx) then self.sort_options.encoder_y_correct = falconx.encoder_y_correct
 		if tag_present('SLOW_AXIS',falconx) then self.sort_options.slow_axis = falconx.slow_axis
 		if tag_present('CLEAR',falconx) then begin
 			if tag_present('X',falconx.clear) then self.sort_options.clear.x = falconx.clear.x
@@ -724,6 +778,7 @@ endif
 		endif
 		if tag_present('VERSION',falconx) then self.sort_options.version = falconx.version
 	endif else begin
+		if n_elements(encoder_y_correct) eq 1 then self.sort_options.encoder_y_correct = encoder_y_correct
 		if n_elements(slowest) eq 1 then self.sort_options.slow_axis = slowest
 		if n_elements(clear_x) eq 1 then self.sort_options.clear.x = clear_x
 		if n_elements(clear_y) eq 1 then self.sort_options.clear.y = clear_y
@@ -737,6 +792,7 @@ endif
 	; Set value of widgets. There may be multiple sort option panels attached to this object, so
 	; we use 'widget_control_vector' to set all of them.
 	
+	widget_control_vector, self.sort_id.yenable, set_combobox_select = self.sort_options.encoder_y_correct
 	widget_control_vector, self.sort_id.slow, set_combobox_select = self.sort_options.slow_axis
 	widget_control_vector, self.sort_id.clear_x, set_combobox_select = self.sort_options.clear.x
 	widget_control_vector, self.sort_id.clear_y, set_combobox_select = self.sort_options.clear.y
@@ -822,6 +878,7 @@ endif
 ; Get current defaults in this device
 
 	options = self->get_options()
+	encoder_y_correct = options.encoder_y_correct
 	clear_x = options.clear.x
 	clear_y = options.clear.y
 	clear_z = options.clear.z
@@ -840,7 +897,7 @@ endif
 		si_version = version					; with the original header write
 		version = -1
 	endif else begin
-		q = where( version eq [-1,-2,-3], nq)
+		q = where( version eq [-1,-2,-3,-4], nq)
 		if nq eq 0 then goto, bad_io
 
 		if version le -2 then readu, unit, si_version
@@ -850,7 +907,7 @@ endif
 	
 	clear_x = clip(clear_x,0,19)
 	clear_y = clip(clear_y,0,19)
-	
+
 	if self.use_version then begin
 		if version le -1 then begin
 			readu, unit, source
@@ -864,6 +921,9 @@ endif
 		if version le -3 then begin
 			readu, unit, flip_icr_raw
 		endif
+		if version le -4 then begin
+			readu, unit, encoder_y_correct
+		endif
 	endif
 	
 	clear_z = clip(clear_z,0,19)
@@ -871,6 +931,7 @@ endif
 	
 ; Write back these options parameters to the device ...
 
+	options.encoder_y_correct = encoder_y_correct
 	options.clear.x = clear_x
 	options.clear.y = clear_y
 	options.clear.z = clear_z
@@ -938,7 +999,7 @@ endif
 		endelse
 	endelse
 	
-	version = -3L	
+	version = -4L	
 	on_ioerror, bad_io
 	writeu, unit, version
 	writeu, unit, options.version
@@ -948,6 +1009,7 @@ endif
 	writeu, unit, options.clear.z
 	writeu, unit, options.slow_axis
 	writeu, unit, options.flip.icr_raw
+	writeu, unit, options.encoder_y_correct
 	error = 0
 	return
 	
@@ -1006,6 +1068,9 @@ endif
 	list = ['FalconX:' ] 
 	list = [list, '   Slowest axis used for YLUT: ' + str_tidy(options.slow_axis) ]
 	list = [list, '   Axes: X: ' + str_tidy(options.source.x) + ', Y: ' + str_tidy(options.source.y) + ', Z: ' + str_tidy(options.source.z) ]
+	if options.encoder_y_correct eq 1 then begin
+		list = [list, '   Encoder axis 1 correction active' ]
+	endif
 	list = [list, '   Clear margins X: ' + str_tidy(options.clear.x) + ', Y: ' + str_tidy(options.clear.y) + ', Z: ' + str_tidy(options.clear.z) ]
 	list = [list, '   Flip (swap) ICR-RAW: ' + str_tidy(options.flip.icr_raw) ]
 
@@ -1467,13 +1532,24 @@ COMPILE_OPT STRICTARR
 		
 	ok = self.header.scan.use_ylut
 	if ok eq 0 then return, ok
+	ok2 = 1
 	ok3 = 1
 	
+;	If the Y encoder correction upsets cluster processing, then use this ...
+;	If absolute Y values available from Fortran even in stripe mode, then don't ...
+
+	case self.sort_options.encoder_y_correct of
+		1: begin
+			ok2 = 0
+;			if self.sort_options.slow_axis eq 1 then ok2=0
+			end
+		else:
+	endcase
 ;	If the cluster stripes and Y windowing both mixed up in 'DA_evt', then use this ...
 
 	if self.sort_options.source.y ne self.sort_options.slow_axis then ok3=0
 
-	return, ok and ok3
+	return, ok and ok2 and ok3
 end
 
 ;-------------------------------------------------------------------
@@ -2333,6 +2409,44 @@ common c_sandia_7, adc, tag, k_adc
 			n_events = n_elements(falconx_e)
 			n_fx = n_elements(falconx_fx[*,0])
 		endelse
+
+		width = 0
+		height = 0
+		clear_0 = 0
+		clear_1 = 0
+		case self.sort_options.source.z of
+			0: begin
+				clear_0 = self.sort_options.clear.z
+				width = falconx_z_range
+				end
+			1: begin
+				clear_1 = self.sort_options.clear.z
+				height = falconx_z_range
+				end
+			else:
+		endcase
+		case self.sort_options.source.y of
+			0: begin
+				clear_0 = self.sort_options.clear.y
+				width = falconx_y_range
+				end
+			1: begin
+				clear_1 = self.sort_options.clear.y
+				height = falconx_y_range
+				end
+			else:
+		endcase
+		case self.sort_options.source.x of
+			0: begin
+				clear_0 = self.sort_options.clear.x
+				width = falconx_x_range
+				end
+			1: begin
+				clear_1 = self.sort_options.clear.x
+				height = falconx_x_range
+				end
+			else:
+		endcase
 		n = 0L
 		nm = 0L
 		good = 0L
@@ -2358,10 +2472,26 @@ common c_sandia_7, adc, tag, k_adc
 			endelse
 		endif
 
-		err = FalconX_events4( event_array,n_actual, channel_on,nc, falconx_e,falconx_t,falconx_0,falconx_1,falconx_2, $
-				falconx_3,falconx_4,falconx_5, falconx_ste,falconx_veto,falconx_tags,n_events,n, $
-				falconx_fx,n_fx, falconx_flux_mode, self.sort_options.flip.icr_raw, x0,y0,z0,u0,v0,w0, ibranch,falconx_swap, $
-				tag,length,skip, bad_xy,debug, self.sort_options.version )
+		if geopixe_lib_version() lt 55 then begin
+			if self.sort_options.encoder_y_correct eq 1 then begin
+				err = 1
+				gprint,level=2,'falconx_device::read_buffer: Y Encoder mode requies new Fortran lib 55 with FalconX_events5'
+				gprint,level=2,'falconx_device::read_buffer: abort
+				gprint,level=2,'---------------------------------------------------------------------'
+				goto, bad_io
+			endif
+
+			err = FalconX_events4( event_array,n_actual, channel_on,nc, falconx_e,falconx_t,falconx_0,falconx_1,falconx_2, $
+					falconx_3,falconx_4,falconx_5, falconx_ste,falconx_veto,falconx_tags,n_events,n, $
+					falconx_fx,n_fx, falconx_flux_mode, self.sort_options.flip.icr_raw, x0,y0,z0,u0,v0,w0, ibranch,falconx_swap, $
+					tag,length,skip, bad_xy,debug, self.sort_options.version )
+		endif else begin
+			err = FalconX_events5( event_array,n_actual, channel_on,nc, falconx_e,falconx_t,falconx_0,falconx_1,falconx_2, $
+					falconx_3,falconx_4,falconx_5, falconx_ste,falconx_veto,falconx_tags,n_events,n, $
+					falconx_fx,n_fx, falconx_flux_mode, self.sort_options.flip.icr_raw, x0,y0,z0,u0,v0,w0, $
+					self.sort_options.encoder_y_correct, clear_0, width, $
+					ibranch,falconx_swap, tag,length,skip, bad_xy,debug, self.sort_options.version )
+		endelse
 
 		nsls_debug = debug
 		if err ne 0 then begin
@@ -2725,7 +2855,7 @@ endif
 
 	self.options.scan.on = 1		; scan sort options available for this class
 									; these must be set-up in the render_options method
-	self.options.scan.ysize = 200	; Y size of sort options box, when open
+	self.options.scan.ysize = 220	; Y size of sort options box, when open
 
 ; Set default Sort Options local parameters ...
 
@@ -2740,6 +2870,7 @@ endif
 
 ; Initial heap allocation for sort_id widget vector pointers ...
 
+	self.sort_id.yenable = ptr_new(/allocate_heap)			; XY correct mode ID array pointer
 	self.sort_id.slow = ptr_new(/allocate_heap)				; Slowest axis droplist ID array pointer
 	self.sort_id.clear_x = ptr_new(/allocate_heap)			; Clear X border droplist ID array pointer
 	self.sort_id.clear_y = ptr_new(/allocate_heap)			; Clear X border droplist ID array pointer
@@ -2790,6 +2921,7 @@ falconx = { falconx_DEVICE,  $
 ;		when a new obj instance is used.
 
 		sort_options : {sort_options_devicespec_falconx, $	; Sort EVT window Sort options panel
+				encoder_y_correct:	0, $					; XY sort correction mode (0=ff, 1=encoder Y correct, 2=Filter XY +- glitches)
 				clear: {sort_options_clear_devicespec_falconx, $
 						x:			0, $					; width clear X borders in sort
 						y:			0, $					; width clear Y borders in sort
@@ -2804,7 +2936,8 @@ falconx = { falconx_DEVICE,  $
 				njson:		0L, $							; bytes in JSON header to skip
 				version:	0L }, $							; Listmode version number
 											
-		sort_id: {sort_id_falconx, $							; pointers to vector of sort widget IDs
+		sort_id: {sort_id_falconx, $						; pointers to vector of sort widget IDs
+				yenable:					ptr_new(), $	; XY correct mode ID array pointer
 				slow:						ptr_new(), $	; Slowest axis droplist ID array pointer
 				flip_icr_raw:				ptr_new(), $	; flip ICR and RAW values check-box ID array pointer
 				clear_x:					ptr_new(), $	; Clear X border droplist ID array pointer

@@ -5,6 +5,7 @@ function geopixe_library, version=version, force=force
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_geopixe_library_1, geopixe_library_file, geopixe_library_suffix
+common c_geopixe_library_2, geopixe_library_version
 common c_library_1, postfix, cdecl
 common c_library_2, prefix
 
@@ -38,6 +39,7 @@ find_lib = 0
 if n_elements(geopixe_library_file) lt 1 then begin
 	geopixe_library_file = ''
 	geopixe_library_suffix = ''
+	geopixe_library_version = 0
 	find_lib = 1
 endif
 if geopixe_library_file eq '' then find_lib = 1
@@ -197,6 +199,7 @@ err = call_external( geopixe_library_file, geolib_name( 'geopixe_lib_version'), 
 		version, value=value )
 
 if err then version=-1L
+geopixe_library_version = version
 version = strtrim(string(version),2) + geopixe_library_suffix
 
 return, geopixe_library_file
