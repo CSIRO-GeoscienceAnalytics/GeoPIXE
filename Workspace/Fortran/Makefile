@@ -65,6 +65,7 @@ word-sizes = arm64
 else
 word-sizes = 64bit
 endif
+all-word-sizes = arm64 64bit
 int-suffs = do
 out-suffs = dylib
 else
@@ -155,6 +156,6 @@ $(DESTDIR)$(LIB).arm64.dylib: $(SRCS:.f=.arm64.do)
 	$(call trace,[Darwin arm64] Linking $@ ...)
 	@$(DLDA64) $(DLDFLAGS) -o $@ $^ $(DLDLIBSA64) >$(notdir $@).errs 2>&1
 
-$(DESTDIR)$(LIB).dylib: $(foreach w,$(word-sizes),$(DESTDIR)$(LIB).$w.dylib)
+$(DESTDIR)$(LIB).dylib: $(foreach w,$(all-word-sizes),$(DESTDIR)$(LIB).$w.dylib)
 	$(call trace,[Darwin both] Linking $@ ...)
 	@lipo -create -output $@ $^ >$(notdir $@).errs 2>&1
