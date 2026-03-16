@@ -20,7 +20,7 @@ FLANG_FLAGS = -D__FLANG__
 
 # Linux
 LGF32 = gfortran $(GFORTRAN_FLAGS) -D__32BIT__ -m32
-LGF64 = flang-22 $(FLANG_FLAGS) -D__64BIT__ -m64
+LGF64 = gfortran $(GFORTRAN_FLAGS) -D__64BIT__ -m64
 LGFFLAGS = -fPIC $(FFLAGS)
 LLD32 = ld -m elf_i386
 LLD64 = ld -m elf_x86_64

@@ -30,16 +30,12 @@ generate good code, without needing the "kind" manipulations of `iand()`
 and `ior()` required by gfortran. However, it did not support 32bit code
 so 32bit support on Macos was removed.
 
-The same compiler was then also used for building Linux 64bit code.
-MingW has an LLVM version but it was fairly new and a suitable source of
-debian packages could not be found.
-
 This table summarises the current support:
 
 | O/S     | Arch  | Word Size | Built on | with Compiler    |
 | ------- | ----- | --------- | -------- | ---------------- |
 | Linux   | Intel | 32bit     | Linux    | gfortran         |
-| Linux   | Intel | 64bit     | Linux    | flang            |
+| Linux   | Intel | 64bit     | Linux    | gfortran         |
 | Windows | Intel | 32bit     | Linux    | gfortran (MingW) |
 | Windows | Intel | 64bit     | Linux    | gfortran (MingW) |
 | MacOS   | Intel | 64bit     | MacOS    | flang            |
