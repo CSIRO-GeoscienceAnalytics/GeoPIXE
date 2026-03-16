@@ -12,15 +12,16 @@ INSTDIR = /opt/geopixe/latest
 #FFLAGS = -O3 -cpp -ffree-form -ffree-line-length-512 -fno-range-check
 FFLAGS = -O3 -cpp -ffree-form
 
+# gfortran specific flags
+GFORTRAN_FLAGS = -D__GFORTRAN__ -std=legacy -fallow-invalid-boz -fsecond-underscore -ffree-line-length-512 -fno-range-check
+
+# flang specific flags
+FLANG_FLAGS = -D__FLANG__
+
 # Linux
-LGF = gfortran-14
-LGF32 = $(LGF) -D__32BIT__ -m32
-LGF64 = $(LGF) -D__64BIT__ -m64
-LGFFLAGS = -std=legacy -fallow-invalid-boz -fPIC -fsecond-underscore $(FFLAGS)
-#LLD32 = $(LGF) -m32
-#LLD64 = $(LGF) -m64
-#LLD32 = ld --oformat elf32-i386
-#LLD64 = ld --oformat elf64-x86-64
+LGF32 = gfortran $(GFORTRAN_FLAGS) -D__32BIT__ -m32
+LGF64 = flang-22 $(FLANG_FLAGS) -D__64BIT__ -m64
+LGFFLAGS = -fPIC $(FFLAGS)
 LLD32 = ld -m elf_i386
 LLD64 = ld -m elf_x86_64
 LLDFLAGS = -shared
@@ -28,29 +29,23 @@ LLDLIBS32 =
 LLDLIBS64 =
 
 # Windows
-WGF32 = i686-w64-mingw32-gfortran -D__32BIT__ -m32
-WGF64 = x86_64-w64-mingw32-gfortran -D__64BIT__ -m64
-WGFFLAGS = -std=legacy -fallow-invalid-boz -mdll $(FFLAGS)
-WLD32 = i686-w64-mingw32-gfortran -m32
-WLD64 = x86_64-w64-mingw32-gfortran -m64
+WGF32 = i686-w64-mingw32-gfortran $(GFORTRAN_FLAGS) -D__32BIT__ -m32
+WGF64 = x86_64-w64-mingw32-gfortran $(GFORTRAN_FLAGS) -D__GFORTRAN__ -D__64BIT__ -m64
+WGFFLAGS = -mdll $(FFLAGS)
+WLD32 = i686-w64-mingw32-gfortran -m32 $(GFORTRAN_FLAGS)
+WLD64 = x86_64-w64-mingw32-gfortran -m64 $(GFORTRAN_FLAGS)
 WLDFLAGS = -shared $(FFLAGS)
 WLDLIBS32 =
 WLDLIBS64 =
 
 # Darwin
-#DGF = gfortran-mp-15
-DGF = flang-mp-22
-#DGF32 = $(DGF) -D__32BIT__ -m32 -specs=darwin-32bit.specs
+DGF = flang-mp-22 $(FLANG_FLAGS)
 DGF64 = $(DGF) -D__64BIT__
 DGFA64 = $(DGF) -D__64BIT__
-#DGFFLAGS = -std=legacy -fallow-invalid-boz -fPIC $(FFLAGS)
 DGFFLAGS = -fPIC $(FFLAGS)
-#DLD32 = $(DGF32)
 DLD64 = $(DGF64)
 DLDA64 = $(DGFA64)
-#DLDFLAGS = -static -static-libgfortran -bundle -flat_namespace $(FFLAGS)
 DLDFLAGS = $(FFLAGS) -shared
-#DLDLIBS32 =
 DLDLIBS64 =
 DLDLIBSA64 =
 
@@ -101,69 +96,65 @@ install: all
 	@cp $(LIBS) $(INSTDIR)
 
 clean:
-	$(call trace,Cleaning intermediate files ...)
-	@rm -f $(OBJS)
+	$(call trace,Cleaning intermediate and log files ...)
+	@rm -f $(OBJS) *.errs
+
+fullclean: clean
+	$(call trace,Cleaning target files ...)
+	@rm -f $(LIBS)
 
 # rules for building intermediate files
 
 %.32bit.lo: %.f
 	$(call trace,[Linux 32bit] Compiling $^ ...)
-	@$(LGF32) $(LGFFLAGS) -c -o $@ $^
+	@$(LGF32) $(LGFFLAGS) -c -o $@ $^ >$@.errs 2>&1
 
 %.64bit.lo: %.f
 	$(call trace,[Linux 64bit] Compiling $^ ...)
-	@$(LGF64) $(LGFFLAGS) -c -o $@ $^
+	@$(LGF64) $(LGFFLAGS) -c -o $@ $^ >$@.errs 2>&1
 
 %.32bit.wo: %.f
 	$(call trace,[Windows 32bit] Compiling $^ ...)
-	@$(WGF32) $(WGFFLAGS) -c -o $@ $^
+	@$(WGF32) $(WGFFLAGS) -c -o $@ $^ >$@.errs 2>&1
 
 %.64bit.wo: %.f
 	$(call trace,[Windows 64bit] Compiling $^ ...)
-	@$(WGF64) $(WGFFLAGS) -c -o $@ $^
-
-#%.32bit.do: %.f
-#	$(call trace,[Darwin 32bit] Compiling $^ ...)
-#	@$(DGF32) $(DGFFLAGS) -c -o $@ $^
+	@$(WGF64) $(WGFFLAGS) -c -o $@ $^ >$@.errs 2>&1
 
 %.64bit.do: %.f
 	$(call trace,[Darwin 64bit] Compiling $^ ...)
-	@$(DGF64) $(DGFFLAGS) -c -o $@ $^
+	@$(DGF64) $(DGFFLAGS) -c -o $@ $^ >$@.errs 2>&1
 
 %.arm64.do: %.f
 	$(call trace,[Darwin arm64] Compiling $^ ...)
-	@$(DGFA64) $(DGFFLAGS) -c -o $@ $^
+	@$(DGFA64) $(DGFFLAGS) -c -o $@ $^ >$@.errs 2>&1
 
 # rules for building output files
 
 $(DESTDIR)$(LIB).32bit.so: $(SRCS:.f=.32bit.lo)
 	$(call trace,[Linux 32bit] Linking $@ ...)
-	@$(LLD32) $(LLDFLAGS) -o $@ $^ $(LLDLIBS32)
+	@$(LLD32) $(LLDFLAGS) -o $@ $^ $(LLDLIBS32) >$(notdir $@).errs 2>&1
 
 $(DESTDIR)$(LIB).64bit.so: $(SRCS:.f=.64bit.lo)
 	$(call trace,[Linux 64bit] Linking $@ ...)
-	@$(LLD64) $(LLDFLAGS) -o $@ $^ $(LLDLIBS64)
+	@$(LLD64) $(LLDFLAGS) -o $@ $^ $(LLDLIBS64) >$(notdir $@).errs 2>&1
 
 $(DESTDIR)$(LIB).32bit.dll: $(SRCS:.f=.32bit.wo)
 	$(call trace,[Windows 32bit] Linking $@ ...)
-	@$(WLD32) $(WLDFLAGS) -o $@ $^ $(WLDLIBS32)
+	@$(WLD32) $(WLDFLAGS) -o $@ $^ $(WLDLIBS32) >$(notdir $@).errs 2>&1
 
 $(DESTDIR)$(LIB).64bit.dll: $(SRCS:.f=.64bit.wo)
 	$(call trace,[Windows 64bit] Linking $@ ...)
-	@$(WLD64) $(WLDFLAGS) -o $@ $^ $(WLDLIBS64)
-
-#$(DESTDIR)$(LIB).32bit.dylib: $(SRCS:.f=.32bit.do)
-#	$(call trace,[Darwin 32bit] Linking $@ ...)
-#	@$(DLD32) $(DLDFLAGS) -o $@ $^ $(DLDLIBS32)
+	@$(WLD64) $(WLDFLAGS) -o $@ $^ $(WLDLIBS64) >$(notdir $@).errs 2>&1
 
 $(DESTDIR)$(LIB).64bit.dylib: $(SRCS:.f=.64bit.do)
 	$(call trace,[Darwin 64bit] Linking $@ ...)
-	@$(DLD64) $(DLDFLAGS) -o $@ $^ $(DLDLIBS64)
+	@$(DLD64) $(DLDFLAGS) -o $@ $^ $(DLDLIBS64) >$(notdir $@).errs 2>&1
 
 $(DESTDIR)$(LIB).arm64.dylib: $(SRCS:.f=.arm64.do)
 	$(call trace,[Darwin arm64] Linking $@ ...)
-	@$(DLDA64) $(DLDFLAGS) -o $@ $^ $(DLDLIBSA64)
+	@$(DLDA64) $(DLDFLAGS) -o $@ $^ $(DLDLIBSA64) >$(notdir $@).errs 2>&1
 
 $(DESTDIR)$(LIB).dylib: $(foreach w,$(word-sizes),$(DESTDIR)$(LIB).$w.dylib)
 	$(call trace,[Darwin both] Linking $@ ...)
-	@lipo -create -output $@ $^
+	@lipo -create -output $@ $^ >$(notdir $@).errs 2>&1
