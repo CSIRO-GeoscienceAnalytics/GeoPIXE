@@ -13,15 +13,15 @@ INSTDIR = /opt/geopixe/latest
 FFLAGS = -O3 -cpp -ffree-form
 
 # gfortran specific flags
-GFORTRAN_FLAGS = -D__GFORTRAN__ -std=legacy -fallow-invalid-boz -fsecond-underscore -ffree-line-length-512 -fno-range-check
+GFORTRAN_FLAGS = -D__GFORTRAN__ -std=legacy -fallow-invalid-boz -ffree-line-length-512 -fno-range-check
 
 # flang specific flags
 FLANG_FLAGS = -D__FLANG__
 
 # Linux
-LGF32 = gfortran $(GFORTRAN_FLAGS) -D__32BIT__ -m32
-LGF64 = gfortran $(GFORTRAN_FLAGS) -D__64BIT__ -m64
-LGFFLAGS = -fPIC $(FFLAGS)
+LGF32 = gfortran -D__32BIT__ -m32 $(GFORTRAN_FLAGS)
+LGF64 = gfortran -D__64BIT__ -m64 $(GFORTRAN_FLAGS)
+LGFFLAGS = -fPIC -fsecond-underscore $(FFLAGS)
 LLD32 = ld -m elf_i386
 LLD64 = ld -m elf_x86_64
 LLDFLAGS = -shared
@@ -29,8 +29,8 @@ LLDLIBS32 =
 LLDLIBS64 =
 
 # Windows
-WGF32 = i686-w64-mingw32-gfortran $(GFORTRAN_FLAGS) -D__32BIT__ -m32
-WGF64 = x86_64-w64-mingw32-gfortran $(GFORTRAN_FLAGS) -D__GFORTRAN__ -D__64BIT__ -m64
+WGF32 = i686-w64-mingw32-gfortran -D__32BIT__ -m32 $(GFORTRAN_FLAGS)
+WGF64 = x86_64-w64-mingw32-gfortran -D__64BIT__ -m64 $(GFORTRAN_FLAGS)
 WGFFLAGS = -mdll $(FFLAGS)
 WLD32 = i686-w64-mingw32-gfortran -m32 $(GFORTRAN_FLAGS)
 WLD64 = x86_64-w64-mingw32-gfortran -m64 $(GFORTRAN_FLAGS)
@@ -39,9 +39,8 @@ WLDLIBS32 =
 WLDLIBS64 =
 
 # Darwin
-DGF = flang-mp-22 $(FLANG_FLAGS)
-DGF64 = $(DGF) -D__64BIT__
-DGFA64 = $(DGF) -D__64BIT__
+DGF64 = flang-mp-22 -D__64BIT__ $(FLANG_FLAGS)
+DGFA64 = flang-mp-22 -D__64BIT__ $(FLANG_FLAGS)
 DGFFLAGS = -fPIC $(FFLAGS)
 DLD64 = $(DGF64)
 DLDA64 = $(DGFA64)
