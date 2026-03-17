@@ -75,14 +75,13 @@ endif
 
 # all possible intermediate files (aka object files)
 OBJS = $(foreach s,$(int-suffs),$(foreach w,$(word-sizes),$(SRCS:.f=.$w.$s)))
-.SECONDARY: $(OBJS)
+.SECONDARY: $(foreach s,$(int-suffs),$(foreach w,$(all-word-sizes),$(SRCS:.f=.$w.$s)))
 # all possible output files (aka library files)
 LIBS = $(foreach s,$(out-suffs),$(foreach w,$(word-sizes),$(DESTDIR)$(LIB).$w.$s))
 ifeq ($(OS),Darwin)
 # and on MacOS we also build a container dylib containing all possible MacOS dylibs
 LIBS += $(foreach s,$(out-suffs),$(DESTDIR)$(LIB).$s)
 endif
-.PRECIOUS: $(LIBS)
 
 .PHONY: help
 help:
