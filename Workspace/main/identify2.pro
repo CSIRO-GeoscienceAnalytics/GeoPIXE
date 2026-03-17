@@ -158,8 +158,8 @@ case !version.os_family of
 	'unix': begin
 		small_table_x = 170 *(*pstate).sxy
 		small_table_y = 146 *(*pstate).sxy				; 144
-		large_table_x = 403 *(*pstate).sxy
-		large_table_y = 160 *(*pstate).sxy				; 220
+		large_table_x = 411 *(*pstate).sxy
+		large_table_y = 186 *(*pstate).sxy				; 220
 		xoff = 12 *(*pstate).sxy
 		yoff = 106 *(*pstate).sxy						; 140
 		table_minx = 190 *(*pstate).sxy
