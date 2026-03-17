@@ -158,7 +158,7 @@ pro OnRealize_periodic_table_base20, wWidget
 
 geo = widget_info( wWidget, /geometry)
 
-widget_control, wWidget, set_uvalue=[geo.xsize,geo.ysize]
+widget_control, wWidget, set_uvalue=[geo.scr_xsize,geo.scr_ysize]
 end
 
 ;-----------------------------------------------------------
@@ -167,7 +167,7 @@ pro OnRealize_periodic_table_base21, wWidget
 
 geo = widget_info( wWidget, /geometry)
 
-widget_control, wWidget, set_uvalue=[geo.xsize,geo.ysize]
+widget_control, wWidget, set_uvalue=[geo.scr_xsize,geo.scr_ysize]
 end
 
 ;-------------------------------------------------------------------------

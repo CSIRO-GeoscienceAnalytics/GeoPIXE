@@ -322,7 +322,7 @@ FUNCTION cw_fslider2, parent, $
     ; Only build the label if suppress_value is FALSE
     nf = strlen(state.format)
     xn = (nf gt 3) ? (fix( strmid( state.format, 2, nf-3))>2 ) : (10)
-    state.labelid = WIDGET_TEXT(labelbase, YOFFSET = l_yoff, $
+    state.labelid = WIDGET_TEXT(labelbase, YOFFSET = l_yoff, frame=0, $
 		VALUE = STRING(FLOAT(val), format=state.format), edit=edit, XSIZE=xn, tracking=tracking, uvalue=uval)
   endif ELSE state.labelid = 0
 
