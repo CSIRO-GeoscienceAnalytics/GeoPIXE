@@ -88,7 +88,6 @@ if n_elements(x) gt 0 then begin
 					tiny = (*pstate).tiny
 
 					widget_control, (*pstate).base2[tiny], map=1
-;					geom = widget_info( (*pstate).base2[tiny], /geometry)
 					widget_control, (*pstate).base2[tiny], get_uvalue=siz
 					widget_control, (*pstate).base2[tiny], scr_xsize=siz[0], scr_ysize=siz[1]
 
@@ -371,9 +370,9 @@ track = lonarr(2)
 
 allow = 1-no_tiny					; do we allow changes to tiny buttons and fonts.
 for itiny=0,allow do begin
-z = z_start
-k = 0
-m = 0
+  z = z_start
+  k = 0
+  m = 0
   for j=j_start,j_end do begin		; do table rows
 	for i=0L,17 do begin			; do columns within rows
 		if on[i,j] then begin		; only cells that are ON

@@ -157,7 +157,7 @@ case !version.os_family of
 		end
 	'unix': begin
 		small_table_x = 170 *(*pstate).sxy
-		small_table_y = 131 *(*pstate).sxy				; 144
+		small_table_y = 146 *(*pstate).sxy				; 144
 		large_table_x = 403 *(*pstate).sxy
 		large_table_y = 160 *(*pstate).sxy				; 220
 		xoff = 12 *(*pstate).sxy
@@ -661,8 +661,8 @@ detector_title = ['---   none   ---',detector_title]
 		end
 	'unix': begin
 		fnt = '6x10'
-		large_table_x = 453 *sxy
-		large_table_y = 220 *sxy
+		large_table_x = 403 *sxy
+		large_table_y = 160 *sxy
 		large_slider_width = 220 *sxy
 		large_drop_width = 155 *sxy
 		large_drop_width2 = 155 *sxy
