@@ -141,7 +141,7 @@ endcase
 case !version.os_family of
 	'MacOS': begin
 		small_table_x = 210 *(*pstate).sxy
-		small_table_y = 141 *(*pstate).sxy				; 190
+		small_table_y = 111 *(*pstate).sxy				; 190
 		large_table_x = 450 *(*pstate).sxy
 		large_table_y = 215 *(*pstate).sxy				; 240
 		xoff = 12 *(*pstate).sxy
@@ -157,7 +157,7 @@ case !version.os_family of
 		end
 	'unix': begin
 		small_table_x = 210 *(*pstate).sxy
-		small_table_y = 95 *(*pstate).sxy				; 144
+		small_table_y = 111 *(*pstate).sxy				; 144
 		large_table_x = 453 *(*pstate).sxy
 		large_table_y = 220 *(*pstate).sxy				; 220
 		xoff = 12 *(*pstate).sxy
