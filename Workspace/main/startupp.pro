@@ -182,8 +182,10 @@ loop:
 		if found then restore, file
 	endif
 	
-	sxy = graphics_y_scale()
-	warning,'Startupp','Y Scale factor = '+str_tidy(sxy, places=2)
+	if n_elements(sxy) eq 0 then begin
+		sxy = graphics_y_scale()
+		warning,'Startupp','Y Scale factor = '+str_tidy(sxy, places=2)
+	endif
 
 	if colours then begin
 		loadct,5, bottom=16, ncolors=100		; 100 colours for images
