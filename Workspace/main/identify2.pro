@@ -174,8 +174,8 @@ case !version.os_family of
 	else: begin
 		small_table_x = 210 *(*pstate).sxy
 		small_table_y = 141 *(*pstate).sxy				; 190
-		large_table_x = 453*(*pstate).sxy
-		large_table_y = 214 *(*pstate).sxy				; 240
+		large_table_x = 455*(*pstate).sxy
+		large_table_y = 207 *(*pstate).sxy				; 240
 		xoff = 10 *(*pstate).sxy
 		yoff = 91 *(*pstate).sxy						; 125
 		table_minx = 220 *(*pstate).sxy
@@ -236,6 +236,7 @@ case uname of
 				endif
 			endif
 ;			geom = widget_info((*pstate).base2,/geometry)
+			print,'Identify2: size=',[w2,h2]
 			widget_control, (*pstate).base2, scr_xsize=w2
 			widget_control, (*pstate).base2, scr_ysize=h2
 			widget_control, (*pstate).zslide, scr_xsize=(*pstate).wslider[0]
@@ -568,6 +569,7 @@ widget_control, child, get_uvalue=pstate
 geo = widget_info( (*pstate).base1, /geometry)
 (*pstate).base1_xsize = geo.scr_xsize
 (*pstate).base1_ysize = geo.scr_ysize
+print,'Base1=',[geo.scr_xsize,geo.scr_ysize]
 end
 
 ;-----------------------------------------------------------
@@ -581,6 +583,7 @@ widget_control, child, get_uvalue=pstate
 geo = widget_info( (*pstate).base2, /geometry)
 (*pstate).base2_xsize = geo.scr_xsize
 (*pstate).base2_ysize = geo.scr_ysize
+print,'Base2=',[geo.scr_xsize,geo.scr_ysize]
 end
 
 ;------------------------------------------------------------------------------------------
@@ -711,7 +714,7 @@ if n_elements(yoffset) lt 1 then begin
 endif
 
 tlb = widget_base( /column, title='Line Identification', /TLB_KILL_REQUEST_EVENTS, $
-					/TLB_SIZE_EVENTS, /base_align_center, xpad=0, ypad=0, space=0, $
+					/TLB_SIZE_EVENTS, /base_align_center, xpad=0, ypad=0, space=2, $
 					group_leader=group, _extra=extra, uname='identify2_TLB', xoffset=xoffset, yoffset=yoffset)
 tbase = widget_base( tlb, /column, xpad=0, ypad=0, space=0, /base_align_center)
 

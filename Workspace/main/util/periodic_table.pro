@@ -89,6 +89,7 @@ if n_elements(x) gt 0 then begin
 
 					widget_control, (*pstate).base2[tiny], map=1
 					widget_control, (*pstate).base2[tiny], get_uvalue=siz
+					print,'Periodic: size=', siz
 					widget_control, (*pstate).base2[tiny], scr_xsize=siz[0], scr_ysize=siz[1]
 
 					widget_control, (*pstate).base2[1-tiny], map=0
@@ -103,7 +104,6 @@ if n_elements(x) gt 0 then begin
 				tiny = (*pstate).tiny
 				if x.show eq 1 then begin
 					widget_control, (*pstate).base2[tiny], map=1
-;					geom = widget_info( (*pstate).base2[tiny], /geometry)
 					widget_control, (*pstate).base2[tiny], get_uvalue=siz
 					widget_control, (*pstate).base2[tiny], scr_xsize=siz[0], scr_ysize=siz[1]
 				endif else begin
