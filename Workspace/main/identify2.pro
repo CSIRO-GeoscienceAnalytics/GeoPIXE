@@ -119,9 +119,14 @@ case tag_names( event,/structure) of
 					widget_control, (*pstate).help, set_value='Click on a line to mark it on the spectrum. ' + $
 							'Adjust lines visible with Threshold slider.'
 				endif else begin
-					widget_control, (*pstate).help, set_value='LEFT click an element to mark its lines on the spectrum. ' + $
+					if (*pstate).tiny then begin
+						widget_control, (*pstate).help, set_value='LEFT click element to mark lines on spectrum. ' + $
+							'RIGHT to enable element in "Fit". '
+					endif else begin
+						widget_control, (*pstate).help, set_value='LEFT click an element to mark its lines on the spectrum. ' + $
 							'Use "Filter", "Detector" to modify relative intensities. ' + $
 							'RIGHT click will enable the element in "X-ray Spectrum Fit". '
+					endelse
 				endelse
 			endelse
 		endif
@@ -135,9 +140,9 @@ endcase
 
 case !version.os_family of
 	'MacOS': begin
-		small_table_x = 199 *(*pstate).sxy
+		small_table_x = 210 *(*pstate).sxy
 		small_table_y = 141 *(*pstate).sxy				; 190
-		large_table_x = 428 *(*pstate).sxy
+		large_table_x = 450 *(*pstate).sxy
 		large_table_y = 215 *(*pstate).sxy				; 240
 		xoff = 12 *(*pstate).sxy
 		yoff = 91 *(*pstate).sxy						; 125
@@ -151,9 +156,9 @@ case !version.os_family of
 		small_drop_width = 60 *(*pstate).sxy
 		end
 	'unix': begin
-		small_table_x = 199 *(*pstate).sxy
+		small_table_x = 210 *(*pstate).sxy
 		small_table_y = 95 *(*pstate).sxy				; 144
-		large_table_x = 428 *(*pstate).sxy
+		large_table_x = 450 *(*pstate).sxy
 		large_table_y = 195 *(*pstate).sxy				; 220
 		xoff = 12 *(*pstate).sxy
 		yoff = 106 *(*pstate).sxy						; 140
@@ -167,10 +172,10 @@ case !version.os_family of
 		small_drop_width = 60 *(*pstate).sxy
 		end
 	else: begin
-		small_table_x = 199 *(*pstate).sxy
+		small_table_x = 210 *(*pstate).sxy
 		small_table_y = 141 *(*pstate).sxy				; 190
-		large_table_x = 428 *(*pstate).sxy
-		large_table_y = 215 *(*pstate).sxy				; 240
+		large_table_x = 453*(*pstate).sxy
+		large_table_y = 214 *(*pstate).sxy				; 240
 		xoff = 10 *(*pstate).sxy
 		yoff = 91 *(*pstate).sxy						; 125
 		table_minx = 220 *(*pstate).sxy
@@ -193,17 +198,17 @@ case uname of
 			h = (event.y - yoff) > table_miny
 ;			print,w,h
 			widget_control, (*pstate).list, scr_xsize=w, scr_ysize=h
-			widget_control, (*pstate).thresh, scr_xsize=w+12 *(*pstate).sxy
-			widget_control, (*pstate).help, scr_xsize=w+(6-25) *(*pstate).sxy
-			(*pstate).whelp[0] = w+6 *(*pstate).sxy
+			widget_control, (*pstate).thresh, scr_xsize=w + 12 *(*pstate).sxy
+			widget_control, (*pstate).help, scr_xsize=w + (6-25) *(*pstate).sxy
+			(*pstate).whelp[0] = w + 6 *(*pstate).sxy
 
 			widget_control, (*pstate).base1, scr_xsize=w+width_off
 			widget_control, (*pstate).base1, scr_ysize=h+height_off
 			(*pstate).base1_xsize = w+width_off
 			(*pstate).base1_ysize = h+height_off
 		endif else begin
-			w = (event.x - xoff) > table_minx
-			h = (event.y - yoff) > table_miny
+			w = (event.x - xoff)		; > table_minx
+			h = (event.y - yoff)		; > table_miny
 			w2 = (*pstate).base2_xsize
 			h2 = (*pstate).base2_ysize
 			if (w gt (3*large_table_x)/4) then begin
@@ -214,7 +219,7 @@ case uname of
 					(*pstate).tiny = 0
 					widget_control, (*pstate).help, scr_xsize=w2
 					(*pstate).whelp[1] = w2
-					(*pstate).wslider = [large_slider_width,large_drop_width]
+					(*pstate).wslider = [large_slider_width, large_drop_width]
 					widget_control, (*pstate).filter_base, map=1, scr_ysize=(*pstate).filter_base_ysize
 				endif
 			endif
@@ -226,16 +231,16 @@ case uname of
 					(*pstate).tiny = 1
 					widget_control, (*pstate).help, scr_xsize=w2
 					(*pstate).whelp[1] = w2
-					(*pstate).wslider = [small_slider_width,small_drop_width]
+					(*pstate).wslider = [small_slider_width, small_drop_width]
 					widget_control, (*pstate).filter_base, map=0, scr_ysize=1
 				endif
 			endif
 ;			geom = widget_info((*pstate).base2,/geometry)
 			widget_control, (*pstate).base2, scr_xsize=w2
 			widget_control, (*pstate).base2, scr_ysize=h2
-			widget_control, (*pstate).zslide, scr_xsize=(*pstate).wslider[1]
-			widget_control, (*pstate).filter_id, xsize=(*pstate).wslider[0]
-			widget_control, (*pstate).detector_id, xsize=(*pstate).wslider[0]
+			widget_control, (*pstate).zslide, scr_xsize=(*pstate).wslider[0]
+			widget_control, (*pstate).filter_id, scr_xsize=(*pstate).wslider[1]
+			widget_control, (*pstate).detector_id, scr_xsize=(*pstate).wslider[1]
 			(*pstate).base2_xsize = w2
 			(*pstate).base2_ysize = h2
 		endelse
@@ -664,7 +669,7 @@ detector_title = ['---   none   ---',detector_title]
 		large_drop_width2 = 160 *sxy
 		space5 = 5 *sxy
 		space10 = 8 *sxy
-		texty = 21 *sxy
+		texty = 15 *sxy
 		list_xsize = 281 *sxy
 		xw = 0 *sxy
 		ysize_help = 2
@@ -685,11 +690,11 @@ endif
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
 	screen = get_screen_size()
-	xoffset = ((xoff + w + xw) < (screen[0]-34 - 237)) > 0
+	xoffset = ((xoff + w + xw) < (screen[0]-34 - 237*sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then begin
 	screen = get_screen_size()
-	yoffset = ((yoff - 159) < (screen[1]-28 - 342)) > 0
+	yoffset = ((yoff - 159) < (screen[1]-28 - 342*sxy)) > 0
 endif
 
 tlb = widget_base( /column, title='Line Identification', /TLB_KILL_REQUEST_EVENTS, $
@@ -701,18 +706,14 @@ toggle = cw_bgroup2( tbase, ['Identify','Mark Element'], /row, $
 					/exclusive, /no_release, /return_index, /tracking, $
 					uname='TOGGLE', set_value=0, xpad=0, ypad=0, space=3 *sxy, $
 					uvalue='Select line identification or mark element lines')
-bbbase = widget_base( tlb, xpad=0, ypad=0, space=0)
 
+bbbase = widget_base( tlb, xpad=0, ypad=0)						; bulletin board base
 
 base1 = widget_base( bbbase, /column, map=1, /base_align_center, xpad=0, ypad=0, space=1 *sxy, $
 				notify_realize='OnRealize_identify2_base1')
 
 s = xsort_list( 0.0001, list=xlist, /table)
 set_bin_search,  xlist
-
-;list = widget_list( base1, value=s, uname='LIST', /tracking, $
-;					uvalue='Sorted X-ray list (energy, Siegbahn/IUPAC id, relative intensity). Click a line to mark it on the spectrum.', $
-;					font=fnt, scr_xsize=list_xsize, scr_ysize=200)
 
 list = Widget_Table( base1, UNAME='LIST', /all_events, value=s, Notify_Realize='OnRealize_identify2_Table', $
 					/no_row_headers, column_widths=[9,4,7,8,9] * !d.x_ch_size, $
@@ -726,34 +727,34 @@ thresh = cw_fslider2( base1, format='(f6.4)', minimum=0.0001, maximum=0.5, layou
 				uvalue='Display only X-ray relative intensities above this level.')
 
 
-base2 = widget_base( bbbase, /column, map=0, xpad=1 *sxy, ypad=0, space=1, /base_align_center)
+base2 = widget_base( bbbase, /column, map=0, xpad=1 *sxy, ypad=0, space=1 *sxy, /base_align_center)
 
 ptable = periodic_table( base2, uname='PERIODIC', /tracking, /exclusive, n_states=2, /start_Li, $
 				uvalue='Periodic Table. Click on an element to view its markers on the spectrum.')
 
-check_base = widget_base( base2, xpad=2 *sxy, ypad=0, space=5 *sxy, /row, /base_align_bottom)
+check_base = widget_base( base2, xpad=1 *sxy, ypad=0, space=2 *sxy, /row, /base_align_center)
 zslide = widget_slider( check_base, minimum=1, maximum=103, /drag, /tracking, xsize=large_slider_width, $
 				uvalue='Select element X-ray lines by Z using this slider.', uname='ZSLIDE')
-element = widget_text( check_base, xsize=2 *sxy, scr_ysize=texty, /editable, uname='ELEMENT', /tracking, $
+element = widget_text( check_base, xsize=2 *sxy, scr_ysize=texty, /editable, uname='ELEMENT', /tracking, frame=0, $
 			uvalue='Currently marked element. Type a new one to mark lines.')
 lab = widget_label(check_base, value=' ')
 options = cw_bgroup2( check_base, ['K','L','M'], /row, set_value=[1,1,0], $
 				/return_index, uname='OPTIONS',/ nonexclusive, /tracking, $
-				uvalue='Enable X-ray lines by shell.', xpad=0, ypad=0, space=1 *sxy)
+				uvalue='Enable X-ray lines by shell.', xpad=0, ypad=0, space=0)
 
 filter_base = widget_base( base2, /row, map=1, /base_align_center, notify_realize='OnRealize_identify2_filter_base', $
 				ypad=0, xpad=0, space=space10)
 lab = widget_label( filter_base, value='Filter:')
 filter_mode = widget_combobox( filter_base, value=filter_title, uname='filter-mode', /tracking, $
 					uvalue='Select the filter to use to modify X-ray relative intensities.', $
-					xsize=large_drop_width)
+					scr_xsize=large_drop_width)
 
 lab = widget_label( filter_base, value=' Detector:')
 detector_mode = widget_combobox( filter_base, value=detector_title, uname='detector-mode', /tracking, $
-					uvalue='Select the detector calibration to use to modify X-ray relative intensities.', xsize=large_drop_width2)
+					uvalue='Select the detector calibration to use to modify X-ray relative intensities.', scr_xsize=large_drop_width2)
 
 
-Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=2 *sxy, YPAD=0, /ROW, /base_align_center)
+Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1 *sxy, XPAD=2 *sxy, YPAD=0, /ROW, /base_align_center)
 
 help = widget_text( Help_Base, scr_xsize=list_xsize-26 *sxy, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)

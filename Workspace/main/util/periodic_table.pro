@@ -378,9 +378,10 @@ m = 0
 	for i=0L,17 do begin			; do columns within rows
 		if on[i,j] then begin		; only cells that are ON
 			z = z+1
-			if z eq 72 then z=88	; jump from Lu (71) to Ra (88)
+			if z eq 72 then z=88	; jump from Lu (71) to Fr (87)
 			if z eq 58 then z=72	; jump from La (57) to Hf (72)
-			if z eq 87 then z=58	; jump from Rn (86) to Ce (58)
+			if z eq 87 then z=58	; jump from Fr (87) to Ce (58)
+			if z ge 104 then continue
 			el = element_name(z)
 			if itiny eq 0 then begin
 				id[z,itiny] = state_button( base2[itiny], xsize=xs[itiny], ysize=ys[itiny], $
