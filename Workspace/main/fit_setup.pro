@@ -398,7 +398,7 @@ case uname of
 		widget_control_update, (*pstate).tlb, update=0
 		g = widget_info( event.id, /geometry)
 		if widget_info( (*pstate).adjust_base, /valid_id) then begin
-			ga = widget_info((*pstate).advanced_base,/geometry)
+			ga = widget_info((*pstate).setup_base,/geometry)
 			gx = widget_info((*pstate).adjust_base,/geometry)
 			if (event.tab eq 3) and ((*pstate).adjust_on eq 0) then begin
 				widget_control,event.id,scr_ysize = g.scr_ysize + (gx.scr_ysize-ga.scr_ysize)
@@ -3421,6 +3421,7 @@ case !version.os_family of
 		ttails2 = 'Tail 2'
 		tpixe = 'PIXE'
 		tsxrf = 'XRF'
+		lframe = 0
 		end
 	'unix': begin
 		trim = 20
@@ -3453,6 +3454,7 @@ case !version.os_family of
 		ttails2 = 'Tail 2'
 		tpixe = 'PIXE'
 		tsxrf = 'XRF'
+		lframe = 0
 		end
 	else: begin
 		trim = 20
@@ -3485,6 +3487,7 @@ case !version.os_family of
 		ttails2 = ' Tails 2 '
 		tpixe = ' PIXE '
 		tsxrf = ' XRF '
+		lframe = 0
 		end
 endcase
 
@@ -3611,7 +3614,7 @@ tbase = widget_base( tlb, /column, xpad=0, ypad=0, space=2, /base_align_center)
 
 sbase = widget_base( tbase, /row, /base_align_center, ypad=1, xpad=0, space=5)
 lab = widget_label( sbase, value='Set-up:')
-pcm_file = widget_text( sbase, value=(*p).pcm_file, uname='pcm-file', /tracking, /editable, $
+pcm_file = widget_text( sbase, value=(*p).pcm_file, uname='pcm-file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_fit_pcm_file', $
 					uvalue='Enter a PCM file-name for source set-up details, or use the "Load" button.',scr_xsize=290)
 load_setup_button = widget_button( sbase, value='Load', uname='load-setup-button', /tracking, $
@@ -3666,9 +3669,9 @@ row3base = widget_base( setup_base, /row, /base_align_center, ypad=0, xpad=0, sp
 
 ebase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( ebase, value='Energy Range:')
-elow_text = widget_text( ebase, value=str_tidy((*p).e_low), uname='elow-text', /tracking, /editable, $
+elow_text = widget_text( ebase, value=str_tidy((*p).e_low), uname='elow-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the low energy limit (keV) for fit range, or click "Use View" to transfer from spectrum.', scr_xsize=85-trim)
-ehigh_text = widget_text( ebase, value=str_tidy((*p).e_high), uname='ehigh-text', /tracking, /editable, $
+ehigh_text = widget_text( ebase, value=str_tidy((*p).e_high), uname='ehigh-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the high energy limit (keV) for fit range, or click "Use View" to transfer from spectrum.',scr_xsize=85-trim)
 erange_view = widget_button( ebase, value='Use View', uname='use-view-button', /tracking, $
 					uvalue='Use the current spectrum display VIEW range as the fitting energy range.', scr_xsize=92-trim)
@@ -3681,7 +3684,7 @@ detector_mode = widget_combobox( abase, value=detector_title, uname='detector-mo
 					uvalue='Select the relevant detector calibration. For array detectors, this is done in the yield calculation, which then becomes ' + $
 					'dependent on take-off angles across the array.', xsize=detector_xsize)
 lab = widget_label( abase, value='Q:', scr_xsize=15)
-q_text = widget_text( abase, value=str_tidy((*p).charge), uname='q-text', /tracking, /editable, $
+q_text = widget_text( abase, value=str_tidy((*p).charge), uname='q-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the integrated charge (uC). If a flux count (IC counter) is found, ' + $
 					'the conversion from IC to Q is calculated for further use.',scr_xsize=80-trim)
 flux_Button = Widget_Button(abase, UNAME='flux', VALUE='?', /tracking, xsize=xsize_flux, $
@@ -3716,7 +3719,7 @@ filter_mode = widget_combobox( dbase, value=filter_title, uname='filter-mode', /
 ybase = widget_base( row3base, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( ybase, value='Yields:')
 yield_mode = 0L
-yield_file = widget_text( ybase, value=(*p).yield_file, uname='yield-file', /tracking, /editable, $
+yield_file = widget_text( ybase, value=(*p).yield_file, uname='yield-file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_fit_yield_file', $
 					uvalue='Select the '+xname+' production Yield file name, or use the "Load" button to load yields and relative-intensities.',scr_xsize=218-3*trim)
 yield_new_button = widget_button( ybase, value='New', uname='yield-new-button', /tracking, scr_xsize=30, $
@@ -3741,7 +3744,7 @@ mpda_mode = widget_combobox( rowbase1, value='    '+['Single phase, single fit',
 
 rowbase2 = widget_base( colbase, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( rowbase2, value='Yields:')
-yield_file2 = widget_text( rowbase2, value=(*p).yield_file, uname='yield-file', /tracking, /editable, $
+yield_file2 = widget_text( rowbase2, value=(*p).yield_file, uname='yield-file', /tracking, /editable, frame=lframe, $
 		notify_realize='OnRealize_fit_yield_file',scr_xsize=280, $
 		uvalue='Select the '+xname+' production Yield file name, or use the "Load" button to load yields and relative-intensities, or "New" to create a new one.')
 yield_new_button2 = widget_button( rowbase2, value='New', uname='yield-new-button', /tracking, scr_xsize=30, $
@@ -3751,7 +3754,7 @@ yield_load_button2 = widget_button( rowbase2, value='Load', uname='yield-popup-b
 
 mpda_base = widget_base( colbase, /row, /base_align_center, ypad=0, xpad=0, space=space5, map=((*p).mpda_mode gt 0))
 lab = widget_label( mpda_base, value='Multiphase:')
-correct_file = widget_text( mpda_base, value=(*p).correct_file, uname='correct-file', /tracking, /editable, $
+correct_file = widget_text( mpda_base, value=(*p).correct_file, uname='correct-file', /tracking, /editable, frame=lframe, $
 	notify_realize='OnRealize_fit_correct_file',scr_xsize=280, $
 	uvalue='Select the Multiphase yield correction matrix file name, or use the "Load" button to load the composition matrix and yields, or "New" to create a new one.')
 yield_new_button2 = widget_button( mpda_base, value='New', uname='correct-new-button', /tracking, scr_xsize=30, $
@@ -3779,7 +3782,7 @@ g0base = widget_base( general_base, /column, /base_align_center, ypad=0, xpad=0,
 
 cbase = widget_base( g0base, /row, /base_align_right, ypad=0, xpad=0, space=space5)
 lab = widget_label( cbase, value='Cuts:')
-cuts_file = widget_text( cbase, value=(*p).cuts_file, uname='cuts-file', /tracking, /editable, $
+cuts_file = widget_text( cbase, value=(*p).cuts_file, uname='cuts-file', /tracking, /editable, frame=lframe, $
 					uvalue='If necessary, select a cuts file to veto selected channels.',scr_xsize=cut_xsize)
 cuts_load_button = widget_button( cbase, value='Load', uname='load-cuts-button', /tracking, $
 					uvalue='Load cuts details, to veto selected channels, from a CUTS file.', scr_xsize=38)
@@ -3857,7 +3860,7 @@ if gamma eq 0 then begin
 
 	f22base = widget_base( b20base, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 	lab = widget_label( f22base, value='Split energy:')
-	back2_split_energy = widget_text( f22base, value=str_tidy((*p).back2_split_energy), uname='back2-split-energy', /tracking, /editable, $
+	back2_split_energy = widget_text( f22base, value=str_tidy((*p).back2_split_energy), uname='back2-split-energy', /tracking, /editable, frame=lframe, $
 					uvalue='Centre energy around which the background is split into two independent components',scr_xsize=pileup_xsize)
 endif else begin
 	back2_mode = 0L
@@ -4200,6 +4203,7 @@ state = {	$
 		da_button:		da_button, $			; ID of DAM button
 		export_button:	export_button, $		; ID of export button
 		pure_button:	pure_button, $			; ID of pure overlay button
+		setup_base:		setup_base, $			; ID of Setup tab base widget
 		advanced_base:	advanced_base, $		; ID of Advanced tab base widget
 		adjust_base:	adjust_base, $			; ID of Adjust tab base widget
 		adjust_on:		0, $					; is adjust panel open?
@@ -4235,7 +4239,7 @@ widget_control, tlb, /realize
 
 if widget_info( adjust_base, /valid_id) then begin
 	g = widget_info( tab_panel, /geometry)
-	ga = widget_info( advanced_base, /geometry)
+	ga = widget_info( setup_base, /geometry)
 	gx = widget_info( adjust_base, /geometry)
 	widget_control, tab_panel, scr_ysize = g.scr_ysize - (gx.scr_ysize-ga.scr_ysize)
 	widget_control, tlb, yoffset=yoffset
