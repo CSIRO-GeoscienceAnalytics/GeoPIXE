@@ -651,6 +651,8 @@ detector = ptr_new( make_detector('U'))
 (*detector).crystal.Z[0] = 100
 detector_title = ['---   none   ---',detector_title]
 
+; Old scheme which uses 'sxy', See 'fit_setup' for better way ...
+
   case !version.os_family of
 	'MacOS': begin
 		fnt = 'COURIER*BOLD*10'

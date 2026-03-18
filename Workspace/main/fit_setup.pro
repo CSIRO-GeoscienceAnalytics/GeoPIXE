@@ -3349,7 +3349,6 @@ pro fit_setup, group_leader=group, TLB=tlb, pspec=pspec, xoffset=xoffset, yoffse
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_geopixe_vm, geopixe_enable_vm
-common c_geopixe_scaling, sxy
 if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
 if n_elements(geopixe_root) lt 1 then startupp
 
@@ -3388,47 +3387,14 @@ if (n_elements(pall) lt 1) then pall=ptr_new()
 if ptr_valid(pall) eq 0 then pall = ptr_new()
 if n_elements(tweek) lt 1 then tweek=1
 if n_elements(test) lt 1 then test=0
-t = strip_clip()						; compile SNIP routines
+t = strip_clip()							; compile SNIP routines
 
+sxyr = geopixe_scale()						; to catch any changes from dimension here
+											; if default system fonts change and effect widgets
+
+; case os_type() of							; use this to distinguish: "Mac", "Linux", "Win"
 case !version.os_family of
-	'MacOS': begin
-		sxyr = sxy /1.136					; to catch any changes from here
-		trim = 20 *sxyr
-		xw = 500 *sxyr
-;		yh = (gamma eq 1) ? 359 *sxyr : 454 *sxyr
-		yh = (gamma eq 1) ? 372 *sxyr : 467 *sxyr
-		xsize_help = 490 *sxyr
-		detector_xsize = 136 *sxyr
-		filter_xsize = 98 *sxyr
-		yield_file_xsize = 229 *sxyr - 3*trim
-		det_label = 'Detector:'
-		space1 = 0
-		space4 = 3 *sxyr
-		space5 = 4 *sxyr
-		space8 = 8 *sxyr
-		boost_xsize = 65 *sxyr
-		snip_xsize = 130 *sxyr
-		cut_xsize = 320 *sxyr
-		pileup_xsize = 140 *sxyr
-		slider_xsize = 80 *sxyr
-		xsize_flux = 22 *sxyr
-		mode_xsize = 320 *sxyr
-		xsize_tweek2 = 67 *sxyr
-		xsize_tweek = 38 *sxyr
-		ysize_help = 4 *sxyr
-		tgeneral = 'General'
-		tbackground = 'Back 1'
-		tbackground2 = 'Back 2'
-		tcals = 'Cal'
-		twidths = 'Widths'
-		ttails1 = 'Tail 1'
-		ttails2 = 'Tail 2'
-		tpixe = 'PIXE'
-		tsxrf = 'XRF'
-		lframe = 0
-		end
 	'unix': begin
-		sxyr = sxy /1.136					; to catch any changes from here
 		trim = 20 *sxyr
 		xw = 472 *sxyr
 ;		yh = (gamma eq 1) ? 359 *sxyr : 454 *sxyr
@@ -3464,8 +3430,7 @@ case !version.os_family of
 		tsxrf = 'XRF'
 		lframe = 0
 		end
-	else: begin
-		sxyr = sxy /1.0						; to catch any changes from here
+	'Windows': begin					
 		trim = 20 *sxyr
 		xw = 449 *sxyr
 ;		yh = (gamma eq 1) ? 359 *sxyr : 422 *sxyr
