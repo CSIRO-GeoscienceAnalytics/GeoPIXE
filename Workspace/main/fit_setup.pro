@@ -3400,6 +3400,7 @@ case !version.os_family of
 		filter_xsize = 98
 		yield_file_xsize = 229-3*trim
 		det_label = 'Detector:'
+		space1 = 0
 		space4 = 3
 		space5 = 4
 		space8 = 8
@@ -3434,6 +3435,7 @@ case !version.os_family of
 		filter_xsize = 118
 		yield_file_xsize = 209-3*trim
 		det_label = 'Det:'
+		space1 = 0
 		space4 = 0
 		space5 = 0
 		space8 = 2
@@ -3445,7 +3447,7 @@ case !version.os_family of
 		xsize_flux = 22
 		mode_xsize = 320
 		xsize_tweek2 = 67
-		xsize_tweek = 43
+		xsize_tweek = 45
 		tweak_space = 0
 		ysize_help = 4
 		tgeneral = 'General'
@@ -3469,6 +3471,7 @@ case !version.os_family of
 		filter_xsize = 118
 		yield_file_xsize = 209-3*trim
 		det_label = 'Detector:'
+		space1 = 1
 		space4 = 4
 		space5 = 5
 		space8 = 8
@@ -4143,9 +4146,9 @@ button = widget_button( bbase, value='Close', uname='close-button', /tracking, $
 
 ;.................................................................................
 
-Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
+Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=space1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=xsize_help-14, ysize=ysize_help, /wrap, uname='help', /tracking, $
+help = widget_text( Help_Base, scr_xsize=xsize_help-13, ysize=ysize_help, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
 

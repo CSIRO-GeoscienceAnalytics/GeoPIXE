@@ -184,7 +184,7 @@ loop:
 	
 	if n_elements(sxy) eq 0 then begin
 		sxy = graphics_y_scale()
-;		warning,'Startupp','Y Scale factor = '+str_tidy(sxy, places=2), /info
+		warning,'Startupp','Y Scale factor = '+str_tidy(sxy, places=3), /info
 	endif
 
 	if colours then begin
