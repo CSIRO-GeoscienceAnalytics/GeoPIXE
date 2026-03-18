@@ -207,8 +207,12 @@ case uname of
 			(*pstate).base1_xsize = w+width_off
 			(*pstate).base1_ysize = h+height_off
 		endif else begin
-			w = (event.x - xoff)		; > table_minx
-			h = (event.y - yoff)		; > table_miny
+			w = (event.x - xoff)
+			h = (event.y - yoff)
+			if !version.os_family eq 'unix' then begin
+				w = w > table_minx		; these ">" force Tiny not to happen
+				h = h > table_miny		; as Linux has a bug that crops tables
+			endif
 			w2 = (*pstate).base2_xsize
 			h2 = (*pstate).base2_ysize
 			if (w gt (3*large_table_x)/4) then begin
@@ -654,7 +658,6 @@ detector_title = ['---   none   ---',detector_title]
 		large_table_y = 240 *sxy
 		large_slider_width = 220 *sxy
 		large_drop_width = 155 *sxy
-		large_drop_width2 = 155 *sxy
 		space5 = 2 *sxy
 		space10 = 0 *sxy
 		texty = 21 *sxy
@@ -668,7 +671,6 @@ detector_title = ['---   none   ---',detector_title]
 		large_table_y = 160 *sxy
 		large_slider_width = 220 *sxy
 		large_drop_width = 155 *sxy
-		large_drop_width2 = 155 *sxy
 		space5 = 1 *sxy
 		space10 = 0 *sxy
 		texty = 29 *sxy
@@ -682,7 +684,6 @@ detector_title = ['---   none   ---',detector_title]
 		large_table_y = 214 *sxy
 		large_slider_width = 220 *sxy
 		large_drop_width = 160 *sxy
-		large_drop_width2 = 160 *sxy
 		space5 = 5 *sxy
 		space10 = 6 *sxy
 		texty = 15 *sxy
@@ -732,7 +733,7 @@ s = xsort_list( 0.0001, list=xlist, /table)
 set_bin_search,  xlist
 
 list = Widget_Table( base1, UNAME='LIST', /all_events, value=s, Notify_Realize='OnRealize_identify2_Table', $
-					/no_row_headers, column_widths=[9,4,7,8,9] * !d.x_ch_size, $
+					/no_row_headers, column_widths=[9,4,7,8,9] * !d.x_ch_size *sxy, $
 					column_labels=['Energy','El','Line','Rel. Int','IUPAC'], $
 					/RESIZEABLE_COLUMNS, alignment=2, /tracking, scr_xsize=list_xsize, scr_ysize=300 *sxy, $
 					uvalue='Sorted X-ray table (energy, element, relative intensity, Siegbahn/IUPAC labels).' )
@@ -768,12 +769,12 @@ filter_mode = widget_combobox( filter_base, value=filter_title, uname='filter-mo
 
 lab = widget_label( filter_base, value=' Detector:')
 detector_mode = widget_combobox( filter_base, value=detector_title, uname='detector-mode', /tracking, $
-					uvalue='Select the detector calibration to use to modify X-ray relative intensities.', scr_xsize=large_drop_width2)
+					uvalue='Select the detector calibration to use to modify X-ray relative intensities.', scr_xsize=large_drop_width)
 
 
 Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1 *sxy, XPAD=2 *sxy, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=list_xsize-26 *sxy, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
+help = widget_text( Help_Base, scr_xsize=list_xsize-32 *sxy, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
 
 query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15 *sxy, ysize=20 *sxy,  $
@@ -828,5 +829,6 @@ register_notify, tlb, ['new-detectors','new-filters']
 
 xmanager, 'identify2', tlb, /no_block
 
+help, !d
 return
 end
