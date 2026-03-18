@@ -4265,6 +4265,7 @@ case !version.os_family of
 		encoder_xsize = 175
 		com_xsize = 40
 		update_xsize = 55
+		lframe = 0
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
@@ -4305,6 +4306,7 @@ case !version.os_family of
 		encoder_xsize = 175
 		com_xsize = 40
 		update_xsize = 55
+		lframe = 0
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
@@ -4345,6 +4347,7 @@ case !version.os_family of
 		encoder_xsize = 175
 		com_xsize = 40
 		update_xsize = 55
+		lframe = 1
 		end
 endcase
 
@@ -4557,7 +4560,7 @@ endelse
 evt_button = widget_button( evt_base, value=name, uname='evt_button', /tracking, $
 					uvalue='Browse to select the list-mode file to sort, or the "First" file in a series of list-mode/pixel data files. ' + $
 					'If the "output" is to be on a different path, select "Output" below.', scr_xsize=evt_button_xsize)
-evt_file = widget_text( evt_base, value=(*p).evt_file, uname='evt_file', /tracking, /editable, $
+evt_file = widget_text( evt_base, value=(*p).evt_file, uname='evt_file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_evt_file', $
 					uvalue='Enter a file-name for the list-mode file to sort, or the "First" file in a series of list-mode/pixel data files; or click on the button to the left. ' + $
 					'If the "output" is to be on a different path, select "Output" below.', $
@@ -4565,7 +4568,7 @@ evt_file = widget_text( evt_base, value=(*p).evt_file, uname='evt_file', /tracki
 
 evt2_button = widget_button( evt2_base2, value='Last'+((((*p).sort_mode eq 1) and XANES_dir)?' Dir':' File:'), uname='evt2_button', /tracking, $
 					uvalue='Browse to select the "Last" list-mode/pixel data file to sort. Leave blank to sort all.', scr_xsize=evt_button_xsize)
-evt2_file = widget_text( evt2_base2, value=(*p).evt2_file, uname='evt2_file', /tracking, /editable, $
+evt2_file = widget_text( evt2_base2, value=(*p).evt2_file, uname='evt2_file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_evt2_file', $
 					uvalue='Enter a file-name for the "Last" list-mode/pixel data file to sort; or click on the button to the left. Leave blank to sort all.', $
 					scr_xsize=evt_file_xsize2)
@@ -4576,7 +4579,7 @@ pileup_base2 = pileup_base
 ; pileup, or the XANES energy list file ...
 pileup_button = widget_button( pileup_base2, value='Pileup:', uname='pileup_button', /tracking, $
 					uvalue='Browse to select the "pileup" file for this EVT file, to filter out pileup, if appropriate, which contains upper and lower T limits for each E. Or, a "XANES energies" file in XANES mode, which contains the energy list.', scr_xsize=evt_button_xsize)
-pileup_file = widget_text( pileup_base2, value=(*p).pileup_file, uname='pileup_file', /tracking, /editable, $
+pileup_file = widget_text( pileup_base2, value=(*p).pileup_file, uname='pileup_file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_pileup_file', $
 					uvalue='Enter a file-name for the "pileup" file for this EVT file, to filter out pileup, if appropriate, which contains upper and lower T limits for each E. Or, a "XANES energies" file in XANES mode, which contains the energy list.', $
 					scr_xsize=evt_file_xsize2)
@@ -4586,7 +4589,7 @@ throttle_base2 = throttle_base
 
 throttle_button = widget_button( throttle_base2, value='Throttle:', uname='throttle_button', /tracking, $
 					uvalue='Browse to select the "throttle" file for this EVT file, to correct for Throttle losses, if appropriate.', scr_xsize=evt_button_xsize)
-throttle_file = widget_text( throttle_base2, value=(*p).throttle_file, uname='throttle_file', /tracking, /editable, $
+throttle_file = widget_text( throttle_base2, value=(*p).throttle_file, uname='throttle_file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_throttle_file', $
 					uvalue='Enter a file-name for the "throttle" file for this EVT file, to correct for Throttle losses, if appropriate; or click on the button to the left.', $
 					scr_xsize=evt_file_xsize2)
@@ -4596,7 +4599,7 @@ linearize_base2 = linearize_base
 
 linearize_button = widget_button( linearize_base2, value='Linearize:', uname='linearize_button', /tracking, $
 					uvalue='Browse to select the "linearize" file for this EVT file, to linearize gain on input, if appropriate.', scr_xsize=evt_button_xsize)
-linearize_file = widget_text( linearize_base2, value=(*p).linearize_file, uname='linearize_file', /tracking, /editable, $
+linearize_file = widget_text( linearize_base2, value=(*p).linearize_file, uname='linearize_file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_linearize_file', $
 					uvalue='Enter a file-name for the "linearize" file for this EVT file, to linearize gain on input, if appropriate; or click on the button to the left. ' + $
 					'Maia corrects linearization internally now, so this should not be needed.', $
@@ -4607,18 +4610,18 @@ linearize_file = widget_text( linearize_base2, value=(*p).linearize_file, uname=
 samplebase = widget_base( files_base, /row, /base_align_center, xpad=2, ypad=1, space=space2)
 lab = widget_label( samplebase, value='Sample:')
 
-sample = widget_text( samplebase, uname='sample', /editable, value=string((*p).sample), $
+sample = widget_text( samplebase, uname='sample', /editable, value=string((*p).sample), frame=lframe, $
 					uvalue='Sample name string.',scr_xsize=sample_xsize, /tracking)
 
 lab = widget_label( samplebase, value='  Grain:')
 
-grain = widget_text( samplebase, uname='grain', /editable, value=string((*p).grain), $
+grain = widget_text( samplebase, uname='grain', /editable, value=string((*p).grain), frame=lframe, $
 					uvalue='Grain or analysis region name string.',scr_xsize=sample_xsize, /tracking)
 
 commentbase = widget_base( files_base, /row, /base_align_center, xpad=2, ypad=0, space=space2, /align_right)
 lab = widget_label( commentbase, value='Comment:')
 
-comment = widget_text( commentbase, uname='comment', /editable, value=string((*p).comment), $
+comment = widget_text( commentbase, uname='comment', /editable, value=string((*p).comment), frame=lframe, $
 					uvalue='Enter any comment text to be saved with the output file.', $
 					scr_xsize=comment_xsize, /tracking)
 
@@ -4687,7 +4690,7 @@ step_station = widget_combobox( stepbase1, value=station_numbers, uname='step_st
 stepbase2 = widget_base( stepbase0, xpad=0, ypad=0, /align_right)
 stepcount_base = widget_base( stepbase2, /row, map=0, /base_align_center, /align_right, xpad=0, ypad=0)
 lab = widget_label( stepcount_base, value='  Count:')
-step_count = widget_text( stepcount_base, uname='step_count', /editable, value=str_tidy((*p).step_count), $
+step_count = widget_text( stepcount_base, uname='step_count', /editable, value=str_tidy((*p).step_count), frame=lframe, $
 					uvalue='Number of counts in selected ADC station per step.',scr_xsize=distance_xsize, /tracking)
 
 stepbit_base = widget_base( stepbase2, /row, map=1, /base_align_center, /align_right, xpad=0, ypad=0)
@@ -4713,7 +4716,7 @@ lab = widget_label( stepbase4, value='      Distance:')
 
 ; 	step step-size floating text
 
-step_size = widget_text( stepbase4, uname='step_size', /editable, value=str_tidy((*p).step_size), $
+step_size = widget_text( stepbase4, uname='step_size', /editable, value=str_tidy((*p).step_size), frame=lframe, $
 					uvalue='Size of each step in microns. For X or Y stepping this is related ' + $
 					'to the stepper increment. For a traverse enter the distance travelled ' + $
 					'per point along the traverse line.',scr_xsize=distance_xsize, /tracking)
@@ -4727,7 +4730,7 @@ xpars_base = widget_base( parsbase, column=3, xpad=0, ypad=0, space=space2, /bas
 
 xbase = widget_base( xpars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
 lab = widget_label( xbase, value='X range:')
-xrange = widget_text( xbase, uname='x_range', /editable, /tracking, value=str_tidy((*p).xrange), $
+xrange = widget_text( xbase, uname='x_range', /editable, /tracking, value=str_tidy((*p).xrange), frame=lframe, $
 					uvalue='Total number of X pixels in a scan or steps along a traverse. Select a sub-region using the "selected sub-region" controls below.', scr_xsize=xrange_xsize)
 
 xcbase = widget_base( xpars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
@@ -4738,7 +4741,7 @@ xcompress = widget_combobox( xcbase, value=compressions, uname='x_compress', /tr
 
 xsbase = widget_base( xpars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
 lab = widget_label( xsbase, value='X size:')
-xsize = widget_text( xsbase, uname='x_size', /editable, /tracking, value=str_tidy((*p).xsize), $
+xsize = widget_text( xsbase, uname='x_size', /editable, /tracking, value=str_tidy((*p).xsize), frame=lframe, $
 					scr_xsize=xrange_xsize, uvalue='X size of scan area in microns, or the total distance ' + $
 					'travelled in a traverse.')
 
@@ -4746,7 +4749,7 @@ ypars_base = widget_base( parsbase, column=3, xpad=0, ypad=0, space=space2, /bas
 
 ybase = widget_base( ypars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
 lab = widget_label( ybase, value='Y range:')
-yrange = widget_text( ybase, uname='y_range', /editable, /tracking, value=str_tidy((*p).yrange), $
+yrange = widget_text( ybase, uname='y_range', /editable, /tracking, value=str_tidy((*p).yrange), frame=lframe, $
 					uvalue='Total number of Y pixels in a scan. Select a sub-region using the "selected sub-region" controls below.', scr_xsize=xrange_xsize)
 
 ycbase = widget_base( ypars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
@@ -4757,14 +4760,14 @@ ycompress = widget_combobox( ycbase, value=compressions, uname='y_compress', /tr
 
 ysbase = widget_base( ypars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
 lab = widget_label( ysbase, value='Y size:')
-ysize = widget_text( ysbase, uname='y_size', /editable, /tracking, value=str_tidy((*p).ysize), $
+ysize = widget_text( ysbase, uname='y_size', /editable, /tracking, value=str_tidy((*p).ysize), frame=lframe, $
 					scr_xsize=xrange_xsize, uvalue='Y size of scan area in microns (or eV/mdeg for non-spatial axis).')
 
 zpars_base = widget_base( parsbase, column=3, xpad=0, ypad=0, space=space2, /base_align_right, map=(((*p).xy_mode eq 4) or ((*p).xy_mode eq 5)))
 
 zbase = widget_base( zpars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
 lab = widget_label( zbase, value='Z range:')
-zrange = widget_text( zbase, uname='z_range', /editable, /tracking, value=str_tidy((*p).zrange), $
+zrange = widget_text( zbase, uname='z_range', /editable, /tracking, value=str_tidy((*p).zrange), frame=lframe, $
 					uvalue='Total number of Z pixels in a scan, for Energy or Tomo angle.', scr_xsize=xrange_xsize)
 
 zoptions_base = widget_base( zpars_base, xpad=0, ypad=0)
@@ -4772,7 +4775,7 @@ zoptions_base = widget_base( zpars_base, xpad=0, ypad=0)
 zorigin_base = widget_base( zoptions_base, /row, /base_align_center, xpad=0, ypad=0, space=1, map=((*p).xy_mode eq 4))
 lab = widget_label( zorigin_base, value='   Z origin:', scr_xsize=xrange_xsize+10)
 zorigin = widget_text( zorigin_base, uname='z_origin', /editable, /tracking, value=str_tidy((*p).zorigin), notify_realize='OnRealize_zorigin', $
-					uvalue='Origin of Z axis for a scan, for Energy or Tomo angle.', scr_xsize=xrange_xsize)
+					uvalue='Origin of Z axis for a scan, for Energy or Tomo angle.', scr_xsize=xrange_xsize, frame=lframe)
 
 zcompress_base = widget_base( zoptions_base, /row, /base_align_center, xpad=0, ypad=0, space=1, map=((*p).xy_mode eq 5))
 lab = widget_label( zcompress_base, value='Z compress:', scr_xsize=xrange_xsize+10)
@@ -4782,7 +4785,7 @@ zcompress = widget_combobox( zcompress_base, value=compressions, uname='z_compre
 
 zsbase = widget_base( zpars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
 lab = widget_label( zsbase, value='Z size:')
-zsize = widget_text( zsbase, uname='z_size', /editable, /tracking, value=str_tidy((*p).zsize), $
+zsize = widget_text( zsbase, uname='z_size', /editable, /tracking, value=str_tidy((*p).zsize), frame=lframe, $
 					scr_xsize=xrange_xsize, uvalue='Z size of scan, for energy, angle (mdeg or eV).')
 
 ;cbase = widget_base( parsbase, /row, /base_align_center, xpad=2, ypad=0, /center)
@@ -4812,17 +4815,17 @@ offset_base = widget_base( scan_window_base, /row, xpad=0, ypad=0, space=space2,
 off_base2 = widget_base( offset_base, column=2, xpad=0, ypad=0, space=space2, /base_align_right, /align_center )
 offx_base = widget_base( off_base2, /row, xpad=3, ypad=0, space=space2, /base_align_right)
 lab = widget_label( offx_base, value='X offset:')
-xoffset = widget_text( offx_base, uname='x_offset', /editable, /tracking, value=str_tidy((*p).xoffset), $
+xoffset = widget_text( offx_base, uname='x_offset', /editable, /tracking, value=str_tidy((*p).xoffset), frame=lframe, $
 					scr_xsize=xrange_xsize, uvalue='X offset of window to image in total area (express in non-compressed pixels). ' + $
 					'Use "Box" shape on image window to determine Window coordinates.')
 offy_base = widget_base( off_base2, /row, xpad=3, ypad=0, space=space2, /base_align_right)
 lab = widget_label( offy_base, value='Y offset:')
-yoffset = widget_text( offy_base, uname='y_offset', /editable, /tracking, value=str_tidy((*p).yoffset), $
+yoffset = widget_text( offy_base, uname='y_offset', /editable, /tracking, value=str_tidy((*p).yoffset), frame=lframe, $
 					scr_xsize=xrange_xsize, uvalue='Y offset of window to image in total area (express in non-compressed pixels).'+ $
 					'Use "Box" shape on image window to determine Window coordinates.')
 offxr_base = widget_base( off_base2, /row, xpad=3, ypad=0, space=space2, /base_align_right)
 lab = widget_label( offxr_base, value='X sub-range:')
-x_sub_range = widget_text( offxr_base, uname='x_sub_range', /editable, /tracking, value=str_tidy((*p).x_sub_range), $
+x_sub_range = widget_text( offxr_base, uname='x_sub_range', /editable, /tracking, value=str_tidy((*p).x_sub_range), frame=lframe, $
 					scr_xsize=xrange_xsize, uvalue='X range of window to image from total area (express in non-compressed pixels).'+ $
 					'Use "Box" shape on image window to determine Window coordinates.')
 get_window_button = widget_button( offset_base, value='Get', uname='get-window-region', /tracking, $
@@ -4830,7 +4833,7 @@ get_window_button = widget_button( offset_base, value='Get', uname='get-window-r
 
 offyr_base = widget_base( off_base2, /row, xpad=3, ypad=0, space=space2, /base_align_right)
 lab = widget_label( offyr_base, value='Y sub-range:')
-y_sub_range = widget_text( offyr_base, uname='y_sub_range', /editable, /tracking, value=str_tidy((*p).y_sub_range), $
+y_sub_range = widget_text( offyr_base, uname='y_sub_range', /editable, /tracking, value=str_tidy((*p).y_sub_range), frame=lframe, $
 					scr_xsize=xrange_xsize, uvalue='Y range of window to image from total area (express in non-compressed pixels).'+ $
 					'Use "Box" shape on image window to determine Window coordinates.')
 
@@ -4870,7 +4873,7 @@ evt_check_pvlist, (*p).pic_list, DevObj
 
 	dwell_base = widget_base( IC_base1, /row, xpad=0, ypad=0, space=2, /base_align_center)
 	lab = widget_label( dwell_base, value='Dwell time (ms):')
-	dwell_wID = widget_text( dwell_base, uname='dwell', /editable, value=str_tidy((*p).dwell), $
+	dwell_wID = widget_text( dwell_base, uname='dwell', /editable, value=str_tidy((*p).dwell), frame=lframe, $
 						uvalue='Enter the dwell time per pixel (ms) if it is fixed. This is for converting count-rate to counts per pixel. ' + $
 						'It may be found by the device driver, especially for cases when it varies per pixel.', $
 						scr_xsize=charge_xsize2, /tracking)
@@ -4881,12 +4884,12 @@ evt_check_pvlist, (*p).pic_list, DevObj
 						'This is done automatically when new data files are selected.')
 	lab = widget_label( ic_base2, value='     Conversion (Q/IC):')
 	charge_conversion = widget_text( ic_base2, uname='charge-conversion', /editable, /tracking, value=str_tidy((*p).charge_conversion), $
-					notify_realize='OnRealize_evt_charge_conversion', $
+					notify_realize='OnRealize_evt_charge_conversion', frame=lframe, $
 					uvalue='Conversion factor from integrated flux (IC count) to charge (uC) for scan.', scr_xsize=charge_xsize)
 						
 cbase = widget_base( flux_base, /row, /base_align_center, xpad=2, ypad=1, space=5)
 lab = widget_label( cbase, value='Equivalent charge (Q uC):')
-charge = widget_text( cbase, uname='charge', /editable, /tracking, value=str_tidy((*p).charge), $
+charge = widget_text( cbase, uname='charge', /editable, /tracking, value=str_tidy((*p).charge), frame=lframe, $
 					uvalue='Total integrated charge for scan (uC). If the device maps charge across image '+ $
 					'then this will be filled in after the sort. If the device does not, enter the total '+ $
 					'charge for the map (assumed uniform).', scr_xsize=charge_xsize)
@@ -4945,11 +4948,11 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 
 	base1c = widget_base( base1, /row, /base_align_center, space=space5, ypad=0)
 	lab = widget_label( base1c, value='Cal A:')
-	cal_a = widget_text( base1c, uname='cal_a', /editable, /tracking, value=str_tidy((*p).cal_a[(*p).station], places=8), $
+	cal_a = widget_text( base1c, uname='cal_a', /editable, /tracking, value=str_tidy((*p).cal_a[(*p).station], places=8), frame=lframe, $
 						uvalue='Calibration gain for this detector/ADC channel. This gain must be in "keV/ch" and match the compression ' + $
 						'used on the spectrum used to make the DA matrix. Use 1.0 for channels.',scr_xsize=cal_xsize)
 	lab = widget_label( base1c, value='B:')
-	cal_b = widget_text( base1c, uname='cal_b', /editable, /tracking, value=str_tidy((*p).cal_b[(*p).station]), $
+	cal_b = widget_text( base1c, uname='cal_b', /editable, /tracking, value=str_tidy((*p).cal_b[(*p).station]), frame=lframe, $
 						uvalue='Calibration offset for this detector/ADC channel. This offset must be in "keV" and match the compression ' + $
 						'used on the spectrum used to make the DA matrix. Use 0.0 for channels.',scr_xsize=cal_xsize)
 	button = widget_button( base1c, value='Get', uname='getcal_button', /tracking, $
@@ -4969,7 +4972,7 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 	base_proj_file = widget_base( base1, /row, /base_align_center, ypad=0, map=((*p).mode[(*p).station] ne 4) and ((*p).mode[(*p).station] ne 5))
 	button = widget_button( base_proj_file, value='File:', uname='file_button', /tracking, $
 						uvalue='Browse to select a file-name for the projection method for this ADC, or all in "Detector Array" mode.')
-	file = widget_text( base_proj_file, value=(*p).file[(*p).station], uname='file', /tracking, /editable, $
+	file = widget_text( base_proj_file, value=(*p).file[(*p).station], uname='file', /tracking, /editable, frame=lframe, $
 						notify_realize='OnRealize_station_file', $
 						uvalue='Enter a file-name for the projection method, ' + $
 						'or click on the "File" button to the left to browse for the projection file.',scr_xsize=file_xsize-35)
@@ -5010,7 +5013,7 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 	button = widget_button( dbase5, value='Energies:', uname='energy_file_button', /tracking, $
 						uvalue='Browse to select a file-name for the XANES energies table for the (energy + angle) pixel steps on the Proxy Axis (Z in 3D stack mode).')
 	energy_file_text = widget_text( dbase5, value=(*p).xanes_energies_file, uname='energies-file', /tracking, /editable, $
-						notify_realize='OnRealize_evt_energies_file', $
+						notify_realize='OnRealize_evt_energies_file', frame=lframe, $
 						uvalue='Enter a file-name for the XANES energies table for the (energy + angle) pixel steps on the Proxy Axis (Z in 3D stack mode), ' + $
 						'or click on "File" to the left to browse for the file.',scr_xsize=file_xsize-20)
 
@@ -5020,7 +5023,7 @@ obase = widget_base( tbase, /row, /base_align_center, ypad=1, space=space5)
 button = widget_button( obase, value='Output:', uname='output_button', /tracking, $
 					uvalue='Browse to select the output file name. This will be set automatically after the EVT file is selected. Click on "Output" to select a different output directory, or to edit the filename.', $
 					scr_xsize=55)
-output_file = widget_text( obase, value=(*p).evt_file, uname='output_file', /tracking, /editable, $
+output_file = widget_text( obase, value=(*p).evt_file, uname='output_file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_output_file', $
 					uvalue='Enter a file-name for the output file. This will be set automatically after the EVT file is selected. Click on "Output" to select a different output directory, or to edit the filename.', $
 					scr_xsize=file_xsize+24)
