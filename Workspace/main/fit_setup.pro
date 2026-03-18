@@ -3410,6 +3410,7 @@ case !version.os_family of
 		slider_xsize = 80
 		xsize_flux = 22
 		mode_xsize = 320
+		xsize_tweek2 = 67
 		xsize_tweek = 38
 		ysize_help = 4
 		tgeneral = 'General'
@@ -3428,7 +3429,7 @@ case !version.os_family of
 		xw = 472
 ;		yh = (gamma eq 1) ? 359 : 454
 		yh = (gamma eq 1) ? 372 : 467
-		xsize_help = 458
+		xsize_help = 460
 		detector_xsize = 136
 		filter_xsize = 118
 		yield_file_xsize = 209-3*trim
@@ -3443,7 +3444,9 @@ case !version.os_family of
 		slider_xsize = 75
 		xsize_flux = 22
 		mode_xsize = 320
-		xsize_tweek = 38
+		xsize_tweek2 = 67
+		xsize_tweek = 43
+		tweak_space = 0
 		ysize_help = 4
 		tgeneral = 'General'
 		tbackground = 'Back 1'
@@ -3462,7 +3465,7 @@ case !version.os_family of
 ;		yh = (gamma eq 1) ? 359 : 422
 		yh = (gamma eq 1) ? 372 : 435
 		xsize_help = 443
-		detector_xsize = 136
+		detector_xsize = 130
 		filter_xsize = 118
 		yield_file_xsize = 209-3*trim
 		det_label = 'Detector:'
@@ -3476,7 +3479,9 @@ case !version.os_family of
 		slider_xsize = 80
 		xsize_flux = 22
 		mode_xsize = 320
-		xsize_tweek = 38
+		xsize_tweek2 = 65
+		xsize_tweek = 40
+		tweak_space = 1
 		ysize_help = 3
 		tgeneral = ' General '
 		tbackground = ' Back 1 '
@@ -4042,8 +4047,8 @@ adjust_base = widget_base( tab_panel, title='    Adjust    ', /column, xpad=0, y
 
 	wbase = widget_base( t2base, column=4, /base_align_right, /align_center, ypad=0, xpad=0, space=2)
 	for i=0L,19 do begin
-		wrbase = widget_base( wbase, /row, /base_align_center, ypad=0, xpad=0, space=2)
-		tweek_labels[i] = widget_label( wrbase, value=' ', scr_xsize=65, /align_right, $
+		wrbase = widget_base( wbase, /row, /base_align_center, ypad=0, xpad=0, space=tweak_space)
+		tweek_labels[i] = widget_label( wrbase, value=' ', scr_xsize=xsize_tweek2, /align_right, $
 					notify_realize='OnRealize_fit_tweek_label',uvalue=str_tidy(i))
 		tweek_pars[i] = widget_combobox( wrbase, value=par_list, uname='tweek-par', /tracking, $
 					notify_realize='OnRealize_fit_tweek_par', $
@@ -4140,7 +4145,7 @@ button = widget_button( bbase, value='Close', uname='close-button', /tracking, $
 
 Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=xsize_help-16, ysize=ysize_help, /wrap, uname='help', /tracking, $
+help = widget_text( Help_Base, scr_xsize=xsize_help-14, ysize=ysize_help, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
 
