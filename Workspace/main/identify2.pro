@@ -161,8 +161,8 @@ case !version.os_family of
 		large_table_x = 411 *(*pstate).sxy
 		large_table_y = 186 *(*pstate).sxy				; 220
 		xoff = 10 *(*pstate).sxy
-		yoff = 112 *(*pstate).sxy						; 140
-		table_minx = 190 *(*pstate).sxy
+		yoff = 115 *(*pstate).sxy						; 140
+		table_minx = 280 *(*pstate).sxy
 		table_miny = 145 *(*pstate).sxy
 		width_off = 10 *(*pstate).sxy
 		height_off = 43 *(*pstate).sxy					; 63
@@ -178,8 +178,8 @@ case !version.os_family of
 		large_table_y = 207 *(*pstate).sxy				; 240
 		xoff = 8 *(*pstate).sxy
 		yoff = 91 *(*pstate).sxy						; 125
-		table_minx = 220 *(*pstate).sxy
-		table_miny = 145 *(*pstate).sxy
+		table_minx = 278 *(*pstate).sxy
+		table_miny = 177 *(*pstate).sxy
 		width_off = 10 *(*pstate).sxy
 		height_off = 32 *(*pstate).sxy					; 52
 		large_slider_width = 220 *(*pstate).sxy
@@ -196,7 +196,7 @@ case uname of
 		if (*pstate).mode eq 0 then begin
 			w = (event.x - xoff) > table_minx
 			h = (event.y - yoff) > table_miny
-;			print,w,h
+			print,w,h
 			widget_control, (*pstate).list, scr_xsize=w, scr_ysize=h
 			widget_control, (*pstate).thresh, scr_xsize=w + 12 *(*pstate).sxy
 			widget_control, (*pstate).help, scr_xsize=w + (6-25) *(*pstate).sxy
