@@ -3428,7 +3428,7 @@ case !version.os_family of
 		xw = 472
 ;		yh = (gamma eq 1) ? 359 : 454
 		yh = (gamma eq 1) ? 372 : 467
-		xsize_help = 443
+		xsize_help = 458
 		detector_xsize = 136
 		filter_xsize = 118
 		yield_file_xsize = 209-3*trim
@@ -4140,7 +4140,7 @@ button = widget_button( bbase, value='Close', uname='close-button', /tracking, $
 
 Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=xsize_help-18, ysize=ysize_help, /wrap, uname='help', /tracking, $
+help = widget_text( Help_Base, scr_xsize=xsize_help-16, ysize=ysize_help, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
 
