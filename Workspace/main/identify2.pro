@@ -160,8 +160,8 @@ case !version.os_family of
 		small_table_y = 146 *(*pstate).sxy				; 144
 		large_table_x = 411 *(*pstate).sxy
 		large_table_y = 186 *(*pstate).sxy				; 220
-		xoff = 12 *(*pstate).sxy
-		yoff = 106 *(*pstate).sxy						; 140
+		xoff = 10 *(*pstate).sxy
+		yoff = 112 *(*pstate).sxy						; 140
 		table_minx = 190 *(*pstate).sxy
 		table_miny = 145 *(*pstate).sxy
 		width_off = 10 *(*pstate).sxy
@@ -176,7 +176,7 @@ case !version.os_family of
 		small_table_y = 141 *(*pstate).sxy				; 190
 		large_table_x = 455*(*pstate).sxy
 		large_table_y = 207 *(*pstate).sxy				; 240
-		xoff = 10 *(*pstate).sxy
+		xoff = 8 *(*pstate).sxy
 		yoff = 91 *(*pstate).sxy						; 125
 		table_minx = 220 *(*pstate).sxy
 		table_miny = 145 *(*pstate).sxy
@@ -680,8 +680,8 @@ detector_title = ['---   none   ---',detector_title]
 		end
 	else: begin
 		fnt = 'COURIER*10'
-		large_table_x = 453 *sxy
-		large_table_y = 214 *sxy
+		large_table_x = 455 *sxy
+		large_table_y = 207 *sxy
 		large_slider_width = 220 *sxy
 		large_drop_width = 160 *sxy
 		space5 = 5 *sxy
@@ -774,7 +774,7 @@ detector_mode = widget_combobox( filter_base, value=detector_title, uname='detec
 
 Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1 *sxy, XPAD=2 *sxy, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=list_xsize-32 *sxy, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
+help = widget_text( Help_Base, scr_xsize=list_xsize-28 *sxy, ysize=ysize_help, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
 
 query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15 *sxy, ysize=20 *sxy,  $
