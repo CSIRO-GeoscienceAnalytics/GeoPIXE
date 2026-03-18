@@ -160,8 +160,8 @@ case !version.os_family of
 		small_table_y = 146 *(*pstate).sxy				; 144
 		large_table_x = 411 *(*pstate).sxy
 		large_table_y = 186 *(*pstate).sxy				; 220
-		xoff = 15 *(*pstate).sxy
-		yoff = 108 *(*pstate).sxy						; 140
+		xoff = 13 *(*pstate).sxy
+		yoff = 106 *(*pstate).sxy						; 140
 		table_minx = 250 *(*pstate).sxy
 		table_miny = 145 *(*pstate).sxy
 		width_off = 10 *(*pstate).sxy
