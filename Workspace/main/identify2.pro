@@ -161,11 +161,11 @@ case !version.os_family of
 		large_table_x = 411 *(*pstate).sxy
 		large_table_y = 186 *(*pstate).sxy				; 220
 		xoff = 15 *(*pstate).sxy
-		yoff = 118 *(*pstate).sxy						; 140
+		yoff = 113 *(*pstate).sxy						; 140
 		table_minx = 250 *(*pstate).sxy
 		table_miny = 145 *(*pstate).sxy
 		width_off = 10 *(*pstate).sxy
-		height_off = 30 *(*pstate).sxy					; 63
+		height_off = 30 *(*pstate).sxy					; 30
 		large_slider_width = 220 *(*pstate).sxy
 		small_slider_width = 70 *(*pstate).sxy
 		large_drop_width = 155 *(*pstate).sxy
