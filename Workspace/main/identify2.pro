@@ -161,11 +161,11 @@ case !version.os_family of
 		large_table_x = 411 *(*pstate).sxy
 		large_table_y = 186 *(*pstate).sxy				; 220
 		xoff = 15 *(*pstate).sxy
-		yoff = 117 *(*pstate).sxy						; 140
-		table_minx = 260 *(*pstate).sxy
+		yoff = 118 *(*pstate).sxy						; 140
+		table_minx = 250 *(*pstate).sxy
 		table_miny = 145 *(*pstate).sxy
 		width_off = 10 *(*pstate).sxy
-		height_off = 43 *(*pstate).sxy					; 63
+		height_off = 30 *(*pstate).sxy					; 63
 		large_slider_width = 220 *(*pstate).sxy
 		small_slider_width = 70 *(*pstate).sxy
 		large_drop_width = 155 *(*pstate).sxy
@@ -176,12 +176,12 @@ case !version.os_family of
 		small_table_y = 141 *(*pstate).sxy				; 190
 		large_table_x = 455*(*pstate).sxy
 		large_table_y = 207 *(*pstate).sxy				; 240
-		xoff = 8 *(*pstate).sxy
-		yoff = 91 *(*pstate).sxy						; 125
+		xoff = 12 *(*pstate).sxy
+		yoff = 85 *(*pstate).sxy						; 125
 		table_minx = 278 *(*pstate).sxy
 		table_miny = 177 *(*pstate).sxy
 		width_off = 10 *(*pstate).sxy
-		height_off = 32 *(*pstate).sxy					; 52
+		height_off = 26 *(*pstate).sxy					; 52
 		large_slider_width = 220 *(*pstate).sxy
 		small_slider_width = 70 *(*pstate).sxy
 		large_drop_width = 160 *(*pstate).sxy
@@ -192,11 +192,11 @@ endcase
 uname = widget_info( event.id, /uname)
 case uname of
 	'identify2_TLB': begin					; resize
-;		print,event.x,event.y
+		print,'event x,y=',event.x,event.y
 		if (*pstate).mode eq 0 then begin
 			w = (event.x - xoff) > table_minx
 			h = (event.y - yoff) > table_miny
-			print,w,h
+			print,'Ident: w,h=',w,h
 			widget_control, (*pstate).list, scr_xsize=w, scr_ysize=h
 			widget_control, (*pstate).thresh, scr_xsize=w + 12 *(*pstate).sxy
 			widget_control, (*pstate).help, scr_xsize=w + (6-25) *(*pstate).sxy
@@ -667,14 +667,14 @@ detector_title = ['---   none   ---',detector_title]
 		end
 	'unix': begin
 		fnt = '6x10'
-		large_table_x = 403 *sxy
-		large_table_y = 160 *sxy
+		large_table_x = 411 *sxy
+		large_table_y = 186 *sxy
 		large_slider_width = 220 *sxy
 		large_drop_width = 155 *sxy
 		space5 = 1 *sxy
 		space10 = 0 *sxy
 		texty = 29 *sxy
-		list_xsize = 270 *sxy
+		list_xsize = 250 *sxy
 		xw = 5 *sxy
 		ysize_help = 3
 		end
@@ -687,7 +687,7 @@ detector_title = ['---   none   ---',detector_title]
 		space5 = 5 *sxy
 		space10 = 6 *sxy
 		texty = 15 *sxy
-		list_xsize = 281 *sxy
+		list_xsize = 278 *sxy
 		xw = 0 *sxy
 		ysize_help = 2
 		end
