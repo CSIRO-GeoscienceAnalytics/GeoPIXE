@@ -3349,8 +3349,9 @@ pro fit_setup, group_leader=group, TLB=tlb, pspec=pspec, xoffset=xoffset, yoffse
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_geopixe_vm, geopixe_enable_vm
+common c_geopixe_scaling, sxy
 if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
-startupp
+if n_elements(geopixe_root) lt 1 then startupp
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -3391,29 +3392,30 @@ t = strip_clip()						; compile SNIP routines
 
 case !version.os_family of
 	'MacOS': begin
-		trim = 20
-		xw = 500
-;		yh = (gamma eq 1) ? 359 : 454
-		yh = (gamma eq 1) ? 372 : 467
-		xsize_help = 490
-		detector_xsize = 136
-		filter_xsize = 98
-		yield_file_xsize = 229-3*trim
+		sxyr = sxy /1.136					; to catch any changes from here
+		trim = 20 *sxyr
+		xw = 500 *sxyr
+;		yh = (gamma eq 1) ? 359 *sxyr : 454 *sxyr
+		yh = (gamma eq 1) ? 372 *sxyr : 467 *sxyr
+		xsize_help = 490 *sxyr
+		detector_xsize = 136 *sxyr
+		filter_xsize = 98 *sxyr
+		yield_file_xsize = 229 *sxyr - 3*trim
 		det_label = 'Detector:'
 		space1 = 0
-		space4 = 3
-		space5 = 4
-		space8 = 8
-		boost_xsize = 65
-		snip_xsize = 130
-		cut_xsize = 320
-		pileup_xsize = 140
-		slider_xsize = 80
-		xsize_flux = 22
-		mode_xsize = 320
-		xsize_tweek2 = 67
-		xsize_tweek = 38
-		ysize_help = 4
+		space4 = 3 *sxyr
+		space5 = 4 *sxyr
+		space8 = 8 *sxyr
+		boost_xsize = 65 *sxyr
+		snip_xsize = 130 *sxyr
+		cut_xsize = 320 *sxyr
+		pileup_xsize = 140 *sxyr
+		slider_xsize = 80 *sxyr
+		xsize_flux = 22 *sxyr
+		mode_xsize = 320 *sxyr
+		xsize_tweek2 = 67 *sxyr
+		xsize_tweek = 38 *sxyr
+		ysize_help = 4 *sxyr
 		tgeneral = 'General'
 		tbackground = 'Back 1'
 		tbackground2 = 'Back 2'
@@ -3426,30 +3428,31 @@ case !version.os_family of
 		lframe = 0
 		end
 	'unix': begin
-		trim = 20
-		xw = 472
-;		yh = (gamma eq 1) ? 359 : 454
-		yh = (gamma eq 1) ? 372 : 467
-		xsize_help = 460
-		detector_xsize = 136
-		filter_xsize = 118
-		yield_file_xsize = 209-3*trim
+		sxyr = sxy /1.136					; to catch any changes from here
+		trim = 20 *sxyr
+		xw = 472 *sxyr
+;		yh = (gamma eq 1) ? 359 *sxyr : 454 *sxyr
+		yh = (gamma eq 1) ? 372 *sxyr : 467 *sxyr
+		xsize_help = 460 *sxyr
+		detector_xsize = 136 *sxyr
+		filter_xsize = 118 *sxyr
+		yield_file_xsize = 209 *sxyr - 3*trim
 		det_label = 'Det:'
 		space1 = 0
 		space4 = 0
 		space5 = 0
-		space8 = 2
-		boost_xsize = 60
-		snip_xsize = 130
-		cut_xsize = 320
-		pileup_xsize = 140
-		slider_xsize = 75
-		xsize_flux = 22
-		mode_xsize = 320
-		xsize_tweek2 = 67
-		xsize_tweek = 45
-		tweak_space = 0
-		ysize_help = 4
+		space8 = 2 *sxyr
+		boost_xsize = 60 *sxyr
+		snip_xsize = 130 *sxyr
+		cut_xsize = 320 *sxyr
+		pileup_xsize = 140 *sxyr
+		slider_xsize = 75 *sxyr
+		xsize_flux = 22 *sxyr
+		mode_xsize = 320 *sxyr
+		xsize_tweek2 = 68 *sxyr
+		xsize_tweek = 45 *sxyr *sxyr
+		tweak_space = 0 *sxyr
+		ysize_help = 4 *sxyr
 		tgeneral = 'General'
 		tbackground = 'Back 1'
 		tbackground2 = 'Back 2'
@@ -3462,30 +3465,31 @@ case !version.os_family of
 		lframe = 0
 		end
 	else: begin
-		trim = 20
-		xw = 449
-;		yh = (gamma eq 1) ? 359 : 422
-		yh = (gamma eq 1) ? 372 : 435
-		xsize_help = 443
-		detector_xsize = 130
-		filter_xsize = 118
-		yield_file_xsize = 209-3*trim
+		sxyr = sxy /1.0						; to catch any changes from here
+		trim = 20 *sxyr
+		xw = 449 *sxyr
+;		yh = (gamma eq 1) ? 359 *sxyr : 422 *sxyr
+		yh = (gamma eq 1) ? 372 *sxyr : 435 *sxyr
+		xsize_help = 443 *sxyr
+		detector_xsize = 130 *sxyr
+		filter_xsize = 118 *sxyr
+		yield_file_xsize = 209 *sxyr - 3*trim
 		det_label = 'Detector:'
-		space1 = 1
-		space4 = 4
-		space5 = 5
-		space8 = 8
-		boost_xsize = 65
-		snip_xsize = 130
-		cut_xsize = 320
-		pileup_xsize = 140
-		slider_xsize = 80
-		xsize_flux = 22
-		mode_xsize = 320
-		xsize_tweek2 = 65
-		xsize_tweek = 40
-		tweak_space = 1
-		ysize_help = 3
+		space1 = 1 *sxyr
+		space4 = 4 *sxyr
+		space5 = 5 *sxyr
+		space8 = 8 *sxyr
+		boost_xsize = 65 *sxyr
+		snip_xsize = 130 *sxyr
+		cut_xsize = 320 *sxyr
+		pileup_xsize = 140 *sxyr
+		slider_xsize = 80 *sxyr
+		xsize_flux = 22 *sxyr
+		mode_xsize = 320 *sxyr
+		xsize_tweek2 = 65 *sxyr
+		xsize_tweek = 40 *sxyr
+		tweak_space = 1 *sxyr
+		ysize_help = 3 *sxyr
 		tgeneral = ' General '
 		tbackground = ' Back 1 '
 		tbackground2 = ' Back 2 '
@@ -3616,19 +3620,19 @@ presults = bad_pars_struct( presults, make_pars=no_results)
 
 tlb = widget_base( /column, title=pname+' Spectrum Fit', /TLB_KILL_REQUEST_EVENTS, xoffset=xoffset, yoffset=yoffset, $
 					group_leader=group, _extra=extra, uname='fit_TLB', /base_align_center)
-tbase = widget_base( tlb, /column, xpad=0, ypad=0, space=2, /base_align_center)
+tbase = widget_base( tlb, /column, xpad=0, ypad=0, space=2 *sxyr, /base_align_center)
 
 ; set-up file droplist and buttons
 
-sbase = widget_base( tbase, /row, /base_align_center, ypad=1, xpad=0, space=5)
+sbase = widget_base( tbase, /row, /base_align_center, ypad=1, xpad=0, space=5 *sxyr)
 lab = widget_label( sbase, value='Set-up:')
 pcm_file = widget_text( sbase, value=(*p).pcm_file, uname='pcm-file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_fit_pcm_file', $
-					uvalue='Enter a PCM file-name for source set-up details, or use the "Load" button.',scr_xsize=290)
+					uvalue='Enter a PCM file-name for source set-up details, or use the "Load" button.',scr_xsize=290 *sxyr)
 load_setup_button = widget_button( sbase, value='Load', uname='load-setup-button', /tracking, $
-					uvalue='Load set-up parameters from a previous PCM file.', scr_xsize=38)
+					uvalue='Load set-up parameters from a previous PCM file.', scr_xsize=38 *sxyr)
 save_setup_button = widget_button( sbase, value='Save', uname='save-setup-button', /tracking, $
-					uvalue='Save set-up parameters to a PCM file.', scr_xsize=38)
+					uvalue='Save set-up parameters to a PCM file.', scr_xsize=38 *sxyr)
 
 ; set-up periodic table
 
@@ -3668,8 +3672,8 @@ setup_base = widget_base( tab_panel, title='    Setup    ', /column, xpad=1, ypa
 								/align_center, /base_align_center, scr_xsize=xsize_help)
 
 rowbase = widget_base( setup_base, /row, /base_align_center, ypad=0, xpad=0, space=space8)
-lbase = widget_base( rowbase, /column, /base_align_right, ypad=2, xpad=0, space=4)
-rbase = widget_base( rowbase, /column, /base_align_center, ypad=0, xpad=0, space=1)
+lbase = widget_base( rowbase, /column, /base_align_right, ypad=2, xpad=0, space=4 *sxyr)
+rbase = widget_base( rowbase, /column, /base_align_center, ypad=0, xpad=0, space=1 *sxyr)
 row2base = widget_base( rbase, /row, /base_align_center, ypad=0, xpad=0, space=space4)
 row3base = widget_base( setup_base, /row, /base_align_center, ypad=0, xpad=0, space=space8)
 
@@ -3678,11 +3682,11 @@ row3base = widget_base( setup_base, /row, /base_align_center, ypad=0, xpad=0, sp
 ebase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( ebase, value='Energy Range:')
 elow_text = widget_text( ebase, value=str_tidy((*p).e_low), uname='elow-text', /tracking, /editable, frame=lframe, $
-					uvalue='Enter the low energy limit (keV) for fit range, or click "Use View" to transfer from spectrum.', scr_xsize=85-trim)
+					uvalue='Enter the low energy limit (keV) for fit range, or click "Use View" to transfer from spectrum.', scr_xsize=85 *sxyr - trim)
 ehigh_text = widget_text( ebase, value=str_tidy((*p).e_high), uname='ehigh-text', /tracking, /editable, frame=lframe, $
-					uvalue='Enter the high energy limit (keV) for fit range, or click "Use View" to transfer from spectrum.',scr_xsize=85-trim)
+					uvalue='Enter the high energy limit (keV) for fit range, or click "Use View" to transfer from spectrum.',scr_xsize=85 *sxyr - trim)
 erange_view = widget_button( ebase, value='Use View', uname='use-view-button', /tracking, $
-					uvalue='Use the current spectrum display VIEW range as the fitting energy range.', scr_xsize=92-trim)
+					uvalue='Use the current spectrum display VIEW range as the fitting energy range.', scr_xsize=92 *sxyr - trim)
 ; detectors, charge
 
 abase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=space4)
@@ -3691,10 +3695,10 @@ detector_mode = widget_combobox( abase, value=detector_title, uname='detector-mo
 					notify_realize='OnRealize_detector_mode', $
 					uvalue='Select the relevant detector calibration. For array detectors, this is done in the yield calculation, which then becomes ' + $
 					'dependent on take-off angles across the array.', xsize=detector_xsize)
-lab = widget_label( abase, value='Q:', scr_xsize=15)
+lab = widget_label( abase, value='Q:', scr_xsize=15 *sxyr)
 q_text = widget_text( abase, value=str_tidy((*p).charge), uname='q-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the integrated charge (uC). If a flux count (IC counter) is found, ' + $
-					'the conversion from IC to Q is calculated for further use.',scr_xsize=80-trim)
+					'the conversion from IC to Q is calculated for further use.',scr_xsize=80 *sxyr - trim)
 flux_Button = Widget_Button(abase, UNAME='flux', VALUE='?', /tracking, xsize=xsize_flux, $
       				uvalue='Open the Ion chamber panel to view the conversion factor (Q/IC), or to set Charge based on another conversion factor.')
 
@@ -3729,10 +3733,10 @@ lab = widget_label( ybase, value='Yields:')
 yield_mode = 0L
 yield_file = widget_text( ybase, value=(*p).yield_file, uname='yield-file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_fit_yield_file', $
-					uvalue='Select the '+xname+' production Yield file name, or use the "Load" button to load yields and relative-intensities.',scr_xsize=218-3*trim)
-yield_new_button = widget_button( ybase, value='New', uname='yield-new-button', /tracking, scr_xsize=30, $
+					uvalue='Select the '+xname+' production Yield file name, or use the "Load" button to load yields and relative-intensities.',scr_xsize=218 *sxyr - 3*trim)
+yield_new_button = widget_button( ybase, value='New', uname='yield-new-button', /tracking, scr_xsize=30 *sxyr, $
 					uvalue='Go to the Layer popup window to calculated '+xname+' yields and relative-intensities.')
-yield_load_button = widget_button( ybase, value='Load', uname='yield-popup-button', /tracking, scr_xsize=38, $
+yield_load_button = widget_button( ybase, value='Load', uname='yield-popup-button', /tracking, scr_xsize=38 *sxyr, $
 					uvalue='Load a set of precalculated '+xname+' yields and relative-intensities from a '+yname+' file.')
 
 
@@ -3741,7 +3745,7 @@ yield_load_button = widget_button( ybase, value='Load', uname='yield-popup-butto
 loop_base = widget_base( tab_panel, title='  Multiphase Loop  ', /column, xpad=1, ypad=0, space=0, $
 	/align_center, /base_align_center, scr_xsize=xsize_help)
 
-colbase = widget_base( loop_base, /column, /base_align_right, ypad=0, xpad=1, space=4)
+colbase = widget_base( loop_base, /column, /base_align_right, ypad=0, xpad=1, space=4 *sxyr)
 
 rowbase1 = widget_base( colbase, /row, /base_align_center, ypad=0, xpad=1, space=space5)
 lab = widget_label( rowbase1, value='Mode:')
@@ -3753,38 +3757,38 @@ mpda_mode = widget_combobox( rowbase1, value='    '+['Single phase, single fit',
 rowbase2 = widget_base( colbase, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( rowbase2, value='Yields:')
 yield_file2 = widget_text( rowbase2, value=(*p).yield_file, uname='yield-file', /tracking, /editable, frame=lframe, $
-		notify_realize='OnRealize_fit_yield_file',scr_xsize=280, $
+		notify_realize='OnRealize_fit_yield_file',scr_xsize=280 *sxyr, $
 		uvalue='Select the '+xname+' production Yield file name, or use the "Load" button to load yields and relative-intensities, or "New" to create a new one.')
-yield_new_button2 = widget_button( rowbase2, value='New', uname='yield-new-button', /tracking, scr_xsize=30, $
+yield_new_button2 = widget_button( rowbase2, value='New', uname='yield-new-button', /tracking, scr_xsize=30 *sxyr, $
 		uvalue='Go to the Layer popup window to calculated '+xname+' yields and relative-intensities.')
-yield_load_button2 = widget_button( rowbase2, value='Load', uname='yield-popup-button', /tracking, scr_xsize=38, $
+yield_load_button2 = widget_button( rowbase2, value='Load', uname='yield-popup-button', /tracking, scr_xsize=38 *sxyr, $
 		uvalue='Load a set of precalculated '+xname+' yields and relative-intensities from a '+yname+' file.')
 
 mpda_base = widget_base( colbase, /row, /base_align_center, ypad=0, xpad=0, space=space5, map=((*p).mpda_mode gt 0))
 lab = widget_label( mpda_base, value='Multiphase:')
 correct_file = widget_text( mpda_base, value=(*p).correct_file, uname='correct-file', /tracking, /editable, frame=lframe, $
-	notify_realize='OnRealize_fit_correct_file',scr_xsize=280, $
+	notify_realize='OnRealize_fit_correct_file',scr_xsize=280 *sxyr, $
 	uvalue='Select the Multiphase yield correction matrix file name, or use the "Load" button to load the composition matrix and yields, or "New" to create a new one.')
-yield_new_button2 = widget_button( mpda_base, value='New', uname='correct-new-button', /tracking, scr_xsize=30, $
+yield_new_button2 = widget_button( mpda_base, value='New', uname='correct-new-button', /tracking, scr_xsize=30 *sxyr, $
 	uvalue='Go to the Composition Correction popup window to specify phases, a compostion matrix and phase yields and relative-intensities.')
-yield_load_button2 = widget_button( mpda_base, value='Load', uname='correct-popup-button', /tracking, scr_xsize=38, $
+yield_load_button2 = widget_button( mpda_base, value='Load', uname='correct-popup-button', /tracking, scr_xsize=38 *sxyr, $
 	uvalue='Load a set of precalculated phases, compostion matrix and phase yields and relative-intensities from a .comat file.')
 
 
 ; Advanced panel  --------------------------------------------------------------------------------------
 
-advanced_base = widget_base( tab_panel, title='    Advanced    ', /column, xpad=0, ypad=0, space=2, $
+advanced_base = widget_base( tab_panel, title='    Advanced    ', /column, xpad=0, ypad=0, space=2 *sxyr, $
 								/align_center, /base_align_center, scr_xsize=xsize_help)
 
-tab2_panel = widget_tab( advanced_base, location=0, /align_center, scr_xsize=xsize_help-4, uname='advanced-panel')
+tab2_panel = widget_tab( advanced_base, location=0, /align_center, scr_xsize=xsize_help-4 *sxyr, uname='advanced-panel')
 
 
 ; ---------------- General panel  -------------------------------------------------------------------
 
-general_base = widget_base( tab2_panel, title=tgeneral, /column, xpad=0, ypad=1, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+general_base = widget_base( tab2_panel, title=tgeneral, /column, xpad=0, ypad=1, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
-g0base = widget_base( general_base, /column, /base_align_center, ypad=0, xpad=0, space=3)
+g0base = widget_base( general_base, /column, /base_align_center, ypad=0, xpad=0, space=3 *sxyr)
 
 ; cuts
 
@@ -3793,7 +3797,7 @@ lab = widget_label( cbase, value='Cuts:')
 cuts_file = widget_text( cbase, value=(*p).cuts_file, uname='cuts-file', /tracking, /editable, frame=lframe, $
 					uvalue='If necessary, select a cuts file to veto selected channels.',scr_xsize=cut_xsize)
 cuts_load_button = widget_button( cbase, value='Load', uname='load-cuts-button', /tracking, $
-					uvalue='Load cuts details, to veto selected channels, from a CUTS file.', scr_xsize=38)
+					uvalue='Load cuts details, to veto selected channels, from a CUTS file.', scr_xsize=38 *sxyr)
 
 ; Pileup
 
@@ -3816,15 +3820,15 @@ endelse
 
 ; ---------------- Background 1 panel  -------------------------------------------------------------------
 
-background_base = widget_base( tab2_panel, title=tbackground, /column, xpad=0, ypad=1, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+background_base = widget_base( tab2_panel, title=tbackground, /column, xpad=0, ypad=1, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
-b0base = widget_base( background_base, /column, /base_align_right, ypad=0, xpad=0, space=3)
+b0base = widget_base( background_base, /column, /base_align_right, ypad=0, xpad=0, space=3 *sxyr)
 
 ; background
 
 if gamma eq 0 then begin
-	f11base = widget_base( b0base, /row, /base_align_center, ypad=0, xpad=0, space=15)
+	f11base = widget_base( b0base, /row, /base_align_center, ypad=0, xpad=0, space=15 *sxyr)
 	lab = widget_label( f11base, value='Background algorithm:')
 	back_names = ['SNIP']
 	if add_plugins then begin
@@ -3853,14 +3857,14 @@ endelse
 ; ---------------- Background 2 panel  -------------------------------------------------------------------
 
 background2_base = widget_base( tab2_panel, title=tbackground2, /column, xpad=0, ypad=1, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
 b20base = widget_base( background2_base, /column, /base_align_right, ypad=0, xpad=0, space=3)
 
 ; background 2
 
 if gamma eq 0 then begin
-	f21base = widget_base( b20base, /row, /base_align_center, ypad=0, xpad=0, space=15)
+	f21base = widget_base( b20base, /row, /base_align_center, ypad=0, xpad=0, space=15 *sxyr)
 	lab = widget_label( f21base, value='Multiple Background mode:')
 	back2_mode = widget_combobox( f21base, value=['Off','Split back'], uname='back2-mode', /tracking, $
 					notify_realize='OnRealize_back2_mode', $
@@ -3878,12 +3882,12 @@ endelse
 
 ; ---------------- Cal panel  -------------------------------------------------------------------
 
-cal_base = widget_base( tab2_panel, title=tcals, /column, xpad=0, ypad=0, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+cal_base = widget_base( tab2_panel, title=tcals, /column, xpad=0, ypad=0, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
-c0base = widget_base( cal_base, /column, /base_align_center, ypad=0, xpad=0, space=2)
+c0base = widget_base( cal_base, /column, /base_align_center, ypad=0, xpad=0, space=2 *sxyr)
 
-c1base = widget_base( c0base, /row, /base_align_center, ypad=0, xpad=0, space=15)
+c1base = widget_base( c0base, /row, /base_align_center, ypad=0, xpad=0, space=15 *sxyr)
 lab = widget_label( c1base, value='Cal Fit Parameters:')
 cal_names = ['Free','Fixed']
 cal_mode = widget_combobox( c1base, value=cal_names, uname='cal-mode', /tracking, $
@@ -3899,12 +3903,12 @@ cal_options = cw_bgroup2( c1base, ['Free Gain term'], /row, xpad=0, ypad=0, spac
 
 ; ---------------- Widths panel  -------------------------------------------------------------------
 
-width_base = widget_base( tab2_panel, title=twidths, /column, xpad=0, ypad=0, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+width_base = widget_base( tab2_panel, title=twidths, /column, xpad=0, ypad=0, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
-w0base = widget_base( width_base, /column, /base_align_center, ypad=0, xpad=0, space=2)
+w0base = widget_base( width_base, /column, /base_align_center, ypad=0, xpad=0, space=2 *sxyr)
 
-w1base = widget_base( w0base, /row, /base_align_center, ypad=0, xpad=0, space=5)
+w1base = widget_base( w0base, /row, /base_align_center, ypad=0, xpad=0, space=5 *sxyr)
 lab = widget_label( w1base, value='Width Fit Parameters:')
 width_names = ['Free','Fixed','Default']
 width_mode = widget_combobox( w1base, value=width_names, uname='width-mode', /tracking, $
@@ -3920,18 +3924,18 @@ width_options = cw_bgroup2( w1base, ['Free Fano factor'], /row, xpad=0, ypad=0, 
 w2base = widget_base( w0base, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( w2base, value='Mn K FWHM:')
 width_slider = cw_fslider2( w2base, format='(F8.1)', minimum=0.0, maximum=500.0, layout=1, $
-				value=160.0, uname='width-slider', xsize=210, /tracking, /edit, /drag, scroll=5.0, $
+				value=160.0, uname='width-slider', xsize=210 *sxyr, /tracking, /edit, /drag, scroll=5.0, $
 				uvalue='Adjust the peak width noise parameter in the fit, as expressed as Mn K FWHM (eV).')
 
 
 ; ---------------- Tails 1 panel  -------------------------------------------------------------------
 
-tails1_base = widget_base( tab2_panel, title=ttails1, /column, xpad=0, ypad=0, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+tails1_base = widget_base( tab2_panel, title=ttails1, /column, xpad=0, ypad=0, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
 t0base = widget_base( tails1_base, /column, /base_align_center, ypad=0, xpad=0, space=0)
 
-t1base = widget_base( t0base, /row, /base_align_center, ypad=0, xpad=0, space=10)
+t1base = widget_base( t0base, /row, /base_align_center, ypad=0, xpad=0, space=10 *sxyr)
 lab = widget_label( t1base, value='Tail Fit Parameters:')
 tail_names = ['Free','Fixed','Default','Zero']
 tail_mode = widget_combobox( t1base, value=tail_names, uname='tail-mode', /tracking, $
@@ -3943,14 +3947,14 @@ button = widget_button( t1base, value='Write detector parameters', uname='update
 t2base = widget_base( t0base, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( t2base, value='Tail Amplitude:')
 tail_amp_slider = cw_fslider2( t2base, format='(F9.4)', minimum=0.0, maximum=1.0, layout=1, $
-				value=0.0001, uname='tail-amp-slider', xsize=210, /tracking, /edit, /drag, scroll=0.001, $
+				value=0.0001, uname='tail-amp-slider', xsize=210 *sxyr, /tracking, /edit, /drag, scroll=0.001, $
 				uvalue='Adjust the global Tail amplitude parameter to scale peak tail amplitudes in the fit.')
 
 
 ; ---------------- Tails 2 panel  -------------------------------------------------------------------
 
-tails2_base = widget_base( tab2_panel, title=ttails2, /column, xpad=0, ypad=0, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+tails2_base = widget_base( tab2_panel, title=ttails2, /column, xpad=0, ypad=0, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
 t20base = widget_base( tails2_base, /column, /base_align_right, ypad=0, xpad=0, space=0)
 
@@ -3979,10 +3983,10 @@ tail_S_slider = cw_fslider2( t22base, format='(F9.4)', minimum=-1.0, maximum=1.0
 
 ; ---------------- PIXE panel  -------------------------------------------------------------------
 
-PIXE_base = widget_base( tab2_panel, title=tpixe, /column, xpad=0, ypad=1, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+PIXE_base = widget_base( tab2_panel, title=tpixe, /column, xpad=0, ypad=1, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
-p0base = widget_base( PIXE_base, /column, /base_align_center, ypad=0, xpad=0, space=1)
+p0base = widget_base( PIXE_base, /column, /base_align_center, ypad=0, xpad=0, space=1 *sxyr)
 
 p1base = widget_base( p0base, /row, /base_align_center, ypad=0, xpad=0, space=space5)
 lab = widget_label( p1base, value='Curvature:')
@@ -4001,8 +4005,8 @@ pixe_options = cw_bgroup2( p2base, ['Secondary electron bremsstrahlung removal']
 
 ; ---------------- XRF panel  -------------------------------------------------------------------
 
-SXRF_base = widget_base( tab2_panel, title=tsxrf, /column, xpad=0, ypad=0, space=3, $
-								/align_center, /base_align_center, scr_xsize=xsize_help-6)
+SXRF_base = widget_base( tab2_panel, title=tsxrf, /column, xpad=0, ypad=0, space=3 *sxyr, $
+								/align_center, /base_align_center, scr_xsize=xsize_help-6 *sxyr)
 
 s0base = widget_base( SXRF_base, /column, /base_align_right, ypad=0, xpad=0, space=0)
 
@@ -4034,21 +4038,21 @@ tweek_pars = lonarr(20)
 tweek_el = 0L
 if tweek then begin
 
-adjust_base = widget_base( tab_panel, title='    Adjust    ', /column, xpad=0, ypad=0, space=2, $
+adjust_base = widget_base( tab_panel, title='    Adjust    ', /column, xpad=0, ypad=0, space=2 *sxyr, $
 								/align_center, /base_align_center, scr_xsize=xsize_help)
 
 ; Tweek line intensity parameters ...
 
 	par_list = strtrim(['off',str_tidy(indgen(10)+1)],2)
-	t2base = widget_base( adjust_base, /column, xpad=1, ypad=1, space=2, /align_center, /base_align_center)
+	t2base = widget_base( adjust_base, /column, xpad=1, ypad=1, space=2 *sxyr, /align_center, /base_align_center)
 
-	telbase = widget_base( t2base, /row, /base_align_center, ypad=0, xpad=0, space=1)
+	telbase = widget_base( t2base, /row, /base_align_center, ypad=0, xpad=0, space=1 *sxyr)
 	lab = widget_label( telbase, value='Adjust '+xname+' Lines for Element:', /align_right)
 	tweek_el = widget_combobox( telbase, value=['off',' '], uname='tweek-el', /tracking, $
 				notify_realize='OnRealize_fit_tweek_el', $
-				uvalue='Select the element to adjust line intensities for. ',xsize=60)
+				uvalue='Select the element to adjust line intensities for. ',xsize=60 *sxyr)
 
-	wbase = widget_base( t2base, column=4, /base_align_right, /align_center, ypad=0, xpad=0, space=2)
+	wbase = widget_base( t2base, column=4, /base_align_right, /align_center, ypad=0, xpad=0, space=2 *sxyr)
 	for i=0L,19 do begin
 		wrbase = widget_base( wbase, /row, /base_align_center, ypad=0, xpad=0, space=tweak_space)
 		tweek_labels[i] = widget_label( wrbase, value=' ', scr_xsize=xsize_tweek2, /align_right, $
@@ -4058,10 +4062,10 @@ adjust_base = widget_base( tab_panel, title='    Adjust    ', /column, xpad=0, y
 					uvalue=str_tidy(i)+' Select the adjustment parameter to tie this line to. ' + $
 					'Alpha line should remain fixed. ', xsize=xsize_tweek)
 	endfor
-	tbbase = widget_base( t2base, /row, /base_align_center, ypad=0, space=5)
+	tbbase = widget_base( t2base, /row, /base_align_center, ypad=0, space=5 *sxyr)
 	button = widget_button( tbbase, value='Update Relative Intensities', uname='update-button', /tracking, $
 					uvalue='Update the Yield relative intensities for this element, in memory only (does not alter the database).')
-	lab = widget_label( tbbase, value=' ', scr_xsize=30)
+	lab = widget_label( tbbase, value=' ', scr_xsize=30 *sxyr)
 	button = widget_button( tbbase, value='Save Yields', uname='save-yields-button', /tracking, $
 					uvalue='Save the updated yields in memory to a YIELD file.')
 endif else adjust_base=0L
@@ -4070,7 +4074,7 @@ endif else adjust_base=0L
 ; Debug panel  --------------------------------------------------------------------------------------
 
 if test then begin
-	debug_base = widget_base( tab_panel, title='    Debug    ', /column, xpad=0, ypad=1, space=3, $
+	debug_base = widget_base( tab_panel, title='    Debug    ', /column, xpad=0, ypad=1, space=3 *sxyr, $
 								/align_center, /base_align_center, scr_xsize=xsize_help)
 
 ; Test show_DF
@@ -4086,29 +4090,29 @@ if test then begin
 	vals[8] = (gamma eq 1) ? '7 -free-' : '7 Background scale'
 	vals[9:10] = (gamma eq 1) ? ['8 -free-','9 -free-'] : ['8 Comp tail amp','9 Comp tail slope']
 	show_df_mode = widget_combobox( xbase, value=vals, uname='show-df-mode', /tracking, $
-			uvalue='Select a non-linear parameter to generate a finite-difference differential to compare with the DF function as test.', xsize=105)
+			uvalue='Select a non-linear parameter to generate a finite-difference differential to compare with the DF function as test.', xsize=105 *sxyr)
 
 	vals = ['1.000','10.00','100.0','1000.']
 	vals = [vals, '1.0e+' + str_tidy(indgen(7)+4)]
 	lab = widget_label( xbase, value='   Scale by: ')
 	scale_df = widget_combobox( xbase, value=vals, uname='scale-df', /tracking, $
-			uvalue='Scale the selected DF for display.', xsize=90)
+			uvalue='Scale the selected DF for display.', xsize=90 *sxyr)
 	offset_df = widget_combobox( xbase, value=['No offset','Scale by 2','Scale by 10','Scale by 100','Offset by 1','Offset by 10','Offset by 100','Offset by 1000'], uname='offset-df', /tracking, $
-			uvalue='Offset the finite-difference test of derivatives: scale for log-scale, offset for linear.', xsize=90)
+			uvalue='Offset the finite-difference test of derivatives: scale for log-scale, offset for linear.', xsize=90 *sxyr)
 
 	x2base = widget_base( debug_base, /row, /align_center, /base_align_center, ypad=0, xpad=0, space=0)
 	lab = widget_label( x2base, value='Adjust line intensity DF: ')
 	vals2 = 'Adjust Line ' + str_tidy( indgen(11))
 	vals2[0] = 'off'
 	show_df_mode2 = widget_combobox( x2base, value=vals2, uname='show-df-mode2', /tracking, $
-			uvalue='Select a line intensity adjustment parameter to generate a finite-difference differential to compare with the DF function as test.', xsize=105)
+			uvalue='Select a line intensity adjustment parameter to generate a finite-difference differential to compare with the DF function as test.', xsize=105 *sxyr)
 
 	x3base = widget_base( debug_base, /row, /align_center, /base_align_center, ypad=0, xpad=0, space=0)
 	lab = widget_label( x3base, value='Element DF: ')
 	vals3 = 'Element ' + str_tidy( indgen(31)-1) + '   k=' + str_tidy( indgen(31)+19)
 	vals3[0] = 'off'
 	show_df_mode3 = widget_combobox( x3base, value=vals3, uname='show-df-mode3', /tracking, $
-			uvalue='Select an element parameter to generate a finite-difference differential to compare with the DF function as test.', xsize=105)
+			uvalue='Select an element parameter to generate a finite-difference differential to compare with the DF function as test.', xsize=105 *sxyr)
 endif else begin
 	show_df_mode = 0L
 	show_df_mode2 = 0L
@@ -4119,7 +4123,7 @@ endelse
 ;-------------------------------------------------------------------------------------------------------
 
 
-bbase = widget_base( tlb, /row, /base_align_center, ypad=1, space=2)
+bbase = widget_base( tlb, /row, /base_align_center, ypad=1, space=2 *sxyr)
 lab = widget_label( bbase, value='Fit:')
 button = widget_button( bbase, value='One', uname='fit-button', /tracking, $
 					uvalue='Perform the non-linear least squares fit to the currently displayed '+xname+' spectrum.')
@@ -4133,14 +4137,14 @@ endif else begin
 	button = widget_button( bbase, value='Refit', uname='refit-button', /tracking, $
 					uvalue='Repeat the fit for the spectrum selected in the "Fit Results" window (if selected), and update the current results row.')
 endelse
-lab = widget_label( bbase, value='', scr_xsize=11)
+lab = widget_label( bbase, value='', scr_xsize=11 *sxyr)
 da_button = widget_button( bbase, value='Generate DA matrix', uname='dynamic-button', /tracking, $
 					uvalue='Generate the Dynamic Analysis transform matrix and write a DAM file.')
 export_button = widget_button( bbase, value='Export', uname='export-button', /tracking, sensitive=0, $
 					uvalue='Export the Dynamic Analysis matrix to an export format file (e.g. for download into a data acquisition system for realtime imaging).')
 pure_button = widget_button( bbase, value='P', uname='pure-button', /tracking, sensitive=0, $
 					uvalue='Overlay the elemental component spectra on the fit to the spectrum. Need to "Generate DA matrix" first.')
-lab = widget_label( bbase, value='', scr_xsize=11)
+lab = widget_label( bbase, value='', scr_xsize=11 *sxyr)
 button = widget_button( bbase, value='Close', uname='close-button', /tracking, $
 					uvalue='Exit the Spectrum Fit popup window.')
 
@@ -4148,11 +4152,11 @@ button = widget_button( bbase, value='Close', uname='close-button', /tracking, $
 
 Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=space1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=xsize_help-13, ysize=ysize_help, /wrap, uname='help', /tracking, $
+help = widget_text( Help_Base, scr_xsize=xsize_help-13 *sxyr, ysize=ysize_help, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
 
-query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15 *sxyr, ysize=20 *sxyr,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {	$
