@@ -829,6 +829,7 @@ register_notify, tlb, ['new-detectors','new-filters']
 
 xmanager, 'identify2', tlb, /no_block
 
+wset, -1
 help, !d
 return
 end
