@@ -3456,7 +3456,7 @@ case !version.os_family of
 		xsize_tweek = 40 *sxyr
 		tweak_space = 1 *sxyr
 		ysize_help = 3 *sxyr
-		generate_xsize = 98 *sxyr
+		generate_xsize = 100 *sxyr
 		tgeneral = ' General '
 		tbackground = ' Back 1 '
 		tbackground2 = ' Back 2 '
