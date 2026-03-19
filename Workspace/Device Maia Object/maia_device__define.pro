@@ -224,6 +224,7 @@ case !version.os_family of
 		source_xsize = 45
 		axes_xsize = 365
 		axes_only_ysize = 75
+		lframe = 0
 		end
 	'unix': begin
 		xmargin_xsize = 45
@@ -232,6 +233,7 @@ case !version.os_family of
 		source_xsize = 45
 		axes_xsize = 365
 		axes_only_ysize = 75
+		lframe = 0
 		end
 	else: begin
 		xmargin_xsize = 45
@@ -240,6 +242,7 @@ case !version.os_family of
 		source_xsize = 45
 		axes_xsize = 305
 		axes_only_ysize = 80
+		lframe = 1
 		end
 endcase
 
@@ -269,10 +272,10 @@ if axes_only eq 0 then begin
 	maiadbase = widget_base( maiamode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( maiadbase, value='DT cal A:')
 	maia_deadtime_cal_a = widget_text( maiadbase, value=str_tidy(self.sort_options.deadtime_cal.a), uname='maia-deadtime-cal-a', /tracking, /editable, $
-					uvalue='Calibration (gain, ns) of Maia time-over-threshold (T).', scr_xsize=deadtime_xsize)
+					uvalue='Calibration (gain, ns) of Maia time-over-threshold (T).', scr_xsize=deadtime_xsize, frame=lframe)
 	lab = widget_label( maiadbase, value='    B:')
 	maia_deadtime_cal_b = widget_text( maiadbase, value=str_tidy(self.sort_options.deadtime_cal.b), uname='maia-deadtime-cal-b', /tracking, /editable, $
-					uvalue='Calibration (offset, ns) of Maia time-over-threshold (T).', scr_xsize=deadtime_xsize)
+					uvalue='Calibration (offset, ns) of Maia time-over-threshold (T).', scr_xsize=deadtime_xsize, frame=lframe)
 	
 	maiatbase = widget_base( maiamode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( maiatbase, value='Slowest motor axis (for YLUT):')

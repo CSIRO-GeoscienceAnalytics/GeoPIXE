@@ -4225,128 +4225,91 @@ register_notify
 XANES_mode_tag = ' Dir'			; for DIR XANES
 XANES_dir = 1
 
+sxyr = geopixe_scale()						; to catch any changes from dimension here
+											; if default system fonts change and effect widgets
+
+; case os_type() of							; use this to distinguish: "Mac", "Linux", "Win"
 case !version.os_family of
-	'MacOS': begin
-		symbol = 'SYMBOL*12'
-		large_font = 'Arial*12'
-;@2		widget_control, default_font='Geneva*10'		; set font for all windows
-		xw = 432
-		yo = 10
-		space1 = 1
-		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		from_xsize = 65
-		device_xsize = 260
-		evt_button_xsize = 55
-		evt_file_xsize = 236
-		evt_file_xsize2 = 270
-		sample_xsize = 113
-		comment_xsize = 266
-		xy_mode_xsize = 240
-		stepmode_base_width = 305
-		stepmode_xsize = 290
-		steps_xsize = 90
-		distance_xsize = 90
-		xrange_xsize = 55
-		charge_xsize = 80
-		step_range_dummy_xsize = 52
-		station_xsize = 57
-		type_xsize = 100
-		cal_xsize = 70
-		mode_xsize = 260
-		file_xsize = 320
-		map_base_xsize = 305
-		pad5 = 5
-		help_xsize = 422
-		tab_xsize = 412
-		charge_xsize2 = 195
-		encoder_xsize = 175
-		com_xsize = 40
-		update_xsize = 55
-		lframe = 0
-		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
-		xw = 432
+		xw = 432 *sxyr
 		yo = 0
 		space1 = 0
-		space2 = 2
-		space5 = 4
-		space10 = 7
-		space15 = 12
-		from_xsize = 65
-		device_xsize = 320
-		evt_button_xsize = 75
-		evt_file_xsize = 286
-		evt_file_xsize2 = 327
-		sample_xsize = 143
-		comment_xsize = 342
-		xy_mode_xsize = 260
-		stepmode_base_width = 385
-		stepmode_xsize = 220
-		steps_xsize = 120
-		distance_xsize = 90
-		xrange_xsize = 55
-		charge_xsize = 80
-		step_range_dummy_xsize = 82
-		station_xsize = 67
-		type_xsize = 100
-		cal_xsize = 110
-		mode_xsize = 260
-		file_xsize = 327
-		map_base_xsize = 385
-		pad5 = 5
-		help_xsize = 422
-		tab_xsize = 412
-		charge_xsize2 = 195
-		encoder_xsize = 175
-		com_xsize = 40
-		update_xsize = 55
+		space2 = 2 *sxyr
+		space5 = 4 *sxyr
+		space10 = 7 *sxyr
+		space15 = 12 *sxyr
+		from_xsize = 65 *sxyr
+		device_xsize = 320 *sxyr
+		evt_button_xsize = 75 *sxyr
+		evt_file_xsize = 286 *sxyr
+		evt_file_xsize2 = 327 *sxyr
+		sample_xsize = 143 *sxyr
+		comment_xsize = 342 *sxyr
+		xy_mode_xsize = 260 *sxyr
+		stepmode_base_width = 385 *sxyr
+		stepmode_xsize = 220 *sxyr
+		steps_xsize = 120 *sxyr
+		distance_xsize = 90 *sxyr
+		xrange_xsize = 55 *sxyr
+		charge_xsize = 80 *sxyr
+		step_range_dummy_xsize = 82 *sxyr
+		station_xsize = 67 *sxyr
+		type_xsize = 100 *sxyr
+		cal_xsize = 110 *sxyr
+		mode_xsize = 260 *sxyr
+		file_xsize = 327 *sxyr
+		map_base_xsize = 385 *sxyr
+		pad5 = 5 *sxyr
+		help_xsize = 422 *sxyr
+		tab_xsize = 412 *sxyr
+		charge_xsize2 = 195 *sxyr
+		encoder_xsize = 175 *sxyr
+		com_xsize = 40 *sxyr
+		update_xsize = 55 *sxyr
 		lframe = 0
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
 		large_font = 'COURIER*BOLD*10'
 	;	widget_control, default_font='Arial*14'			; set font for all windows
-		xw = 357
+		xw = 357 *sxyr
 		yo = 0
-		space1 = 1
-		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		from_xsize = 65
-		device_xsize = 242
-		evt_button_xsize = 55
-		evt_file_xsize = 236
-		evt_file_xsize2 = 264
-		sample_xsize = 113
-		comment_xsize = 270
-		xy_mode_xsize = 245
-		stepmode_base_width = 305
-		stepmode_xsize = 298
-		steps_xsize = 90
-		distance_xsize = 90
-		xrange_xsize = 55
-		charge_xsize = 80
-		step_range_dummy_xsize = 13
-		station_xsize = 67
-		type_xsize = 100
-		cal_xsize = 70
-		mode_xsize = 240
-		file_xsize = 255	; 240
-		map_base_xsize = 305
-		pad5 = 7
-		help_xsize = 343	; 326
-		tab_xsize = 336
-		charge_xsize2 = 195
-		encoder_xsize = 175
-		com_xsize = 40
-		update_xsize = 55
+		space1 = 1 *sxyr
+		space2 = 2 *sxyr
+		space5 = 5 *sxyr
+		space10 = 10 *sxyr
+		space15 = 15 *sxyr
+		from_xsize = 65 *sxyr
+		device_xsize = 242 *sxyr
+		evt_button_xsize = 55 *sxyr
+		evt_file_xsize = 236 *sxyr
+		evt_file_xsize2 = 264 *sxyr
+		sample_xsize = 113 *sxyr
+		comment_xsize = 270 *sxyr
+		xy_mode_xsize = 245 *sxyr
+		stepmode_base_width = 305 *sxyr
+		stepmode_xsize = 298 *sxyr
+		steps_xsize = 90 *sxyr
+		distance_xsize = 90 *sxyr
+		xrange_xsize = 55 *sxyr
+		charge_xsize = 80 *sxyr
+		step_range_dummy_xsize = 13 *sxyr
+		station_xsize = 67 *sxyr
+		type_xsize = 100 *sxyr
+		cal_xsize = 70 *sxyr
+		mode_xsize = 240 *sxyr
+		file_xsize = 255 *sxyr	; 240
+		map_base_xsize = 305 *sxyr
+		pad5 = 7 *sxyr
+		help_xsize = 343 *sxyr	; 326
+		tab_xsize = 336 *sxyr
+		charge_xsize2 = 195 *sxyr
+		encoder_xsize = 175 *sxyr
+		com_xsize = 40 *sxyr
+		update_xsize = 55 *sxyr
 		lframe = 1
 		end
 endcase
@@ -4530,7 +4493,7 @@ device_mode = widget_combobox( dbase, value=device_titles, uname='device_mode', 
 
 batch_button = widget_button( dbase, value='Batch', uname='batch_button', /tracking, $
 					uvalue='Batch operation of Sort EVT: Set-up "Sort EVT" first for the first run in a series. Make sure input and output file paths are correct. ' + $
-							'THEN open "Batch Sort" and select runs to process. Start using "Start" on the batch window.')	;, scr_xsize=18)
+							'THEN open "Batch Sort" and select runs to process. Start using "Start" on the batch window.')	;, scr_xsize=18 *sxyr)
 
 tab_panel = widget_tab( tbase, location=0, /align_center, uname='tab-panel')
 tab_names = ['Files','Device','Scan','Flux','DA / E.Cal']
@@ -4734,7 +4697,7 @@ xrange = widget_text( xbase, uname='x_range', /editable, /tracking, value=str_ti
 					uvalue='Total number of X pixels in a scan or steps along a traverse. Select a sub-region using the "selected sub-region" controls below.', scr_xsize=xrange_xsize)
 
 xcbase = widget_base( xpars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
-lab = widget_label( xcbase, value='X compress:', scr_xsize=xrange_xsize+10)
+lab = widget_label( xcbase, value='X compress:', scr_xsize=xrange_xsize + 10 *sxyr)
 xcompress = widget_combobox( xcbase, value=compressions, uname='x_compress', /tracking, $
 					notify_realize='OnRealize_xcompress', scr_xsize=xrange_xsize, $
 					uvalue='Compression factor (binning) for X (1=no compression).')
@@ -4753,7 +4716,7 @@ yrange = widget_text( ybase, uname='y_range', /editable, /tracking, value=str_ti
 					uvalue='Total number of Y pixels in a scan. Select a sub-region using the "selected sub-region" controls below.', scr_xsize=xrange_xsize)
 
 ycbase = widget_base( ypars_base, /row, /base_align_center, xpad=0, ypad=0, space=1)
-lab = widget_label( ycbase, value='Y compress:', scr_xsize=xrange_xsize+10)
+lab = widget_label( ycbase, value='Y compress:', scr_xsize=xrange_xsize + 10 *sxyr)
 ycompress = widget_combobox( ycbase, value=compressions, uname='y_compress', /tracking, $
 					notify_realize='OnRealize_ycompress', scr_xsize=xrange_xsize, $
 					uvalue='Compression factor (binning) for Y (1=no compression).')
@@ -4773,12 +4736,12 @@ zrange = widget_text( zbase, uname='z_range', /editable, /tracking, value=str_ti
 zoptions_base = widget_base( zpars_base, xpad=0, ypad=0)
 
 zorigin_base = widget_base( zoptions_base, /row, /base_align_center, xpad=0, ypad=0, space=1, map=((*p).xy_mode eq 4))
-lab = widget_label( zorigin_base, value='   Z origin:', scr_xsize=xrange_xsize+10)
+lab = widget_label( zorigin_base, value='   Z origin:', scr_xsize=xrange_xsize + 10 *sxyr)
 zorigin = widget_text( zorigin_base, uname='z_origin', /editable, /tracking, value=str_tidy((*p).zorigin), notify_realize='OnRealize_zorigin', $
 					uvalue='Origin of Z axis for a scan, for Energy or Tomo angle.', scr_xsize=xrange_xsize, frame=lframe)
 
 zcompress_base = widget_base( zoptions_base, /row, /base_align_center, xpad=0, ypad=0, space=1, map=((*p).xy_mode eq 5))
-lab = widget_label( zcompress_base, value='Z compress:', scr_xsize=xrange_xsize+10)
+lab = widget_label( zcompress_base, value='Z compress:', scr_xsize=xrange_xsize + 10 *sxyr)
 zcompress = widget_combobox( zcompress_base, value=compressions, uname='z_compress', /tracking, $
 					notify_realize='OnRealize_zcompress', scr_xsize=xrange_xsize, $
 					uvalue='Compression factor (binning) for Z (Energy, Tomo) (1=no compression).')
@@ -4789,8 +4752,8 @@ zsize = widget_text( zsbase, uname='z_size', /editable, /tracking, value=str_tid
 					scr_xsize=xrange_xsize, uvalue='Z size of scan, for energy, angle (mdeg or eV).')
 
 ;cbase = widget_base( parsbase, /row, /base_align_center, xpad=2, ypad=0, /center)
-size_base = widget_base( parsbase, /row, /base_align_center, /align_center, xpad=0, ypad=0, space=80, map=(1 - ( (*p).xy_mode eq 0))  )
-;dummy = widget_label(size_base, value=' ', scr_xsize=20)
+size_base = widget_base( parsbase, /row, /base_align_center, /align_center, xpad=0, ypad=0, space=80 *sxyr, map=(1 - ( (*p).xy_mode eq 0))  )
+;dummy = widget_label(size_base, value=' ', scr_xsize=20 *sxyr)
 step_range_button = widget_button( size_base, value='Step Range', uname='steprange_button', /tracking, $
 					uvalue='In X (or Y) step mode, use this pop-up to set the X (or Y) range in the stepping direction.')
 ;dummy = widget_label(size_base, value=' ',scr_xsize=step_range_dummy_xsize)
@@ -4843,9 +4806,9 @@ y_sub_range = widget_text( offyr_base, uname='y_sub_range', /editable, /tracking
 flux_base = widget_base( tab_panel, title=tab_names[3], /column, xpad=1, ypad=1, scr_xsize=tab_xsize, space=space1, /base_align_center, /align_center)
 lab = widget_label( flux_base, value='Beam Flux / Charge Set-up')
 
-c0base = widget_base( flux_base, /row, /base_align_center, xpad=2, ypad=1, space=5)
+c0base = widget_base( flux_base, /row, /base_align_center, xpad=2, ypad=1, space=5 *sxyr)
 charge_mode = widget_combobox( c0base, value=qmodes, uname='charge-mode', $
-					notify_realize='OnRealize_evt_charge_mode', /tracking, uvalue=qhelp, scr_xsize=tab_xsize-30)
+					notify_realize='OnRealize_evt_charge_mode', /tracking, uvalue=qhelp, scr_xsize=tab_xsize - 30 *sxyr)
 
 IC_base = widget_base( flux_base, /column, /frame, xpad=4, ypad=1, space=space1, /base_align_right, map=((*p).charge_mode ne 0))
 IC_base1 = widget_base( IC_base, /column, xpad=0, ypad=0, space=space1, /base_align_right, map=((*p).charge_mode eq 1))
@@ -4859,26 +4822,26 @@ evt_check_pvlist, (*p).pic_list, DevObj
 					notify_realize='OnRealize_evt_charge_pv_mode', $
 					uvalue='Select the Epics scaler PV used to record upstream ion-counter.',scr_xsize=charge_xsize2)
 
-	s2base = widget_base( IC_base1, /row, xpad=0, ypad=0, space=2, /base_align_center)
+	s2base = widget_base( IC_base1, /row, xpad=0, ypad=0, space=2 *sxyr, /base_align_center)
 	lab = widget_label( s2base, value='Preamp Sensitivity:')
 	ic_val_mode = widget_combobox( s2base, value='   '+str_tidy(ic_vals), uname='ic-preamp-mode', /tracking, scr_xsize=charge_xsize2, $
 					notify_realize='OnRealize_evt_charge_preamp_mode', $
 					uvalue="Select the ion chamber preamp sensitivity multiplier.")
 
-	s3base = widget_base( IC_base1, /row, xpad=0, ypad=0, space=2, /base_align_center)
+	s3base = widget_base( IC_base1, /row, xpad=0, ypad=0, space=2 *sxyr, /base_align_center)
 	lab = widget_label( s3base, value='Preamp Scale Units:')
 	ic_unit_mode = widget_combobox( s3base, value='   '+ic_units, uname='ic-preamp-unit-mode', /tracking, scr_xsize=charge_xsize2, $
 					notify_realize='OnRealize_evt_charge_unit_mode', $
 					uvalue="Select the ion chamber preamp scale units.")
 
-	dwell_base = widget_base( IC_base1, /row, xpad=0, ypad=0, space=2, /base_align_center)
+	dwell_base = widget_base( IC_base1, /row, xpad=0, ypad=0, space=2 *sxyr, /base_align_center)
 	lab = widget_label( dwell_base, value='Dwell time (ms):')
 	dwell_wID = widget_text( dwell_base, uname='dwell', /editable, value=str_tidy((*p).dwell), frame=lframe, $
 						uvalue='Enter the dwell time per pixel (ms) if it is fixed. This is for converting count-rate to counts per pixel. ' + $
 						'It may be found by the device driver, especially for cases when it varies per pixel.', $
 						scr_xsize=charge_xsize2, /tracking)
 
-	ic_base2 = widget_base( IC_base, /row, /base_align_center, xpad=0, ypad=1, space=2)
+	ic_base2 = widget_base( IC_base, /row, /base_align_center, xpad=0, ypad=1, space=2 *sxyr)
 	scan_button = widget_button( ic_base2, value='Scan data for PVs', uname='charge-scan', /tracking, sensitive=((*p).charge_mode eq 1), $
 						uvalue='Open raw data file(s) and scan for Dwell and Epics PVs for IC rate and preamplifier settings. ' + $
 						'This is done automatically when new data files are selected.')
@@ -4887,7 +4850,7 @@ evt_check_pvlist, (*p).pic_list, DevObj
 					notify_realize='OnRealize_evt_charge_conversion', frame=lframe, $
 					uvalue='Conversion factor from integrated flux (IC count) to charge (uC) for scan.', scr_xsize=charge_xsize)
 						
-cbase = widget_base( flux_base, /row, /base_align_center, xpad=2, ypad=1, space=5)
+cbase = widget_base( flux_base, /row, /base_align_center, xpad=2, ypad=1, space=5 *sxyr)
 lab = widget_label( cbase, value='Equivalent charge (Q uC):')
 charge = widget_text( cbase, uname='charge', /editable, /tracking, value=str_tidy((*p).charge), frame=lframe, $
 					uvalue='Total integrated charge for scan (uC). If the device maps charge across image '+ $
@@ -4907,7 +4870,7 @@ val = adc_list_device( DevObj, max_adcs=max_adcs)
 
 lab = widget_label( statbase, value='Channel:')
 
-station = widget_combobox(statbase, uname='station', scr_xsize=station_xsize+5, $
+station = widget_combobox(statbase, uname='station', scr_xsize=station_xsize + 5 *sxyr, $
 			NOTIFY_REALIZE='OnRealize_evt_station', $
 			value=val, /tracking, uvalue='Select ADC channel to display and edit parameters (' + $
 			'displayed below). In "Single Detector" mode, this is also the ADC channel to process for images. ' + $
@@ -4937,7 +4900,7 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 	station_base = widget_base( da_base, /column, /frame, /align_center, /base_align_center, xsize=map_base_xsize, ypad=1)
 	base1 = widget_base( station_base, /column, /base_align_right, space=space1, xpad=0, ypad=0)
 
-	base1b = widget_base( base1, /row, /base_align_center, ypad=0, space=40)
+	base1b = widget_base( base1, /row, /base_align_center, ypad=0, space=40 *sxyr)
 	enable = cw_bgroup2( base1b, ['Enable'], /row, set_value=[(*p).enable[(*p).station]], sensitive=(*p).array, $
 						/return_index, uname='enable',/ nonexclusive, /tracking, $
 						uvalue='Enable sorting for this ADC channel or detector. This brings up a selection pop-up window for detector arrays.', ypad=0)
@@ -4975,7 +4938,7 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 	file = widget_text( base_proj_file, value=(*p).file[(*p).station], uname='file', /tracking, /editable, frame=lframe, $
 						notify_realize='OnRealize_station_file', $
 						uvalue='Enter a file-name for the projection method, ' + $
-						'or click on the "File" button to the left to browse for the projection file.',scr_xsize=file_xsize-35)
+						'or click on the "File" button to the left to browse for the projection file.',scr_xsize=file_xsize - 35 *sxyr)
 
 	base_billboard = widget_base( base_proj_file)
 	base_new_MPDA = widget_base( base_billboard, /row, /base_align_center, xpad=0, ypad=0, map=((*p).mode[(*p).station] eq 3))
@@ -5001,11 +4964,11 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 
 	da_xanes_base1b = widget_base( da_xanes_base0, /column, xpad=0, ypad=0, space=space2, /base_align_center, map=((*p).mode[(*p).station] ne 3) and ((*p).mode[(*p).station] ne 4) and (((*p).xy_mode eq 0)))
 
-	dbase4b = widget_base( da_xanes_base1b, /row, /base_align_center, ypad=0, space=15)
+	dbase4b = widget_base( da_xanes_base1b, /row, /base_align_center, ypad=0, space=15 *sxyr)
 	lab = widget_label( dbase4b, value='Energy proxy axis:')
 	proxy_axis = widget_combobox( dbase4b, value=proxy_modes, uname='proxy-axis', /tracking, $
 						notify_realize='OnRealize_proxy_axis', $
-						uvalue='Select the Proxy Axis that provides the index into an Energies File list, or "None" to not use an energy proxy.',xsize=120)
+						uvalue='Select the Proxy Axis that provides the index into an Energies File list, or "None" to not use an energy proxy.',xsize=120 *sxyr)
 
 	da_xanes_base2 = widget_base( da_base, /column, xpad=0, ypad=0, space=space2, /base_align_center, map=(((*p).xy_mode eq 4) or (((*p).xy_mode eq 0) and ((*p).mode[(*p).station] ne 3) and ((*p).mode[(*p).station] ne 4) and((*p).energy_proxy_axis gt 0))))
 
@@ -5015,18 +4978,18 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 	energy_file_text = widget_text( dbase5, value=(*p).xanes_energies_file, uname='energies-file', /tracking, /editable, $
 						notify_realize='OnRealize_evt_energies_file', frame=lframe, $
 						uvalue='Enter a file-name for the XANES energies table for the (energy + angle) pixel steps on the Proxy Axis (Z in 3D stack mode), ' + $
-						'or click on "File" to the left to browse for the file.',scr_xsize=file_xsize-20)
+						'or click on "File" to the left to browse for the file.',scr_xsize=file_xsize - 20 *sxyr)
 
 ;---------- end tab ----------------------------------------------------------------------------------------------------
 
 obase = widget_base( tbase, /row, /base_align_center, ypad=1, space=space5)
 button = widget_button( obase, value='Output:', uname='output_button', /tracking, $
 					uvalue='Browse to select the output file name. This will be set automatically after the EVT file is selected. Click on "Output" to select a different output directory, or to edit the filename.', $
-					scr_xsize=55)
+					scr_xsize=55 *sxyr)
 output_file = widget_text( obase, value=(*p).evt_file, uname='output_file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_output_file', $
 					uvalue='Enter a file-name for the output file. This will be set automatically after the EVT file is selected. Click on "Output" to select a different output directory, or to edit the filename.', $
-					scr_xsize=file_xsize+24)
+					scr_xsize=file_xsize + 24 *sxyr)
 
 bbase = widget_base( tbase, /row, /base_align_center, ypad=0, space=space5)
 button = widget_button( bbase, value='Start', uname='start_button', /tracking, $
@@ -5063,10 +5026,10 @@ button = widget_button( bbase, value='Close', uname='close_button', /tracking, $
 
 Help_Base = Widget_Base(tbase, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=help_xsize-18, ysize=4, /wrap, uname='HELP', /tracking, $
+help = widget_text( Help_Base, scr_xsize=help_xsize - 18 *sxyr, ysize=4, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
 
-query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15 *sxyr, ysize=20 *sxyr,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {  $
