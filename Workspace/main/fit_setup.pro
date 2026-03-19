@@ -3419,7 +3419,7 @@ case !version.os_family of
 		xsize_tweek = 45 *sxyr *sxyr
 		tweak_space = 0 *sxyr
 		ysize_help = 4 *sxyr
-		generate_xsize = 110 *sxyr
+		generate_xsize = 115 *sxyr
 		tgeneral = 'General'
 		tbackground = 'Back 1'
 		tbackground2 = 'Back 2'
@@ -3456,7 +3456,7 @@ case !version.os_family of
 		xsize_tweek = 40 *sxyr
 		tweak_space = 1 *sxyr
 		ysize_help = 3 *sxyr
-		generate_xsize = 100 *sxyr
+		generate_xsize = 102 *sxyr
 		tgeneral = ' General '
 		tbackground = ' Back 1 '
 		tbackground2 = ' Back 2 '
@@ -4092,16 +4092,16 @@ endelse
 
 bbase = widget_base( tlb, /row, /base_align_center, ypad=1, space=2 *sxyr)
 lab = widget_label( bbase, value='Fit:')
-button = widget_button( bbase, value='One', uname='fit-button', /tracking, scr_xsize=26 *sxyr, $
+button = widget_button( bbase, value='One', uname='fit-button', /tracking, scr_xsize=29 *sxyr, $
 					uvalue='Perform the non-linear least squares fit to the currently displayed '+xname+' spectrum.')
-button = widget_button( bbase, value='All', uname='fit-all-button', /tracking, scr_xsize=25 *sxyr, $
+button = widget_button( bbase, value='All', uname='fit-all-button', /tracking, scr_xsize=27 *sxyr, $
 					uvalue='Perform the non-linear least squares fit to ALL loaded '+xname+' spectra.')
 lab = widget_label( bbase, value='Spectra.')
 if test then begin
 	button = widget_button( bbase, value='Pyfit', uname='fit-python-button', /tracking, scr_xsize=40 *sxyr, $
 					uvalue='Initiate a fit, but instead of fitting export all lines data, spectrum, background, pileup, etc. to files for Python program.')
 endif else begin
-	button = widget_button( bbase, value='Refit', uname='refit-button', /tracking, scr_xsize=38 *sxyr, $
+	button = widget_button( bbase, value='Refit', uname='refit-button', /tracking, scr_xsize=40 *sxyr, $
 					uvalue='Repeat the fit for the spectrum selected in the "Fit Results" window (if selected), and update the current results row.')
 endelse
 lab = widget_label( bbase, value='', scr_xsize=11 *sxyr)
