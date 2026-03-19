@@ -3436,7 +3436,7 @@ case !version.os_family of
 ;		yh = (gamma eq 1) ? 359 *sxyr : 422 *sxyr
 		yh = (gamma eq 1) ? 372 *sxyr : 435 *sxyr
 		xsize_help = 443 *sxyr
-		detector_xsize = 130 *sxyr
+		detector_xsize = 126 *sxyr
 		filter_xsize = 118 *sxyr
 		yield_file_xsize = 209 *sxyr - 3*trim
 		det_label = 'Detector:'
@@ -3595,9 +3595,9 @@ pcm_file = widget_text( sbase, value=(*p).pcm_file, uname='pcm-file', /tracking,
 					notify_realize='OnRealize_fit_pcm_file', $
 					uvalue='Enter a PCM file-name for source set-up details, or use the "Load" button.',scr_xsize=290 *sxyr)
 load_setup_button = widget_button( sbase, value='Load', uname='load-setup-button', /tracking, $
-					uvalue='Load set-up parameters from a previous PCM file.', scr_xsize=38 *sxyr)
+					uvalue='Load set-up parameters from a previous PCM file.', scr_xsize=34 *sxyr)
 save_setup_button = widget_button( sbase, value='Save', uname='save-setup-button', /tracking, $
-					uvalue='Save set-up parameters to a PCM file.', scr_xsize=38 *sxyr)
+					uvalue='Save set-up parameters to a PCM file.', scr_xsize=34 *sxyr)
 
 ; set-up periodic table
 
@@ -3639,7 +3639,7 @@ setup_base = widget_base( tab_panel, title='    Setup    ', /column, xpad=1, ypa
 rowbase = widget_base( setup_base, /row, /base_align_center, ypad=0, xpad=0, space=space8)
 lbase = widget_base( rowbase, /column, /base_align_right, ypad=2, xpad=0, space=4 *sxyr)
 rbase = widget_base( rowbase, /column, /base_align_center, ypad=0, xpad=0, space=1 *sxyr)
-row2base = widget_base( rbase, /row, /base_align_center, ypad=0, xpad=0, space=space4)
+row2base = widget_base( rbase, /row, /base_align_center, ypad=0, xpad=0, space=0)
 row3base = widget_base( setup_base, /row, /base_align_center, ypad=0, xpad=0, space=space8)
 
 ; Energy range
@@ -3663,7 +3663,7 @@ detector_mode = widget_combobox( abase, value=detector_title, uname='detector-mo
 lab = widget_label( abase, value='Q:', scr_xsize=15 *sxyr)
 q_text = widget_text( abase, value=str_tidy((*p).charge), uname='q-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the integrated charge (uC). If a flux count (IC counter) is found, ' + $
-					'the conversion from IC to Q is calculated for further use.',scr_xsize=80 *sxyr - trim)
+					'the conversion from IC to Q is calculated for further use.',scr_xsize=75 *sxyr - trim)
 flux_Button = Widget_Button(abase, UNAME='flux', VALUE='?', /tracking, xsize=xsize_flux, $
       				uvalue='Open the Ion chamber panel to view the conversion factor (Q/IC), or to set Charge based on another conversion factor.')
 
@@ -3698,10 +3698,10 @@ lab = widget_label( ybase, value='Yields:')
 yield_mode = 0L
 yield_file = widget_text( ybase, value=(*p).yield_file, uname='yield-file', /tracking, /editable, frame=lframe, $
 					notify_realize='OnRealize_fit_yield_file', $
-					uvalue='Select the '+xname+' production Yield file name, or use the "Load" button to load yields and relative-intensities.',scr_xsize=218 *sxyr - 3*trim)
+					uvalue='Select the '+xname+' production Yield file name, or use the "Load" button to load yields and relative-intensities.',scr_xsize=205 *sxyr - 3*trim)
 yield_new_button = widget_button( ybase, value='New', uname='yield-new-button', /tracking, scr_xsize=30 *sxyr, $
 					uvalue='Go to the Layer popup window to calculated '+xname+' yields and relative-intensities.')
-yield_load_button = widget_button( ybase, value='Load', uname='yield-popup-button', /tracking, scr_xsize=38 *sxyr, $
+yield_load_button = widget_button( ybase, value='Load', uname='yield-popup-button', /tracking, scr_xsize=34 *sxyr, $
 					uvalue='Load a set of precalculated '+xname+' yields and relative-intensities from a '+yname+' file.')
 
 
@@ -4090,27 +4090,27 @@ endelse
 
 bbase = widget_base( tlb, /row, /base_align_center, ypad=1, space=2 *sxyr)
 lab = widget_label( bbase, value='Fit:')
-button = widget_button( bbase, value='One', uname='fit-button', /tracking, $
+button = widget_button( bbase, value='One', uname='fit-button', /tracking, scr_xsize=26 *sxyr, $
 					uvalue='Perform the non-linear least squares fit to the currently displayed '+xname+' spectrum.')
-button = widget_button( bbase, value='All', uname='fit-all-button', /tracking, $
+button = widget_button( bbase, value='All', uname='fit-all-button', /tracking, scr_xsize=25 *sxyr, $
 					uvalue='Perform the non-linear least squares fit to ALL loaded '+xname+' spectra.')
 lab = widget_label( bbase, value='Spectra.')
 if test then begin
-	button = widget_button( bbase, value='Pyfit', uname='fit-python-button', /tracking, $
+	button = widget_button( bbase, value='Pyfit', uname='fit-python-button', /tracking, scr_xsize=40 *sxyr, $
 					uvalue='Initiate a fit, but instead of fitting export all lines data, spectrum, background, pileup, etc. to files for Python program.')
 endif else begin
-	button = widget_button( bbase, value='Refit', uname='refit-button', /tracking, $
+	button = widget_button( bbase, value='Refit', uname='refit-button', /tracking, scr_xsize=32 *sxyr, $
 					uvalue='Repeat the fit for the spectrum selected in the "Fit Results" window (if selected), and update the current results row.')
 endelse
 lab = widget_label( bbase, value='', scr_xsize=11 *sxyr)
-da_button = widget_button( bbase, value='Generate DA matrix', uname='dynamic-button', /tracking, $
+da_button = widget_button( bbase, value='Generate DA matrix', uname='dynamic-button', /tracking, scr_xsize=98 *sxyr, $
 					uvalue='Generate the Dynamic Analysis transform matrix and write a DAM file.')
-export_button = widget_button( bbase, value='Export', uname='export-button', /tracking, sensitive=0, $
+export_button = widget_button( bbase, value='Export', uname='export-button', /tracking, sensitive=0, scr_xsize=40 *sxyr, $
 					uvalue='Export the Dynamic Analysis matrix to an export format file (e.g. for download into a data acquisition system for realtime imaging).')
-pure_button = widget_button( bbase, value='P', uname='pure-button', /tracking, sensitive=0, $
+pure_button = widget_button( bbase, value='P', uname='pure-button', /tracking, sensitive=0, scr_xsize=15 *sxyr, $
 					uvalue='Overlay the elemental component spectra on the fit to the spectrum. Need to "Generate DA matrix" first.')
 lab = widget_label( bbase, value='', scr_xsize=11 *sxyr)
-button = widget_button( bbase, value='Close', uname='close-button', /tracking, $
+button = widget_button( bbase, value='Close', uname='close-button', /tracking, scr_xsize=34 *sxyr, $
 					uvalue='Exit the Spectrum Fit popup window.')
 
 ;.................................................................................
