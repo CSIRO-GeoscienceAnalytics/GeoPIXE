@@ -3403,7 +3403,7 @@ case !version.os_family of
 		detector_xsize = 136 *sxyr
 		filter_xsize = 118 *sxyr
 		yield_file_xsize = 209 *sxyr - 3*trim
-		det_label = 'Det:'
+		det_label = 'Detector:'
 		space1 = 0
 		space4 = 0
 		space5 = 0
@@ -3419,6 +3419,7 @@ case !version.os_family of
 		xsize_tweek = 45 *sxyr *sxyr
 		tweak_space = 0 *sxyr
 		ysize_help = 4 *sxyr
+		generate_xsize = 103 *sxyr
 		tgeneral = 'General'
 		tbackground = 'Back 1'
 		tbackground2 = 'Back 2'
@@ -3455,6 +3456,7 @@ case !version.os_family of
 		xsize_tweek = 40 *sxyr
 		tweak_space = 1 *sxyr
 		ysize_help = 3 *sxyr
+		generate_xsize = 98 *sxyr
 		tgeneral = ' General '
 		tbackground = ' Back 1 '
 		tbackground2 = ' Back 2 '
@@ -4099,18 +4101,18 @@ if test then begin
 	button = widget_button( bbase, value='Pyfit', uname='fit-python-button', /tracking, scr_xsize=40 *sxyr, $
 					uvalue='Initiate a fit, but instead of fitting export all lines data, spectrum, background, pileup, etc. to files for Python program.')
 endif else begin
-	button = widget_button( bbase, value='Refit', uname='refit-button', /tracking, scr_xsize=32 *sxyr, $
+	button = widget_button( bbase, value='Refit', uname='refit-button', /tracking, scr_xsize=35 *sxyr, $
 					uvalue='Repeat the fit for the spectrum selected in the "Fit Results" window (if selected), and update the current results row.')
 endelse
 lab = widget_label( bbase, value='', scr_xsize=11 *sxyr)
-da_button = widget_button( bbase, value='Generate DA matrix', uname='dynamic-button', /tracking, scr_xsize=98 *sxyr, $
+da_button = widget_button( bbase, value='Generate DA matrix', uname='dynamic-button', /tracking, scr_xsize=generate_xsize, $
 					uvalue='Generate the Dynamic Analysis transform matrix and write a DAM file.')
-export_button = widget_button( bbase, value='Export', uname='export-button', /tracking, sensitive=0, scr_xsize=40 *sxyr, $
+export_button = widget_button( bbase, value='Export', uname='export-button', /tracking, sensitive=0, scr_xsize=42 *sxyr, $
 					uvalue='Export the Dynamic Analysis matrix to an export format file (e.g. for download into a data acquisition system for realtime imaging).')
-pure_button = widget_button( bbase, value='P', uname='pure-button', /tracking, sensitive=0, scr_xsize=15 *sxyr, $
+pure_button = widget_button( bbase, value='P', uname='pure-button', /tracking, sensitive=0, scr_xsize=16 *sxyr, $
 					uvalue='Overlay the elemental component spectra on the fit to the spectrum. Need to "Generate DA matrix" first.')
 lab = widget_label( bbase, value='', scr_xsize=11 *sxyr)
-button = widget_button( bbase, value='Close', uname='close-button', /tracking, scr_xsize=34 *sxyr, $
+button = widget_button( bbase, value='Close', uname='close-button', /tracking, scr_xsize=36 *sxyr, $
 					uvalue='Exit the Spectrum Fit popup window.')
 
 ;.................................................................................
