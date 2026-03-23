@@ -240,7 +240,7 @@ falconxybase = widget_base( falconxmode_base, /row, /base_align_center, xpad=0, 
 
 falconx_yenable = widget_combobox( falconxybase, value=['Off','Encoder axis 1 correction'], uname='encoder-xy-correction', /tracking, $
 					notify_realize='OnRealize_falconx_device_sort_option_xy_correction',xsize=encoder_xsize,  $
-					uvalue='a) Enable correction of encoder noise on axis 1 to keep within scan line (axis 1 only increments within the axis 0 border margin) ')
+					uvalue='a) Enable correction of encoder noise on axis 1 to keep within scan line (axis 1 only increments within the axis 0 border margin). Set Clear X axis value > 0. ')
 
 falconxtbase = widget_base( falconxmode_base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 lab = widget_label( falconxtbase, value='Slowest motor axis (for YLUT):')
@@ -2489,7 +2489,7 @@ common c_sandia_7, adc, tag, k_adc
 			err = FalconX_events5( event_array,n_actual, channel_on,nc, falconx_e,falconx_t,falconx_0,falconx_1,falconx_2, $
 					falconx_3,falconx_4,falconx_5, falconx_ste,falconx_veto,falconx_tags,n_events,n, $
 					falconx_fx,n_fx, falconx_flux_mode, self.sort_options.flip.icr_raw, x0,y0,z0,u0,v0,w0, $
-					self.sort_options.encoder_y_correct, clear_0, width, $
+					self.sort_options.encoder_y_correct, clear_0 > 1, width, $
 					ibranch,falconx_swap, tag,length,skip, bad_xy,debug, self.sort_options.version )
 		endelse
 
