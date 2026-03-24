@@ -72,7 +72,7 @@ SUBROUTINE geopixe_lib_version_b( version)
 
 INTEGER*4 version
 
-version = 55
+version = 56
 return
 end
 
@@ -2559,7 +2559,7 @@ goto (10,20,30,10,10,10,10,10,10,100), ibranch
 		ty = iand( tev, position_data_mask )					! y
 
 		if(xy_correct.eq.1) then
-			if((x0.lt.xmargin).and.(x0.ge.0)) then
+			if((x0.le.xmargin).and.(x0.ge.2)) then				! the "2" is to mitigate against random x=0 and buzzing 0,1
 				if((ty.ge.0).and.(ty.le.2)) then
 					if(xy_on.eq.0) then
 						y0 = ty
@@ -2573,7 +2573,7 @@ goto (10,20,30,10,10,10,10,10,10,100), ibranch
 					ldone = 1
 					rdone = 0
 				endif
-			else if((x0.gt.width-1-xmargin).and.(x0.lt.width)) then
+			else if((x0.ge.width-1-xmargin).and.(x0.lt.width-2)) then
 				if((ty.ge.0).and.(ty.le.2)) then
 					if(xy_on.eq.0) then
 						y0 = ty

@@ -2489,7 +2489,7 @@ common c_sandia_7, adc, tag, k_adc
 			err = FalconX_events5( event_array,n_actual, channel_on,nc, falconx_e,falconx_t,falconx_0,falconx_1,falconx_2, $
 					falconx_3,falconx_4,falconx_5, falconx_ste,falconx_veto,falconx_tags,n_events,n, $
 					falconx_fx,n_fx, falconx_flux_mode, self.sort_options.flip.icr_raw, x0,y0,z0,u0,v0,w0, $
-					self.sort_options.encoder_y_correct, clear_0 > 1, width, $
+					self.sort_options.encoder_y_correct, clear_0 > 2, width, $
 					ibranch,falconx_swap, tag,length,skip, bad_xy,debug, self.sort_options.version )
 		endelse
 
@@ -2552,6 +2552,15 @@ common c_sandia_7, adc, tag, k_adc
 		ste = falconx_ste[0:n-1]
 		veto = falconx_veto[0:n-1]		
 		
+		x1 = median(x1,2)										; fudge to filter out dodgy spurious zeros.
+																; also use xmargin clear=2 or more.
+
+;		if max(y1) ge 177 then begin							; stop to debug
+;			q = where( y1 ge 177, nq)
+;			print,'Y1 = 177, at q=',q[0]
+;			print,'Debug ...'
+;		endif
+
 ;		n		high water mark in event vector buffers
 ;		good	number of valid events, so far
 
