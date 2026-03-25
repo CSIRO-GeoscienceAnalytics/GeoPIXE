@@ -254,10 +254,10 @@ LOGICAL incomplete
 common /c_unidaq_1/ jbuff, bev
 equivalence (bev(0), tev(0))
 
-parameter ( unidaq_events = 0, ADC0_mask = z'00000002', adc_data_type = z'0000EEEE'  )
-parameter ( ADC1_mask = z'00000004', ADC6_mask = z'00000008', ADC7_mask = z'00000080')
-parameter ( ADC0_pu_mask = z'00000020', ADC6_pu_mask = z'00000040')
-parameter ( byte_mask = z'0FFF', scaler_data_type = z'0000DDDD' )
+data unidaq_events /0/, ADC0_mask /z'00000002'/, adc_data_type /z'0000EEEE'/
+data ADC1_mask /z'00000004'/, ADC6_mask /z'00000008'/, ADC7_mask /z'00000080'/
+data ADC0_pu_mask /z'00000020'/, ADC6_pu_mask /z'00000040'/
+data byte_mask /z'0FFF'/, scaler_data_type /z'0000DDDD'/
 
 n_max = n_buffer/4
 n = 0
@@ -543,19 +543,19 @@ common /c_daq_4/ ldone, rdone
 common /c_daq_6/ tv_sec, tv_micro
 equivalence (bev(0), tev(0))
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_events_ts = 48, maia_events_nots = 49 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_events_ts /48/, maia_events_nots /49/
 
 ! Specific to the ET format 'pm_event_ts_1' and 'pm_event_nots_1' ...
-parameter ( adr_mask5 = z'7F000000', de_mask5 = z'00001FFF', dt_mask5 = z'00FFE000' )
-parameter ( pdf_mask5 = z'80000000', tag_mask5 = z'80000000', adr_offset5 = -24 )
-parameter ( de_offset5 = 0, dt_offset5 = -13, pdf_offset5 = -31, tag_offset5 = -31 )
-parameter ( pa_offset5 = 0, pa_mask5 = z'0FFFFFFF', pa_tag_offset5 = -27)
-parameter ( pa_sign_bit_mask5 = z'08000000', pa_sign_extend5 = z'F0000000')
-parameter ( pa_tag_mask5 = z'F0000000', pa_tag_x5 = z'80000000', pa_tag_y5 = z'90000000', pa_tag_z5 = z'A0000000' )
-parameter ( pa_tag_u5 = z'B0000000', pa_tag_v5 = z'C0000000', pa_tag_w5 = z'D0000000', tf_tag_fc5 = z'F4000000' )
-parameter ( pa_tag_tf5 = z'F0000000', tf_tag_mask5 = z'FC000000', tf_tag_bt5 =z'F0000000' )
-parameter ( tf_bit_mask5 = z'03FFFFFF' )
+data adr_mask5 /z'7F000000'/, de_mask5 /z'00001FFF'/, dt_mask5 /z'00FFE000'/
+data pdf_mask5 /z'80000000'/, tag_mask5 /z'80000000'/, adr_offset5 /-24/
+data de_offset5 /0/, dt_offset5 /-13/, pdf_offset5 /-31/, tag_offset5 /-31/
+data pa_offset5 /0/, pa_mask5 /z'0FFFFFFF'/, pa_tag_offset5 /-27/
+data pa_sign_bit_mask5 /z'08000000'/, pa_sign_extend5 /z'F0000000'/
+data pa_tag_mask5 /z'F0000000'/, pa_tag_x5 /z'80000000'/, pa_tag_y5 /z'90000000'/, pa_tag_z5 /z'A0000000'/
+data pa_tag_u5 /z'B0000000'/, pa_tag_v5 /z'C0000000'/, pa_tag_w5 /z'D0000000'/, tf_tag_fc5 /z'F4000000'/
+data pa_tag_tf5 /z'F0000000'/, tf_tag_mask5 /z'FC000000'/, tf_tag_bt5 /z'F0000000'/
+data tf_bit_mask5 /z'03FFFFFF'/
 
 n_max = n_events
 n = 0
@@ -1200,7 +1200,7 @@ REAL*4 fx(0:n_fx-1,0:n_events-1)
 LOGICAL incomplete
 
 INTEGER*2 dp_event_id
-PARAMETER (dp_event_id = z'5044')
+data dp_event_id /z'5044'/
 !INTEGER*4 dp_event_id					! hack for 16-bit chars
 !PARAMETER (dp_event_id = z'00500044')
 
@@ -1561,8 +1561,8 @@ REAL*4 fx(0:n_fx-1,0:n_events-1)
 LOGICAL incomplete
 
 INTEGER*2 nmp_event_id, odb_begin_event_id, odb_end_event_id, back_pixl_id, back_adcx_id, bank_stat_id
-PARAMETER (nmp_event_id = 1, odb_begin_event_id = z'8000', odb_end_event_id = z'8001')
-PARAMETER (back_pixl_id = z'101', back_adcx_id = z'102', bank_stat_id = z'103')
+data nmp_event_id /1/, odb_begin_event_id /z'8000'/, odb_end_event_id /z'8001'/
+data back_pixl_id /z'101'/, back_adcx_id /z'102'/, bank_stat_id /z'103'/
 
 INTEGER*4 tx, ty, tz, tt, tev
 INTEGER*2 de, dtag, pdf, adr, sev, i_channel
@@ -2261,17 +2261,17 @@ INTEGER*4 pa_sign_bit_mask4, pa_sign_extend
 ! NOTE: for now the "E" value is defined as top 13 bits of 24 bit 'amplitude' (for raw FalconX data)
 !       for AS/XFM data, this will be shifted down 4 bits, so E becomes top 13 bits of 20 bit data. 
 
-parameter (data_type_mask = z'F0000000', data_type_offset=-28)
-parameter (pulse1_data_type=0, pulse2_data_type=1, position_data_type=12, spatial1_data_type=11, error_data_type=15)
-parameter (pulse1_valid_mask = z'08000000', pulse1_valid_offset = -27, spatial1_data_mask = z'00FFFFFF')
-parameter (pulse2_toa_mask = z'000FFFFF')
-parameter (position_type_mask =	z'0F000000', position_type_offset = -24, position_data_mask = z'00FFFFFF')
-parameter (spatial1_type_mask = z'0F000000', spatial1_type_offset = -24)
-parameter (spatial1_sample_msb_offset = 24)
-parameter (spatial1_sample_countl_type = 0, spatial1_sample_countm_type = 1)
-parameter (error_type_mask = z'0F000000', error_type_offset = -24, error_analogue_status_type = 0, error_overflow_type = 1)
-parameter (error_saturate_mask = z'000C0000', error_saturate_offset = -18, error_time_stamp_mask = z'00FFFFFF')
-parameter (pa_sign_bit_mask4 = z'00800000', pa_sign_extend = z'FF000000')
+data data_type_mask /z'F0000000'/, data_type_offset /-28/
+data pulse1_data_type /0/, pulse2_data_type /1/, position_data_type /12/, spatial1_data_type /11/, error_data_type /15/
+data pulse1_valid_mask /z'08000000'/, pulse1_valid_offset /-27/, spatial1_data_mask /z'00FFFFFF'/
+data pulse2_toa_mask /z'000FFFFF'/
+data position_type_mask /z'0F000000'/, position_type_offset /-24/, position_data_mask /z'00FFFFFF'/
+data spatial1_type_mask /z'0F000000'/, spatial1_type_offset /-24/
+data spatial1_sample_msb_offset /24/
+data spatial1_sample_countl_type /0/, spatial1_sample_countm_type /1/
+data error_type_mask /z'0F000000'/, error_type_offset /-24/, error_analogue_status_type /0/, error_overflow_type /1/
+data error_saturate_mask /z'000C0000'/, error_saturate_offset /-18/, error_time_stamp_mask /z'00FFFFFF'/
+data pa_sign_bit_mask4 /z'00800000'/, pa_sign_extend /z'FF000000'/
 
 ! Version 0.6.0 (use A postfix) --> SI version 600
 
@@ -2283,14 +2283,14 @@ INTEGER*4 spatial1_time_stamp_typeA, spatial1_erasure_count_typeA
 INTEGER*4 spatial1_est_icr_typeA, spatial1_raw_icr_typeA, spatial1_rate_offsetA
 INTEGER*4 spatial1_generic_count1_typeA, spatial1_generic_count2_typeA, spatial1_generic_count3_typeA, spatial1_generic_count4_typeA
 
-parameter (position_lengthA = 7, spatial1_lengthA = 9, spatial1_sample_msb_maskA = z'000000FF')
-parameter (pulse1_energy_maskA = z'00FFF800', pulse1_energy_offsetA = -11)
-parameter (pulse1_adr_offsetA = 0, pulse1_adr_maskA = 0, spatial1_rate_maskA = z'00FFFFFF')
-parameter (position_axis0_typeA = 0, position_axis1_typeA = 1, position_axis2_typeA = 2, position_axis3_typeA = 3)
-parameter (position_axis4_typeA = 4, position_axis5_typeA = 5, spatial1_rate_bitA = z'00000000')
-parameter (spatial1_erasure_count_typeA = 2, spatial1_raw_icr_typeA = 14, spatial1_rate_offsetA = 0)
-parameter (spatial1_generic_count1_typeA = 4, spatial1_generic_count2_typeA = 5, spatial1_generic_count3_typeA = 6)
-parameter (spatial1_est_icr_typeA = 3, spatial1_generic_count4_typeA = 7, spatial1_time_stamp_typeA = 15)
+data position_lengthA /7/, spatial1_lengthA /9/, spatial1_sample_msb_maskA /z'000000FF'/
+data pulse1_energy_maskA /z'00FFF800'/, pulse1_energy_offsetA /-11/
+data pulse1_adr_offsetA /0/, pulse1_adr_maskA /0/, spatial1_rate_maskA /z'00FFFFFF'/
+data position_axis0_typeA /0/, position_axis1_typeA /1/, position_axis2_typeA /2/, position_axis3_typeA /3/
+data position_axis4_typeA /4/, position_axis5_typeA /5/, spatial1_rate_bitA /z'00000000'/
+data spatial1_erasure_count_typeA /2/, spatial1_raw_icr_typeA /14/, spatial1_rate_offsetA /0/
+data spatial1_generic_count1_typeA /4/, spatial1_generic_count2_typeA /5/, spatial1_generic_count3_typeA /6/
+data spatial1_est_icr_typeA /3/, spatial1_generic_count4_typeA /7/, spatial1_time_stamp_typeA /15/
 
 ! Version 0.8.1 (use B postfix) --> version 801
 
@@ -2301,13 +2301,13 @@ INTEGER*4 position_axis4_typeB, position_axis5_typeB
 INTEGER*4 spatial1_time_stamp_typeB, spatial1_erasure_count_typeB, spatial1_est_icr_typeB, spatial1_raw_icr_typeB
 INTEGER*4 spatial1_generic_count1_typeB, spatial1_generic_count2_typeB, spatial1_generic_count3_typeB, spatial1_generic_count4_typeB
 
-parameter (position_lengthB = 7, spatial1_lengthB = 12, spatial1_sample_msb_maskB = z'000000FF')
-parameter (gate1_lengthB = 1, error_lengthB = 1, pulse1_lengthB = 1, pulse2_lengthB = 1)
-parameter (position_axis0_typeB = 0, position_axis1_typeB = 1, position_axis2_typeB = 2, position_axis3_typeB = 3)
-parameter (position_axis4_typeB = 4, position_axis5_typeB = 5)
-parameter (spatial1_erasure_count_typeB = 2, spatial1_est_icr_typeB = 4, spatial1_raw_icr_typeB = 5)
-parameter (spatial1_generic_count1_typeB = 6, spatial1_generic_count2_typeB = 7, spatial1_generic_count3_typeB = 8)
-parameter (spatial1_generic_count4_typeB = 9, spatial1_time_stamp_typeB = 15)
+data position_lengthB /7/, spatial1_lengthB /12/, spatial1_sample_msb_maskB /z'000000FF'/
+data gate1_lengthB /1/, error_lengthB /1/, pulse1_lengthB /1/, pulse2_lengthB /1/
+data position_axis0_typeB /0/, position_axis1_typeB /1/, position_axis2_typeB /2/, position_axis3_typeB /3/
+data position_axis4_typeB /4/, position_axis5_typeB /5/
+data spatial1_erasure_count_typeB /2/, spatial1_est_icr_typeB /4/, spatial1_raw_icr_typeB /5/
+data spatial1_generic_count1_typeB /6/, spatial1_generic_count2_typeB /7/, spatial1_generic_count3_typeB /8/
+data spatial1_generic_count4_typeB /9/, spatial1_time_stamp_typeB /15/
 
 ! Version 0.8.7 (use C postfix) --> version 807, increased 'spatial1_length' from 11 to 12, and added test of tag bits
 
@@ -2318,13 +2318,13 @@ INTEGER*4 position_axis4_typeC, position_axis5_typeC
 INTEGER*4 spatial1_time_stamp_typeC, spatial1_erasure_count_typeC, spatial1_est_icr_typeC, spatial1_raw_icr_typeC
 INTEGER*4 spatial1_generic_count1_typeC, spatial1_generic_count2_typeC, spatial1_generic_count3_typeC, spatial1_generic_count4_typeC
 
-parameter (position_lengthC = 7, spatial1_lengthC = 12, spatial1_sample_msb_maskC = z'00FFFFFF')
-parameter (gate1_lengthC = 1, error_lengthC = 1, pulse1_lengthC = 1, pulse2_lengthC = 1)
-parameter (position_axis0_typeC = 0, position_axis1_typeC = 1, position_axis2_typeC = 2, position_axis3_typeC = 3)
-parameter (position_axis4_typeC = 4, position_axis5_typeC = 5)
-parameter (spatial1_erasure_count_typeC = 2, spatial1_est_icr_typeC = 4, spatial1_raw_icr_typeC = 5)
-parameter (spatial1_generic_count1_typeC = 6, spatial1_generic_count2_typeC = 7, spatial1_generic_count3_typeC = 8)
-parameter (spatial1_generic_count4_typeC = 9, spatial1_time_stamp_typeC = 15)
+data position_lengthC /7/, spatial1_lengthC /12/, spatial1_sample_msb_maskC /z'00FFFFFF'/
+data gate1_lengthC /1/, error_lengthC /1/, pulse1_lengthC /1/, pulse2_lengthC /1/
+data position_axis0_typeC /0/, position_axis1_typeC /1/, position_axis2_typeC /2/, position_axis3_typeC /3/
+data position_axis4_typeC /4/, position_axis5_typeC /5/
+data spatial1_erasure_count_typeC /2/, spatial1_est_icr_typeC /4/, spatial1_raw_icr_typeC /5/
+data spatial1_generic_count1_typeC /6/, spatial1_generic_count2_typeC /7/, spatial1_generic_count3_typeC /8/
+data spatial1_generic_count4_typeC /9/, spatial1_time_stamp_typeC /15/
 
 ! Version AS/XFM (use P postfix) --> AS version 100
 !			increased 'spatial1_length' from 12 to 74 to allow up to 16 detectors
@@ -2334,9 +2334,9 @@ parameter (spatial1_generic_count4_typeC = 9, spatial1_time_stamp_typeC = 15)
 INTEGER*4 pulse1_energy_maskP, pulse1_energy_offsetP, pulse1_adr_offsetP, pulse1_adr_maskP
 INTEGER*4 spatial1_rate_maskP, spatial1_rate_bitP, spatial1_lengthP, spatial1_adr_maskP, spatial1_rate_offsetP
 
-parameter (pulse1_energy_maskP = z'000FFF80', pulse1_energy_offsetP = -7, spatial1_rate_bitP = z'00080000')
-parameter (pulse1_adr_offsetP = -20, pulse1_adr_maskP = z'00F00000', spatial1_rate_maskP = z'0007FFFF')
-parameter (spatial1_lengthP = 74, spatial1_adr_maskP = z'00F00000', spatial1_rate_offsetP = 19)
+data pulse1_energy_maskP /z'000FFF80'/, pulse1_energy_offsetP /-7/, spatial1_rate_bitP /z'00080000'/
+data pulse1_adr_offsetP /-20/, pulse1_adr_maskP /z'00F00000'/, spatial1_rate_maskP /z'0007FFFF'/
+data spatial1_lengthP /74/, spatial1_adr_maskP /z'00F00000'/, spatial1_rate_offsetP /19/
 
 ! --------------
 
@@ -2810,17 +2810,17 @@ INTEGER*4 pa_sign_bit_mask4, pa_sign_extend
 ! NOTE: for now the "E" value is defined as top 13 bits of 24 bit 'amplitude' (for raw FalconX data)
 !       for AS/XFM data, this will be shifted down 4 bits, so E becomes top 13 bits of 20 bit data. 
 
-parameter (data_type_mask = z'F0000000', data_type_offset=-28)
-parameter (pulse1_data_type=0, pulse2_data_type=1, position_data_type=12, spatial1_data_type=11, error_data_type=15)
-parameter (pulse1_valid_mask = z'08000000', pulse1_valid_offset = -27, spatial1_data_mask = z'00FFFFFF')
-parameter (pulse2_toa_mask = z'000FFFFF')
-parameter (position_type_mask =	z'0F000000', position_type_offset = -24, position_data_mask = z'00FFFFFF')
-parameter (spatial1_type_mask = z'0F000000', spatial1_type_offset = -24)
-parameter (spatial1_sample_msb_offset = 24)
-parameter (spatial1_sample_countl_type = 0, spatial1_sample_countm_type = 1)
-parameter (error_type_mask = z'0F000000', error_type_offset = -24, error_analogue_status_type = 0, error_overflow_type = 1)
-parameter (error_saturate_mask = z'000C0000', error_saturate_offset = -18, error_time_stamp_mask = z'00FFFFFF')
-parameter (pa_sign_bit_mask4 = z'00800000', pa_sign_extend = z'FF000000')
+data data_type_mask /z'F0000000'/, data_type_offset /-28/
+data pulse1_data_type /0/, pulse2_data_type /1/, position_data_type /12/, spatial1_data_type /11/, error_data_type /15/
+data pulse1_valid_mask /z'08000000'/, pulse1_valid_offset /-27/, spatial1_data_mask /z'00FFFFFF'/
+data pulse2_toa_mask /z'000FFFFF'/
+data position_type_mask /z'0F000000'/, position_type_offset /-24/, position_data_mask /z'00FFFFFF'/
+data spatial1_type_mask /z'0F000000'/, spatial1_type_offset /-24/
+data spatial1_sample_msb_offset /24/
+data spatial1_sample_countl_type /0/, spatial1_sample_countm_type /1/
+data error_type_mask /z'0F000000'/, error_type_offset /-24/, error_analogue_status_type /0/, error_overflow_type /1/
+data error_saturate_mask /z'000C0000'/, error_saturate_offset /-18/, error_time_stamp_mask /z'00FFFFFF'/
+data pa_sign_bit_mask4 /z'00800000'/, pa_sign_extend /z'FF000000'/
 
 ! Version 0.6.0 (use A postfix) --> SI version 600
 
@@ -2832,14 +2832,14 @@ INTEGER*4 spatial1_time_stamp_typeA, spatial1_erasure_count_typeA
 INTEGER*4 spatial1_est_icr_typeA, spatial1_raw_icr_typeA, spatial1_rate_offsetA
 INTEGER*4 spatial1_generic_count1_typeA, spatial1_generic_count2_typeA, spatial1_generic_count3_typeA, spatial1_generic_count4_typeA
 
-parameter (position_lengthA = 7, spatial1_lengthA = 9, spatial1_sample_msb_maskA = z'000000FF')
-parameter (pulse1_energy_maskA = z'00FFF800', pulse1_energy_offsetA = -11)
-parameter (pulse1_adr_offsetA = 0, pulse1_adr_maskA = 0, spatial1_rate_maskA = z'00FFFFFF')
-parameter (position_axis0_typeA = 0, position_axis1_typeA = 1, position_axis2_typeA = 2, position_axis3_typeA = 3)
-parameter (position_axis4_typeA = 4, position_axis5_typeA = 5, spatial1_rate_bitA = z'00000000')
-parameter (spatial1_erasure_count_typeA = 2, spatial1_raw_icr_typeA = 14, spatial1_rate_offsetA = 0)
-parameter (spatial1_generic_count1_typeA = 4, spatial1_generic_count2_typeA = 5, spatial1_generic_count3_typeA = 6)
-parameter (spatial1_est_icr_typeA = 3, spatial1_generic_count4_typeA = 7, spatial1_time_stamp_typeA = 15)
+data position_lengthA /7/, spatial1_lengthA /9/, spatial1_sample_msb_maskA /z'000000FF'/
+data pulse1_energy_maskA /z'00FFF800'/, pulse1_energy_offsetA /-11/
+data pulse1_adr_offsetA /0/, pulse1_adr_maskA /0/, spatial1_rate_maskA /z'00FFFFFF'/
+data position_axis0_typeA /0/, position_axis1_typeA /1/, position_axis2_typeA /2/, position_axis3_typeA /3/
+data position_axis4_typeA /4/, position_axis5_typeA /5/, spatial1_rate_bitA /z'00000000'/
+data spatial1_erasure_count_typeA /2/, spatial1_raw_icr_typeA /14/, spatial1_rate_offsetA /0/
+data spatial1_generic_count1_typeA /4/, spatial1_generic_count2_typeA /5/, spatial1_generic_count3_typeA /6/
+data spatial1_est_icr_typeA /3/, spatial1_generic_count4_typeA /7/, spatial1_time_stamp_typeA /15/
 
 ! Version 0.8.1 (use B postfix) --> version 801
 
@@ -2850,13 +2850,13 @@ INTEGER*4 position_axis4_typeB, position_axis5_typeB
 INTEGER*4 spatial1_time_stamp_typeB, spatial1_erasure_count_typeB, spatial1_est_icr_typeB, spatial1_raw_icr_typeB
 INTEGER*4 spatial1_generic_count1_typeB, spatial1_generic_count2_typeB, spatial1_generic_count3_typeB, spatial1_generic_count4_typeB
 
-parameter (position_lengthB = 7, spatial1_lengthB = 12, spatial1_sample_msb_maskB = z'000000FF')
-parameter (gate1_lengthB = 1, error_lengthB = 1, pulse1_lengthB = 1, pulse2_lengthB = 1)
-parameter (position_axis0_typeB = 0, position_axis1_typeB = 1, position_axis2_typeB = 2, position_axis3_typeB = 3)
-parameter (position_axis4_typeB = 4, position_axis5_typeB = 5)
-parameter (spatial1_erasure_count_typeB = 2, spatial1_est_icr_typeB = 4, spatial1_raw_icr_typeB = 5)
-parameter (spatial1_generic_count1_typeB = 6, spatial1_generic_count2_typeB = 7, spatial1_generic_count3_typeB = 8)
-parameter (spatial1_generic_count4_typeB = 9, spatial1_time_stamp_typeB = 15)
+data position_lengthB /7/, spatial1_lengthB /12/, spatial1_sample_msb_maskB /z'000000FF'/
+data gate1_lengthB /1/, error_lengthB /1/, pulse1_lengthB /1/, pulse2_lengthB /1/
+data position_axis0_typeB /0/, position_axis1_typeB /1/, position_axis2_typeB /2/, position_axis3_typeB /3/
+data position_axis4_typeB /4/, position_axis5_typeB /5/
+data spatial1_erasure_count_typeB /2/, spatial1_est_icr_typeB /4/, spatial1_raw_icr_typeB /5/
+data spatial1_generic_count1_typeB /6/, spatial1_generic_count2_typeB /7/, spatial1_generic_count3_typeB /8/
+data spatial1_generic_count4_typeB /9/, spatial1_time_stamp_typeB /15/
 
 ! Version 0.8.7 (use C postfix) --> version 807, increased 'spatial1_length' from 11 to 12, and added test of tag bits
 
@@ -2867,13 +2867,13 @@ INTEGER*4 position_axis4_typeC, position_axis5_typeC
 INTEGER*4 spatial1_time_stamp_typeC, spatial1_erasure_count_typeC, spatial1_est_icr_typeC, spatial1_raw_icr_typeC
 INTEGER*4 spatial1_generic_count1_typeC, spatial1_generic_count2_typeC, spatial1_generic_count3_typeC, spatial1_generic_count4_typeC
 
-parameter (position_lengthC = 7, spatial1_lengthC = 12, spatial1_sample_msb_maskC = z'00FFFFFF')
-parameter (gate1_lengthC = 1, error_lengthC = 1, pulse1_lengthC = 1, pulse2_lengthC = 1)
-parameter (position_axis0_typeC = 0, position_axis1_typeC = 1, position_axis2_typeC = 2, position_axis3_typeC = 3)
-parameter (position_axis4_typeC = 4, position_axis5_typeC = 5)
-parameter (spatial1_erasure_count_typeC = 2, spatial1_est_icr_typeC = 4, spatial1_raw_icr_typeC = 5)
-parameter (spatial1_generic_count1_typeC = 6, spatial1_generic_count2_typeC = 7, spatial1_generic_count3_typeC = 8)
-parameter (spatial1_generic_count4_typeC = 9, spatial1_time_stamp_typeC = 15)
+data position_lengthC /7/, spatial1_lengthC /12/, spatial1_sample_msb_maskC /z'00FFFFFF'/
+data gate1_lengthC /1/, error_lengthC /1/, pulse1_lengthC /1/, pulse2_lengthC /1/
+data position_axis0_typeC /0/, position_axis1_typeC /1/, position_axis2_typeC /2/, position_axis3_typeC /3/
+data position_axis4_typeC /4/, position_axis5_typeC /5/
+data spatial1_erasure_count_typeC /2/, spatial1_est_icr_typeC /4/, spatial1_raw_icr_typeC /5/
+data spatial1_generic_count1_typeC /6/, spatial1_generic_count2_typeC /7/, spatial1_generic_count3_typeC /8/
+data spatial1_generic_count4_typeC /9/, spatial1_time_stamp_typeC /15/
 
 ! Version AS/XFM (use P postfix) --> AS version 100
 !			increased 'spatial1_length' from 12 to 74 to allow up to 16 detectors
@@ -2883,9 +2883,9 @@ parameter (spatial1_generic_count4_typeC = 9, spatial1_time_stamp_typeC = 15)
 INTEGER*4 pulse1_energy_maskP, pulse1_energy_offsetP, pulse1_adr_offsetP, pulse1_adr_maskP
 INTEGER*4 spatial1_rate_maskP, spatial1_rate_bitP, spatial1_lengthP, spatial1_adr_maskP, spatial1_rate_offsetP
 
-parameter (pulse1_energy_maskP = z'000FFF80', pulse1_energy_offsetP = -7, spatial1_rate_bitP = z'00080000')
-parameter (pulse1_adr_offsetP = -20, pulse1_adr_maskP = z'00F00000', spatial1_rate_maskP = z'0007FFFF')
-parameter (spatial1_lengthP = 74, spatial1_adr_maskP = z'00F00000', spatial1_rate_offsetP = 19)
+data pulse1_energy_maskP /z'000FFF80'/, pulse1_energy_offsetP /-7/, spatial1_rate_bitP /z'00080000'/
+data pulse1_adr_offsetP /-20/, pulse1_adr_maskP /z'00F00000'/, spatial1_rate_maskP /z'0007FFFF'/
+data spatial1_lengthP /74/, spatial1_adr_maskP /z'00F00000'/, spatial1_rate_offsetP /19/
 
 ! --------------
 
@@ -3320,25 +3320,25 @@ INTEGER*4 pa_sign_bit_mask4, pa_sign_extend
 ! NOTE: for now the "E" value is defined as top 13 bits of 24 bit 'amplitude' (for raw FalconX data)
 !       for AS/XFM data, this will be shifted down 4 bits, so E becomes top 13 bits of 20 bit data. 
 
-parameter (data_type_mask = z'F0000000', data_type_offset=-28)
-parameter (pulse1_data_type=0, pulse2_data_type=1, position_data_type=12, spatial1_data_type=11, error_data_type=15)
-parameter (pulse1_valid_mask = z'08000000', pulse1_valid_offset = -27, spatial1_data_mask = z'00FFFFFF')
-parameter (pulse2_toa_mask = z'000FFFFF')
-parameter (position_type_mask =	z'0F000000', position_type_offset = -24, position_data_mask = z'00FFFFFF')
-parameter (spatial1_type_mask = z'0F000000', spatial1_type_offset = -24)
-parameter (spatial1_sample_msb_mask = z'00FFFFFF', spatial1_sample_msb_offset = 24)
-parameter (spatial1_sample_countl_type = 0, spatial1_sample_countm_type = 1)
-parameter (error_type_mask = z'0F000000', error_type_offset = -24, error_analogue_status_type = 0, error_overflow_type = 1)
-parameter (error_saturate_mask = z'000C0000', error_saturate_offset = -18, error_time_stamp_mask = z'00FFFFFF')
-parameter (pa_sign_bit_mask4 = z'00800000', pa_sign_extend = z'FF000000')
+data data_type_mask /z'F0000000'/, data_type_offset /-28/
+data pulse1_data_type /0/, pulse2_data_type /1/, position_data_type /12/, spatial1_data_type /11/, error_data_type /15/
+data pulse1_valid_mask /z'08000000'/, pulse1_valid_offset /-27/, spatial1_data_mask /z'00FFFFFF'/
+data pulse2_toa_mask /z'000FFFFF'/
+data position_type_mask /z'0F000000'/, position_type_offset /-24/, position_data_mask /z'00FFFFFF'/
+data spatial1_type_mask /z'0F000000'/, spatial1_type_offset /-24/
+data spatial1_sample_msb_mask /z'00FFFFFF'/, spatial1_sample_msb_offset /24/
+data spatial1_sample_countl_type /0/, spatial1_sample_countm_type /1/
+data error_type_mask /z'0F000000'/, error_type_offset /-24/, error_analogue_status_type /0/, error_overflow_type /1/
+data error_saturate_mask /z'000C0000'/, error_saturate_offset /-18/, error_time_stamp_mask /z'00FFFFFF'/
+data pa_sign_bit_mask4 /z'00800000'/, pa_sign_extend /z'FF000000'/
 
 ! Version AS/XFM (use C postfix) --> version 100,000
 
 INTEGER*4 pulse1_energy_maskC, pulse1_energy_offsetC, pulse1_adr_offsetC, pulse1_adr_maskC
 INTEGER*4 spatial1_rate_maskC
 
-parameter (pulse1_energy_maskC = z'000FFF80', pulse1_energy_offsetC = -7)
-parameter (pulse1_adr_offsetC = -20, pulse1_adr_maskC = z'00F00000', spatial1_rate_maskC = z'000FFFFF')
+data pulse1_energy_maskC /z'000FFF80'/, pulse1_energy_offsetC /-7/
+data pulse1_adr_offsetC /-20/, pulse1_adr_maskC /z'00F00000'/, spatial1_rate_maskC /z'000FFFFF'/
 
 ! Version 0.6.0 (use A postfix) --> version 600
 
@@ -3350,14 +3350,14 @@ INTEGER*4 spatial1_time_stamp_typeA, spatial1_erasure_count_typeA
 INTEGER*4 spatial1_est_icr_typeA, spatial1_raw_icr_typeA
 INTEGER*4 spatial1_generic_count1_typeA, spatial1_generic_count2_typeA, spatial1_generic_count3_typeA, spatial1_generic_count4_typeA
 
-parameter (position_lengthA = 7, spatial1_lengthA = 9)
-parameter (pulse1_energy_maskA = z'00FFF800', pulse1_energy_offsetA = -11)
-parameter (pulse1_adr_offsetA = 0, pulse1_adr_maskA = 0, spatial1_rate_maskA = z'00FFFFFF')
-parameter (position_axis0_typeA = 0, position_axis1_typeA = 1, position_axis2_typeA = 2, position_axis3_typeA = 3)
-parameter (position_axis4_typeA = 4, position_axis5_typeA = 5)
-parameter (spatial1_erasure_count_typeA = 2, spatial1_raw_icr_typeA = 14)
-parameter (spatial1_generic_count1_typeA = 4, spatial1_generic_count2_typeA = 5, spatial1_generic_count3_typeA = 6)
-parameter (spatial1_est_icr_typeA = 3, spatial1_generic_count4_typeA = 7, spatial1_time_stamp_typeA = 15)
+data position_lengthA /7/, spatial1_lengthA /9/
+data pulse1_energy_maskA /z'00FFF800'/, pulse1_energy_offsetA /-11/
+data pulse1_adr_offsetA /0/, pulse1_adr_maskA /0/, spatial1_rate_maskA /z'00FFFFFF'/
+data position_axis0_typeA /0/, position_axis1_typeA /1/, position_axis2_typeA /2/, position_axis3_typeA /3/
+data position_axis4_typeA /4/, position_axis5_typeA /5/
+data spatial1_erasure_count_typeA /2/, spatial1_raw_icr_typeA /14/
+data spatial1_generic_count1_typeA /4/, spatial1_generic_count2_typeA /5/, spatial1_generic_count3_typeA /6/
+data spatial1_est_icr_typeA /3/, spatial1_generic_count4_typeA /7/, spatial1_time_stamp_typeA /15/
 
 ! Version 0.8.3 (use B postfix) --> version 803
 ! Version 0.9.0 (use B postfix) --> version 900, increased 'spatial1_lengthB' from 11 to 12, and added test of tag bits
@@ -3371,13 +3371,13 @@ INTEGER*4 position_axis4_typeB, position_axis5_typeB
 INTEGER*4 spatial1_time_stamp_typeB, spatial1_erasure_count_typeB, spatial1_est_icr_typeB, spatial1_raw_icr_typeB
 INTEGER*4 spatial1_generic_count1_typeB, spatial1_generic_count2_typeB, spatial1_generic_count3_typeB, spatial1_generic_count4_typeB
 
-parameter (position_lengthB = 7, spatial1_lengthB = 42)
-parameter (gate1_lengthB = 1, error_lengthB = 1, pulse1_lengthB = 1, pulse2_lengthB = 1)
-parameter (position_axis0_typeB = 0, position_axis1_typeB = 1, position_axis2_typeB = 2, position_axis3_typeB = 3)
-parameter (position_axis4_typeB = 4, position_axis5_typeB = 5)
-parameter (spatial1_erasure_count_typeB = 2, spatial1_est_icr_typeB = 4, spatial1_raw_icr_typeB = 5)
-parameter (spatial1_generic_count1_typeB = 6, spatial1_generic_count2_typeB = 7, spatial1_generic_count3_typeB = 8)
-parameter (spatial1_generic_count4_typeB = 9, spatial1_time_stamp_typeB = 15)
+data position_lengthB /7/, spatial1_lengthB /42/
+data gate1_lengthB /1/, error_lengthB /1/, pulse1_lengthB /1/, pulse2_lengthB /1/
+data position_axis0_typeB /0/, position_axis1_typeB /1/, position_axis2_typeB /2/, position_axis3_typeB /3/
+data position_axis4_typeB /4/, position_axis5_typeB /5/
+data spatial1_erasure_count_typeB /2/, spatial1_est_icr_typeB /4/, spatial1_raw_icr_typeB /5/
+data spatial1_generic_count1_typeB /6/, spatial1_generic_count2_typeB /7/, spatial1_generic_count3_typeB /8/
+data spatial1_generic_count4_typeB /9/, spatial1_time_stamp_typeB /15/
 
 ! --------------
 
@@ -3757,25 +3757,25 @@ INTEGER*4 error_saturate_mask, error_saturate_offset, error_time_stamp_mask
 
 ! NOTE: for now the "E" value is defined as top 12 bits of 24 bit 'amplitude'
 
-parameter (data_type_mask = z'F0000000', data_type_offset=-28)
-parameter (pulse1_data_type=0, pulse2_data_type=1, position_data_type=12, spatial1_data_type=11, error_data_type=15)
-parameter (clock1_length = 1, gstats1_length = 9, position_length = 7, spatial1_length = 9, periodic_length = 8)
-parameter (gate1_length = 1, error_length = 1, pulse1_length = 1, pulse2_length = 1)
-parameter (pulse1_valid_mask = z'08000000', pulse1_valid_offset = -27, pulse1_energy_mask = z'00FFF000')
-parameter (pulse1_energy_offset = -12)
-parameter (pulse2_toa_mask = z'000FFFFF')
-parameter (position_type_mask =	z'0F000000', position_type_offset = -24, position_data_mask = z'00FFFFFF')
-parameter (spatial1_type_mask = z'0F000000', spatial1_type_offset = -24, spatial1_data_mask = z'00FFFFFF')
-parameter (spatial1_sample_msb_mask = z'00000FF', spatial1_sample_msb_offset = 24)
-parameter (spatial1_sample_countl_type = 0, spatial1_sample_countm_type = 1)
-parameter (error_type_mask = z'0F000000', error_type_offset = -24, error_analogue_status_type = 0, error_overflow_type = 1)
-parameter (error_saturate_mask = z'000C0000', error_saturate_offset = -18, error_time_stamp_mask = z'00FFFFFF')
+data data_type_mask /z'F0000000'/, data_type_offset /-28/
+data pulse1_data_type /0/, pulse2_data_type /1/, position_data_type /12/, spatial1_data_type /11/, error_data_type /15/
+data clock1_length /1/, gstats1_length /9/, position_length /7/, spatial1_length /9/, periodic_length /8/
+data gate1_length /1/, error_length /1/, pulse1_length /1/, pulse2_length /1/
+data pulse1_valid_mask /z'08000000'/, pulse1_valid_offset /-27/, pulse1_energy_mask /z'00FFF000'/
+data pulse1_energy_offset /-12/
+data pulse2_toa_mask /z'000FFFFF'/
+data position_type_mask /z'0F000000'/, position_type_offset /-24/, position_data_mask /z'00FFFFFF'/
+data spatial1_type_mask /z'0F000000'/, spatial1_type_offset /-24/, spatial1_data_mask /z'00FFFFFF'/
+data spatial1_sample_msb_mask /z'00000FF'/, spatial1_sample_msb_offset /24/
+data spatial1_sample_countl_type /0/, spatial1_sample_countm_type /1/
+data error_type_mask /z'0F000000'/, error_type_offset /-24/, error_analogue_status_type /0/, error_overflow_type /1/
+data error_saturate_mask /z'000C0000'/, error_saturate_offset /-18/, error_time_stamp_mask /z'00FFFFFF'/
 
-parameter (position_axis0_type = 0, position_axis1_type = 1, position_axis2_type = 2, position_axis3_type = 3)
-parameter (position_axis4_type = 4, position_axis5_type = 5)
-parameter (spatial1_erasure_count_type = 2)
-parameter (spatial1_generic_count1_type = 4, spatial1_generic_count2_type = 5, spatial1_generic_count3_type = 6)
-parameter (spatial1_est_icr_type = 3, spatial1_generic_count4_type = 7, spatial1_time_stamp_type = 15)
+data position_axis0_type /0/, position_axis1_type /1/, position_axis2_type /2/, position_axis3_type /3/
+data position_axis4_type /4/, position_axis5_type /5/
+data spatial1_erasure_count_type /2/
+data spatial1_generic_count1_type /4/, spatial1_generic_count2_type /5/, spatial1_generic_count3_type /6/
+data spatial1_est_icr_type /3/, spatial1_generic_count4_type /7/, spatial1_time_stamp_type /15/
 
 INTEGER*4 tx, ty, tz, tt, tev, tcount
 INTEGER*2 de, dtag, pdf, adr
@@ -4043,31 +4043,31 @@ INTEGER*4 pulse2_state_offset, pulse2_energy_mask, pulse2_energy_offset
 INTEGER*4 clock1_length, clock2_length, stats1_length, stats2_length, spatial1_length
 INTEGER*4 gate1_length, error_length, pulse1_length, pulse2_length
 
-parameter (data_type_mask = z'0000007F')
-parameter (fx_pulse1=16, fx_pulse2=17, fx_spatial1=4, fx_stats1=2, fx_stats2=3, fx_error1=64, fx_sync1=0, fx_sync2=1)
-parameter (stats1_type_mask = z'00000F00', stats1_type_offset = -8, stats1_ovf_mask = z'00001000', stats1_ovf_offset = -9)
-parameter (stats1_sample_count_index = 1, stats1_erasure_count_index = 2, stats1_pulse_event_count_index = 3)
-parameter (stats1_pulse_accepted_count_index = 4)
-parameter (stats1_est_icr_index = 5, stats1_ocr_index = 6, stats1_dt_percent_index = 7, stats1_type_gate_triggered = 0)
-parameter (stats1_type_pixel_triggered = 1, stats1_type_periodic = 2)
-parameter (stats2_type_mask = z'00000F00', stats2_type_offset = -8, stats2_ovf_mask = z'00001000', stats2_ovf_offset = -9)
-parameter (stats2_count_offset = 24, stats2_sample_countl_index = 1, stats2_sample_countm_index = 2)
-parameter (stats2_erasure_countl_index = 3)
-parameter (stats2_erasure_countm_index = 4, stats2_pulse_event_countl_index = 5, stats2_pulse_event_countm_index = 6)
-parameter (stats2_pulse_accepted_countl_index = 7)
-parameter (stats2_pulse_accepted_countm_index = 8, stats2_est_icr_index = 9, stats2_ocr_index = 10)
-parameter (stats2_dt_percent_index = 11)
-parameter (stats2_type_gate_triggered = 0, stats2_type_pixel_triggered = 1, stats2_type_periodic = 2)
-parameter (spatial1_axis0_index = 1, spatial1_axis1_index = 2, spatial1_axis2_index = 3)
-parameter (gate1_state_mask = z'00000300', gate1_state_offset = -8)
-parameter (error_status_mask = z'0000FF00', error_status_offset = -8)
-parameter (pulse1_valid_mask = z'00000100', pulse1_valid_offset = -8, pulse1_energy_mask = z'07FFF800')
-parameter (pulse1_energy_offset = -11)
-parameter (pulse1_toa_index = 1, pulse1_toa_mask = z'3FFFFFFC0', pulse1_toa_offset = -6)
-parameter (pulse2_valid_mask = z'00000100', pulse2_valid_offset = -8, pulse2_state_mask = z'00000600')
-parameter (pulse2_state_offset = -9, pulse2_energy_mask = z'07FFF800', pulse2_energy_offset = -11)
-parameter (clock1_length = 1, clock2_length = 2, stats1_length = 8, stats2_length = 12, spatial1_length = 4)
-parameter (gate1_length = 1, error_length = 1, pulse1_length = 2, pulse2_length = 1)
+data data_type_mask /z'0000007F'/
+data fx_pulse1 /16/, fx_pulse2 /17/, fx_spatial1 /4/, fx_stats1 /2/, fx_stats2 /3/, fx_error1 /64/, fx_sync1 /0/, fx_sync2 /1/
+data stats1_type_mask /z'00000F00'/, stats1_type_offset /-8/, stats1_ovf_mask /z'00001000'/, stats1_ovf_offset /-9/
+data stats1_sample_count_index /1/, stats1_erasure_count_index /2/, stats1_pulse_event_count_index /3/
+data stats1_pulse_accepted_count_index /4/
+data stats1_est_icr_index /5/, stats1_ocr_index /6/, stats1_dt_percent_index /7/, stats1_type_gate_triggered /0/
+data stats1_type_pixel_triggered /1/, stats1_type_periodic /2/
+data stats2_type_mask /z'00000F00'/, stats2_type_offset /-8/, stats2_ovf_mask /z'00001000'/, stats2_ovf_offset /-9/
+data stats2_count_offset /24/, stats2_sample_countl_index /1/, stats2_sample_countm_index /2/
+data stats2_erasure_countl_index /3/
+data stats2_erasure_countm_index /4/, stats2_pulse_event_countl_index /5/, stats2_pulse_event_countm_index /6/
+data stats2_pulse_accepted_countl_index /7/
+data stats2_pulse_accepted_countm_index /8/, stats2_est_icr_index /9/, stats2_ocr_index /10/
+data stats2_dt_percent_index /11/
+data stats2_type_gate_triggered /0/, stats2_type_pixel_triggered /1/, stats2_type_periodic /2/
+data spatial1_axis0_index /1/, spatial1_axis1_index /2/, spatial1_axis2_index /3/
+data gate1_state_mask /z'00000300'/, gate1_state_offset /-8/
+data error_status_mask /z'0000FF00'/, error_status_offset /-8/
+data pulse1_valid_mask /z'00000100'/, pulse1_valid_offset /-8/, pulse1_energy_mask /z'07FFF800'/
+data pulse1_energy_offset /-11/
+data pulse1_toa_index /1/, pulse1_toa_mask /z'3FFFFFFC0'/, pulse1_toa_offset /-6/
+data pulse2_valid_mask /z'00000100'/, pulse2_valid_offset /-8/, pulse2_state_mask /z'00000600'/
+data pulse2_state_offset /-9/, pulse2_energy_mask /z'07FFF800'/, pulse2_energy_offset /-11/
+data clock1_length /1/, clock2_length /2/, stats1_length /8/, stats2_length /12/, spatial1_length /4/
+data gate1_length /1/, error_length /1/, pulse1_length /2/, pulse2_length /1/
 
 INTEGER*4 tx, ty, tz, tt, tev
 INTEGER*2 de, dtag, pdf, adr
@@ -4752,37 +4752,37 @@ common /c_maia_7/ xy_on
 common /c_maia_6/ tv_sec, tv_micro
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_events_1 = 34, maia_et_events_1 = 8, maia_et_events_2 = 25, maia_et_events_3 = 31, maia_monitor = 26 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_events_1 /34/, maia_et_events_1 /8/, maia_et_events_2 /25/, maia_et_events_3 /31/, maia_monitor /26/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET2 format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET3 format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -31, tag_offset3 = -31 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-31/, tag_offset3 /-31/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22 )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31 )
-parameter ( pa_mask4 = z'07FFFFFF', pa_sign_bit_mask4 = z'04000000', pa_sign_extend = z'F8000000')
-parameter ( xyz_tag_mask4 = z'E0000000', xyz_tag_x4 = z'80000000', xyz_tag_y4 =	z'A0000000', xyz_tag_z4 = z'C0000000' )
-parameter ( xyz_pos_mask4 = z'07FFFFFF', xyz_tag_pa4 = z'E0000000' )
-parameter ( pa_tag_mask4 = z'F8000000', pa_tag_x4 = z'E0000000', pa_tag_y4 = z'E8000000', pa_tag_z4 = z'F0000000' )
-parameter ( pa_tag_tf4 = z'F8000000', tf_tag_mask4 = z'FE000000', tf_tag_bt4 =z'F8000000', tf_tag_fc1 =	z'FA000000' )
-parameter ( tf_tag_fc2 = z'FC000000', tf_bit_mask4 = z'01FFFFFF' )
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/
+data pa_mask4 /z'07FFFFFF'/, pa_sign_bit_mask4 /z'04000000'/, pa_sign_extend /z'F8000000'/
+data xyz_tag_mask4 /z'E0000000'/, xyz_tag_x4 /z'80000000'/, xyz_tag_y4 /z'A0000000'/, xyz_tag_z4 /z'C0000000'/
+data xyz_pos_mask4 /z'07FFFFFF'/, xyz_tag_pa4 /z'E0000000'/
+data pa_tag_mask4 /z'F8000000'/, pa_tag_x4 /z'E0000000'/, pa_tag_y4 /z'E8000000'/, pa_tag_z4 /z'F0000000'/
+data pa_tag_tf4 /z'F8000000'/, tf_tag_mask4 /z'FE000000'/, tf_tag_bt4 /z'F8000000'/, tf_tag_fc1 /z'FA000000'/
+data tf_tag_fc2 /z'FC000000'/, tf_bit_mask4 /z'01FFFFFF'/
 
 n_max = n_events
 n = 0
@@ -5518,37 +5518,37 @@ common /c_maia_4/ ldone, rdone, ldone2, rdone2
 common /c_maia_6/ tv_sec, tv_micro
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_events_1 = 34, maia_et_events_1 = 8, maia_et_events_2 = 25, maia_et_events_3 = 31, maia_monitor = 26 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_events_1 /34/, maia_et_events_1 /8/, maia_et_events_2 /25/, maia_et_events_3 /31/, maia_monitor /26/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET2 format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET3 format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -31, tag_offset3 = -31 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-31/, tag_offset3 /-31/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22 )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31 )
-parameter ( pa_mask4 = z'07FFFFFF', pa_sign_bit_mask4 = z'04000000', pa_sign_extend = z'F8000000')
-parameter ( xyz_tag_mask4 = z'E0000000', xyz_tag_x4 = z'80000000', xyz_tag_y4 =	z'A0000000', xyz_tag_z4 = z'C0000000' )
-parameter ( xyz_pos_mask4 = z'07FFFFFF', xyz_tag_pa4 = z'E0000000' )
-parameter ( pa_tag_mask4 = z'F8000000', pa_tag_x4 = z'E0000000', pa_tag_y4 = z'E8000000', pa_tag_z4 = z'F0000000' )
-parameter ( pa_tag_tf4 = z'F8000000', tf_tag_mask4 = z'FE000000', tf_tag_bt4 =z'F8000000', tf_tag_fc1 =	z'FA000000' )
-parameter ( tf_tag_fc2 = z'FC000000', tf_bit_mask4 = z'01FFFFFF' )
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/
+data pa_mask4 /z'07FFFFFF'/, pa_sign_bit_mask4 /z'04000000'/, pa_sign_extend /z'F8000000'/
+data xyz_tag_mask4 /z'E0000000'/, xyz_tag_x4 /z'80000000'/, xyz_tag_y4 /z'A0000000'/, xyz_tag_z4 /z'C0000000'/
+data xyz_pos_mask4 /z'07FFFFFF'/, xyz_tag_pa4 /z'E0000000'/
+data pa_tag_mask4 /z'F8000000'/, pa_tag_x4 /z'E0000000'/, pa_tag_y4 /z'E8000000'/, pa_tag_z4 /z'F0000000'/
+data pa_tag_tf4 /z'F8000000'/, tf_tag_mask4 /z'FE000000'/, tf_tag_bt4 /z'F8000000'/, tf_tag_fc1 /z'FA000000'/
+data tf_tag_fc2 /z'FC000000'/, tf_bit_mask4 /z'01FFFFFF'/
 
 n_max = n_events
 n = 0
@@ -6194,37 +6194,37 @@ common /c_maia_4/ ldone, rdone, ldone2, rdone2
 common /c_maia_6/ tv_sec, tv_micro
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_events_1 = 34, maia_et_events_1 = 8, maia_et_events_2 = 25, maia_et_events_3 = 31, maia_monitor = 26 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_events_1 /34/, maia_et_events_1 /8/, maia_et_events_2 /25/, maia_et_events_3 /31/, maia_monitor /26/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET2 format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET3 format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -31, tag_offset3 = -31 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-31/, tag_offset3 /-31/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22 )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31 )
-parameter ( pa_mask4 = z'07FFFFFF', pa_sign_bit_mask4 = z'04000000', pa_sign_extend = z'F8000000')
-parameter ( xyz_tag_mask4 = z'E0000000', xyz_tag_x4 = z'80000000', xyz_tag_y4 =	z'A0000000', xyz_tag_z4 = z'C0000000' )
-parameter ( xyz_pos_mask4 = z'07FFFFFF', xyz_tag_pa4 = z'E0000000' )
-parameter ( pa_tag_mask4 = z'F8000000', pa_tag_x4 = z'E0000000', pa_tag_y4 = z'E8000000', pa_tag_z4 = z'F0000000' )
-parameter ( pa_tag_tf4 = z'F8000000', tf_tag_mask4 = z'FE000000', tf_tag_bt4 =z'F8000000', tf_tag_fc1 =	z'FA000000' )
-parameter ( tf_tag_fc2 = z'FC000000', tf_bit_mask4 = z'01FFFFFF' )
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/
+data pa_mask4 /z'07FFFFFF'/, pa_sign_bit_mask4 /z'04000000'/, pa_sign_extend /z'F8000000'/
+data xyz_tag_mask4 /z'E0000000'/, xyz_tag_x4 /z'80000000'/, xyz_tag_y4 /z'A0000000'/, xyz_tag_z4 /z'C0000000'/
+data xyz_pos_mask4 /z'07FFFFFF'/, xyz_tag_pa4 /z'E0000000'/
+data pa_tag_mask4 /z'F8000000'/, pa_tag_x4 /z'E0000000'/, pa_tag_y4 /z'E8000000'/, pa_tag_z4 /z'F0000000'/
+data pa_tag_tf4 /z'F8000000'/, tf_tag_mask4 /z'FE000000'/, tf_tag_bt4 /z'F8000000'/, tf_tag_fc1 /z'FA000000'/
+data tf_tag_fc2 /z'FC000000'/, tf_bit_mask4 /z'01FFFFFF'/
 
 n_max = n_events
 n = 0
@@ -6872,37 +6872,37 @@ common /c_maia_3/ mbuff, mon_buff
 common /c_maia_4/ ldone, rdone, ldone2, rdone2
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_events_1 = 34, maia_et_events_1 = 8, maia_et_events_2 = 25, maia_et_events_3 = 31, maia_monitor = 26 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_events_1 /34/, maia_et_events_1 /8/, maia_et_events_2 /25/, maia_et_events_3 /31/, maia_monitor /26/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -31, tag_offset3 = -31 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-31/, tag_offset3 /-31/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22 )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31 )
-parameter ( pa_mask4 = z'07FFFFFF', pa_sign_bit_mask4 = z'04000000', pa_sign_extend = z'F8000000')
-parameter ( xyz_tag_mask4 = z'E0000000', xyz_tag_x4 = z'80000000', xyz_tag_y4 =	z'A0000000', xyz_tag_z4 = z'C0000000' )
-parameter ( xyz_pos_mask4 = z'07FFFFFF', xyz_tag_pa4 = z'E0000000' )
-parameter ( pa_tag_mask4 = z'F8000000', pa_tag_x4 = z'E0000000', pa_tag_y4 = z'E8000000', pa_tag_z4 = z'F0000000' )
-parameter ( pa_tag_tf4 = z'F8000000', tf_tag_mask4 = z'FE000000', tf_tag_bt4 =z'F8000000', tf_tag_fc1 =	z'FA000000' )
-parameter ( tf_tag_fc2 = z'FC000000', tf_bit_mask4 = z'01FFFFFF' )
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/
+data pa_mask4 /z'07FFFFFF'/, pa_sign_bit_mask4 /z'04000000'/, pa_sign_extend /z'F8000000'/
+data xyz_tag_mask4 /z'E0000000'/, xyz_tag_x4 /z'80000000'/, xyz_tag_y4 /z'A0000000'/, xyz_tag_z4 /z'C0000000'/
+data xyz_pos_mask4 /z'07FFFFFF'/, xyz_tag_pa4 /z'E0000000'/
+data pa_tag_mask4 /z'F8000000'/, pa_tag_x4 /z'E0000000'/, pa_tag_y4 /z'E8000000'/, pa_tag_z4 /z'F0000000'/
+data pa_tag_tf4 /z'F8000000'/, tf_tag_mask4 /z'FE000000'/, tf_tag_bt4 /z'F8000000'/, tf_tag_fc1 /z'FA000000'/
+data tf_tag_fc2 /z'FC000000'/, tf_bit_mask4 /z'01FFFFFF'/
 
 n_max = n_buffer/4
 n = 0
@@ -7561,32 +7561,32 @@ common /c_maia_3/ mbuff, mon_buff
 common /c_maia_4/ ldone, rdone, ldone2, rdone2
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_events_1 = 34, maia_et_events_1 = 8, maia_et_events_2 = 25, maia_et_events_3 = 31, maia_monitor = 26 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_events_1 /34/, maia_et_events_1 /8/, maia_et_events_2 /25/, maia_et_events_3 /31/, maia_monitor /26/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -31, tag_offset3 = -31 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-31/, tag_offset3 /-31/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22, pa_sign_bit_mask4 = z'04000000' )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31, pa_tag4 = z'E0000000' )
-parameter ( pa_offset4 = 0, pa_mask4 = z'07FFFFFF', pa_tag_offset4 = -27, pa_tag_mask4 = z'E0000000', pa_sign_extend = z'F8000000')
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/, pa_sign_bit_mask4 /z'04000000'/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/, pa_tag4 /z'E0000000'/
+data pa_offset4 /0/, pa_mask4 /z'07FFFFFF'/, pa_tag_offset4 /-27/, pa_tag_mask4 /z'E0000000'/, pa_sign_extend /z'F8000000'/
 
 n_max = n_buffer/4
 n = 0
@@ -8169,32 +8169,32 @@ INTEGER*2 maia_monitor, maia_events_1, xyz_count, pa_tag4
 common /c_maia_1/ jbuff, bev, remain, first
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_events_1 = 34, maia_et_events_1 = 8, maia_et_events_2 = 25, maia_et_events_3 = 31, maia_monitor = 26 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_events_1 /34/, maia_et_events_1 /8/, maia_et_events_2 /25/, maia_et_events_3 /31/, maia_monitor /26/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -31, tag_offset3 = -31 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-31/, tag_offset3 /-31/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22 )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31, pa_tag4 = z'001C' )
-parameter ( pa_offset4 = 0, pa_mask4 = z'07FFFFFF', pa_tag_offset4 = -27, pa_tag_mask4 = z'F8000000')
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/, pa_tag4 /z'001C'/
+data pa_offset4 /0/, pa_mask4 /z'07FFFFFF'/, pa_tag_offset4 /-27/, pa_tag_mask4 /z'F8000000'/
 
 n_max = n_buffer/4
 n = 0
@@ -8609,26 +8609,26 @@ INTEGER*2 maia_monitor
 common /c_maia_1/ jbuff, bev, remain, first
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_et_events_1 = 8, maia_et_events_2 = 25, maia_et_events_3 = 31, maia_monitor = 26 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_et_events_1 /8/, maia_et_events_2 /25/, maia_et_events_3 /31/, maia_monitor /26/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -30, tag_offset3 = -30 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-30/, tag_offset3 /-30/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 n_max = n_buffer/4
 n = 0
@@ -8960,20 +8960,20 @@ INTEGER*4 adr_mask2, de_mask2, dt_mask2, pdf_mask2, tag_mask2, dx_mask2, dy_mask
 common /c_maia_1/ jbuff, bev, remain, first
 equivalence (bev(0), tev)
 
-parameter ( a_tag = z'AA', b_tag = z'BB', byte_mask = z'00FF', word_mask = z'7FFF' )
-parameter ( maia_et_events_1 = 8, maia_et_events_2 = 25 )
+data a_tag /z'AA'/, b_tag /z'BB'/, byte_mask /z'00FF'/, word_mask /z'7FFF'/
+data maia_et_events_1 /8/, maia_et_events_2 /25/
 
 ! Specific to the ET format 'maia_et_events_1' ...
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = -5, dt_offset = -17, pdf_offset = -29, tag_offset = -30 )
-parameter ( dy_offset = -15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /-5/, dt_offset /-17/, pdf_offset /-29/, tag_offset /-30/
+data dy_offset /-15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 n_max = n_buffer/4
 n = 0
@@ -9212,25 +9212,25 @@ INTEGER*4 adr_mask4, de_mask4, dt_mask4, pdf_mask4, tag_mask4, pa_mask4, pa_tag_
 common /c_maia_1/ jbuff, bev, remain, first
 equivalence (bev(0), tev)
 
-parameter ( maia_events_1 = 34, maia_et_events_2 = 25, maia_et_events_3 = 31 )
+data maia_events_1 /34/, maia_et_events_2 /25/, maia_et_events_3 /31/
 
 ! Specific to the ET format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -30, tag_offset3 = -30 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-30/, tag_offset3 /-30/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22 )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31, pa_tag4 = z'001C' )
-parameter ( pa_offset4 = 0, pa_mask4 = z'07FFFFFF', pa_tag_offset4 = -27, pa_tag_mask4 = z'F8000000')
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/, pa_tag4 /z'001C'/
+data pa_offset4 /0/, pa_mask4 /z'07FFFFFF'/, pa_tag_offset4 /-27/, pa_tag_mask4 /z'F8000000'/
 
 n_max = n_buffer/4
 n = 0
@@ -9401,25 +9401,25 @@ INTEGER*4 adr_mask4, de_mask4, dt_mask4, pdf_mask4, tag_mask4, pa_mask4, pa_tag_
 common /c_maia_1/ jbuff, bev, remain, first
 equivalence (bev(0), tev)
 
-parameter ( maia_events_1 = 34, maia_et_events_2 = 25, maia_et_events_3 = 31 )
+data maia_events_1 /34/, maia_et_events_2 /25/, maia_et_events_3 /31/
 
 ! Specific to the ET format 'maia_et_events_2' ...
-parameter ( adr_mask2 = z'0000007F', de_mask2 = z'0007FF80', dt_mask2 = z'1FF80000' )
-parameter ( pdf_mask2 = z'20000000', tag_mask2 = z'C0000000', adr_offset2 = 0 )
-parameter ( de_offset2 = -7, dt_offset2 = -19, pdf_offset2 = -29, tag_offset2 = -30 )
-parameter ( dy_offset2 = -15, dx_offset2 = 0, dx_mask2 = z'00007FFF', dy_mask2 = z'3FFF8000')
+data adr_mask2 /z'0000007F'/, de_mask2 /z'0007FF80'/, dt_mask2 /z'1FF80000'/
+data pdf_mask2 /z'20000000'/, tag_mask2 /z'C0000000'/, adr_offset2 /0/
+data de_offset2 /-7/, dt_offset2 /-19/, pdf_offset2 /-29/, tag_offset2 /-30/
+data dy_offset2 /-15/, dx_offset2 /0/, dx_mask2 /z'00007FFF'/, dy_mask2 /z'3FFF8000'/
 
 ! Specific to the ET format 'maia_et_events_3' ...
-parameter ( adr_mask3 = z'000001FF', de_mask3 = z'001FFE00', dt_mask3 = z'7FE00000' )
-parameter ( pdf_mask3 = z'80000000', tag_mask3 = z'80000000', adr_offset3 = 0 )
-parameter ( de_offset3 = -9, dt_offset3 = -21, pdf_offset3 = -30, tag_offset3 = -30 )
-parameter ( dy_offset3 = -15, dx_offset3 = 0, dx_mask3 = z'00007FFF', dy_mask3 = z'3FFF8000')
+data adr_mask3 /z'000001FF'/, de_mask3 /z'001FFE00'/, dt_mask3 /z'7FE00000'/
+data pdf_mask3 /z'80000000'/, tag_mask3 /z'80000000'/, adr_offset3 /0/
+data de_offset3 /-9/, dt_offset3 /-21/, pdf_offset3 /-30/, tag_offset3 /-30/
+data dy_offset3 /-15/, dx_offset3 /0/, dx_mask3 /z'00007FFF'/, dy_mask3 /z'3FFF8000'/
 
 ! Specific to the ET/XYZ format 'maia_events_1' (was ET4) ...
-parameter ( adr_mask4 = z'7FC00000', de_mask4 = z'00000FFF', dt_mask4 = z'003FF000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -22 )
-parameter ( de_offset4 = 0, dt_offset4 = -12, pdf_offset4 = -31, tag_offset4 = -31, pa_tag4 = z'001C' )
-parameter ( pa_offset4 = 0, pa_mask4 = z'07FFFFFF', pa_tag_offset4 = -27, pa_tag_mask4 = z'F8000000')
+data adr_mask4 /z'7FC00000'/, de_mask4 /z'00000FFF'/, dt_mask4 /z'003FF000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-22/
+data de_offset4 /0/, dt_offset4 /-12/, pdf_offset4 /-31/, tag_offset4 /-31/, pa_tag4 /z'001C'/
+data pa_offset4 /0/, pa_mask4 /z'07FFFFFF'/, pa_tag_offset4 /-27/, pa_tag_mask4 /z'F8000000'/
 
 n_max = n_buffer/4
 n = 0
@@ -9580,7 +9580,7 @@ INTEGER*1 ev(0:n_buffer-1), bev(0:7)
 LOGICAL incomplete, first
 
 INTEGER*2 de, dt, dx, dy, adr, dtag 
-INTEGER*2 pa_offset4, de_offset4, dt_offset4, pdf_offset4, tag_offset4, adr_offset4
+INTEGER*2 pa_offset4, de_offset4, dt_offset4, pdf_offset4, tag_offset4, adr_offset4, pa_tag4
 INTEGER*4 adr_mask4, de_mask4, dt_mask4, pdf_mask4, tag_mask4, pa_mask4, pa_tag_offset4
 INTEGER*4 pa_tag_mask4, pa_tag_x4, pa_tag_y4, pa_tag_z4, pa_tag_tf4
 INTEGER*4 pa_tag_u4, pa_tag_v4, pa_tag_w4, pa_sign_bit_mask4, pa_sign_extend
@@ -9590,15 +9590,15 @@ common /c_daq_5/ jbuff, bev, remain, first			! init w/ init_daq_32_TS
 equivalence (bev(0), tev(0))
 
 ! Specific to the ET format 'pm_event_ts_1' and 'pm_event_nots_1' ...
-parameter ( adr_mask4 = z'7F000000', de_mask4 = z'00001FFF', dt_mask4 = z'00FFE000' )
-parameter ( pdf_mask4 = z'80000000', tag_mask4 = z'80000000', adr_offset4 = -24 )
-parameter ( de_offset4 = 0, dt_offset4 = -13, pdf_offset4 = -31, tag_offset4 = -31, pa_tag4 = z'001C' )
-parameter ( pa_offset4 = 0, pa_mask4 = z'0FFFFFFF', pa_tag_offset4 = -27)
-parameter ( pa_sign_bit_mask4 = z'08000000', pa_sign_extend = z'F0000000')
-parameter ( pa_tag_mask4 = z'F0000000', pa_tag_x4 = z'80000000', pa_tag_y4 = z'90000000', pa_tag_z4 = z'A0000000' )
-parameter ( pa_tag_u4 = z'B0000000', pa_tag_v4 = z'C0000000', pa_tag_w4 = z'D0000000' )
-parameter ( pa_tag_tf4 = z'F0000000', tf_tag_mask4 = z'FC000000', tf_tag_bt4 =z'F0000000', tf_tag_fc1 =	z'F4000000' )
-parameter ( tf_bit_mask4 = z'03FFFFFF' )
+data adr_mask4 /z'7F000000'/, de_mask4 /z'00001FFF'/, dt_mask4 /z'00FFE000'/
+data pdf_mask4 /z'80000000'/, tag_mask4 /z'80000000'/, adr_offset4 /-24/
+data de_offset4 /0/, dt_offset4 /-13/, pdf_offset4 /-31/, tag_offset4 /-31/, pa_tag4 /z'001C'/
+data pa_offset4 /0/, pa_mask4 /z'0FFFFFFF'/, pa_tag_offset4 /-27/
+data pa_sign_bit_mask4 /z'08000000'/, pa_sign_extend /z'F0000000'/
+data pa_tag_mask4 /z'F0000000'/, pa_tag_x4 /z'80000000'/, pa_tag_y4 /z'90000000'/, pa_tag_z4 /z'A0000000'/
+data pa_tag_u4 /z'B0000000'/, pa_tag_v4 /z'C0000000'/, pa_tag_w4 /z'D0000000'/
+data pa_tag_tf4 /z'F0000000'/, tf_tag_mask4 /z'FC000000'/, tf_tag_bt4 /z'F0000000'/, tf_tag_fc1 /z'F4000000'/
+data tf_bit_mask4 /z'03FFFFFF'/
 
 n_max = n_buffer/4
 n = 0
@@ -9781,16 +9781,16 @@ INTEGER*1 out(0:n_out_max-1)
 
 INTEGER*4 i,k,m,i_step,long,seq,tlong0,tlong1,tlong2,tlong3,length,total, xy_long
 INTEGER*1 a_tag, b_tag, bytes(0:3)
-INTEGER*2 maia_et_events_1, maia_pa_events_1, word,x0,y0,word_mask
+INTEGER*2 maia_et_events_1, maia_pa_events_1, word,x0,y0,word_mask, byte_mask
 INTEGER*2 dy_offset, dx_offset, de_offset, dt_offset, pdf_offset, tag_offset, adr_offset
 INTEGER*4 adr_mask, de_mask, dt_mask, pdf_mask, tag_mask, dx_mask, dy_mask, pa_tags
 
-parameter ( a_tag = z'AA', b_tag = z'BB', word_mask = z'FFFF', byte_mask = z'00FF' )
-parameter ( maia_et_events_1 = 8, maia_pa_events_1 = 10, pa_tags = z'80000000' )
-parameter ( adr_mask = z'0000001F', de_mask = z'0001FFE0', dt_mask = z'1FFE0000' )
-parameter ( pdf_mask = z'20000000', tag_mask = z'C0000000', adr_offset = 0 )
-parameter ( de_offset = 5, dt_offset = 17, pdf_offset = 29, tag_offset = 30 )
-parameter ( dy_offset = 15, dx_offset = 0, dx_mask = z'00007FFF', dy_mask = z'3FFF8000')
+data a_tag /z'AA'/, b_tag /z'BB'/, word_mask /z'FFFF'/, byte_mask /z'00FF'/
+data maia_et_events_1 /8/, maia_pa_events_1 /10/, pa_tags /z'80000000'/
+data adr_mask /z'0000001F'/, de_mask /z'0001FFE0'/, dt_mask /z'1FFE0000'/
+data pdf_mask /z'20000000'/, tag_mask /z'C0000000'/, adr_offset /0/
+data de_offset /5/, dt_offset /17/, pdf_offset /29/, tag_offset /30/
+data dy_offset /15/, dx_offset /0/, dx_mask /z'00007FFF'/, dy_mask /z'3FFF8000'/
 
 equivalence (word, bytes(0)), (long, bytes(0))
 
@@ -10255,8 +10255,8 @@ INTEGER*2 e_mask, ste_mask
 INTEGER*2 ste_offset
 INTEGER*2 ste, te
 
-parameter ( e_mask = z'0FFF', ste_mask = z'F000')
-parameter ( ste_offset = -12)
+data e_mask /z'0FFF'/, ste_mask /z'F000'/
+data ste_offset /-12/
 
 ! The data uses the bottom bits for ADC data (12 bits for e, x, y),
 ! and the top 4 bits tag the ADC station and to identify X,Y.
@@ -10338,7 +10338,7 @@ INTEGER*2 x(0:n_max-1),y(0:n_max-1),e(0:n_max-1),ste(0:n_max-1)
 INTEGER*2 mpa_x_adc,mpa_y_adc
 LOGICAL bad_x, bad_y
 
-parameter ( TAGmask = z'8000', DataMask = z'1FFF')
+data TAGmask /z'8000'/, DataMask /z'1FFF'/
 
 	do i=0,15
 	   bit(i) = ishft(1,i)
@@ -10569,8 +10569,8 @@ INTEGER*2 e(0:n_max-1),ste(0:n_max-1),veto(0:n_max-1), channel_on(0:nc-1)
 
 INTEGER*1 bit(0:7), type_mask, bit6, bit3, bit4
 INTEGER*4 byte_mask, word_mask, byte3_mask
-parameter ( type_mask = z'0F', bit6 = z'40', bit3 = z'08', bit4 = z'10' )
-parameter ( byte_mask = z'FF', word_mask = z'FFFF', byte3_mask = z'FFFFFF' )
+data type_mask /z'0F'/, bit6 /z'40'/, bit3 /z'08'/, bit4 /z'10'/
+data byte_mask /z'FF'/, word_mask /z'FFFF'/, byte3_mask /z'FFFFFF'/
 
 INTEGER*8 fev
 INTEGER*4 counter3, counter4, temp, Xold,Yold, busy(0:7), count(0:7), charge
@@ -10816,8 +10816,8 @@ INTEGER*2 x(0:n_max-1),y(0:n_max-1),e(0:n_max-1),ste(0:n_max-1),veto(0:n_max-1),
 
 INTEGER*1 type_mask, bit6, bit3, bit4
 INTEGER*4 byte_mask, word_mask, byte3_mask
-parameter ( type_mask = z'0F', bit6 = z'40', bit3 = z'08', bit4 = z'10' )
-parameter ( byte_mask = z'FF', word_mask = z'FFFF', byte3_mask = z'FFFFFF' )
+data type_mask /z'0F'/, bit6 /z'40'/, bit3 /z'08'/, bit4 /z'10'/
+data byte_mask /z'FF'/, word_mask /z'FFFF'/, byte3_mask /z'FFFFFF'/
 
 INTEGER*8 fev
 INTEGER*4 counter3, counter4, temp
@@ -11050,8 +11050,8 @@ INTEGER*2 mpa_x_adc,mpa_y_adc
 integer*4 rtc0, rtc1, rtc2
 ! integer*4 rtc(0:n_max-1)
 
-parameter ( TimerEvent= z'4000', RTCmask = z'1000', DummyMask = z'8000')
-parameter ( sync = z'FFFF')
+data TimerEvent /z'4000'/, RTCmask /z'1000'/, DummyMask /z'8000'/
+data sync /z'FFFF'/
 
 	do i=0,15
 	   bit(i) = ishft(1,i)
@@ -11572,26 +11572,26 @@ INTEGER*4 spatial1_generic_count1_type, spatial1_generic_count2_type, spatial1_g
 INTEGER*4 error_type_mask, error_type_offset, error_analogue_status_type, error_overflow_type
 INTEGER*4 error_saturate_mask, error_saturate_offset, error_time_stamp_mask
 
-parameter (data_type_mask = z'F0000000', data_type_offset=-28, busy2_data_type=3, busy3_data_type=6)
-parameter (pulse1_data_type=0, position_data_type=12, spatial1_data_type=11, error_data_type=15, busy_data_type=2)
-parameter (position_length = 6, spatial1_length = 6)
-parameter (error_length = 1, pulse1_length = 1, busy_length = 1, busy2_length = 1, busy3_length = 4)
-parameter (pulse1_energy_mask = z'0000FFFF')
-parameter (pulse1_energy_offset = 0, pulse1_channel_mask = z'0F000000', pulse1_channel_offset = -24)
-parameter (busy_busy_mask = z'00FFFFFF', busy_channel_mask = z'0F000000', busy_channel_offset = -24)
-parameter (busy2_busy_mask = z'000000FF', busy2_channel_mask = z'0F000000', busy2_channel_offset = -24)
-parameter (busy3_type_mask = z'0F000000', busy3_type_offset = -24, busy3_channel_mask = z'00F00000')
-parameter (busy3_channel_offset = -20, busy3_data_mask = z'000FFFFF', busy3_busy_lsb_type = 0)
-parameter (busy3_busy_msb_type = 1, busy3_raw_lsb_type = 2, busy3_raw_msb_type = 3)
-parameter (position_type_mask =	z'0F000000', position_type_offset = -24, position_data_mask = z'00FFFFFF')
-parameter (position_axis0_type = 0, position_axis1_type = 1, position_axis2_type = 2, position_axis3_type = 3)
-parameter (position_axis4_type = 4, position_axis5_type = 5)
-parameter (spatial1_type_mask = z'0F000000', spatial1_type_offset = -24, spatial1_data_mask = z'00FFFFFF')
-parameter (spatial1_sample_msb_mask = z'000000FF', spatial1_sample_msb_offset = 24)
-parameter (spatial1_sample_countl_type = 0, spatial1_sample_countm_type = 1, spatial1_generic_count4_type = 5)
-parameter (spatial1_generic_count1_type = 2, spatial1_generic_count2_type = 3, spatial1_generic_count3_type = 4)
-parameter (error_type_mask = z'0F000000', error_type_offset = -24, error_analogue_status_type = 0, error_overflow_type = 1)
-parameter (error_saturate_mask = z'000C0000', error_saturate_offset = -18, error_time_stamp_mask = z'00FFFFFF')
+data data_type_mask /z'F0000000'/, data_type_offset /-28/, busy2_data_type /3/, busy3_data_type /6/
+data pulse1_data_type /0/, position_data_type /12/, spatial1_data_type /11/, error_data_type /15/, busy_data_type /2/
+data position_length /6/, spatial1_length /6/
+data error_length /1/, pulse1_length /1/, busy_length /1/, busy2_length /1/, busy3_length /4/
+data pulse1_energy_mask /z'0000FFFF'/
+data pulse1_energy_offset /0/, pulse1_channel_mask /z'0F000000'/, pulse1_channel_offset /-24/
+data busy_busy_mask /z'00FFFFFF'/, busy_channel_mask /z'0F000000'/, busy_channel_offset /-24/
+data busy2_busy_mask /z'000000FF'/, busy2_channel_mask /z'0F000000'/, busy2_channel_offset /-24/
+data busy3_type_mask /z'0F000000'/, busy3_type_offset /-24/, busy3_channel_mask /z'00F00000'/
+data busy3_channel_offset /-20/, busy3_data_mask /z'000FFFFF'/, busy3_busy_lsb_type /0/
+data busy3_busy_msb_type /1/, busy3_raw_lsb_type /2/, busy3_raw_msb_type /3/
+data position_type_mask /z'0F000000'/, position_type_offset /-24/, position_data_mask /z'00FFFFFF'/
+data position_axis0_type /0/, position_axis1_type /1/, position_axis2_type /2/, position_axis3_type /3/
+data position_axis4_type /4/, position_axis5_type /5/
+data spatial1_type_mask /z'0F000000'/, spatial1_type_offset /-24/, spatial1_data_mask /z'00FFFFFF'/
+data spatial1_sample_msb_mask /z'000000FF'/, spatial1_sample_msb_offset /24/
+data spatial1_sample_countl_type /0/, spatial1_sample_countm_type /1/, spatial1_generic_count4_type /5/
+data spatial1_generic_count1_type /2/, spatial1_generic_count2_type /3/, spatial1_generic_count3_type /4/
+data error_type_mask /z'0F000000'/, error_type_offset /-24/, error_analogue_status_type /0/, error_overflow_type /1/
+data error_saturate_mask /z'000C0000'/, error_saturate_offset /-18/, error_time_stamp_mask /z'00FFFFFF'/
 
 INTEGER*4 de, tx, ty, tz, tt, tev, tcount
 INTEGER*2 dtag, pdf, adr
@@ -11990,11 +11990,11 @@ INTEGER*2 e_mask, x_mask, y_mask, ste_mask, stx_mask, sty_mask, mdx_mask
 INTEGER*2 mdy_mask, ste_offset, stx_offset, sty_offset
 INTEGER*2 ste, stx, sty, correct_mdx, correct_mdy, one
 
-parameter ( e_mask = z'0FFF', x_mask = z'0FFF', y_mask = z'0FFF')
-parameter ( ste_mask = z'C000', stx_mask = z'3000', sty_mask = z'3000')
-parameter ( mdx_mask = z'C000', mdy_mask = z'C000')
-parameter ( ste_offset = -14, stx_offset = -12, sty_offset = -12)
-parameter ( correct_mdx = z'8000', correct_mdy = z'4000', one=z'0001')
+data e_mask /z'0FFF'/, x_mask /z'0FFF'/, y_mask /z'0FFF'/
+data ste_mask /z'C000'/, stx_mask /z'3000'/, sty_mask /z'3000'/
+data mdx_mask /z'C000'/, mdy_mask /z'C000'/
+data ste_offset /-14/, stx_offset /-12/, sty_offset /-12/
+data correct_mdx /z'8000'/, correct_mdy /z'4000'/, one /z'0001'/
 
 ! The data uses the bottom bits for ADC data (13 bits e, 12 bits
 ! for x,y), and the top bits to tag the ADC station and to identify X,Y.
@@ -12085,11 +12085,11 @@ INTEGER*2 e_mask0, e_mask, x_mask, y_mask, ste_mask, stx_mask, sty_mask, mdx_mas
 INTEGER*2 mdy_mask, ste_offset, stx_offset, sty_offset
 INTEGER*2 ste, stx, sty, correct_mdx, correct_mdy, one, toggle_mask, toggle
 
-parameter ( e_mask0 = z'0FFF', x_mask = z'0FFF', y_mask = z'0FFF')
-parameter ( ste_mask = z'C000', stx_mask = z'3000', sty_mask = z'3000')
-parameter ( mdx_mask = z'C000', mdy_mask = z'C000')
-parameter ( ste_offset = -14, stx_offset = -12, sty_offset = -12)
-parameter ( correct_mdx = z'8000', correct_mdy = z'4000', one=z'0001')
+data e_mask0 /z'0FFF'/, x_mask /z'0FFF'/, y_mask /z'0FFF'/
+data ste_mask /z'C000'/, stx_mask /z'3000'/, sty_mask /z'3000'/
+data mdx_mask /z'C000'/, mdy_mask /z'C000'/
+data ste_offset /-14/, stx_offset /-12/, sty_offset /-12/
+data correct_mdx /z'8000'/, correct_mdy /z'4000'/, one /z'0001'/
 
 ! The data uses the bottom bits for ADC data (13 bits e, 12 bits
 ! for x,y), and the top bits to tag the ADC station and to identify X,Y.
@@ -12224,9 +12224,9 @@ INTEGER*4 length, j
 INTEGER*2 event_tag, e_mask, x_mask, y_mask, buffer_id_mask
 INTEGER*2 event_id_mask, event_type_mask, id, type
 
-parameter ( e_mask = z'1FFF', x_mask = z'0FFF', y_mask = z'0FFF')
-parameter ( buffer_id_mask = z'FC00', event_id_mask = z'C000', event_type_mask = z'00FF')
-parameter ( event_tag = z'8000')
+data e_mask /z'1FFF'/, x_mask /z'0FFF'/, y_mask /z'0FFF'/
+data buffer_id_mask /z'FC00'/, event_id_mask /z'C000'/, event_type_mask /z'00FF'/
+data event_tag /z'8000'/
 
 j = 0
 n = 0

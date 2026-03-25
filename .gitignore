@@ -2,6 +2,7 @@
 ~*
 *.bak
 *.old
+*.new
 *.log
 build.spro
 Thumbs.db
@@ -32,4 +33,4 @@ history.pcm
 Workspace/*/.settings
 Workspace/Test/
 Workspace/geopixe/GPUCache/
-
+*.errs
