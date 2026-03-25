@@ -2552,8 +2552,8 @@ common c_sandia_7, adc, tag, k_adc
 		ste = falconx_ste[0:n-1]
 		veto = falconx_veto[0:n-1]		
 		
-		x1 = median(x1,2)										; fudge to filter out dodgy spurious zeros.
-																; also use xmargin clear=2 or more.
+;		x1 = median(x1,2)										; fudge to filter out dodgy spurious zeros.
+																; mow Fortran ignore X=0,1 - better. Needs clear >=2.
 
 ;		if max(y1) ge 177 then begin							; stop to debug
 ;			q = where( y1 ge 177, nq)

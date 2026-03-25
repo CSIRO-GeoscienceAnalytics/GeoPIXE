@@ -13,7 +13,7 @@ INSTDIR = /opt/geopixe/latest
 FFLAGS = -O3 -cpp -ffree-form
 
 # gfortran specific flags
-GFORTRAN_FLAGS = -D__GFORTRAN__ -std=legacy -fallow-invalid-boz -ffree-line-length-512 -fno-range-check
+GFORTRAN_FLAGS = -D__GFORTRAN__ -std=legacy -fallow-invalid-boz -ffree-line-length-512 -fno-range-check -fallow-argument-mismatch
 
 # flang specific flags
 FLANG_FLAGS = -D__FLANG__

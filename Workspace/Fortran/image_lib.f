@@ -4,8 +4,8 @@
 ! and fiddly bit twiddling for certain input data devices.
 !
 ! Windows and Linux source differ:
-!	Windows: use !!DLL_EXPORT lines.
-!	Linux: comment out the !!DLL_EXPORT lines
+!	Windows: use DLL_EXPORT lines.
+!	Linux: comment out the !DLL_EXPORT lines
 !
 ! 64 bit libraries: edit address passing wrappers ...
 !	integer*8 argc, argv(*)		! pass 64 bit addresses by reference
@@ -72,7 +72,7 @@ SUBROUTINE geopixe_lib_version_b( version)
 
 INTEGER*4 version
 
-version = 56
+version = 57
 return
 end
 
@@ -2346,7 +2346,7 @@ integer*4 stats_type, stats_ovf, icr, raw, busy, icrm, rawm
 real*4 dwell_last
 
 INTEGER*2 de, dtag, pdf, adr, busym
-integer*2 ldone, rdone, xy_on
+integer*2 ldone, rdone, xy_on, ldone2, rdone2
 
 common /c_fx_1/ jbuff, bev, remain
 common /c_fx_4/ ldone, rdone, ldone2, rdone2
@@ -10579,7 +10579,7 @@ INTEGER*1 adc_active, adc_not_busy, bev(0:7)
 equivalence (fev, bev(0))
 
 common /c_mpa4_1b/ i_bit, k_byte, i_adc, ADCindex, adcs, counter3, counter4, fev, busy, count
-common /c_mpa4_2b/ adc_active, adc_not_busy, adc, charge, Xold,Yold
+common /c_mpa4_2b/ charge, Xold,Yold, adc, adc_active, adc_not_busy
 
 	j_mpa = 0
 	n = 0
