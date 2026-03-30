@@ -11,12 +11,11 @@ pro source_calculate, p, Energy=E2, spec=spec2, convert=convert, pressure=pressu
 ;	Called from 'fit_recalculate_yields'.
 
 	COMPILE_OPT STRICTARR
-	error = 0
+	error = 1
 	if n_elements(convert) eq 0 then convert=0
 	if ptr_valid(p) eq 0 then return
 	if size(*p,/tname) ne 'STRUCT' then return
 	if (*p).continuum eq 0 then return
-	error = 1
 
 	bin = 0.02											; energy bin (keV) for 0.1% bandwidth?
 	if (*p).mono.mode eq 0 then (*p).modata.mono[0] = 0.0

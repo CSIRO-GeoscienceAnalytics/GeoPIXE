@@ -46,6 +46,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+common c_geopixe_scaling, sxy
 
 if ptr_valid( (*pstate).p) eq 0 then return
 if n_elements(init) lt 1 then init=0
@@ -53,15 +54,15 @@ if ptr_valid( (*(*pstate).p)[0]) then begin
 
 case !version.os_family of
 	'MacOS': begin
-		ytrim = 25
+		ytrim = 25 *sxy
 		headn = 1
 		end
 	'unix': begin
-		ytrim = 35
+		ytrim = 35 *sxy
 		headn = 1.7
 		end
 	else: begin
-		ytrim = 22
+		ytrim = 22 *sxy
 		headn = 1
 		end
 endcase
@@ -79,6 +80,8 @@ endcase
 	columns = ['Label','Sample','Grain','Comment','ADC','Mult','Charge','IC Count','Conversion','Rel DT Corr','Size', $
 		'Cal A','Cal B','Units','Compress','X','Y','Z','Theta','Phi','Scan X','Scan Y']
 	widths = [13,7,5,12,5,5,9,12,12,12,5,12,12,7,8,9,9,9,9,9,9,9,5,9,10,10,9,9,6] * !d.x_ch_size
+
+	widths = widths *sxy					; needed because !d.x_ch_size is direct graphics, does not reflect font
 	(*pstate).columns = 22
 
 	rows = strarr(n)
@@ -580,19 +583,20 @@ end
 
 pro OnSize_Select, event
 
+common c_geopixe_scaling, sxy
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 
-xmax = (*pstate).realtime ? 450 : 590
+xmax = (*pstate).realtime ? 450 *sxy : 590 *sxy
 
 x = (event.x > xmax) - (*pstate).xoffset
-y = (event.y - (*pstate).yoffset) > 54
+y = (event.y - (*pstate).yoffset) > 54 *sxy
 
 ; Use integer arithmetic for y to ensure a whole number of rows
 ;n = ((event.y - (*pstate).yoffset + 9)/ (*pstate).row_height) - 2
 ;n = (*pstate).rows < n
 ;(*pstate).display_rows = n
-;y = (n + 1) * (*pstate).row_height + 22
+;y = (n + 1) * (*pstate).row_height + 22 *sxy
 
 widget_control, (*pstate).table, scr_xsize=x, scr_ysize=y
 end

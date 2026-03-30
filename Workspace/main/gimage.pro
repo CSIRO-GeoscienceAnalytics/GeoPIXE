@@ -3,6 +3,7 @@ pro gImage_event, Event
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
+common c_geopixe_scaling, sxy
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -1321,6 +1322,7 @@ common c_working_dir, geopixe_root
 common c_geopixe_adcs, geopixe_max_adcs
 common c_geopixe_vm, geopixe_enable_vm
 common c_fit_memory_1, fit_memory_on
+common c_geopixe_scaling, sxy
 
 if n_elements(geopixe_max_adcs) lt 1 then geopixe_max_adcs=384
 if n_elements(c_test) lt 1 then c_test=0
@@ -1413,19 +1415,19 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        symbol = 'SYMBOL*12'
        large_font = 'Arial*12'
        def_font = 'Geneva*10'
-       draw_trim = 15
-       scr_trim = 21
-       help1_xsize = 320		; 339
-       mode_xsize = 63
-       slide_xsize = 95			; 83
-       button_height = 21
-       xsize_element = 80
-       xsize_analyze_type = 124
-       xsize_analyze_mode = 48
-       xsize_loglin = 73
-       help2_scr_ysize = 61
-       query_scr_xsize = 20
-       query_scr_ysize = 24
+       draw_trim = 15 *sxy
+       scr_trim = 21 *sxy
+       help1_xsize = 320 *sxy		; 339
+       mode_xsize = 63 *sxy
+       slide_xsize = 95 *sxy			; 83
+       button_height = 21 *sxy
+       xsize_element = 80 *sxy
+       xsize_analyze_type = 124 *sxy
+       xsize_analyze_mode = 48 *sxy
+       xsize_loglin = 73 *sxy
+       help2_scr_ysize = 61 *sxy
+       query_scr_xsize = 20 *sxy
+       query_scr_ysize = 24 *sxy
 	   query_frame = 0
        end
     'unix': begin
@@ -1434,17 +1436,17 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        def_font = '6x13'
        draw_trim = 0
        scr_trim = 0			; 15
-       help1_xsize = 342	; 361
-       mode_xsize = 63
-       slide_xsize = 95			; 85
-       button_height = 21
-       xsize_element = 80
-       xsize_analyze_type = 132
-       xsize_analyze_mode = 54
-       xsize_loglin = 79
-       help2_scr_ysize = 60
-       query_scr_xsize = 25
-       query_scr_ysize = 29
+       help1_xsize = 342 *sxy	; 361
+       mode_xsize = 63 *sxy
+       slide_xsize = 95 *sxy			; 85
+       button_height = 21 *sxy
+       xsize_element = 80 *sxy
+       xsize_analyze_type = 132 *sxy
+       xsize_analyze_mode = 54 *sxy
+       xsize_loglin = 79 *sxy
+       help2_scr_ysize = 60 *sxy
+       query_scr_xsize = 25 *sxy
+       query_scr_ysize = 29 *sxy
 	   query_frame = 0
        end
     else: begin
@@ -1452,18 +1454,18 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
        large_font = 'COURIER*BOLD*10'
        def_font = 'Arial*14'
        draw_trim = 0
-       scr_trim = 15			; 15
-       help1_xsize = 340		; 359
-       mode_xsize = 55
-       slide_xsize = 101			; 92			; 83
-       button_height = 21
-       xsize_element = 73		; 44
-       xsize_analyze_type = 124
-       xsize_analyze_mode = 48
-       xsize_loglin = 63
-       help2_scr_ysize = 58
-       query_scr_xsize = 15
-       query_scr_ysize = 20
+       scr_trim = 15 *sxy			; 15
+       help1_xsize = 340 *sxy		; 359
+       mode_xsize = 55 *sxy
+       slide_xsize = 101 *sxy			; 92			; 83
+       button_height = 21 *sxy
+       xsize_element = 73 *sxy		; 44
+       xsize_analyze_type = 124 *sxy
+       xsize_analyze_mode = 48 *sxy
+       xsize_loglin = 63 *sxy
+       help2_scr_ysize = 58 *sxy
+       query_scr_xsize = 15 *sxy
+       query_scr_ysize = 20 *sxy
 	   query_frame = 1
       end
   endcase
@@ -1582,11 +1584,11 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   endelse
 
   Image_Draw = Widget_Draw(Image_Draw_Base, UNAME='Image_Draw', /tracking,  $
-      SCR_XSIZE=360+scr_trim, SCR_YSIZE=360+scr_trim, uvalue='Left mouse: click and hold to drag shape or control point. ' + $
+      SCR_XSIZE=360 *sxy+scr_trim, SCR_YSIZE=360 *sxy+scr_trim, uvalue='Left mouse: click and hold to drag shape or control point. ' + $
 	  		'Middle mouse/wheel: click and hold to magnify view. Right mouse: alt function for some control points.',  $
       NOTIFY_REALIZE='OnRealize_Image', /wheel_events, /BUTTON_EVENTS, /VIEWPORT_EVENTS,  $
-      KILL_NOTIFY='OnDestroy_Image', /SCROLL, XSIZE=360+draw_trim,  $
-      YSIZE=360+draw_trim, retain=retain)
+      KILL_NOTIFY='OnDestroy_Image', /SCROLL, XSIZE=360 *sxy+draw_trim,  $
+      YSIZE=360 *sxy+draw_trim, retain=retain)
 
 
   Image_Button_Base = Widget_Base(Image_TLB, UNAME='Image_Button_Base'  $
@@ -1644,17 +1646,17 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
   Full_Button = Widget_Button(Image_Button_Top_Base, UNAME='Full_Button'  $
       ,/ALIGN_CENTER ,VALUE='0', tracking_events=1, font=large_font, $
-      uvalue='Show original size of image in window.',xsize=20, ysize=button_height)
+      uvalue='Show original size of image in window.',xsize=20 *sxy, ysize=button_height)
 
 
   Zoom_In_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_In_Button'  $
       ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, font=large_font, $
-      uvalue='Magnify image view x2. Zoom into image.',xsize=20, ysize=button_height)
+      uvalue='Magnify image view x2. Zoom into image.',xsize=20 *sxy, ysize=button_height)
 
 
   Zoom_Out_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_Out_Button'  $
       ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, font=large_font, $
-      uvalue='Demagnify image view x2. Zoom out.',xsize=20, ysize=button_height)
+      uvalue='Demagnify image view x2. Zoom out.',xsize=20 *sxy, ysize=button_height)
 
 
   space2 = widget_base(Image_Button_Top_Base, xsize=1)
@@ -1674,7 +1676,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
 
   Analyze_Button = Widget_Button( Image_Button_Top_Base, UNAME='Analyze_Button'  $
-      ,/ALIGN_CENTER ,VALUE='S', xsize=24, tracking_events=1, ysize=button_height, font=symbol, $
+      ,/ALIGN_CENTER ,VALUE='S', xsize=24 *sxy, tracking_events=1, ysize=button_height, font=symbol, $
       uvalue='Use analyze type and mode to calculate average concentrations. '+ $
       'See "Image Regions" window for results.')
 
@@ -1687,7 +1689,7 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
 
   interp_base = widget_base(Image_Button_Bot_Base, /nonexclusive, xsize=20, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=2)
   interp_button = widget_button( interp_base, value='', /tracking, uvalue='Enable/disable Interpolation of pixels when zoomed in.', $
-  				uname='interp_button', xsize=20, ysize=20, /align_top, $
+  				uname='interp_button', xsize=20 *sxy, ysize=20 *sxy, /align_top, $
   				NOTIFY_REALIZE='OnRealize_Image_Interp')
 
 

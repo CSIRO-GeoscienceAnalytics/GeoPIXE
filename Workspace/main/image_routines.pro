@@ -2922,47 +2922,49 @@ pro map_help, pstate
 ; 'scr_xsize_off' and 'scr_ysize_off' provide offsets from window size x,y to
 ; window scr_xsize, scr_ysize size (w,h) in 'OnSize_image'.
 
+common c_geopixe_scaling, sxy
+
 	if (*pstate).w gt 630 then begin
 		case !version.os_family of
 			'MacOS': begin
-				(*pstate).scr_xsize_off =	1
-				(*pstate).scr_ysize_off =	79		; 68
+				(*pstate).scr_xsize_off =	1 *sxy
+				(*pstate).scr_ysize_off =	79 *sxy		; 68
 				end
 			'unix': begin
-				(*pstate).scr_xsize_off =	25
-				(*pstate).scr_ysize_off =	103		; 110
+				(*pstate).scr_xsize_off =	25 *sxy
+				(*pstate).scr_ysize_off =	103 *sxy		; 110
 				end
 			else: begin
-				(*pstate).scr_xsize_off =	10		; 8
-				(*pstate).scr_ysize_off =	74		; 74
+				(*pstate).scr_xsize_off =	10 *sxy		; 8
+				(*pstate).scr_ysize_off =	74 *sxy		; 74
 				end
 		endcase
 	endif else begin
 		case !version.os_family of
 			'MacOS': begin
-				(*pstate).scr_xsize_off =	1
-				(*pstate).scr_ysize_off =	100
+				(*pstate).scr_xsize_off =	1 *sxy
+				(*pstate).scr_ysize_off =	100 *sxy
 				end
 			'unix': begin
-				(*pstate).scr_xsize_off =	2
-				(*pstate).scr_ysize_off =	157
+				(*pstate).scr_xsize_off =	2 *sxy
+				(*pstate).scr_ysize_off =	157 *sxy
 				end
 			else: begin
-				(*pstate).scr_xsize_off =	8
-				(*pstate).scr_ysize_off =	115		; 123
+				(*pstate).scr_xsize_off =	8 *sxy
+				(*pstate).scr_ysize_off =	115 *sxy		; 123
 				end
 		endcase
 	endelse
 	case !version.os_family of
 		'unix': begin
-			xoff = 367
-	       query_scr_xsize = 25
-	       query_scr_ysize = 29
+			xoff = 367 *sxy
+	       query_scr_xsize = 25 *sxy
+	       query_scr_ysize = 29 *sxy
 			end
 		else: begin
-			xoff = 376		; 363
-	       query_scr_xsize = 15
-	       query_scr_ysize = 20
+			xoff = 376 *sxy		; 363
+	       query_scr_xsize = 15 *sxy
+	       query_scr_ysize = 20 *sxy
 			end
 	endcase
 

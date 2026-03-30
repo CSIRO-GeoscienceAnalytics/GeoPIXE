@@ -5,6 +5,7 @@ pro Spectrum_Display_event, Event
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
+common c_geopixe_scaling, sxy
 
     ErrorNo = 0
     common c_errors_1, catch_errors_on
@@ -479,6 +480,7 @@ pro Spectrum_display, GROUP_LEADER=wGroup, TLB=Spectrum_TLB, path=path, $
   COMPILE_OPT STRICTARR
   common c_spectrum_start, spectrum_compiled
   common c_working_dir, geopixe_root
+  common c_geopixe_scaling, sxy
   common c_geopixe_vm, geopixe_enable_vm
   if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
 
@@ -543,26 +545,26 @@ pro Spectrum_display, GROUP_LEADER=wGroup, TLB=Spectrum_TLB, path=path, $
        symbol = 'SYMBOL*12'
        large_font = 'Arial*12'
 ;@2       widget_control, default_font='Geneva*10'   ; set font for all windows
-       draw_trim = 15
-       scr_trim = 21
-       xoff = 10
-       yoff = 335
-       xsize_select = 45
-       xsize_marker = 115
-       xsize_analyze = 20
-       xsize_ident = 20
-       xsize_full = 35
-       xsize_rescale = 45
-       xsize_rescale2 = 70
-       xsize_up = 27
-       xsize_down = 37
-       xsize_shrink = 45
-       xsize_expand = 45
-       xsize_widen = 45
-       xsize_log = 50
-       ysize_button = 23
-       button_space = 1
-       y_trim = 16
+       draw_trim = 15 *sxy
+       scr_trim = 21 *sxy
+       xoff = 10 *sxy
+       yoff = 335 *sxy
+       xsize_select = 45 *sxy
+       xsize_marker = 115 *sxy
+       xsize_analyze = 20 *sxy
+       xsize_ident = 20 *sxy
+       xsize_full = 35 *sxy
+       xsize_rescale = 45 *sxy
+       xsize_rescale2 = 70 *sxy
+       xsize_up = 27 *sxy
+       xsize_down = 37 *sxy
+       xsize_shrink = 45 *sxy
+       xsize_expand = 45 *sxy
+       xsize_widen = 45 *sxy
+       xsize_log = 50 *sxy
+       ysize_button = 23 *sxy
+       button_space = 1 *sxy
+       y_trim = 16 *sxy
        legend_xsize = 57
        end
     'unix': begin
@@ -570,25 +572,25 @@ pro Spectrum_display, GROUP_LEADER=wGroup, TLB=Spectrum_TLB, path=path, $
        large_font = '10x20'
  ;@2      widget_control, default_font='6x13'          ; set font for all windows
        draw_trim = 0
-       scr_trim = 30
+       scr_trim = 30 *sxy
        xoff = 0
-       yoff = 470
-       xsize_select = 50
-       xsize_marker = 90
-       xsize_analyze = 24
-       xsize_ident = 24
-       xsize_full = 35
-       xsize_rescale = 54
-       xsize_rescale2 = 70
-       xsize_up = 27
-       xsize_down = 37
-       xsize_shrink = 47
-       xsize_expand = 48
-       xsize_widen = 44
-       xsize_log = 56
-       ysize_button = 23
-       button_space = 1
-       y_trim = 26
+       yoff = 470 *sxy
+       xsize_select = 50 *sxy
+       xsize_marker = 90 *sxy
+       xsize_analyze = 24 *sxy
+       xsize_ident = 24 *sxy
+       xsize_full = 35 *sxy
+       xsize_rescale = 54 *sxy
+       xsize_rescale2 = 70 *sxy
+       xsize_up = 27 *sxy
+       xsize_down = 37 *sxy
+       xsize_shrink = 47 *sxy
+       xsize_expand = 48 *sxy
+       xsize_widen = 44 *sxy
+       xsize_log = 56 *sxy
+       ysize_button = 23 *sxy
+       button_space = 1 *sxy
+       y_trim = 26 *sxy
        legend_xsize = 39
        end
     else: begin
@@ -596,25 +598,25 @@ pro Spectrum_display, GROUP_LEADER=wGroup, TLB=Spectrum_TLB, path=path, $
        large_font = 'COURIER*BOLD*10'
     ;  widget_control, default_font='Arial*14'          ; set font for all windows
        draw_trim = 0
-       scr_trim = 21        ; 15
+       scr_trim = 21 *sxy        ; 15
        xoff = 0
-       yoff = 425
-       xsize_select = 40
-       xsize_marker = 90
-       xsize_analyze = 22
-       xsize_ident = 22
-       xsize_full = 26
-       xsize_rescale = 48
-       xsize_rescale2 = 60
-       xsize_up = 23
-       xsize_down = 37
-       xsize_shrink = 38
-       xsize_expand = 44
-       xsize_widen = 41
-       xsize_log = 45
-       ysize_button = 23
-       button_space = 3
-       y_trim = 20         	 ; 16
+       yoff = 425 *sxy
+       xsize_select = 40 *sxy
+       xsize_marker = 90 *sxy
+       xsize_analyze = 22 *sxy
+       xsize_ident = 22 *sxy
+       xsize_full = 26 *sxy
+       xsize_rescale = 48 *sxy
+       xsize_rescale2 = 60 *sxy
+       xsize_up = 23 *sxy
+       xsize_down = 37 *sxy
+       xsize_shrink = 38 *sxy
+       xsize_expand = 44 *sxy
+       xsize_widen = 41 *sxy
+       xsize_log = 45 *sxy
+       ysize_button = 23 *sxy
+       button_space = 3 *sxy
+       y_trim = 20 *sxy         	 ; 16
 	   legend_xsize = 45		; 57
        end
 endcase
@@ -637,7 +639,7 @@ endcase
 
   if n_elements(yoffset) lt 1 then begin
     screen = get_screen_size()
-    yoffset = (screen[1]-28 - yoff*(1+offsety)) > 0
+    yoffset = (screen[1]-28 *sxy - yoff*(1+offsety)) > 0
   endif
   if n_elements(xoffset) lt 1 then xoffset = xoff
 
@@ -660,14 +662,14 @@ endcase
               show_negatives=show_negatives, chart=chart, _EXTRA=_VWBExtra_
 
   if n_elements(xsize) lt 1 then begin
-    xsize2 = 600
+    xsize2 = 600 *sxy
   endif else begin
-    xsize2 = xsize - 108
+    xsize2 = xsize - 108 *sxy
   endelse
   if n_elements(ysize) lt 1 then begin
-    ysize2 = 285
+    ysize2 = 285 *sxy
   endif else begin
-    ysize2 = ysize - 125
+    ysize2 = ysize - 125 *sxy
   endelse
   xsize3 = 2400
 
@@ -803,7 +805,7 @@ endif else Identify_Button=0L
   Help_Text = Widget_Text(Help_Base, UNAME='Help_Text' $
       ,NOTIFY_REALIZE='OnRealize_Help',scr_XSIZE=legend_xsize+xsize2+scr_trim, frame=0 ,YSIZE=1)
 
-  query_button2 = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+  query_button2 = Widget_Button(Help_Base, UNAME='query-button', xsize=15 *sxy, ysize=20 *sxy,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 

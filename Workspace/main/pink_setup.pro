@@ -3,6 +3,7 @@
 
 pro pink_setup_event, event
 common c_working_dir, geopixe_root
+common c_geopixe_scaling, sxy
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -37,16 +38,16 @@ if size(*p,/tname) ne 'STRUCT' then goto, bad_ptr
 
   case !version.os_family of
 	'MacOS': begin
-		xoff = 414
-		yoff = 22
+		xoff = 414 *sxy
+		yoff = 22 *sxy
 		end
 	'unix': begin
-		xoff = 444
-		yoff = 20
+		xoff = 444 *sxy
+		yoff = 20 *sxy
 		end
 	else: begin
-		xoff = 414
-		yoff = 22
+		xoff = 414 *sxy
+		yoff = 22 *sxy
  		end
   endcase
 drag = 0
@@ -98,14 +99,15 @@ case uname of
 
 	'pink_TLB': begin
 		if tag_names(event,/structure_name) eq 'WIDGET_BASE' then begin
-			w = (event.x - xoff) > 400
-			h = (event.y - yoff) > 580
-			widget_control, (*pstate).draw2, draw_xsize=w, draw_ysize=h
+			w = (event.x > (800 *sxy)) - xoff 
+			h = (event.y > (500 *sxy)) - yoff
+;print,event.x, 800*sxy, xoff,w
 			(*pstate).width = w
 			(*pstate).height = h
 			wdelete, (*pstate).pix2
 			window, /free, xsize=(*pstate).width, ysize=(*pstate).height, /pixmap
 			(*pstate).pix2 = !d.window
+			widget_control, (*pstate).draw2, draw_xsize=w, draw_ysize=h
 		endif
 		end
 
@@ -544,11 +546,11 @@ update:
 	
 	p2 = (*pstate).plast
 	if error eq 0 then begin
-		pink_calculate, /convert, p2, path=*(*pstate).path, Energy=E2, spec=spec2, error=error
+		pink_calculate, /convert, p2, path=*(*pstate).path, Energy=E2, spec=spec2, error=error2
 		pink_setup_pars, pstate
 	endif
 
-	if (error eq 0) then begin
+	if (error2 eq 0) then begin
 		pink_draw, pstate, p=p, E=E, spec=spec, /overlay, altp=p2, altE=E2, altspec=spec2, test=(*pstate).test
 	endif else begin
 		pink_draw, pstate, p=p, E=E, spec=spec, test=(*pstate).test
@@ -1306,6 +1308,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+common c_geopixe_scaling, sxy
 
 startupp, /database
 if n_elements(group) lt 1 then group=0L
@@ -1317,63 +1320,63 @@ if n_elements(test_mode) lt 1 then test_mode=0
 		symbol = 'SYMBOL*12'
 		large_font = 'Arial*12'
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
-		help_xsize = 88
-		mode_xsize = 68
+		help_xsize = 88 *sxy
+		mode_xsize = 68 *sxy
 		spc_filters = 2
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 130
-		col_widths = 110
-		special_xsize = 157
-		formula_xsize = 193
+		xsize_nfilters = 90 *sxy
+		xsize_deffilter= 90 *sxy
+		xsize_atomic = 130 *sxy
+		col_widths = 110 *sxy
+		special_xsize = 157 *sxy
+		formula_xsize = 193 *sxy
 		retain = 1
-		draw_xsize = 600
-		draw_ysize = 536
-		yw = 400
-		frame_width = 405
-		pars_xsize = 70
+		draw_xsize = 600 *sxy
+		draw_ysize = 536 *sxy
+		yw = 400 *sxy
+		frame_width = 405 *sxy
+		pars_xsize = 70 *sxy
 		pars_xpad = 1
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
-		help_xsize = 42
-		mode_xsize = 50
-		spc_filters = 5
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 144
-		col_widths = 88
-		special_xsize = 140
-		formula_xsize = 180
+		help_xsize = 42 *sxy
+		mode_xsize = 50 *sxy
+		spc_filters = 5 *sxy
+		xsize_nfilters = 90 *sxy
+		xsize_deffilter= 90 *sxy
+		xsize_atomic = 144 *sxy
+		col_widths = 88 *sxy
+		special_xsize = 140 *sxy
+		formula_xsize = 180 *sxy
 		retain = 2
-		draw_xsize = 600
-		draw_ysize = 580
-		yw = 420
-		frame_width = 405
-		pars_xsize = 70
+		draw_xsize = 600 *sxy
+		draw_ysize = 580 *sxy
+		yw = 420 *sxy
+		frame_width = 405 *sxy
+		pars_xsize = 70 *sxy
 		pars_xpad = 1
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
 		large_font = 'COURIER*BOLD*10'
 ;		widget_control, default_font='Arial*14'				; set font for all windows
-		help_xsize = 42
-		mode_xsize = 50
-		spc_filters = 5
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 120
-		col_widths = 88
-		special_xsize = 157
-		formula_xsize = 193
+		help_xsize = 42 *sxy
+		mode_xsize = 50 *sxy
+		spc_filters = 5 *sxy
+		xsize_nfilters = 90 *sxy
+		xsize_deffilter= 90 *sxy
+		xsize_atomic = 120 *sxy
+		col_widths = 88 *sxy
+		special_xsize = 157 *sxy
+		formula_xsize = 193 *sxy
 		retain = 1
-		draw_xsize = 600
-		draw_ysize = 580
-		yw = 400
-		frame_width = 390
-		pars_xsize = 70
+		draw_xsize = 600 *sxy
+		draw_ysize = 580 *sxy
+		yw = 400 *sxy
+		frame_width = 390 *sxy
+		pars_xsize = 70 *sxy
 		pars_xpad = 1
  		end
   endcase
@@ -1392,7 +1395,7 @@ endif
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
 	screen = get_screen_size()
-	xoffset = ((xoff - 402) < (screen[0]-34 - 402)) > 0
+	xoffset = ((xoff - 402 *sxy) < (screen[0]-34 - 402 *sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then begin
 	screen = get_screen_size()
@@ -1433,17 +1436,17 @@ lbase = widget_base( tbase, /column, xpad=0, ypad=0, space=3, /base_align_right,
 sbase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( sbase, value='File:')
 pink_file = widget_text( sbase, value=(*p).file, uname='pink-file', /tracking, /editable, $
-					uvalue='Enter the name of a pink beam file to retrieve and edit.',scr_xsize=253)
+					uvalue='Enter the name of a pink beam file to retrieve and edit.',scr_xsize=253 *sxy)
 load_setup_button = widget_button( sbase, value='Load', uname='load-pink-button', /tracking, $
-					uvalue='Load pink parameters from a previous pink beam file.', scr_xsize=38)
+					uvalue='Load pink parameters from a previous pink beam file.', scr_xsize=38 *sxy)
 save_setup_button = widget_button( sbase, value='Save', uname='save-pink-button', /tracking, $
 					uvalue='Save pink beam parameters to a file. A "Save" is also needed to transfer modelled spectra results ' + $
-					'to the yield calculation window.', scr_xsize=38)
+					'to the yield calculation window.', scr_xsize=38 *sxy)
 
 titlebase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( titlebase, value='Title:')
 title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, $
-					uvalue='Enter a title descriptor for this X-ray pink beam.',scr_xsize=343)
+					uvalue='Enter a title descriptor for this X-ray pink beam.',scr_xsize=343 *sxy)
 
 ; FE Beam
 
@@ -1453,9 +1456,9 @@ lab = widget_label( febase, value='FE Beam Spectrum', /align_center)
 fbase = widget_base( febase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( fbase, value='File:')
 fe_spectrum_text = widget_text( fbase, value=(*p).file, uname='fe-spectrum-file', /tracking, /editable, $
-					uvalue='Enter the name of a Front-end Spectrum file to retrieve.',scr_xsize=303)
+					uvalue='Enter the name of a Front-end Spectrum file to retrieve.',scr_xsize=303 *sxy)
 load_spec_button = widget_button( fbase, value='Load', uname='load-fe-spectrum-button', /tracking, $
-					uvalue='Load Front-end Spectrum file.', scr_xsize=38)
+					uvalue='Load Front-end Spectrum file.', scr_xsize=38 *sxy)
 
 ; mirror details
 
@@ -1488,13 +1491,13 @@ for i=0L,n_mirrors_max-1 do begin
 	mll1base = widget_base( mirror_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( mll1base, value='Title:')
 	mtitle_text[i] = widget_text( mll1base, value=(*p).mirrors[i].title, uname='mirror-title-text', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the title for this mirror.', scr_xsize=338)
+					uvalue=str_tidy(i)+'  Enter the title for this mirror.', scr_xsize=338 *sxy)
 	mll2base = widget_base( mirror_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( mll2base, value='File:')
 	mfile_text[i] = widget_text( mll2base, value=(*p).mirrors[i].file, uname='mirror-file-text', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the file path giving CXRO reflectivity data for this mirror, or use "Load".', scr_xsize=296)
+					uvalue=str_tidy(i)+'  Enter the file path giving CXRO reflectivity data for this mirror, or use "Load".', scr_xsize=296 *sxy)
 	button = widget_button( mll2base, value='Load', uname='load-mirror-file-button', /tracking, $
-					uvalue=str_tidy(i)+'  Load the file giving CXRO reflectivity data for this mirror.', scr_xsize=38)
+					uvalue=str_tidy(i)+'  Load the file giving CXRO reflectivity data for this mirror.', scr_xsize=38 *sxy)
 	map = 0
 endfor
 
@@ -1505,22 +1508,22 @@ lab = widget_label( opticsbase, value='Inline Optics', /align_center)
 
 mbase0 = widget_base( opticsbase, column=1, /base_align_right, ypad=0, xpad=0, space=3, /align_center)
 
-mbase0a = widget_base( mbase0, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=20)
+mbase0a = widget_base( mbase0, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=20 *sxy)
 optics_mode = widget_combobox( mbase0a, value=['    None',' Monochromator',' Polycapillary lens'], uname='optics-mode', /tracking, $
-					notify_realize='OnRealize_pink_optics_mode', xsize=140, $
+					notify_realize='OnRealize_pink_optics_mode', xsize=140 *sxy, $
 					uvalue='Select optional in-line optics, such as Monochromator or Polycapillary lens.')
 mbase0a_pad = widget_base( mbase0a, ypad=0, xpad=0)
 
 mono_mapbase1 = widget_base( mbase0a_pad, /row, /base_align_center, ypad=0, xpad=0, space=5, map=((*p).mono.mode eq 1))
 szn = ((*p).mono.z gt 0) ? element_name((*p).mono.z) : ''
-mono_element_button = state_button( mono_mapbase1, xsize=40,ysize=22,value=szn,uname='mono-element',n_states=1, $
+mono_element_button = state_button( mono_mapbase1, xsize=40 *sxy,ysize=22 *sxy,value=szn,uname='mono-element',n_states=1, $
 				n_alt_states=0, colours=[spec_colour('green')], $
 				/tracking, uvalue='Pop-up a periodic table to select GREEN element. Use its Ka energy as the mono centre energy.' )
 
 ; @3-23
 poly_mapbase1 = widget_base( mbase0a_pad, /row, /base_align_center, ypad=0, xpad=0, space=5, map=((*p).poly.mode eq 1))
 poly_type = widget_combobox( poly_mapbase1, value=poly_model, uname='poly-type', /tracking, $
-					notify_realize='OnRealize_pink_poly_type', xsize=160, $
+					notify_realize='OnRealize_pink_poly_type', xsize=160 *sxy, $
 					uvalue='Select Polycapillary lens model, from "polycapillary-*.csv" files loaded.')
 
 opticsbase2 = widget_base( opticsbase )
@@ -1601,19 +1604,19 @@ for i=0L,n_filters_max-1 do begin
 	ll1base = widget_base( filter_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( ll1base, value='Thick:')
 	thick_text[i] = widget_text( ll1base, value=str_tidy((*p).filters[i].thick), uname='thick-text', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the thickness of the selected filter layer in either mg/cm^2, microns or mm (for a Gas at NPT).', scr_xsize=72)
+					uvalue=str_tidy(i)+'  Enter the thickness of the selected filter layer in either mg/cm^2, microns or mm (for a Gas at NPT).', scr_xsize=72 *sxy)
 	thick_mode[i] = widget_combobox( ll1base, value=[' mg/cm^2',' microns',' Gas (mm NPT)'], uname='thick-mode', /tracking, $
 					notify_realize='OnRealize_pink_thick_mode', $
 					uvalue=str_tidy(i)+'  Select filter layer thickness in "mg/cm^2", "microns" or "Gas (mm NPT)". ' + $
 					'If microns is selected, a new box appears for entry of density of a compound. ' + $
-					'For a gas NPT conditions (P=1013.25 mbar, T=20C) are assumed; hit <return> on Formula or Thickness to calculate an ideal gas density.', xsize=120)
+					'For a gas NPT conditions (P=1013.25 mbar, T=20C) are assumed; hit <return> on Formula or Thickness to calculate an ideal gas density.', xsize=120 *sxy)
 
 	density_base[i] = widget_base( ll1base, /row, map=(*p).filters[i].microns, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( density_base[i], value=' Density:')
 	density_text[i] = widget_text( density_base[i], value=str_tidy((*p).filters[i].density), uname='filter-density', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the density of a compound composition filter layer (g/cm^3). '+ $
 					'For pure element filters the density will be obtained from the database automatically. ' + $
-					'For a Gas, hit <return> on Formula or Thickness to calculate an ideal gas density; NPT conditions (P=1013.25 mbar, T=20C) are assumed.', scr_xsize=72)
+					'For a Gas, hit <return> on Formula or Thickness to calculate an ideal gas density; NPT conditions (P=1013.25 mbar, T=20C) are assumed.', scr_xsize=72 *sxy)
 
 	ll2base = widget_base( filter_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( ll2base, value='Formula:')
@@ -1656,9 +1659,9 @@ for i=0L,n_filters_max-1 do begin
 	lab = widget_label( ratio_base[i], value=' Solid-angle ratio:')
 	ratio_text[i] = widget_text( ratio_base[i], value=str_tidy((*p).filters[i].pinratio), uname='filter-pinratio', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the pin-hole filter solid-angle ratio. '+ $
-					'This is the ratio of the pink solid-angle divided by the hole solid-angle.', scr_xsize=70)
+					'This is the ratio of the pink solid-angle divided by the hole solid-angle.', scr_xsize=70 *sxy)
 
-	bragg_base[i] = widget_base( map_base, /row, map=map_bragg, /base_align_center, /align_right, ypad=0, xpad=20, space=3)
+	bragg_base[i] = widget_base( map_base, /row, map=map_bragg, /base_align_center, /align_right, ypad=0, xpad=20 *sxy, space=3)
 	bragg_button[i] = widget_button( bragg_base[i], value='      Edit Bragg     ', uname='bragg-button', /tracking, uvalue=str_tidy(i)+'  Open Bragg filter editor.')
 	map = 0
 endfor

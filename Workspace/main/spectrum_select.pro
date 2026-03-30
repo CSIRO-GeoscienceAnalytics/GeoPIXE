@@ -25,6 +25,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+common c_geopixe_scaling, sxy
 
   wWidget =  Event.top
   widget_control, hourglass=0
@@ -198,6 +199,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+common c_geopixe_scaling, sxy
 
 	n = 6
   if ptr_good(p) eq 0 then goto, bad_skip
@@ -215,70 +217,70 @@ bad_skip:
 case !version.os_family of
 	'MacOS': begin
 		fnt = 'COURIER*BOLD*10'
-		xsize_mode = 70
-		xsize_display = 50
-		xsize_fit = 52
-		xsize_all = 26
-		xsize_one = 28
-		xsize_R = 18
-		xsize_prev = 34
-		xsize_next = 34
-		xsize_sel = 59
-		xsize_del_mode = 140
-		xsize_delspec = 50
-		xsize_delfit1 = 46
-		xsize_delfit2 = 84
-		xsize_noxy = 40
-		xsize_not = 34
-		xs = 5
-		yw = 73
-		xw = 496
+		xsize_mode = 70 *sxy
+		xsize_display = 50 *sxy
+		xsize_fit = 52 *sxy
+		xsize_all = 26 *sxy
+		xsize_one = 28 *sxy
+		xsize_R = 18 *sxy
+		xsize_prev = 34 *sxy
+		xsize_next = 34 *sxy
+		xsize_sel = 59 *sxy
+		xsize_del_mode = 140 *sxy
+		xsize_delspec = 50 *sxy
+		xsize_delfit1 = 46 *sxy
+		xsize_delfit2 = 84 *sxy
+		xsize_noxy = 40 *sxy
+		xsize_not = 34 *sxy
+		xs = 5 *sxy
+		yw = 73 *sxy
+		xw = 496 *sxy
 		end
 	'unix': begin
 		fnt = '6x10'
-		xsize_mode = 70
-		xsize_display = 50
-		xsize_fit = 52
-		xsize_all = 26
-		xsize_one = 28
-		xsize_R = 18
-		xsize_prev = 34
-		xsize_next = 34
-		xsize_sel = 59
-		xsize_del_mode = 140
-		xsize_delspec = 50
-		xsize_delfit1 = 46
-		xsize_delfit2 = 84
-		xsize_noxy = 40
-		xsize_not = 34
-		xs = 5
-		yw = 73
-		xw = 496
+		xsize_mode = 70 *sxy
+		xsize_display = 50 *sxy *sxy
+		xsize_fit = 52 *sxy
+		xsize_all = 26 *sxy
+		xsize_one = 28 *sxy
+		xsize_R = 18 *sxy
+		xsize_prev = 34 *sxy
+		xsize_next = 34 *sxy
+		xsize_sel = 59 *sxy
+		xsize_del_mode = 140 *sxy
+		xsize_delspec = 50 *sxy
+		xsize_delfit1 = 46 *sxy
+		xsize_delfit2 = 84 *sxy
+		xsize_noxy = 40 *sxy
+		xsize_not = 34 *sxy
+		xs = 5 *sxy
+		yw = 73 *sxy
+		xw = 496 *sxy
 		end
 	else: begin
 		fnt = 'COURIER*10'
-		xsize_mode = 67
-		xsize_display = 44
-		xsize_fit = 47
-		xsize_all = 21
-		xsize_one = 29
-		xsize_R = 18
-		xsize_prev = 31
-		xsize_next = 31
-		xsize_sel = 46
-		xsize_del_mode = 120
-		xsize_delspec = 45
-		xsize_delfit1 = 38
-		xsize_delfit2 = 84
-		xsize_noxy = 40
-		xsize_not = 32
+		xsize_mode = 67 *sxy
+		xsize_display = 44 *sxy
+		xsize_fit = 47 *sxy
+		xsize_all = 21 *sxy
+		xsize_one = 29 *sxy
+		xsize_R = 18 *sxy
+		xsize_prev = 31 *sxy
+		xsize_next = 31 *sxy
+		xsize_sel = 46 *sxy
+		xsize_del_mode = 120 *sxy
+		xsize_delspec = 45 *sxy
+		xsize_delfit1 = 38 *sxy
+		xsize_delfit2 = 84 *sxy
+		xsize_noxy = 40 *sxy
+		xsize_not = 32 *sxy
 		xs = 0
-		yw = 45
-		xw = 496
+		yw = 45 *sxy
+		xw = 496 *sxy
 		end
 endcase
 
-	height = 108+(n<6)*18
+	height = 108 *sxy + (n<6)*18 *sxy
 	w = 0
 	h = 0
 	xoff = 0
@@ -296,7 +298,7 @@ endcase
 			xo = xoff < xo
 			yo = yoff + h
 		endif else begin
-			xo = ((xoff + w) < (screen[0]-34 - xw)) > 0
+			xo = ((xoff + w) < (screen[0]-34 *sxy - xw)) > 0
 			yo = (screen[1]-yw - height) > 0
 		endelse
 	endif
@@ -323,7 +325,7 @@ endcase
   Select_Table = Widget_Table(Select_TLB, UNAME='Select_Table'  $
       ,NOTIFY_REALIZE='OnRealize_Select_Table' ,/EDITABLE ,/all_events $
       ,Y_SCROLL_SIZE=6 ,value=t ,/row_major	$	;	, font=fnt $
-      ,/RESIZEABLE_COLUMNS, alignment=2, scr_xsize=580 )
+      ,/RESIZEABLE_COLUMNS, alignment=2, scr_xsize=580 *sxy )
 
   PostCreate_Select_Table, Select_Table, spectrum=p, show=pshow, $
   		update_notify=update_notify, realtime=realtime, _EXTRA=_VWBExtra_

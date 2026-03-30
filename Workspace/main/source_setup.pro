@@ -3,6 +3,7 @@
 
 pro source_setup_event, event
 common c_working_dir, geopixe_root
+common c_geopixe_scaling, sxy
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -37,16 +38,16 @@ if size(*p,/tname) ne 'STRUCT' then goto, bad_ptr
 
   case !version.os_family of
 	'MacOS': begin
-		xoff = 414
-		yoff = 22
+		xoff = 414 *sxy
+		yoff = 22 *sxy
 		end
 	'unix': begin
-		xoff = 444
-		yoff = 20
+		xoff = 444 *sxy
+		yoff = 20 *sxy
 		end
 	else: begin
-		xoff = 414
-		yoff = 22
+		xoff = 414 *sxy
+		yoff = 22 *sxy
  		end
   endcase
 drag = 0
@@ -99,14 +100,19 @@ case uname of
 
 	'source_TLB': begin
 		if tag_names(event,/structure_name) eq 'WIDGET_BASE' then begin
-			w = (event.x - xoff) > 400
-			h = (event.y - yoff) > 580
-			widget_control, (*pstate).draw, draw_xsize=w, draw_ysize=h
+			w = (event.x > (800 *sxy)) - xoff 
+			h = (event.y > (500 *sxy)) - yoff
+;print,event.x, 800*sxy, xoff,w
 			(*pstate).width = w
 			(*pstate).height = h
 			wdelete, (*pstate).pix
 			window, /free, xsize=(*pstate).width, ysize=(*pstate).height, /pixmap
 			(*pstate).pix = !d.window
+			wdelete, (*pstate).pix2
+			window, /free, xsize=(*pstate).width, ysize=(*pstate).height, /pixmap
+			(*pstate).pix2 = !d.window
+			widget_control, (*pstate).draw, draw_xsize=w, draw_ysize=h
+			widget_control, (*pstate).draw2, draw_xsize=w, draw_ysize=h
 		endif
 		end
 
@@ -514,10 +520,10 @@ update:
 	
 	p2 = (*pstate).plast
 	if error eq 0 then begin
-		source_calculate, /convert, p2, Energy=E2, spec=spec2, error=error
+		source_calculate, /convert, p2, Energy=E2, spec=spec2, error=error2
 	endif
 	
-	if (error eq 0) then begin
+	if (error2 eq 0) then begin
 		source_draw, pstate, p=p, E=E, spec=spec, /overlay, altp=p2, altE=E2, altspec=spec2, test=(*pstate).test
 	endif else begin
 		source_draw, pstate, p=p, E=E, spec=spec, test=(*pstate).test
@@ -626,6 +632,8 @@ pro source_draw, pstate, p=p, e=e, spec=speci, overlay=overlay, altp=p2, altE=E2
 ;	Draw the full spectrum E, Spec, as passed from the calculate routine.
 
 	COMPILE_OPT STRICTARR
+	common c_geopixe_scaling, sxy
+
 	if n_elements(pstate) eq 0 then return
 	if ptr_valid(pstate) eq 0 then return
 	if size(*pstate,/tname) ne 'STRUCT' then return
@@ -788,8 +796,7 @@ pro source_draw, pstate, p=p, e=e, spec=speci, overlay=overlay, altp=p2, altE=E2
 	!y.title = 'Brightness (ph/s/mm2/usr/0.1% bandwidth)'
 	
 	plot, e,yb, xrange=[0.,xmax*1.05], yrange=[ymin*0.8,ymax*1.2], $
-					color=spec_colour('white'), /ylog, $
-					ticklen=1.0, /nodata, ystyle=1	;, xstyle=1
+					color=spec_colour('white'), /ylog, ticklen=1.0, /nodata, ystyle=1	;, xstyle=1
 	
 	if overlay then begin
 		oplot, e2,yb2, color=spec_colour('orange')
@@ -817,8 +824,7 @@ pro source_draw, pstate, p=p, e=e, spec=speci, overlay=overlay, altp=p2, altE=E2
 	!y.title = 'Spectrum (ph/s/'+sbin+' eV bandwidth)'
 	
 	plot, e,ys, xrange=[0.,xmax*1.05], yrange=[ymin*0.8,ymax*1.2], $
-					color=spec_colour('white'), /ylog, $
-					ticklen=1.0, /nodata, ystyle=1	;, xstyle=1
+					color=spec_colour('white'), /ylog, ticklen=1.0, /nodata, ystyle=1	;, xstyle=1
 	
 	if overlay then begin
 		oplot, e2,ys2, color=spec_colour('orange')
@@ -1319,6 +1325,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+common c_geopixe_scaling, sxy
 
 startupp, /database
 if n_elements(group) lt 1 then group=0L
@@ -1330,63 +1337,63 @@ if n_elements(test_mode) lt 1 then test_mode=0
 		symbol = 'SYMBOL*12'
 		large_font = 'Arial*12'
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
-		help_xsize = 88
-		mode_xsize = 68
+		help_xsize = 88 *sxy
+		mode_xsize = 68 *sxy
 		spc_filters = 2
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 130
-		col_widths = 110
-		special_xsize = 157
-		formula_xsize = 193
+		xsize_nfilters = 90 *sxy
+		xsize_deffilter= 90 *sxy
+		xsize_atomic = 130 *sxy
+		col_widths = 110 *sxy
+		special_xsize = 157 *sxy
+		formula_xsize = 193 *sxy
 		retain = 1
-		draw_xsize = 600
-		draw_ysize = 536
-		yw = 400
-		frame_width = 405
-		pars_xsize = 70
+		draw_xsize = 600 *sxy
+		draw_ysize = 536 *sxy
+		yw = 400 *sxy
+		frame_width = 405 *sxy
+		pars_xsize = 70 *sxy
 		pars_xpad = 1
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
-		help_xsize = 42
-		mode_xsize = 50
-		spc_filters = 5
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 144
-		col_widths = 88
-		special_xsize = 140
-		formula_xsize = 180
+		help_xsize = 42 *sxy
+		mode_xsize = 50 *sxy
+		spc_filters = 5 *sxy
+		xsize_nfilters = 90 *sxy
+		xsize_deffilter= 90 *sxy
+		xsize_atomic = 144 *sxy
+		col_widths = 88 *sxy
+		special_xsize = 140 *sxy
+		formula_xsize = 180 *sxy
 		retain = 2
-		draw_xsize = 600
-		draw_ysize = 580
-		yw = 420
-		frame_width = 405
-		pars_xsize = 70
+		draw_xsize = 600 *sxy
+		draw_ysize = 580 *sxy
+		yw = 420 *sxy
+		frame_width = 405 *sxy
+		pars_xsize = 70 *sxy
 		pars_xpad = 1
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
 		large_font = 'COURIER*BOLD*10'
 ;		widget_control, default_font='Arial*14'				; set font for all windows
-		help_xsize = 42
-		mode_xsize = 50
-		spc_filters = 5
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 120
-		col_widths = 88
-		special_xsize = 157
-		formula_xsize = 193
+		help_xsize = 42 *sxy
+		mode_xsize = 50 *sxy
+		spc_filters = 5 *sxy
+		xsize_nfilters = 90 *sxy
+		xsize_deffilter= 90 *sxy
+		xsize_atomic = 120 *sxy
+		col_widths = 88 *sxy
+		special_xsize = 157 *sxy
+		formula_xsize = 193 *sxy
 		retain = 1
-		draw_xsize = 600
-		draw_ysize = 580
-		yw = 400
-		frame_width = 390
-		pars_xsize = 70
+		draw_xsize = 600 *sxy
+		draw_ysize = 580 *sxy
+		yw = 400 *sxy
+		frame_width = 390 *sxy
+		pars_xsize = 70 *sxy
 		pars_xpad = 1
  		end
   endcase
@@ -1405,7 +1412,7 @@ endif
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
 	screen = get_screen_size()
-	xoffset = ((xoff - 402) < (screen[0]-34 - 402)) > 0
+	xoffset = ((xoff - 402 *sxy) < (screen[0]-34 - 402 *sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then begin
 	screen = get_screen_size()
@@ -1444,17 +1451,17 @@ lbase = widget_base( tbase, /column, xpad=0, ypad=0, space=3, /base_align_right,
 sbase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( sbase, value='File:')
 source_file = widget_text( sbase, value=(*p).file, uname='source-file', /tracking, /editable, $
-					uvalue='Enter the name of a source file to retrieve and edit.',scr_xsize=253)
+					uvalue='Enter the name of a source file to retrieve and edit.',scr_xsize=253 *sxy)
 load_setup_button = widget_button( sbase, value='Load', uname='load-source-button', /tracking, $
-					uvalue='Load source parameters from a previous source file.', scr_xsize=38)
+					uvalue='Load source parameters from a previous source file.', scr_xsize=38 *sxy)
 save_setup_button = widget_button( sbase, value='Save', uname='save-source-button', /tracking, $
 					uvalue='Save source parameters to a source file. A "Save" is also needed to transfer modelled spectra results ' + $
-					'to the yield calculation window.', scr_xsize=38)
+					'to the yield calculation window.', scr_xsize=38 *sxy)
 
 titlebase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( titlebase, value='Title:')
 title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, $
-					uvalue='Enter a title descriptor for this X-ray source.',scr_xsize=343)
+					uvalue='Enter a title descriptor for this X-ray source.',scr_xsize=343 *sxy)
 
 ; anode
 
@@ -1464,7 +1471,7 @@ lab = widget_label( anodebase, value='Anode', /align_center)
 abase1 = widget_base( anodebase, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( abase1, value='Name:')
 name_text = widget_text( abase1, value=(*p).modata.anode.name, uname='name-text', /tracking, /editable, $
-				uvalue='Enter the name of the anode material.', scr_xsize=333-13)
+				uvalue='Enter the name of the anode material.', scr_xsize=333 *sxy-13 *sxy)
 
 abase2 = widget_base( anodebase, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( abase2, value='Formula:')
@@ -1521,7 +1528,7 @@ omega_text = widget_text( dbase1f, value=str_tidy((*p).acceptance), uname='omega
 
 dbase2 = widget_base( parbase, column=1, /base_align_right, ypad=0, xpad=0, space=3, /align_center)
 
-dbase2a = widget_base( dbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=20)
+dbase2a = widget_base( dbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=20 *sxy)
 beam_mode = widget_combobox( dbase2a, value=['    Reflection','    Transmission'], uname='beam-mode', /tracking, $
 					notify_realize='OnRealize_source_beam_mode', $
 					uvalue='Select the exit X-ray mode between "Reflection", for a conventional side-window source, ' + $
@@ -1542,20 +1549,20 @@ mbase0 = widget_base( opticsbase, column=1, /base_align_right, ypad=0, xpad=0, s
 
 mbase0a = widget_base( mbase0, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=20)
 optics_mode = widget_combobox( mbase0a, value=['    None',' Monochromator',' Polycapillary lens'], uname='optics-mode', /tracking, $
-					notify_realize='OnRealize_source_optics_mode', xsize=140, $
+					notify_realize='OnRealize_source_optics_mode', xsize=140 *sxy, $
 					uvalue='Select optional in-line optics, such as Monochromator or Polycapillary lens.')
 mbase0a_pad = widget_base( mbase0a, ypad=0, xpad=0)
 
 mono_mapbase1 = widget_base( mbase0a_pad, /row, /base_align_center, ypad=0, xpad=0, space=5, map=((*p).mono.mode eq 1))
 szn = ((*p).mono.z gt 0) ? element_name((*p).mono.z) : ''
-mono_element_button = state_button( mono_mapbase1, xsize=40,ysize=22,value=szn,uname='mono-element',n_states=1, $
+mono_element_button = state_button( mono_mapbase1, xsize=40 *sxy,ysize=22,value=szn,uname='mono-element',n_states=1, $
 				n_alt_states=0, colours=[spec_colour('green')], $
 				/tracking, uvalue='Pop-up a periodic table to select GREEN element. Use its Ka energy as the mono centre energy.' )
 
 ; @3-23
 poly_mapbase1 = widget_base( mbase0a_pad, /row, /base_align_center, ypad=0, xpad=0, space=5, map=((*p).poly.mode eq 1))
 poly_type = widget_combobox( poly_mapbase1, value=poly_model, uname='poly-type', /tracking, $
-					notify_realize='OnRealize_source_poly_type', xsize=160, $
+					notify_realize='OnRealize_source_poly_type', xsize=160 *sxy, $
 					uvalue='Select Polycapillary lens model, from "polycapillary-*.csv" files loaded.')
 
 opticsbase2 = widget_base( opticsbase )
@@ -1636,19 +1643,19 @@ for i=0L,n_filters_max-1 do begin
 	ll1base = widget_base( filter_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( ll1base, value='Thick:')
 	thick_text[i] = widget_text( ll1base, value=str_tidy((*p).filters[i].thick), uname='thick-text', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the thickness of the selected filter layer in either mg/cm^2, microns or mm (for a Gas at NPT).', scr_xsize=72)
+					uvalue=str_tidy(i)+'  Enter the thickness of the selected filter layer in either mg/cm^2, microns or mm (for a Gas at NPT).', scr_xsize=72 *sxy)
 	thick_mode[i] = widget_combobox( ll1base, value=[' mg/cm^2',' microns',' Gas (mm NPT)'], uname='thick-mode', /tracking, $
 					notify_realize='OnRealize_source_thick_mode', $
 					uvalue=str_tidy(i)+'  Select filter layer thickness in "mg/cm^2", "microns" or "Gas (mm NPT)". ' + $
 					'If microns is selected, a new box appears for entry of density of a compound. ' + $
-					'For a gas NPT conditions (P=1013.25 mbar, T=20C) are assumed; hit <return> on Formula or Thickness to calculate an ideal gas density.', xsize=120)
+					'For a gas NPT conditions (P=1013.25 mbar, T=20C) are assumed; hit <return> on Formula or Thickness to calculate an ideal gas density.', xsize=120 *sxy)
 
 	density_base[i] = widget_base( ll1base, /row, map=(*p).filters[i].microns, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( density_base[i], value=' Density:')
 	density_text[i] = widget_text( density_base[i], value=str_tidy((*p).filters[i].density), uname='filter-density', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the density of a compound composition filter layer (g/cm^3). '+ $
 					'For pure element filters the density will be obtained from the database automatically. ' + $
-					'For a Gas, hit <return> on Formula or Thickness to calculate an ideal gas density; NPT conditions (P=1013.25 mbar, T=20C) are assumed.', scr_xsize=72)
+					'For a Gas, hit <return> on Formula or Thickness to calculate an ideal gas density; NPT conditions (P=1013.25 mbar, T=20C) are assumed.', scr_xsize=72 *sxy)
 
 	ll2base = widget_base( filter_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( ll2base, value='Formula:')
@@ -1691,9 +1698,9 @@ for i=0L,n_filters_max-1 do begin
 	lab = widget_label( ratio_base[i], value=' Solid-angle ratio:')
 	ratio_text[i] = widget_text( ratio_base[i], value=str_tidy((*p).filters[i].pinratio), uname='filter-pinratio', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the pin-hole filter solid-angle ratio. '+ $
-					'This is the ratio of the source solid-angle divided by the hole solid-angle.', scr_xsize=70)
+					'This is the ratio of the source solid-angle divided by the hole solid-angle.', scr_xsize=70 *sxy)
 
-	bragg_base[i] = widget_base( map_base, /row, map=map_bragg, /base_align_center, /align_right, ypad=0, xpad=20, space=3)
+	bragg_base[i] = widget_base( map_base, /row, map=map_bragg, /base_align_center, /align_right, ypad=0, xpad=20 *sxy, space=3)
 	bragg_button[i] = widget_button( bragg_base[i], value='      Edit Bragg     ', uname='bragg-button', /tracking, uvalue=str_tidy(i)+'  Open Bragg filter editor.')
 	map = 0
 endfor
@@ -1703,19 +1710,19 @@ endfor
 tab_panel = widget_tab( rbase, location=3, /align_center, uname='plot-tab-panel')
 
 brightness_base = widget_base( tab_panel, title='Brightness', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=draw_xsize+20, scr_ysize=left_ysize)
+					/align_center, /base_align_center, scr_xsize=draw_xsize+20 *sxy, scr_ysize=left_ysize)
 
 draw_brightness = widget_draw( brightness_base, uname='draw-brightness', xsize=draw_xsize, ysize=draw_ysize, notify_realize='OnRealize_source_drawB', $
 			retain=retain, /button_events)
 
 spectrum_base = widget_base( tab_panel, title='Spectrum', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=draw_xsize+20, scr_ysize=left_ysize)
+					/align_center, /base_align_center, scr_xsize=draw_xsize+20 *sxy, scr_ysize=left_ysize)
 
 draw_spectrum = widget_draw( spectrum_base, uname='draw-spectrum', xsize=draw_xsize, ysize=draw_ysize, notify_realize='OnRealize_source_drawS', $
 			retain=retain, /button_events)
 
 
-help = widget_text( tbase, scr_xsize=387, ysize=4, /wrap, uname='help', /tracking, $
+help = widget_text( tbase, scr_xsize=387 *sxy, ysize=4, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
 

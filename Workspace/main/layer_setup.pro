@@ -1577,9 +1577,10 @@ pro layer_setup, group_leader=group, TLB=tlb, pars=p, path=path, gamma=gamma, $
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
+common c_geopixe_scaling, sxy
 common c_geopixe_vm, geopixe_enable_vm
 if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
-startupp
+if n_elements(geopixe_root) eq 0 then startupp
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -1610,52 +1611,52 @@ if n_elements(nosav) eq 0 then nosav=0
 		symbol = 'SYMBOL*12'
 		large_font = 'Arial*12'
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
-		help_xsize = 88
-		mode_xsize = 68
+		help_xsize = 88 *sxy
+		mode_xsize = 68 *sxy
 		spc_layers = 1
 		space2 = 2
-		xsize_nlayers = 65
-		xsize_deflayer= 65
-		xsize_unknown = 65
-		xsize_oxide = 170
-		xsize_atomic = 130
-		col_widths = 110
-		xw = 398
-		yh = 625
+		xsize_nlayers = 65 *sxy
+		xsize_deflayer= 65 *sxy
+		xsize_unknown = 65 *sxy
+		xsize_oxide = 170 *sxy
+		xsize_atomic = 130 *sxy
+		col_widths = 110 *sxy
+		xw = 398 *sxy
+		yh = 625 *sxy
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
-		help_xsize = 42
-		mode_xsize = 50
+		help_xsize = 42 *sxy
+		mode_xsize = 50 *sxy
 		spc_layers = 1
 		space2 = 0
-		xsize_nlayers = 60
-		xsize_deflayer= 60
-		xsize_unknown = 60
-		xsize_oxide = 170
-		xsize_atomic = 135
-		col_widths = 88
-		xw = 430
-		yh = 714
+		xsize_nlayers = 60 *sxy
+		xsize_deflayer= 60 *sxy
+		xsize_unknown = 60 *sxy
+		xsize_oxide = 170 *sxy
+		xsize_atomic = 135 *sxy
+		col_widths = 88 *sxy
+		xw = 430 *sxy
+		yh = 714 *sxy
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
 		large_font = 'COURIER*BOLD*10'
 ;@2		widget_control, default_font='Arial*14'				; set font for all windows
-		help_xsize = 42
-		mode_xsize = 50
+		help_xsize = 42 *sxy
+		mode_xsize = 50 *sxy
 		spc_layers = 1
 		space2 = 2
-		xsize_nlayers = 55
-		xsize_deflayer= 55
-		xsize_unknown = 55
-		xsize_oxide = 162
-		xsize_atomic = 120
-		col_widths = 88
-		xw = 405
-		yh = 625
+		xsize_nlayers = 55 *sxy
+		xsize_deflayer= 55 *sxy
+		xsize_unknown = 55 *sxy
+		xsize_oxide = 162 *sxy
+		xsize_atomic = 120 *sxy
+		col_widths = 88 *sxy
+		xw = 405 *sxy
+		yh = 625 *sxy
  		end
   endcase
 
@@ -1771,16 +1772,16 @@ lab = widget_label( sbase, value='Set-up:')
 lcm_file = widget_text( sbase, value=(*p).lcm_file, uname='lcm-file', /tracking, /editable, $
 					uvalue='Enter the name of an LCM file to retrieve yield calculation set-up details, or use the "Load" button.',scr_xsize=235)
 load_setup_button = widget_button( sbase, value='Load', uname='load-setup-button', /tracking, $
-					uvalue='Load set-up parameters from a previous LCM file.', scr_xsize=38)
+					uvalue='Load set-up parameters from a previous LCM file.', scr_xsize=38 *sxy)
 save_setup_button = widget_button( sbase, value='Save', uname='save-setup-button', /tracking, $
-					uvalue='Save set-up parameters to an LCM file.', scr_xsize=38)
+					uvalue='Save set-up parameters to an LCM file.', scr_xsize=38 *sxy)
 
 titlebase = widget_base( tbase, /row, /base_align_center, ypad=0, xpad=0, space=5)
 lab = widget_label( titlebase, value='Title:')
 title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, $
 					uvalue='Enter a title descriptor for this yield calculation.',scr_xsize=313)
 
-rowbase = widget_base( tbase, /row, /base_align_top, ypad=0, xpad=0, space=5)
+rowbase = widget_base( tbase, /row, /base_align_top, ypad=0, xpad=0, space=5 *sxy)
 lbase = widget_base( rowbase, /column, /base_align_right, ypad=0, xpad=0, space=2)
 rbase = widget_base( rowbase, /column, /base_align_right, ypad=0, xpad=0, space=2)
 
@@ -1789,54 +1790,54 @@ rbase = widget_base( rowbase, /column, /base_align_right, ypad=0, xpad=0, space=
 sense = ((*p).beam.mode lt 5) and (gamma eq 0)
 mono = ((*p).beam.mode le 5)
 
-l2base = widget_base( lbase, /column, /base_align_right, ypad=1, xpad=2, space=1, /frame, scr_xsize=250)
+l2base = widget_base( lbase, /column, /base_align_right, ypad=1, xpad=2, space=1, /frame, scr_xsize=250 *sxy)
 lab = widget_label( l2base, value='Beam Particle', /align_center)
-beambase = widget_base( l2base, /row, /base_align_top, ypad=0, xpad=0, space=10)
-beam_mode = widget_combobox( beambase, value=beam_modes, uname='beam-mode', xsize=138, /tracking, $
+beambase = widget_base( l2base, /row, /base_align_top, ypad=0, xpad=0, space=10 *sxy)
+beam_mode = widget_combobox( beambase, value=beam_modes, uname='beam-mode', xsize=138 *sxy, /tracking, $
 					notify_realize='OnRealize_Layer_beam_mode', $
 					uvalue='Select the beam particle to use, "general" to select the beam by Z1, A1 and charge state, or "Photons" either using a monochromatic beam ' + $
 					'or a model continuum including characteristic anode lines.')
 beam_mapbase_ZA = widget_base( beambase, /row, /base_align_center, ypad=0, xpad=0, space=3, map=mono)
 lab = widget_label( beam_mapbase_ZA, value='Z:')
 z1_text = widget_text( beam_mapbase_ZA, value=str_tidy((*p).beam.z1), uname='z1-text', /tracking, /editable, $
-					uvalue='Enter the beam particle atomic number Z1.', scr_xsize=26, sensitive=sense)
+					uvalue='Enter the beam particle atomic number Z1.', scr_xsize=26 *sxy, sensitive=sense)
 lab = widget_label( beam_mapbase_ZA, value='A:')
 a1_text = widget_text( beam_mapbase_ZA, value=str_tidy((*p).beam.a1), uname='a1-text', /tracking, /editable, $
-					uvalue='Enter the beam particle mass number.', scr_xsize=26, sensitive=sense)
+					uvalue='Enter the beam particle mass number.', scr_xsize=26 *sxy, sensitive=sense)
 
 beamBBbase = widget_base( l2base, ypad=0, xpad=0, /base_align_left, /align_left)
-beam_mapbase_mono = widget_base( beamBBbase, /row, /base_align_center, ypad=0, xpad=10, space=10, map=mono, xoffset=0, yoffset=0)
+beam_mapbase_mono = widget_base( beamBBbase, /row, /base_align_center, ypad=0, xpad=10, space=10 *sxy, map=mono, xoffset=0, yoffset=0)
 lab = widget_label( beam_mapbase_mono, value='Energy:')
 energy_text = widget_text( beam_mapbase_mono, value=str_tidy((*p).beam.energy), uname='energy-text', /tracking, /editable, $
-					uvalue='Enter the beam energy (MeV for ions, keV for photons).', scr_xsize=70)
+					uvalue='Enter the beam energy (MeV for ions, keV for photons).', scr_xsize=70 *sxy)
 beam3base = widget_base( beam_mapbase_mono, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( beam3base, value='Charge:')
 state_text = widget_text( beam3base, value=str_tidy((*p).beam.state), uname='state-text', /tracking, /editable, $
-					uvalue='Enter the beam particle charge state (use 1 for photons).', scr_xsize=45, sensitive=sense)
+					uvalue='Enter the beam particle charge state (use 1 for photons).', scr_xsize=45 *sxy, sensitive=sense)
 
-beam_mapbase_continuum = widget_base( beamBBbase, /row, /base_align_center, ypad=0, xpad=0, space=10, map=1-mono, xoffset=0, yoffset=0)
+beam_mapbase_continuum = widget_base( beamBBbase, /row, /base_align_center, ypad=0, xpad=0, space=10 *sxy, map=1-mono, xoffset=0, yoffset=0)
 beam5base = widget_base( beam_mapbase_continuum, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( beam5base, value='Source:')
 file = ptr_good((*p).source) ? (*(*p).source).file : ''
-source_text = widget_text( beam5base, value=file, uname='source-file-text', /tracking, /editable, scr_xsize=120, $
+source_text = widget_text( beam5base, value=file, uname='source-file-text', /tracking, /editable, scr_xsize=120 *sxy, $
 					uvalue='Enter the filename for the continuum source file or LOAD an existing one, or use NEW to open the source set-up window.')
 new_source_button = widget_button( beam5base, value='New', uname='new-source-button', /tracking, $
 					uvalue='Open source set-up window to model a continuum source. Remember to select "Save" on the Source Setup window to ' + $
-					'copy new source modelling results back to this yield calculation window.', scr_xsize=30)
+					'copy new source modelling results back to this yield calculation window.', scr_xsize=30 *sxy)
 load_source_button = widget_button( beam5base, value='Load', uname='load-source-button', /tracking, $
-					uvalue='Load source parameters and spectra from a previous SOURCE file.', scr_xsize=38)
+					uvalue='Load source parameters and spectra from a previous SOURCE file.', scr_xsize=38 *sxy)
 
 ; Detector parameters
 
-l3base = widget_base( lbase, /column, /base_align_right, ypad=1, xpad=2, space=1, /frame, scr_xsize=250)
+l3base = widget_base( lbase, /column, /base_align_right, ypad=1, xpad=2, space=1, /frame, scr_xsize=250 *sxy)
 lab = widget_label( l3base, value='Detector', /align_center)
 det1base = widget_base( l3base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( det1base, value='Theta:')
 theta_text = widget_text( det1base, value=str_tidy((*p).detector.theta), uname='theta-text', /tracking, /editable, $
 					uvalue='Enter the detector angle (degrees). Scattering angle relative to the beam direction at zero degrees (' + $
-					'e.g. common 45 degree back-angle X-ray take-off angle is at theta=135).', scr_xsize=70)
+					'e.g. common 45 degree back-angle X-ray take-off angle is at theta=135).', scr_xsize=70 *sxy)
 lab = widget_label( det1base, value=' Phi:')
-phi_text = widget_text( det1base, value=str_tidy((*p).detector.phi), uname='phi-text', /tracking, /editable, scr_xsize=70, $
+phi_text = widget_text( det1base, value=str_tidy((*p).detector.phi), uname='phi-text', /tracking, /editable, scr_xsize=70 *sxy, $
 					uvalue='Enter the azimuthal detector angle out of the plane about the Z axis (degrees, relative to zero in the horizontal plane).')
 button = widget_button( det1base, value='?', uname='detector-show', /tracking, $
 					uvalue='Show the 3D detector, beam and sample geometry in a pop-up XobjView window. The view can be rotated, zoomed, translated and saved from this window.')
@@ -1846,36 +1847,36 @@ array_option = cw_bgroup2( det2base, ['Array'], /column, xpad=0, ypad=0, space=0
 					uvalue=['Enable the calculation of yields for a large detector array where theta phi will vary ' + $
 						'across the face of the detector.'])
 detector_base = widget_base( det2base, /row, /base_align_center, ypad=0, xpad=0, space=0, map=(*p).array)
-detector_mode = widget_combobox( detector_base, value=detector_title, uname='detector-mode', xsize=179, /tracking, $
+detector_mode = widget_combobox( detector_base, value=detector_title, uname='detector-mode', xsize=179 *sxy, /tracking, $
 					notify_realize='OnRealize_layer_detector_mode', $
 					uvalue='Select an available array detector parameter set. Unlike using single "generic" detectors, ' + $
 					'for array detector the yield needs to be computed for each detector element, with varying theta, phi, across the array.')
 
 ; E min,max
 
-r2base = widget_base( rbase, /column, /base_align_right, ypad=1, xpad=2, space=2, /frame, scr_xsize=125)
+r2base = widget_base( rbase, /column, /base_align_right, ypad=1, xpad=2, space=2, /frame, scr_xsize=125 *sxy)
 lab = widget_label( r2base, value='Energy Range', /align_center)
 e1base = widget_base( r2base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( e1base, value='E  min:')
 emin_text = widget_text( e1base, value=str_tidy((*p).emin), uname='emin-text', /tracking, /editable, $
-					uvalue=emin_help, scr_xsize=70)
+					uvalue=emin_help, scr_xsize=70 *sxy)
 e2base = widget_base( r2base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( e2base, value='E max:')
 emax_text = widget_text( e2base, value=str_tidy((*p).emax), uname='emax-text', /tracking, /editable, $
-					uvalue=emax_help, scr_xsize=70)
+					uvalue=emax_help, scr_xsize=70 *sxy)
 
 ; Target parameters
 
-r3base = widget_base( rbase, /column, /base_align_right, ypad=1, xpad=2, space=3, /frame, scr_xsize=125)
+r3base = widget_base( rbase, /column, /base_align_right, ypad=1, xpad=2, space=3, /frame, scr_xsize=125 *sxy)
 lab = widget_label( r3base, value='Target', /align_center)
 target1base = widget_base( r3base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( target1base, value='Alpha:')
 alpha_text = widget_text( target1base, value=str_tidy((*p).target.alpha), uname='alpha-text', /tracking, /editable, $
 					uvalue='Enter the target rotation (around a vertical axis through the target). Zero degrees is normal to the beam ' + $
-					'(e.g. for detector at 90 degrees, alpha = -10 is towards detector).', scr_xsize=70)
+					'(e.g. for detector at 90 degrees, alpha = -10 is towards detector).', scr_xsize=70 *sxy)
 target2base = widget_base( r3base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( target2base, value='Beta:')
-beta_text = widget_text( target2base, value=str_tidy((*p).target.beta), uname='beta-text', /tracking, /editable, scr_xsize=70, $
+beta_text = widget_text( target2base, value=str_tidy((*p).target.beta), uname='beta-text', /tracking, /editable, scr_xsize=70 *sxy, $
 					uvalue='Enter the target tilt angle (about a horizontal axis across the face of the target). Zero degrees is normal to the beam.')
 
 ; Layer details
@@ -1936,14 +1937,14 @@ for i=0L,n_layers-1 do begin
 					notify_realize='OnRealize_Layer_thick_many', $
 					uvalue=str_tidy(i)+'  Select single or many-thickness mode. ' + $
 					'For "+ 1D" or "+ 2D", new controls appear to select a series of thickness for generation of a series of yields as a function of thickness. ' + $
-					'Layer thicknesses are linked for "+ 1D" and independent for "+ 2D" (i.e. 2D grid of thicknesses).', xsize=52)
+					'Layer thicknesses are linked for "+ 1D" and independent for "+ 2D" (i.e. 2D grid of thicknesses).', xsize=52 *sxy)
 	thick_text[i] = widget_text( ll1base, value=str_tidy((*p).layer[i].thick), uname='thick-text', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the thickness of the selected target layer (in either mg/cm^2 or microns).', scr_xsize=70)
+					uvalue=str_tidy(i)+'  Enter the thickness of the selected target layer (in either mg/cm^2 or microns).', scr_xsize=70 *sxy)
 	thick_mode[i] = widget_combobox( ll1base, value=[' mg/cm^2',' microns'], uname='thick-mode', /tracking, $
 					notify_realize='OnRealize_Layer_thick_mode', $
 					uvalue=str_tidy(i)+'  Select layer thickness in "mg/cm^2" or "microns". ' + $
 					'For "microns", a new box allows entry of density of compound layers. ' + $
-					'(Pure element densities come from database.)', xsize=75)
+					'(Pure element densities come from database.)', xsize=75 *sxy)
 
 ;	map_density = (*p).layer[i].microns
 	map_density = 1
@@ -1952,20 +1953,20 @@ for i=0L,n_layers-1 do begin
 	density_text[i] = widget_text( density_base[i], value=str_tidy((*p).layer[i].density), uname='layer-density', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the density of a compound composition layer (g/cm^3). '+ $
 					'For pure element layers the density will be obtained from the database automatically ' + $
-					'(Remember to hit <enter> after formula).', scr_xsize=70)
+					'(Remember to hit <enter> after formula).', scr_xsize=70 *sxy)
 
 	map_many = (*p).many[i]
 	many_base[i] = widget_base( layer_base[i], /row, /base_align_center, /align_right, ypad=0, xpad=0, space=1, map=(map_many ne 0))
 	lab = widget_label( many_base[i], value='Thick Min:')
 	thick_min[i] = widget_text( many_base[i], value=str_tidy((*p).thick_min[i]), uname='thick-min', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the minimum thickness of the selected target layer for thickness series mode.', $
-					notify_realize='OnRealize_Layer_thick_min', scr_xsize=70)
+					notify_realize='OnRealize_Layer_thick_min', scr_xsize=70 *sxy)
 	lab = widget_label( many_base[i], value=' Thick Max:')
 	thick_max[i] = widget_text( many_base[i], value=str_tidy((*p).thick_max[i]), uname='thick-max', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the maximum thickness of the selected target layer for thickness series mode.', scr_xsize=70)
+					uvalue=str_tidy(i)+'  Enter the maximum thickness of the selected target layer for thickness series mode.', scr_xsize=70 *sxy)
 	lab = widget_label( many_base[i], value=' Step:')
 	thick_step[i] = widget_text( many_base[i], value=str_tidy((*p).thick_step[i]), uname='thick-step', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the thickness step of the selected target layer for thickness series mode.', scr_xsize=70)
+					uvalue=str_tidy(i)+'  Enter the thickness step of the selected target layer for thickness series mode.', scr_xsize=70 *sxy)
 
 	ll2base = widget_base( layer_base[i], /row, /base_align_center, ypad=0, xpad=0, space=space2)
 	lab = widget_label( ll2base, value='Formula Mode:')
@@ -2008,10 +2009,10 @@ endfor
 obase = widget_base( tbase, /row, /base_align_center, ypad=1, xpad=0, space=5)
 output_file_button = widget_button( obase, value='Output:', uname='output-file-button', /tracking, $
 					uvalue='Select the name of the output '+yname+' file. You will be prompted to confirm this file name ' + $
-					'(or enter a new one) after calculation of the '+pname+' yields.', scr_xsize=50)
+					'(or enter a new one) after calculation of the '+pname+' yields.', scr_xsize=50 *sxy)
 output_file = widget_text( obase, value=(*p).output_file, uname='output-file', /tracking, /editable, $
 					uvalue='Select the name of the output '+yname+' file. You will be prompted to confirm this file name ' + $
-					'(or enter a new one) after calculation of the '+pname+' yields.',scr_xsize=310)
+					'(or enter a new one) after calculation of the '+pname+' yields.',scr_xsize=310 *sxy)
 
 ; Buttons
 
@@ -2036,11 +2037,11 @@ button = widget_button( bbase, value=' Close ', uname='close-button', /tracking,
 
 help_base = widget_base( tbase, /row, /base_align_center, ypad=0, space=2)
 
-help = widget_text( help_base, scr_xsize=380-22, ysize=4, /wrap, uname='help', /tracking, $
+help = widget_text( help_base, scr_xsize=(380-22) *sxy, ysize=4, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
 
-query_button = Widget_Button(help_base, UNAME='query-button', xsize=15, ysize=20,  $
+query_button = Widget_Button(help_base, UNAME='query-button', xsize=15 *sxy, ysize=20 *sxy,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 state = {	$

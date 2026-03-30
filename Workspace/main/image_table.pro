@@ -255,6 +255,7 @@ pro Image_Table, GROUP_LEADER=wGroup, TLB=Image_Table_TLB, path=path, pregions=p
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_geopixe_adcs, geopixe_max_adcs
+common c_geopixe_scaling, sxy
 
 image_table_eventcb     ; Load event callback routines
 
@@ -300,20 +301,20 @@ endif
   case !version.os_family of
 	'MacOS': begin
 		fnt = 'COURIER*BOLD*10'
-		help_xsize = 630
-		com_xsize = 40
+		help_xsize = 630 *sxy
+		com_xsize = 40 *sxy
 		end
 	'unix': begin
 		fnt = '6x10'
 		yoff = yoff-20
 		xoff = xoff+5
-		help_xsize = 630
-		com_xsize = 40
+		help_xsize = 630 *sxy
+		com_xsize = 40 *sxy
 		end
 	else: begin
 		fnt = 'COURIER*10'
-		help_xsize = 630
-		com_xsize = 40
+		help_xsize = 630 *sxy
+		com_xsize = 40 *sxy
  		end
   endcase
 
@@ -328,7 +329,7 @@ endelse
 list = ['individual','array', adc_list_device( obj)]
 title = xanes ? 'XANES Stack Regions' : 'Image Regions'
   if n_elements(xoffset) lt 1 then begin
-	xoffset = ((xoff+w) < (screen[0]-34 - 562)) > 0
+	xoffset = ((xoff+w) < (screen[0]-34 *sxy - 562 *sxy)) > 0
   endif
   if n_elements(yoffset) lt 1 then yoffset = yoff
 

@@ -1399,6 +1399,7 @@ end
 pro OnRealize_Spectrum, wWidget
 
 COMPILE_OPT STRICTARR
+common c_geopixe_scaling, sxy
 top = tlb_id( wWidget)
 child = widget_info( top, /child)
 widget_control, child, get_uvalue=pstate
@@ -1410,22 +1411,22 @@ wset,wid
 
 case !version.os_family of
     'MacOS': begin
-       (*pstate).dw =              -16
-       (*pstate).draw_ysize_off =       79
-       (*pstate).scr_xsize_off =     100
-       (*pstate).scr_ysize_off =     79
+       (*pstate).dw =              -16 *sxy
+       (*pstate).draw_ysize_off =       79 *sxy
+       (*pstate).scr_xsize_off =     100 *sxy
+       (*pstate).scr_ysize_off =     79 *sxy
        end
     'unix': begin
-       (*pstate).dw =              -16
-       (*pstate).draw_ysize_off =       80
-       (*pstate).scr_xsize_off =     92
-       (*pstate).scr_ysize_off =     65
+       (*pstate).dw =              -16 *sxy
+       (*pstate).draw_ysize_off =       80 *sxy
+       (*pstate).scr_xsize_off =     92 *sxy
+       (*pstate).scr_ysize_off =     65 *sxy
        end
     else: begin
-       (*pstate).dw =              -16
-       (*pstate).draw_ysize_off =    87	;79
-       (*pstate).scr_xsize_off =     100
-       (*pstate).scr_ysize_off =     87	;79
+       (*pstate).dw =              -16 *sxy
+       (*pstate).draw_ysize_off =    87 *sxy	;79
+       (*pstate).scr_xsize_off =     100 *sxy
+       (*pstate).scr_ysize_off =     87 *sxy	;79
        end
 endcase
 
@@ -1527,31 +1528,32 @@ end
 pro OnSize_Spectrum, Event
 
 COMPILE_OPT STRICTARR
+common c_geopixe_scaling, sxy
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 
 case !version.os_family of
     'MacOS': begin
-       draw_trim = 15
-       scr_trim = 21
-       help_trim = 72		; 90
-       x_limit = (*pstate).chart ? 460: 570
+       draw_trim = 15 *sxy
+       scr_trim = 21 *sxy
+       help_trim = 72 *sxy		; 90
+       x_limit = (*pstate).chart ? 460 *sxy: 570 *sxy
        y_trim = 0
        y_trim2 = 0
        end
     'unix': begin
        draw_trim = 0
-       scr_trim = 30	
-       help_trim = 72		; 90
-       x_limit = (*pstate).chart ? 460: 570
-       y_trim = 11
-       y_trim2 = 55
+       scr_trim = 30 *sxy	
+       help_trim = 72 *sxy		; 90
+       x_limit = (*pstate).chart ? 460 *sxy: 570 *sxy
+       y_trim = 11 *sxy
+       y_trim2 = 55 *sxy
        end
     else: begin
        draw_trim = 0
-       scr_trim = 21	
-       help_trim = 72		; 90
-       x_limit = (*pstate).chart ? 460: 570
+       scr_trim = 21 *sxy	
+       help_trim = 72 *sxy		; 90
+       x_limit = (*pstate).chart ? 460 *sxy: 570 *sxy
        y_trim = 0
        y_trim2 = 0
        end
@@ -1564,7 +1566,7 @@ if (event.x eq (*pstate).size_event_x) and (event.y eq (*pstate).size_event_y) t
 geom = widget_info( event.top, /geometry)
 
 width   = (*pstate).width
-height  =    (event.y - (*pstate).draw_ysize_off - y_trim2) > 205   ; 127
+height  =    (event.y - (*pstate).draw_ysize_off - y_trim2) > 205 *sxy   ; 127
 w     =    (event.x - (*pstate).scr_xsize_off) > x_limit
 h     =    height + (*pstate).draw_ysize_off - (*pstate).scr_ysize_off
 
@@ -1676,6 +1678,7 @@ pro PostCreate_Draw_Base, wWidget, spectrum=p, path=path, plugins=plugins, test=
           chart=chart, _EXTRA=_VWBExtra_
 
 COMPILE_OPT STRICTARR
+common c_geopixe_scaling, sxy
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if catch_errors_on then begin
@@ -1712,10 +1715,10 @@ if n_elements(highlight) lt 1 then highlight=0
 
 pos = [0.023,0.07,0.995,0.995]
 w = 2400
-v = 621
-h = 285
+v = 621 *sxy
+h = 285 *sxy
 off = 1.3
-max_h = 303
+max_h = 303 *sxy
 vlow = 32L
 vhigh = long(vlow + v-1)
 vyoff = 0

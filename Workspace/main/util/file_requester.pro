@@ -92,6 +92,7 @@ if catch_errors_on then begin
 	endif
 endif
 common c_file_requester, find_path, exclude, pattern
+common c_geopixe_scaling, sxy
 widget_control, hourglass=0
 
 child = widget_info( event.top, /child)
@@ -1464,6 +1465,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 		endif
 	endif
 	common c_working_dir, geopixe_root
+	common c_geopixe_scaling, sxy
 	if n_elements(geopixe_root) eq 0 then startupp
 	
 	cancel = 0
@@ -1767,40 +1769,40 @@ cont:
 
 case !version.os_family of
 	'MacOS': begin
-		left_xsize = 270
-		tree_ysize = preview ? 266 : ((dir and not multiple) ? 345 : 504)
-		draw_ysize = 199
-		right_xsize = 300
-		path_ysize = (dir and not multiple) ? 270 : 132
-		file_ysize = 170
-		text_xsize = 230
-		text_xsize2 = 250
+		left_xsize = 270 *sxy
+		tree_ysize = preview ? 266 *sxy : ((dir and not multiple) ? 345 *sxy : 504 *sxy)
+		draw_ysize = 199 *sxy
+		right_xsize = 300 *sxy
+		path_ysize = (dir and not multiple) ? 270 *sxy : 132 *sxy
+		file_ysize = 170 *sxy
+		text_xsize = 230 *sxy
+		text_xsize2 = 250 *sxy
 		retain = 2
-		help_trim = 20
+		help_trim = 20 *sxy
 		end
 	'unix': begin
-		left_xsize = 270
-		tree_ysize = preview ? 266 : ((dir and not multiple) ? 345 : 504)
-		draw_ysize = 199
-		right_xsize = 300
-		path_ysize = (dir and not multiple) ? 270 : 132
-		file_ysize = 170
-		text_xsize = 230
-		text_xsize2 = 250
+		left_xsize = 270 *sxy
+		tree_ysize = preview ? 266 *sxy : ((dir and not multiple) ? 345 *sxy : 504 *sxy)
+		draw_ysize = 199 *sxy
+		right_xsize = 300 *sxy
+		path_ysize = (dir and not multiple) ? 270 *sxy : 132 *sxy
+		file_ysize = 170 *sxy
+		text_xsize = 230 *sxy
+		text_xsize2 = 250 *sxy
 		retain = 2
-		help_trim = 20
+		help_trim = 20 *sxy
 		end
 	else: begin
-		left_xsize = 270
-		tree_ysize = preview ? 266 : ((dir and not multiple) ? 345 : 504)
-		draw_ysize = 199
-		right_xsize = 300
-		path_ysize = (dir and not multiple) ? 270 : 132
-		file_ysize = 175
-		text_xsize = 230
-		text_xsize2 = 250
+		left_xsize = 270 *sxy
+		tree_ysize = preview ? 266 *sxy : ((dir and not multiple) ? 345 *sxy : 504 *sxy)
+		draw_ysize = 199 *sxy
+		right_xsize = 300 *sxy
+		path_ysize = (dir and not multiple) ? 270 *sxy : 132 *sxy
+		file_ysize = 175 *sxy
+		text_xsize = 230 *sxy
+		text_xsize2 = 250 *sxy
 		retain = 1
-		help_trim = 20
+		help_trim = 20 *sxy
 		end
 endcase
 
@@ -1828,7 +1830,7 @@ if n_elements(xoffset) lt 1 then begin
 	endif
 endif
 if n_elements(yoffset) lt 1 then begin
-	yoffset = ((yoff) < (screen[1]-28 - 200)) > 0
+	yoffset = ((yoff) < (screen[1]-28 *sxy - 200 *sxy)) > 0
 endif
 
 ; 	top-level base
@@ -1936,8 +1938,8 @@ label = widget_label( f1base, value='Find:')
 find_text = widget_text( f1base, value='', uname='find-text', tracking=tracking, /editable, sensitive=(within_modal eq 0), $
 					uvalue='Find a match:  Will set "Path" to the location of a file specified by a search pattern. ' + $
 					'First, select start for search in "Path" or click in the dir Tree. Type a pattern to search for here in "Find" and hit <return> to start search. ' + $
-					'Returns first match(es). Click "More" for next matches.', scr_xsize=text_xsize2-35-5)
-button = widget_button( f1base, value='More', uname='find-more', tracking=tracking, scr_xsize=35, $
+					'Returns first match(es). Click "More" for next matches.', scr_xsize=text_xsize2-35 *sxy-5)
+button = widget_button( f1base, value='More', uname='find-more', tracking=tracking, scr_xsize=35 *sxy, $
 					uvalue='More: Find the next matches to "Find" pattern.')
 
 b1base = widget_base( pbase, /row, /base_align_center, xpad = 0, ypad=0, space=5)
@@ -1947,7 +1949,7 @@ button = widget_button( b1base, value='Del', uname='del-button', tracking=tracki
 					uvalue='Del: Delete the selected bookmark. Single click to select a bookmark.')
 button = widget_button( b1base, value='Save', uname='save-button', tracking=tracking, $		;, scr_xsize=35, $
 					uvalue='Save: Save bookmarks to disk to be available for future use of the file-requester. Stored in your home .geopixe directory')
-label = widget_label( b1base, value=' ', scr_xsize=10)
+label = widget_label( b1base, value=' ', scr_xsize=10 *sxy)
 button = widget_button( b1base, value='Go', uname='go-button', tracking=tracking, $		;, scr_xsize=35, $
 					uvalue='Go: Set the current path to the selected bookmark and locate the path in the directory tree and open it. ' + $
 					'Alternatively, "double click" on a path in the bookmark list to select it and open it.')
@@ -2058,8 +2060,8 @@ endif else toggle_preview=0L
 if show_list then begin
 	button = widget_button( b2base, value='Delete', uname='delete-file-button', tracking=tracking, $		;, scr_xsize=35, $
 					uvalue='Delete: Delete the selected file(s). Use with caution.')
-endif else label = widget_label( b2base, value=' ', scr_xsize=15)
-label = widget_label( b2base, value=' ', scr_xsize=15)
+endif else label = widget_label( b2base, value=' ', scr_xsize=15 *sxy)
+label = widget_label( b2base, value=' ', scr_xsize=15 *sxy)
 button = widget_button( b2base, value='Cancel', uname='cancel-button', tracking=tracking, $		;, scr_xsize=35, $
 					uvalue='Cancel: Close requester quietly without opening any files.')
 button = widget_button( b2base, value=ok, uname='open-button', tracking=tracking, $		;, scr_xsize=35, $
