@@ -10,7 +10,6 @@ path
 call C:\Users\rya113\AppData\Local\miniforge3\condabin\conda.bat deactivate
 
 rem For some extensions, assumes there is a python enviromnment "py310" for python 3.10
-rem call c:\Anaconda3\condabin\conda.bat activate py310 
 
 call C:\Users\rya113\AppData\Local\miniforge3\condabin\conda.bat activate py310
 rem pause
