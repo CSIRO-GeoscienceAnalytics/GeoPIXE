@@ -15,9 +15,7 @@ using PIXE and synchrotron and laboratory X-ray beams, the software users guide,
 of the core software and its extensions (plugins and device objects) and building GeoPIXE and
 its modules.
 
-There are two main branches: "main", which is used to hold the latest stable release, and occasionally 
-
-"develop", which may be regarded as the 'beta' version with new features under test.
+There are two main branches: "main", which is used to hold the latest stable release, and occasionally "develop", which may be regarded as the 'beta' version with new features under test.
 
 ### Install IDL
 
@@ -31,13 +29,11 @@ Once IDL is installed, you can run GeoPIXE simply by double clicking on "GeoPIXE
 'geopixe' folder within the 'Workspace' tree. It will note the absence of a 'geopixe.conf' file,
 but will then create one for you in your \[home]/.geopixe directory. For Linux, there is a bash
 script in the 'Workspace/geopixe/bin/' directory to launch GeoPIXE. Just add this 'bin' to your path.
-After downloading, you will need to enable execution of these scripts (chmod a+x bin/\*).  
+After downloading, you will need to enable execution of these scripts (chmod a+x bin/\*).
 
 
 
-Some plugins and devices may be not loaded by default. These are in the folder “geopixe/off/plugins/”. 
-
-To use them in GeoPIXE, simply move the needed sav file(s) to “geopixe/plugins/”.  
+Some plugins and devices may be not loaded by default. These are in the folder “geopixe/off/plugins/”. To use them in GeoPIXE, simply move the needed sav file(s) to “geopixe/plugins/”.
 
 
 
