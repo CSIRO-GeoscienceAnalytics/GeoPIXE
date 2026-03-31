@@ -2139,11 +2139,11 @@ pro wizard_batch_process_blog, pstate, error=error
 		pnew:			ptr_new(/allocate_heap), $		; pointer to new (/verify) file-names struct
 		conv:			conv, $							; initial 'conv'
 		charge:			(*p)[j].charge, $				; set charge, and for the returned charge
+		array:			(*(*pstate).pdai).array, $		; array detector?
 		cal:			(*pstate).energy_cal_file}, /no_copy)	; energy calibration file
 
 ;		These are set in 'sort-setup' ...
 ;		type:			(*(*pstate).pdai).detector, $	; data type
-;		array:			(*(*pstate).pdai).array, $		; array detector?
 ;		charge_mode:	(*(*pstate).pdai).IC.mode, $	; flux/charge mode (IC w/ PV)
 ;		flux_scaler: 	(*(*pstate).pdai).IC.pv.name, $	; scaler ID
 ;		gain_value:		(*(*pstate).pdai).IC.pv.val, $	; IC gain
