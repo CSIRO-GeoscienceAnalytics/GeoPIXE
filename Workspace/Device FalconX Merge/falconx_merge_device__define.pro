@@ -93,6 +93,8 @@ endif
 	self.name = 'FALCONX_MERGE_DEVICE'
 	self.title = 'FalconX (merge) - XIA data acquisition'
 
+	self.array_default = 1			; defaults to "array", unlike simple FalconX device
+
 	self.embed_detector = 1			; used to flag merge of single detector channel data files
 	return, i						; detector # now embedded in file-name
 end

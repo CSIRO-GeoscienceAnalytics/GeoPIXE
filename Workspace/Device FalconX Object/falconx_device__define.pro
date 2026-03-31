@@ -2807,7 +2807,7 @@ endif
 
 	error = 1
 	
-	opt_39 = define(/import)			; FalconX 384 list-mode
+	opt_39 = define(/import)			; FalconX  list-mode
 		opt_39.name =		'falconx_evt'	; unique name of import
 		opt_39.title =		'Extract from FalconX - listmode files'
 		opt_39.in_ext =		'.silist'		; input file extension
@@ -2906,6 +2906,7 @@ endif
 		use_bounds = 0, $		; not confine charge/flux within bounded area
 		synchrotron = 1, $		; both synchrotron data
 		ionbeam = 0, $			; and ion-beam data
+		array_default = 0, $	; not an array by default
 		use_cluster = 1)		; uses cluster parallel processing
 	return, i
 end
