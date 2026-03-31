@@ -216,7 +216,7 @@ if catch_errors_on then begin
        return
     endif
 endif else on_error,0
-sxy = geopixe_scale()
+sxy = geopixe_scale( relative=0 )
 
 child = widget_info( id, /child)
 widget_control, child, get_uvalue=pstate

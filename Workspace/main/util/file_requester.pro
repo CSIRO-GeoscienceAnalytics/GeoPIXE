@@ -93,7 +93,7 @@ if catch_errors_on then begin
 endif
 common c_file_requester, find_path, exclude, pattern
 widget_control, hourglass=0
-sxy = geopixe_scale()
+sxy = geopixe_scale( )
 
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
@@ -1466,7 +1466,7 @@ function file_requester, title=title, path=pathi, file=filei, multiple_files=mul
 	endif
 	common c_working_dir, geopixe_root
 	if n_elements(geopixe_root) eq 0 then startupp
-	sxy = geopixe_scale()
+	sxy = geopixe_scale( )
 	
 	cancel = 0
 	default = file_expand_path('.')

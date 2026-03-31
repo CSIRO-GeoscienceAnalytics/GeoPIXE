@@ -1577,7 +1577,7 @@ pro layer_setup, group_leader=group, TLB=tlb, pars=p, path=path, gamma=gamma, $
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-sxy = geopixe_scale()
+sxy = geopixe_scale( relative=0)
 common c_geopixe_vm, geopixe_enable_vm
 if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
 if n_elements(geopixe_root) eq 0 then startupp
@@ -1608,7 +1608,6 @@ if n_elements(nosav) eq 0 then nosav=0
 
   case !version.os_family of
 	'MacOS': begin
-		sxy = sxy * 1.136
 		symbol = 'SYMBOL*12'
 		large_font = 'Arial*12'
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
@@ -1626,7 +1625,6 @@ if n_elements(nosav) eq 0 then nosav=0
 		yh = 625 *sxy
 		end
 	'unix': begin
-		sxy = sxy * 1.136
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
