@@ -2957,7 +2957,7 @@ pro map_help, pstate
 	endelse
 	case !version.os_family of
 		'unix': begin
-			xoff = 367 *sxy
+			xoff = 388 *sxy
 	       query_scr_xsize = 25 *sxy
 	       query_scr_ysize = 29 *sxy
 			end

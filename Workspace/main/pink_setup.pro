@@ -1338,6 +1338,7 @@ if n_elements(test_mode) lt 1 then test_mode=0
 		frame_width = 405 *sxy
 		pars_xsize = 70 *sxy
 		pars_xpad = 1
+		lframe = 0
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
@@ -1359,6 +1360,7 @@ if n_elements(test_mode) lt 1 then test_mode=0
 		frame_width = 405 *sxy
 		pars_xsize = 70 *sxy
 		pars_xpad = 1
+		lframe = 0
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
@@ -1372,7 +1374,7 @@ if n_elements(test_mode) lt 1 then test_mode=0
 		xsize_atomic = 120 *sxy
 		col_widths = 88 *sxy
 		special_xsize = 157 *sxy
-		formula_xsize = 193 *sxy
+		formula_xsize = 200 *sxy
 		retain = 1
 		draw_xsize = 600 *sxy
 		draw_ysize = 580 *sxy
@@ -1380,6 +1382,7 @@ if n_elements(test_mode) lt 1 then test_mode=0
 		frame_width = 390 *sxy
 		pars_xsize = 70 *sxy
 		pars_xpad = 1
+		lframe = 1
  		end
   endcase
 
@@ -1437,7 +1440,7 @@ tbase = widget_base( rbase, /column, xpad=0, ypad=0, space=5, /base_align_center
 lbase = widget_base( tbase, /column, xpad=0, ypad=0, space=3, /base_align_right, /align_center)
 sbase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( sbase, value='File:')
-pink_file = widget_text( sbase, value=(*p).file, uname='pink-file', /tracking, /editable, $
+pink_file = widget_text( sbase, value=(*p).file, uname='pink-file', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the name of a pink beam file to retrieve and edit.',scr_xsize=253 *sxy)
 load_setup_button = widget_button( sbase, value='Load', uname='load-pink-button', /tracking, $
 					uvalue='Load pink parameters from a previous pink beam file.', scr_xsize=38 *sxy)
@@ -1447,7 +1450,7 @@ save_setup_button = widget_button( sbase, value='Save', uname='save-pink-button'
 
 titlebase = widget_base( lbase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( titlebase, value='Title:')
-title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, $
+title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter a title descriptor for this X-ray pink beam.',scr_xsize=343 *sxy)
 
 ; FE Beam
@@ -1457,7 +1460,7 @@ lab = widget_label( febase, value='FE Beam Spectrum', /align_center)
 
 fbase = widget_base( febase, /row, /base_align_center, ypad=0, xpad=0, space=5, /align_right)
 lab = widget_label( fbase, value='File:')
-fe_spectrum_text = widget_text( fbase, value=(*p).file, uname='fe-spectrum-file', /tracking, /editable, $
+fe_spectrum_text = widget_text( fbase, value=(*p).file, uname='fe-spectrum-file', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the name of a Front-end Spectrum file to retrieve.',scr_xsize=303 *sxy)
 load_spec_button = widget_button( fbase, value='Load', uname='load-fe-spectrum-button', /tracking, $
 					uvalue='Load Front-end Spectrum file.', scr_xsize=38 *sxy)
@@ -1492,12 +1495,12 @@ for i=0L,n_mirrors_max-1 do begin
 
 	mll1base = widget_base( mirror_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( mll1base, value='Title:')
-	mtitle_text[i] = widget_text( mll1base, value=(*p).mirrors[i].title, uname='mirror-title-text', /tracking, /editable, $
+	mtitle_text[i] = widget_text( mll1base, value=(*p).mirrors[i].title, uname='mirror-title-text', /tracking, /editable, frame=lframe, $
 					uvalue=str_tidy(i)+'  Enter the title for this mirror.', scr_xsize=338 *sxy)
 	mll2base = widget_base( mirror_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( mll2base, value='File:')
 	mfile_text[i] = widget_text( mll2base, value=(*p).mirrors[i].file, uname='mirror-file-text', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the file path giving CXRO reflectivity data for this mirror, or use "Load".', scr_xsize=296 *sxy)
+					uvalue=str_tidy(i)+'  Enter the file path giving CXRO reflectivity data for this mirror, or use "Load".', frame=lframe, scr_xsize=296 *sxy)
 	button = widget_button( mll2base, value='Load', uname='load-mirror-file-button', /tracking, $
 					uvalue=str_tidy(i)+'  Load the file giving CXRO reflectivity data for this mirror.', scr_xsize=38 *sxy)
 	map = 0
@@ -1533,35 +1536,35 @@ mono_mapbase2 = widget_base( opticsbase2, column=3, /base_align_right, ypad=0, x
 
 mbase1a = widget_base( mono_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( mbase1a, value='Energy:')
-mono_energy_text = widget_text( mbase1a, value=str_tidy((*p).modata.mono[0]), uname='mono-energy-text', /tracking, /editable, $
+mono_energy_text = widget_text( mbase1a, value=str_tidy((*p).modata.mono[0]), uname='mono-energy-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the energy of the centre of the monochromator window (keV). Alternatively, use the GREEN element button to pop-up ' + $
 					"a periodic table to select centre energy based on element's Ka energy.", scr_xsize=pars_xsize)
 
 mbase1b = widget_base( mono_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( mbase1b, value='Bandwidth:')
-mono_bw_text = widget_text( mbase1b, value=str_tidy((*p).modata.mono[1]), uname='mono-bw-text', /tracking, /editable, $
+mono_bw_text = widget_text( mbase1b, value=str_tidy((*p).modata.mono[1]), uname='mono-bw-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the bandwidth of the monochromator (%).', scr_xsize=pars_xsize)
 
 mbase1c = widget_base( mono_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( mbase1c, value='Eff:')
-mono_eff_text = widget_text( mbase1c, value=str_tidy((*p).modata.mono[2]), uname='mono-eff-text', /tracking, /editable, $
+mono_eff_text = widget_text( mbase1c, value=str_tidy((*p).modata.mono[2]), uname='mono-eff-text', /tracking, /editable, frame=lframe,  $
 					uvalue='Enter the transmission efficiency of the monochromator window (<1).', scr_xsize=pars_xsize)
 
 poly_mapbase2 = widget_base( opticsbase2, column=3, /base_align_right, ypad=0, xpad=0, space=3, /align_right, map=(*p).poly.mode)
 
 pbase1a = widget_base( poly_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( pbase1a, value='Gain:')
-poly_gain_text = widget_text( pbase1a, value=str_tidy((*p).poly.gain), uname='poly-gain-text', /tracking, /editable, $
+poly_gain_text = widget_text( pbase1a, value=str_tidy((*p).poly.gain), uname='poly-gain-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the flux Gain of the polycapillary lens.' , scr_xsize=pars_xsize)
 
 pbase1b = widget_base( poly_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( pbase1b, value='Energy:')
-poly_energy_text = widget_text( pbase1b, value=str_tidy((*p).poly.energy), uname='poly-energy-text', /tracking, /editable, $
+poly_energy_text = widget_text( pbase1b, value=str_tidy((*p).poly.energy), uname='poly-energy-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the Energy (keV) appropriate for this flux Gain.', scr_xsize=pars_xsize)
 
 pbase1c = widget_base( poly_mapbase2, /row, /base_align_center, ypad=0, xpad=pars_xpad, space=5)
 lab = widget_label( pbase1c, value='Pinhole:')
-poly_pinhole_text = widget_text( pbase1c, value=str_tidy((*p).poly.pinhole), uname='poly-pinhole-text', /tracking, /editable, $
+poly_pinhole_text = widget_text( pbase1c, value=str_tidy((*p).poly.pinhole), uname='poly-pinhole-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the diameter (mm) of the reference Pinhole that this Gain is relative to (at a distance of 100 mm).', scr_xsize=pars_xsize)
 
 ; absorber details
@@ -1605,7 +1608,7 @@ for i=0L,n_filters_max-1 do begin
 
 	ll1base = widget_base( filter_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( ll1base, value='Thick:')
-	thick_text[i] = widget_text( ll1base, value=str_tidy((*p).filters[i].thick), uname='thick-text', /tracking, /editable, $
+	thick_text[i] = widget_text( ll1base, value=str_tidy((*p).filters[i].thick), uname='thick-text', /tracking, /editable, frame=lframe, $
 					uvalue=str_tidy(i)+'  Enter the thickness of the selected filter layer in either mg/cm^2, microns or mm (for a Gas at NPT).', scr_xsize=72 *sxy)
 	thick_mode[i] = widget_combobox( ll1base, value=[' mg/cm^2',' microns',' Gas (mm NPT)'], uname='thick-mode', /tracking, $
 					notify_realize='OnRealize_pink_thick_mode', $
@@ -1615,14 +1618,14 @@ for i=0L,n_filters_max-1 do begin
 
 	density_base[i] = widget_base( ll1base, /row, map=(*p).filters[i].microns, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( density_base[i], value=' Density:')
-	density_text[i] = widget_text( density_base[i], value=str_tidy((*p).filters[i].density), uname='filter-density', /tracking, /editable, $
+	density_text[i] = widget_text( density_base[i], value=str_tidy((*p).filters[i].density), uname='filter-density', /tracking, /editable, frame=lframe, $
 					uvalue=str_tidy(i)+'  Enter the density of a compound composition filter layer (g/cm^3). '+ $
 					'For pure element filters the density will be obtained from the database automatically. ' + $
 					'For a Gas, hit <return> on Formula or Thickness to calculate an ideal gas density; NPT conditions (P=1013.25 mbar, T=20C) are assumed.', scr_xsize=72 *sxy)
 
 	ll2base = widget_base( filter_base[i], /row, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( ll2base, value='Formula:')
-	formula_text[i] = widget_text( ll2base, value=(*p).filters[i].formula, uname='filter-formula', /tracking, /editable, ysize=1,  $
+	formula_text[i] = widget_text( ll2base, value=(*p).filters[i].formula, uname='filter-formula', /tracking, /editable, ysize=1, frame=lframe,  $
 					uvalue=str_tidy(i)+'  Enter the chemical formula for the layer. ' + $
 					'Enclose radicals in brackets "( )", with optional multipliers in atomic fraction or weight %. ' + $
 					'e.g. Components in wt%: "(SiO2)18.3(MgO)34.3"; atomic proportions: "FeAsS". ' + $
@@ -1659,7 +1662,7 @@ for i=0L,n_filters_max-1 do begin
 	map_base = widget_base( ll3base, ypad=0, xpad=0)
 	ratio_base[i] = widget_base( map_base, /row, map=map_pinhole, /base_align_center, ypad=0, xpad=0, space=2)
 	lab = widget_label( ratio_base[i], value=' Solid-angle ratio:')
-	ratio_text[i] = widget_text( ratio_base[i], value=str_tidy((*p).filters[i].pinratio), uname='filter-pinratio', /tracking, /editable, $
+	ratio_text[i] = widget_text( ratio_base[i], value=str_tidy((*p).filters[i].pinratio), uname='filter-pinratio', /tracking, /editable, frame=lframe, $
 					uvalue=str_tidy(i)+'  Enter the pin-hole filter solid-angle ratio. '+ $
 					'This is the ratio of the pink solid-angle divided by the hole solid-angle.', scr_xsize=70 *sxy)
 

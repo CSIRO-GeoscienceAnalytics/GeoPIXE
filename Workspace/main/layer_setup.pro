@@ -1623,6 +1623,7 @@ if n_elements(nosav) eq 0 then nosav=0
 		col_widths = 110 *sxy
 		xw = 398 *sxy
 		yh = 625 *sxy
+		lframe = 0
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
@@ -1640,6 +1641,7 @@ if n_elements(nosav) eq 0 then nosav=0
 		col_widths = 88 *sxy
 		xw = 430 *sxy
 		yh = 714 *sxy
+		lframe = 0
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
@@ -1657,6 +1659,7 @@ if n_elements(nosav) eq 0 then nosav=0
 		col_widths = 88 *sxy
 		xw = 405 *sxy
 		yh = 625 *sxy
+		lframe = 1
  		end
   endcase
 
@@ -1769,8 +1772,8 @@ tbase = widget_base( tlb, /column, xpad=0, ypad=0, space=3, /base_align_center, 
 
 sbase = widget_base( tbase, /row, /base_align_center, ypad=0, xpad=0, space=5)
 lab = widget_label( sbase, value='Set-up:')
-lcm_file = widget_text( sbase, value=(*p).lcm_file, uname='lcm-file', /tracking, /editable, $
-					uvalue='Enter the name of an LCM file to retrieve yield calculation set-up details, or use the "Load" button.',scr_xsize=235)
+lcm_file = widget_text( sbase, value=(*p).lcm_file, uname='lcm-file', /tracking, /editable, frame=lframe, $
+					uvalue='Enter the name of an LCM file to retrieve yield calculation set-up details, or use the "Load" button.',scr_xsize=240 *sxy)
 load_setup_button = widget_button( sbase, value='Load', uname='load-setup-button', /tracking, $
 					uvalue='Load set-up parameters from a previous LCM file.', scr_xsize=38 *sxy)
 save_setup_button = widget_button( sbase, value='Save', uname='save-setup-button', /tracking, $
@@ -1778,8 +1781,8 @@ save_setup_button = widget_button( sbase, value='Save', uname='save-setup-button
 
 titlebase = widget_base( tbase, /row, /base_align_center, ypad=0, xpad=0, space=5)
 lab = widget_label( titlebase, value='Title:')
-title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, $
-					uvalue='Enter a title descriptor for this yield calculation.',scr_xsize=313)
+title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, frame=lframe, $
+					uvalue='Enter a title descriptor for this yield calculation.',scr_xsize=343 *sxy)
 
 rowbase = widget_base( tbase, /row, /base_align_top, ypad=0, xpad=0, space=5 *sxy)
 lbase = widget_base( rowbase, /column, /base_align_right, ypad=0, xpad=0, space=2)
@@ -1799,27 +1802,27 @@ beam_mode = widget_combobox( beambase, value=beam_modes, uname='beam-mode', xsiz
 					'or a model continuum including characteristic anode lines.')
 beam_mapbase_ZA = widget_base( beambase, /row, /base_align_center, ypad=0, xpad=0, space=3, map=mono)
 lab = widget_label( beam_mapbase_ZA, value='Z:')
-z1_text = widget_text( beam_mapbase_ZA, value=str_tidy((*p).beam.z1), uname='z1-text', /tracking, /editable, $
+z1_text = widget_text( beam_mapbase_ZA, value=str_tidy((*p).beam.z1), uname='z1-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the beam particle atomic number Z1.', scr_xsize=26 *sxy, sensitive=sense)
 lab = widget_label( beam_mapbase_ZA, value='A:')
-a1_text = widget_text( beam_mapbase_ZA, value=str_tidy((*p).beam.a1), uname='a1-text', /tracking, /editable, $
+a1_text = widget_text( beam_mapbase_ZA, value=str_tidy((*p).beam.a1), uname='a1-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the beam particle mass number.', scr_xsize=26 *sxy, sensitive=sense)
 
 beamBBbase = widget_base( l2base, ypad=0, xpad=0, /base_align_left, /align_left)
 beam_mapbase_mono = widget_base( beamBBbase, /row, /base_align_center, ypad=0, xpad=10, space=10 *sxy, map=mono, xoffset=0, yoffset=0)
 lab = widget_label( beam_mapbase_mono, value='Energy:')
-energy_text = widget_text( beam_mapbase_mono, value=str_tidy((*p).beam.energy), uname='energy-text', /tracking, /editable, $
+energy_text = widget_text( beam_mapbase_mono, value=str_tidy((*p).beam.energy), uname='energy-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the beam energy (MeV for ions, keV for photons).', scr_xsize=70 *sxy)
 beam3base = widget_base( beam_mapbase_mono, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( beam3base, value='Charge:')
-state_text = widget_text( beam3base, value=str_tidy((*p).beam.state), uname='state-text', /tracking, /editable, $
+state_text = widget_text( beam3base, value=str_tidy((*p).beam.state), uname='state-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the beam particle charge state (use 1 for photons).', scr_xsize=45 *sxy, sensitive=sense)
 
 beam_mapbase_continuum = widget_base( beamBBbase, /row, /base_align_center, ypad=0, xpad=0, space=10 *sxy, map=1-mono, xoffset=0, yoffset=0)
 beam5base = widget_base( beam_mapbase_continuum, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( beam5base, value='Source:')
 file = ptr_good((*p).source) ? (*(*p).source).file : ''
-source_text = widget_text( beam5base, value=file, uname='source-file-text', /tracking, /editable, scr_xsize=120 *sxy, $
+source_text = widget_text( beam5base, value=file, uname='source-file-text', /tracking, /editable, scr_xsize=120 *sxy, frame=lframe, $
 					uvalue='Enter the filename for the continuum source file or LOAD an existing one, or use NEW to open the source set-up window.')
 new_source_button = widget_button( beam5base, value='New', uname='new-source-button', /tracking, $
 					uvalue='Open source set-up window to model a continuum source. Remember to select "Save" on the Source Setup window to ' + $
@@ -1833,11 +1836,11 @@ l3base = widget_base( lbase, /column, /base_align_right, ypad=1, xpad=2, space=1
 lab = widget_label( l3base, value='Detector', /align_center)
 det1base = widget_base( l3base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( det1base, value='Theta:')
-theta_text = widget_text( det1base, value=str_tidy((*p).detector.theta), uname='theta-text', /tracking, /editable, $
+theta_text = widget_text( det1base, value=str_tidy((*p).detector.theta), uname='theta-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the detector angle (degrees). Scattering angle relative to the beam direction at zero degrees (' + $
 					'e.g. common 45 degree back-angle X-ray take-off angle is at theta=135).', scr_xsize=70 *sxy)
 lab = widget_label( det1base, value=' Phi:')
-phi_text = widget_text( det1base, value=str_tidy((*p).detector.phi), uname='phi-text', /tracking, /editable, scr_xsize=70 *sxy, $
+phi_text = widget_text( det1base, value=str_tidy((*p).detector.phi), uname='phi-text', /tracking, /editable, frame=lframe, scr_xsize=70 *sxy, $
 					uvalue='Enter the azimuthal detector angle out of the plane about the Z axis (degrees, relative to zero in the horizontal plane).')
 button = widget_button( det1base, value='?', uname='detector-show', /tracking, $
 					uvalue='Show the 3D detector, beam and sample geometry in a pop-up XobjView window. The view can be rotated, zoomed, translated and saved from this window.')
@@ -1858,11 +1861,11 @@ r2base = widget_base( rbase, /column, /base_align_right, ypad=1, xpad=2, space=2
 lab = widget_label( r2base, value='Energy Range', /align_center)
 e1base = widget_base( r2base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( e1base, value='E  min:')
-emin_text = widget_text( e1base, value=str_tidy((*p).emin), uname='emin-text', /tracking, /editable, $
+emin_text = widget_text( e1base, value=str_tidy((*p).emin), uname='emin-text', /tracking, /editable, frame=lframe, $
 					uvalue=emin_help, scr_xsize=70 *sxy)
 e2base = widget_base( r2base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( e2base, value='E max:')
-emax_text = widget_text( e2base, value=str_tidy((*p).emax), uname='emax-text', /tracking, /editable, $
+emax_text = widget_text( e2base, value=str_tidy((*p).emax), uname='emax-text', /tracking, /editable, frame=lframe, $
 					uvalue=emax_help, scr_xsize=70 *sxy)
 
 ; Target parameters
@@ -1871,12 +1874,12 @@ r3base = widget_base( rbase, /column, /base_align_right, ypad=1, xpad=2, space=3
 lab = widget_label( r3base, value='Target', /align_center)
 target1base = widget_base( r3base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( target1base, value='Alpha:')
-alpha_text = widget_text( target1base, value=str_tidy((*p).target.alpha), uname='alpha-text', /tracking, /editable, $
+alpha_text = widget_text( target1base, value=str_tidy((*p).target.alpha), uname='alpha-text', /tracking, /editable, frame=lframe, $
 					uvalue='Enter the target rotation (around a vertical axis through the target). Zero degrees is normal to the beam ' + $
 					'(e.g. for detector at 90 degrees, alpha = -10 is towards detector).', scr_xsize=70 *sxy)
 target2base = widget_base( r3base, /row, /base_align_center, ypad=0, xpad=0, space=3)
 lab = widget_label( target2base, value='Beta:')
-beta_text = widget_text( target2base, value=str_tidy((*p).target.beta), uname='beta-text', /tracking, /editable, scr_xsize=70 *sxy, $
+beta_text = widget_text( target2base, value=str_tidy((*p).target.beta), uname='beta-text', /tracking, /editable, frame=lframe, scr_xsize=70 *sxy, $
 					uvalue='Enter the target tilt angle (about a horizontal axis across the face of the target). Zero degrees is normal to the beam.')
 
 ; Layer details
@@ -1953,16 +1956,16 @@ for i=0L,n_layers-1 do begin
 	density_text[i] = widget_text( density_base[i], value=str_tidy((*p).layer[i].density), uname='layer-density', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the density of a compound composition layer (g/cm^3). '+ $
 					'For pure element layers the density will be obtained from the database automatically ' + $
-					'(Remember to hit <enter> after formula).', scr_xsize=70 *sxy)
+					'(Remember to hit <enter> after formula).', frame=lframe, scr_xsize=70 *sxy)
 
 	map_many = (*p).many[i]
 	many_base[i] = widget_base( layer_base[i], /row, /base_align_center, /align_right, ypad=0, xpad=0, space=1, map=(map_many ne 0))
 	lab = widget_label( many_base[i], value='Thick Min:')
-	thick_min[i] = widget_text( many_base[i], value=str_tidy((*p).thick_min[i]), uname='thick-min', /tracking, /editable, $
+	thick_min[i] = widget_text( many_base[i], value=str_tidy((*p).thick_min[i]), uname='thick-min', /tracking, /editable, frame=lframe, $
 					uvalue=str_tidy(i)+'  Enter the minimum thickness of the selected target layer for thickness series mode.', $
 					notify_realize='OnRealize_Layer_thick_min', scr_xsize=70 *sxy)
 	lab = widget_label( many_base[i], value=' Thick Max:')
-	thick_max[i] = widget_text( many_base[i], value=str_tidy((*p).thick_max[i]), uname='thick-max', /tracking, /editable, $
+	thick_max[i] = widget_text( many_base[i], value=str_tidy((*p).thick_max[i]), uname='thick-max', /tracking, /editable, frame=lframe, $
 					uvalue=str_tidy(i)+'  Enter the maximum thickness of the selected target layer for thickness series mode.', scr_xsize=70 *sxy)
 	lab = widget_label( many_base[i], value=' Step:')
 	thick_step[i] = widget_text( many_base[i], value=str_tidy((*p).thick_step[i]), uname='thick-step', /tracking, /editable, $
@@ -1983,7 +1986,7 @@ for i=0L,n_layers-1 do begin
 	laybull = widget_base( layer_base[i], /align_center)
 	formula_map[i] = widget_base( laybull, map=1-(*p).layer[i].formula_mode, /row, /base_align_center, ypad=3, xpad=0, space=3)
 	lab = widget_label( formula_map[i], value='Formula:')
-	formula_text[i] = widget_text( formula_map[i], value=(*p).layer[i].formula, uname='layer-formula', /tracking, /editable, ysize=5, /wrap, $
+	formula_text[i] = widget_text( formula_map[i], value=(*p).layer[i].formula, uname='layer-formula', /tracking, /editable, ysize=5, /wrap, frame=lframe, $
 					uvalue=str_tidy(i)+'  Enter the chemical formula for the layer. ' + $
 					'Enclose radicals in brackets "( )", with optional multipliers in atomic fraction or weight %. ' + $
 					'e.g. Components in wt%: "(SiO2)18.3(MgO)34.3"; atomic proportions: "FeAsS".', scr_xsize=315)
@@ -2010,7 +2013,7 @@ obase = widget_base( tbase, /row, /base_align_center, ypad=1, xpad=0, space=5)
 output_file_button = widget_button( obase, value='Output:', uname='output-file-button', /tracking, $
 					uvalue='Select the name of the output '+yname+' file. You will be prompted to confirm this file name ' + $
 					'(or enter a new one) after calculation of the '+pname+' yields.', scr_xsize=50 *sxy)
-output_file = widget_text( obase, value=(*p).output_file, uname='output-file', /tracking, /editable, $
+output_file = widget_text( obase, value=(*p).output_file, uname='output-file', /tracking, /editable, frame=lframe, $
 					uvalue='Select the name of the output '+yname+' file. You will be prompted to confirm this file name ' + $
 					'(or enter a new one) after calculation of the '+pname+' yields.',scr_xsize=310 *sxy)
 
