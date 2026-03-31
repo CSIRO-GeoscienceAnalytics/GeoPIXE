@@ -3351,28 +3351,29 @@ wversion = '8.9r'							; wizard version
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
 ;
 ; First set a catch to test whether "GeoPIXE.sav" can be found ...
+;
+;................................................................................................
+; This code fragmwent will appear at the start of most stand-alone programs
+; that need to load "GeoPIXE.sav" as a library. It needs to work when the current
+; working directory is: (i) the "geopixe" runtime dir, i.e. for SAV files stored in the
+; runtime dir along side GeoPIXE.sav, (ii) a subdir of "geopixe" runtime, such as the
+; "maia", "daq", "wizards", e.g. for compiled Maia or Wizard SAV files, and (iii) a 
+; project dir during debugging of this program in IDLDE. 
+;
+; The latter assumes that the runtime dir is named "geopixe" (see notes in "startupp.pro").
 
 Catch, ErrorNo								; GeoPIXE.sav only loaded if needed
 if (ErrorNo ne 0) then begin
 	Catch, /cancel
-	
-	found = 0
-	file = 'GeoPIXE.sav'						; current dir is the runtime dir
+	startupp
+	file = geopixe_root + 'GeoPIXE.sav'			; current dir is the runtime dir
 	if file_test(file) eq 0 then begin
-		file = '../GeoPIXE.sav'					; current dir in a subdir of runtime dir
-		if file_test(file) eq 0 then begin
-			a = dialog_message('wizard_batch: Failed to restore GeoPIXE.sav.',/error)
-		endif else found=1
-	endif else found = 1
-	if found then begin
-		restore, file
-		print,'"GeoPIXE.sav" restored.'
-		geopixe
-	endif else begin
 		a = dialog_message(['GeoPIXE is not loaded in memory.','No "GeoPIXE.sav" file found locally.','Abort Wizard.','', $
 				'Check that your working directory is the main "geopixe" dir.'], /error)
 		return
-	endelse
+	endif
+	restore, file
+	geopixe
 endif
 test_geopixe_loaded						; tests whether GeoPIXE.sav routines loaded
 Catch, /cancel							; this is a new feature of GeoPIXE v7.0e onwards

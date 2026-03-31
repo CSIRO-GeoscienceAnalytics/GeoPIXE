@@ -1807,17 +1807,13 @@ if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1                           ; enable error CATCHing
 if debug then catch_errors_on = 0             ; disable error CATCHing
 
-wversion = '8.9d'							; wizard version
+wversion = '8.9r'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not already running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
 ;
 ; First set a catch to test whether "GeoPIXE.sav" can be found ...
-
-Catch, ErrorNo							; GeoPIXE.sav only loaded if needed
-if (ErrorNo ne 0) then begin
-	Catch, /cancel
-	
+;
 ;................................................................................................
 ; This code fragmwent will appear at the start of most stand-alone programs
 ; that need to load "GeoPIXE.sav" as a library. It needs to work when the current
@@ -1828,25 +1824,18 @@ if (ErrorNo ne 0) then begin
 ;
 ; The latter assumes that the runtime dir is named "geopixe" (see notes in "startupp.pro").
 
-	found = 0
-	file = 'GeoPIXE.sav'						; current dir is the runtime dir
+Catch, ErrorNo							; GeoPIXE.sav only loaded if needed
+if (ErrorNo ne 0) then begin
+	Catch, /cancel
+	startupp
+	file = geopixe_root + 'GeoPIXE.sav'			; current dir is the runtime dir
 	if file_test(file) eq 0 then begin
-		file = '../GeoPIXE.sav'					; current dir in a subdir of runtime dir
-		if file_test(file) eq 0 then begin
-			file = '../geopixe/GeoPIXE.sav'		; current dir is another project dir
-			if file_test(file) then found=1
-		endif else found=1
-	endif else found = 1
-
-	if found then begin
-		restore, file
-		print,'"GeoPIXE.sav" restored.'
-		geopixe
-	endif else begin
 		a = dialog_message(['GeoPIXE is not loaded in memory.','No "GeoPIXE.sav" file found locally.','Abort Wizard.','', $
-				'Check that your working directory is the "geopixe" or "main" dir.'], /error)
+				'Check that your working directory is the main "geopixe" dir.'], /error)
 		return
-	endelse
+	endif
+	restore, file
+	geopixe
 endif
 test_geopixe_loaded						; tests whether GeoPIXE.sav routines loaded
 Catch, /cancel							; this is a new feature of GeoPIXE v7.0e onwards
