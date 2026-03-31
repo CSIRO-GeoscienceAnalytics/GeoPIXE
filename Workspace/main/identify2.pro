@@ -5,7 +5,6 @@ common c_working_dir, geopixe_root
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
-common c_geopixe_scaling, sxy
 if catch_errors_on then begin
 	Catch, ErrorNo
 	if (ErrorNo ne 0) then begin
@@ -22,7 +21,8 @@ if catch_errors_on then begin
 		goto, kill
 	endif
 endif
-  widget_control, hourglass=0
+sxy = geopixe_scale()
+widget_control, hourglass=0
 
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
@@ -615,7 +615,7 @@ pro identify2, group_leader=group, TLB=tlb, _extra=extra, xoffset=xoffset, yoffs
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on

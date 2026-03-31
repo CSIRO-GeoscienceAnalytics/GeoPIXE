@@ -1399,7 +1399,7 @@ end
 pro OnRealize_Spectrum, wWidget
 
 COMPILE_OPT STRICTARR
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 top = tlb_id( wWidget)
 child = widget_info( top, /child)
 widget_control, child, get_uvalue=pstate
@@ -1528,7 +1528,7 @@ end
 pro OnSize_Spectrum, Event
 
 COMPILE_OPT STRICTARR
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 
@@ -1678,7 +1678,7 @@ pro PostCreate_Draw_Base, wWidget, spectrum=p, path=path, plugins=plugins, test=
           chart=chart, _EXTRA=_VWBExtra_
 
 COMPILE_OPT STRICTARR
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if catch_errors_on then begin

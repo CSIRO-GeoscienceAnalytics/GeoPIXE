@@ -3,7 +3,7 @@ pro gImage_event, Event
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -1322,7 +1322,7 @@ common c_working_dir, geopixe_root
 common c_geopixe_adcs, geopixe_max_adcs
 common c_geopixe_vm, geopixe_enable_vm
 common c_fit_memory_1, fit_memory_on
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 if n_elements(geopixe_max_adcs) lt 1 then geopixe_max_adcs=384
 if n_elements(c_test) lt 1 then c_test=0

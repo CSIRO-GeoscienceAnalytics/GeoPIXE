@@ -4,7 +4,7 @@ function geopixe_scale
 
 common c_working_dir, geopixe_root
 common c_geopixe_scaling, sxy
-if n_elements(geopixe_root) lt 1 then startup
+if n_elements(geopixe_root) lt 1 then startupp
 
 	case os_type() of
 		'Linux': begin

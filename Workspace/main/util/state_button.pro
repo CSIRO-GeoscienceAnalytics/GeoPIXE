@@ -199,7 +199,6 @@ end
 pro state_button_realize, id
 
 ErrorNo = 0
-common c_geopixe_scaling, sxy
 common c_errors_1, catch_errors_on
 if catch_errors_on then begin
     Catch, ErrorNo
@@ -217,7 +216,7 @@ if catch_errors_on then begin
        return
     endif
 endif else on_error,0
-if n_elements(sxy) lt 1 then startupp
+sxy = geopixe_scale()
 
 child = widget_info( id, /child)
 widget_control, child, get_uvalue=pstate

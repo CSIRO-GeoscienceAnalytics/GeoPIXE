@@ -255,7 +255,7 @@ pro Image_Table, GROUP_LEADER=wGroup, TLB=Image_Table_TLB, path=path, pregions=p
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_geopixe_adcs, geopixe_max_adcs
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 image_table_eventcb     ; Load event callback routines
 

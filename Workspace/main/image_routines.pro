@@ -2922,7 +2922,7 @@ pro map_help, pstate
 ; 'scr_xsize_off' and 'scr_ysize_off' provide offsets from window size x,y to
 ; window scr_xsize, scr_ysize size (w,h) in 'OnSize_image'.
 
-common c_geopixe_scaling, sxy
+	sxy = geopixe_scale()
 
 	if (*pstate).w gt 630 then begin
 		case !version.os_family of

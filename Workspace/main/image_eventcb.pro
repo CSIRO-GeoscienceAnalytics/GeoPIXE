@@ -6990,7 +6990,7 @@ end
 pro OnSize_image, Event
 
 COMPILE_OPT STRICTARR
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 

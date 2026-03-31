@@ -3,7 +3,7 @@
 
 pro source_setup_event, event
 common c_working_dir, geopixe_root
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -632,7 +632,7 @@ pro source_draw, pstate, p=p, e=e, spec=speci, overlay=overlay, altp=p2, altE=E2
 ;	Draw the full spectrum E, Spec, as passed from the calculate routine.
 
 	COMPILE_OPT STRICTARR
-	common c_geopixe_scaling, sxy
+	sxy = geopixe_scale()
 
 	if n_elements(pstate) eq 0 then return
 	if ptr_valid(pstate) eq 0 then return
@@ -1325,7 +1325,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 startupp, /database
 if n_elements(group) lt 1 then group=0L

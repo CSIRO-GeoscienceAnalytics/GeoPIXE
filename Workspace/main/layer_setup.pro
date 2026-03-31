@@ -1577,7 +1577,7 @@ pro layer_setup, group_leader=group, TLB=tlb, pars=p, path=path, gamma=gamma, $
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 common c_geopixe_vm, geopixe_enable_vm
 if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
 if n_elements(geopixe_root) eq 0 then startupp

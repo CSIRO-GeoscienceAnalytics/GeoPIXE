@@ -25,7 +25,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
   wWidget =  Event.top
   widget_control, hourglass=0
@@ -199,7 +199,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 	n = 6
   if ptr_good(p) eq 0 then goto, bad_skip

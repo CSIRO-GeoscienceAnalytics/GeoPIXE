@@ -5,7 +5,7 @@ pro Spectrum_Display_event, Event
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
     ErrorNo = 0
     common c_errors_1, catch_errors_on
@@ -480,9 +480,9 @@ pro Spectrum_display, GROUP_LEADER=wGroup, TLB=Spectrum_TLB, path=path, $
   COMPILE_OPT STRICTARR
   common c_spectrum_start, spectrum_compiled
   common c_working_dir, geopixe_root
-  common c_geopixe_scaling, sxy
   common c_geopixe_vm, geopixe_enable_vm
   if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
+  sxy = geopixe_scale()
 
   ErrorNo = 0
   common c_errors_1, catch_errors_on

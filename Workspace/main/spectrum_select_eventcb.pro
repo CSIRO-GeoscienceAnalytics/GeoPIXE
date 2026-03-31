@@ -46,7 +46,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 if ptr_valid( (*pstate).p) eq 0 then return
 if n_elements(init) lt 1 then init=0
@@ -583,7 +583,7 @@ end
 
 pro OnSize_Select, event
 
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 

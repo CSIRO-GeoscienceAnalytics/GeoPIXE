@@ -2,8 +2,9 @@
 ;	Pink beam setup and edit.
 
 pro pink_setup_event, event
+
 common c_working_dir, geopixe_root
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -1308,7 +1309,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
-common c_geopixe_scaling, sxy
+sxy = geopixe_scale()
 
 startupp, /database
 if n_elements(group) lt 1 then group=0L

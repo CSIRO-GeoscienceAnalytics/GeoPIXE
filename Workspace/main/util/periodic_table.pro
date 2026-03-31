@@ -207,8 +207,8 @@ function periodic_table, parent, tiny=tiny, no_tiny=no_tiny, exclusive=exclusive
 			no_ree=no_ree, colours=colours, _extra=extra
 
 common c_working_dir, geopixe_root
-common c_geopixe_scaling, sxy
 if n_elements(geopixe_root) lt 1 then startupp
+sxy = geopixe_scale()
 
 if n_elements(tiny) lt 1 then tiny=0
 if n_elements(no_tiny) lt 1 then no_tiny=0
