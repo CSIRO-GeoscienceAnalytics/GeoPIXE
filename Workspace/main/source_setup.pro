@@ -105,14 +105,14 @@ case uname of
 ;print,event.x, 800*sxy, xoff,w
 			(*pstate).width = w
 			(*pstate).height = h
+			widget_control, (*pstate).draw, draw_xsize=w, draw_ysize=h
+			widget_control, (*pstate).draw2, draw_xsize=w, draw_ysize=h
 			wdelete, (*pstate).pix
 			window, /free, xsize=(*pstate).width, ysize=(*pstate).height, /pixmap
 			(*pstate).pix = !d.window
 			wdelete, (*pstate).pix2
 			window, /free, xsize=(*pstate).width, ysize=(*pstate).height, /pixmap
 			(*pstate).pix2 = !d.window
-			widget_control, (*pstate).draw, draw_xsize=w, draw_ysize=h
-			widget_control, (*pstate).draw2, draw_xsize=w, draw_ysize=h
 		endif
 		end
 

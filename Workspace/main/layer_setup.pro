@@ -1608,6 +1608,7 @@ if n_elements(nosav) eq 0 then nosav=0
 
   case !version.os_family of
 	'MacOS': begin
+		sxy = sxy * 1.136
 		symbol = 'SYMBOL*12'
 		large_font = 'Arial*12'
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
@@ -1625,6 +1626,7 @@ if n_elements(nosav) eq 0 then nosav=0
 		yh = 625 *sxy
 		end
 	'unix': begin
+		sxy = sxy * 1.136
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
