@@ -546,6 +546,7 @@ update:
 ;	To overlay another pink ...
 	
 	p2 = (*pstate).plast
+	error2 = 1
 	if error eq 0 then begin
 		pink_calculate, /convert, p2, path=*(*pstate).path, Energy=E2, spec=spec2, error=error2
 		pink_setup_pars, pstate
@@ -553,9 +554,9 @@ update:
 
 	if (error2 eq 0) then begin
 		pink_draw, pstate, p=p, E=E, spec=spec, /overlay, altp=p2, altE=E2, altspec=spec2, test=(*pstate).test
-	endif else begin
+	endif else if (error eq 0) then begin
 		pink_draw, pstate, p=p, E=E, spec=spec, test=(*pstate).test
-	endelse
+	endif
 
 finish:
 	widget_control, hourglass=0

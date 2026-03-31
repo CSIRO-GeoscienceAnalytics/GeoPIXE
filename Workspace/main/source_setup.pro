@@ -519,15 +519,16 @@ update:
 ;	To overlay another source ...
 	
 	p2 = (*pstate).plast
+	error2 = 1
 	if error eq 0 then begin
 		source_calculate, /convert, p2, Energy=E2, spec=spec2, error=error2
 	endif
 	
 	if (error2 eq 0) then begin
 		source_draw, pstate, p=p, E=E, spec=spec, /overlay, altp=p2, altE=E2, altspec=spec2, test=(*pstate).test
-	endif else begin
+	endif else if (error eq 0) then begin
 		source_draw, pstate, p=p, E=E, spec=spec, test=(*pstate).test
-	endelse
+	endif
 
 finish:
 	widget_control, hourglass=0
