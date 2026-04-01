@@ -1014,7 +1014,6 @@ if chart eq 0 then begin
   W_MENU_55b = Widget_Button(W_MENU_5, UNAME='Time_Amp_Menu', VALUE='Time Amplitude display',/SEPARATOR )
 ;  if test then W_MENU_54b = Widget_Button(W_MENU_5, UNAME='pige_fit_window' ,VALUE='PIGE Fit')
 
-  W_MENU_54b = Widget_Button(W_MENU_5, UNAME='pige_fit_window' ,VALUE='PIGE Fit')
   endif
 
   W_MENU_56 = Widget_Button(W_MENU_5, UNAME='Edit_Filters_Menu', VALUE='Edit Filters',/SEPARATOR )

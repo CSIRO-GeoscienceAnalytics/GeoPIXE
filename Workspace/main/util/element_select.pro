@@ -196,7 +196,7 @@ function element_select, group, el_names, old_select=old_select, path=path, titl
 ;	4 columns ...
 
 	sbase = widget_base( tbase, /row, /base_align_top, ypad=0, xpad=0, space=0)
-	m = ceil(sqrt(n_els)/2.) > 4
+	m = ceil(sqrt(n_els)/1.5) > 4
 	n = floor(n_els/float(m))+1
 	id = lonarr(m)
 

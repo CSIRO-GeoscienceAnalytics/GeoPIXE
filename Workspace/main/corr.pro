@@ -219,11 +219,11 @@ pro corr, GROUP_LEADER=wGroup, TLB=corr_TLB, pimages=pimages, qregion=qregion, $
 
 COMPILE_OPT STRICTARR
 common c_errors_1, catch_errors_on
+sxy = geopixe_scale()
 
 if n_elements(wGroup) lt 1 then wGroup=0L
 if n_elements(path) lt 1 then path=''
 if n_elements(title) lt 1 then title='Associations'
-
 
 ErrorNo = 0
 if catch_errors_on then begin
@@ -249,20 +249,20 @@ endif
 
   case !version.os_family of
 	'MacOS': begin
-		symbol = 'SYMBOL*12'
+		symbol = 'SYMBOL*12'			; this is only font used, for sigma button
 		large_font = 'Arial*12'
 		def_font = 'Geneva*10'
-		draw_trim = 15
-		scr_trim = 21
+		draw_trim = 15*sxy
+		scr_trim = 21*sxy
 		help1_xsize = 56
-		mode_xsize = 68
-		slide_xsize = 112
-		button_height = 20
-		xsize_element = 95
-		smooth_slide_xsize = 72
-		bot_slide_xsize = 73
-       query_scr_xsize = 25
-       query_scr_ysize = 29
+		mode_xsize = 68*sxy
+		slide_xsize = 112*sxy
+		button_height = 20*sxy
+		xsize_element = 95*sxy
+		smooth_slide_xsize = 72*sxy
+		bot_slide_xsize = 73*sxy
+       query_scr_xsize = 25*sxy
+       query_scr_ysize = 29*sxy
 	   query_frame = 0
 		end
 	'unix': begin
@@ -270,16 +270,16 @@ endif
 		large_font = '10x20'
 		def_font = '6x13'
 		draw_trim = 0
-		scr_trim = 15
+		scr_trim = 15*sxy
 		help1_xsize = 56
-		mode_xsize = 70
-		slide_xsize = 112
-		button_height = 29
-		xsize_element = 95
-		smooth_slide_xsize = 52
-		bot_slide_xsize = 81
-       query_scr_xsize = 25
-       query_scr_ysize = 29
+		mode_xsize = 70*sxy
+		slide_xsize = 112*sxy
+		button_height = 29*sxy
+		xsize_element = 95*sxy
+		smooth_slide_xsize = 52*sxy
+		bot_slide_xsize = 81*sxy
+       query_scr_xsize = 25*sxy
+       query_scr_ysize = 29*sxy
 	   query_frame = 0
 		end
 	else: begin
@@ -287,24 +287,24 @@ endif
 		large_font = 'COURIER*BOLD*10'
 		def_font = 'Arial*14'
 		draw_trim = 0
-		scr_trim = 15
-		help1_xsize = 61					; 45
-		mode_xsize = 50
-		slide_xsize = 140					; 140
-		button_height = 21
-		xsize_element = 72					; 62
-		smooth_slide_xsize = 68				; 70
-		bot_slide_xsize = 79				; 73
-       query_scr_xsize = 15
-       query_scr_ysize = 20
+		scr_trim = 15*sxy
+		help1_xsize = 380*sxy	
+		mode_xsize = 50*sxy
+		slide_xsize = 140*sxy					; 140
+		button_height = 21*sxy
+		xsize_element = 72*sxy					; 62
+		smooth_slide_xsize = 68*sxy				; 70
+		bot_slide_xsize = 79*sxy				; 73
+       query_scr_xsize = 15*sxy
+       query_scr_ysize = 20*sxy
 	   query_frame = 1
  		end
   endcase
 ;@2  widget_control, default_font=def_font        ; set font for all windows
 
-pixx = 280
-pixy = 280
-margin = {low:70, high:20, bottom:35, top:20}
+pixx = 280*sxy
+pixy = 280*sxy
+margin = {low:70*sxy, high:20*sxy, bottom:35*sxy, top:20*sxy}
 
 use_gif = 0
 if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, suppress PNG
@@ -411,16 +411,16 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
   space = widget_base(corr_Button_Top_Base, xsize=5)
 
   Full_Button = Widget_Button(corr_Button_Top_Base, UNAME='Full_Button'  $
-      ,/ALIGN_CENTER ,VALUE='0', tracking_events=1, font=large_font, /align_bottom, $
-      uvalue='Show original size of Associations 2D histogram in window.',xsize=20,ysize=button_height)
+      ,/ALIGN_CENTER ,VALUE='0', tracking_events=1, $	;, font=large_font, $
+      uvalue='Show original size of Associations 2D histogram in window.',xsize=20*sxy,ysize=button_height)
 
   Zoom_In_Button = Widget_Button(corr_Button_Top_Base, UNAME='Zoom_In_Button'  $
-      ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, font=large_font, /align_bottom, $
-      uvalue='Magnify Associations 2D histogram x2.',xsize=20,ysize=button_height)
+      ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, $	;, font=large_font, $
+      uvalue='Magnify Associations 2D histogram x2.',xsize=20*sxy,ysize=button_height)
 
   Zoom_Out_Button = Widget_Button(corr_Button_Top_Base, UNAME='Zoom_Out_Button'  $
-      ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, font=large_font, /align_bottom, $
-      uvalue='Demagnify Assocations 2D histogram x2.',xsize=20,ysize=button_height)
+      ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, $	;, font=large_font, $
+      uvalue='Demagnify Assocations 2D histogram x2.',xsize=20*sxy,ysize=button_height)
 
   space = widget_base(corr_Button_Top_Base, xsize=5)
 
@@ -434,9 +434,9 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
       uvalue='Droplist to select the element to display on the X axis.')
 
 
-  ylog_base = widget_base(corr_Button_Bot_Base, /nonexclusive, xsize=15, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=0)
+  ylog_base = widget_base(corr_Button_Bot_Base, /nonexclusive, xsize=15*sxy, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=0)
   ylog_button = widget_button( ylog_base, value='', /tracking, uvalue='Enable/disable log Y scale.', $
-  				uname='ylog_button', xsize=20, ysize=20, /align_top, $
+  				uname='ylog_button', xsize=20*sxy, ysize=20*sxy, /align_top, $
   				NOTIFY_REALIZE='OnRealize_corr_Ylog')
 
   Y_Slider = widget_slider( corr_Button_Bot_Base, minimum=0, maximum=100, /drag, /tracking, $
@@ -457,9 +457,9 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
 	uvalue='Adjust the high end of the X element range to display.', uname='X_high_Slider', $
 	xsize=bot_slide_xsize, value=100, NOTIFY_REALIZE='OnRealize_corr_X_Slider_top', /align_bottom)
 
-  xlog_base = widget_base(corr_Button_Bot_Base, /nonexclusive, xsize=15, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=0)
+  xlog_base = widget_base(corr_Button_Bot_Base, /nonexclusive, xsize=15*sxy, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=0)
   xlog_button = widget_button( xlog_base, value='', /tracking, uvalue='Enable/disable log X scale.', $
-  				uname='xlog_button', xsize=20, ysize=20, /align_top, $
+  				uname='xlog_button', xsize=20*sxy, ysize=20*sxy, /align_top, $
   				NOTIFY_REALIZE='OnRealize_corr_Xlog')
 
 
@@ -475,7 +475,7 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
   highlight_base = widget_base(corr_Button_Bot2_Base, /nonexclusive, xsize=15, /row, /align_top, SPACE=0 ,XPAD=0 ,YPAD=0)
   highlight_button = widget_button( highlight_base, value='', /tracking, uvalue='Enable/disable green highlight of selected pixels. ' + $
   				'Click and drag to draw a spline shape to select pixels. Right-click to clear spline. Use "Analyze" menus to analyze within spline.', $
-  				uname='highlight_button', xsize=20, ysize=20, /align_top, $
+  				uname='highlight_button', xsize=20*sxy, ysize=20*sxy, /align_top, $
   				NOTIFY_REALIZE='OnRealize_corr_highlight')
 
   High_Slider = widget_slider( corr_Button_Bot2_Base, minimum=0, maximum=100, /drag, /tracking, $
@@ -484,7 +484,7 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
 
 
   Help_Text1 = Widget_Text(corr_Help1_Base, UNAME='Help_Text1', /wrap $
-      ,NOTIFY_REALIZE='OnRealize_corr_Help1',XSIZE=help1_xsize, frame=0 ,YSIZE=3, $
+      ,NOTIFY_REALIZE='OnRealize_corr_Help1', scr_XSIZE=help1_xsize, frame=0 ,YSIZE=3, $
       tracking_events=1, uvalue='Help window to show help prompts for widgets.')
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.
@@ -493,7 +493,7 @@ if extract(!version.release,0,2) eq '5.3' then use_gif=1	; enable GIF output, su
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
   Help_Text2 = Widget_Text(corr_Help2_Base, UNAME='Help_Text2', /wrap $
-      ,NOTIFY_REALIZE='OnRealize_corr_Help2',scr_XSIZE=1, frame=0 ,scr_YSIZE=102, ysize=5, $
+      ,NOTIFY_REALIZE='OnRealize_corr_Help2',scr_XSIZE=1, frame=0, ysize=5, $	; ,scr_YSIZE=102*sxy
       tracking_events=1, uvalue='Help window to show help prompts for widgets.')
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.

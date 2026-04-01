@@ -21,6 +21,7 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
 	widget_control, hourglass=0
 	child = widget_info( event.top, /child)
@@ -456,39 +457,40 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
   if n_elements(wGroup) lt 1 then wGroup=0L
   if ptr_good(p) eq 0 then return
 
 case !version.os_family of
     'MacOS': begin
-       yw = 200
-	   xsize_element = 70
-	   xsize_ops = 100
-	   xsize_filters = 120
-	   xsize_slider = 140
-	   xsize_button = 60
-	   xsize_help = 3*xsize_element + xsize_ops + xsize_button + 16
+       yw = 200*sxy
+	   xsize_element = 70*sxy
+	   xsize_ops = 100*sxy
+	   xsize_filters = 120*sxy
+	   xsize_slider = 140*sxy
+	   xsize_button = 60*sxy
+	   xsize_help = 3*xsize_element + xsize_ops + xsize_button + 16*sxy
 	   ysize_help = 3
        end
     'unix': begin
-       yw = 200
-	   xsize_element = 70
-	   xsize_ops = 100
-	   xsize_filters = 120
-	   xsize_slider = 140
-	   xsize_button = 60
-	   xsize_help = 3*xsize_element + xsize_ops + xsize_button + 16
+       yw = 200*sxy
+	   xsize_element = 70*sxy
+	   xsize_ops = 100*sxy
+	   xsize_filters = 120*sxy
+	   xsize_slider = 140*sxy
+	   xsize_button = 60*sxy
+	   xsize_help = 3*xsize_element + xsize_ops + xsize_button + 16*sxy
 	   ysize_help = 3
        end
     else: begin
-       yw = 200
-	   xsize_element = 70
-	   xsize_ops = 100
-	   xsize_filters = 120
-	   xsize_slider = 140
-	   xsize_button = 60
-	   xsize_help = 3*xsize_element + xsize_ops + xsize_button + 16
+       yw = 200*sxy
+	   xsize_element = 70*sxy
+	   xsize_ops = 100*sxy
+	   xsize_filters = 120*sxy
+	   xsize_slider = 140*sxy
+	   xsize_button = 60*sxy
+	   xsize_help = 3*xsize_element + xsize_ops + xsize_button + 16*sxy
 	   ysize_help = 3
        end
 endcase
@@ -507,13 +509,13 @@ endcase
 	screen = get_screen_size()
 	if n_elements(xoffset) lt 1 then begin
 		screen = get_screen_size()
-;		xoffset = ((xoff + w - 410) < (screen[0]-34 - 410)) > 0
-		xoffset = 100
+;		xoffset = ((xoff + w - 410*sxy) < (screen[0]-34*sxy - 410*sxy)) > 0
+		xoffset = 100*sxy
 	endif
 	if n_elements(yoffset) lt 1 then begin
     	screen = get_screen_size()
-;		yoffset = ((yoff - yw) < (screen[1]-28 - 159)) > 0
-		yoffset = ((yoff + h) < (screen[1]-28 - yw)) > 0
+;		yoffset = ((yoff - yw) < (screen[1]-28*sxy - 159*sxy)) > 0
+		yoffset = ((yoff + h) < (screen[1]-28*sxy - yw)) > 0
 	endif
 
 ;	Declared also in 'image_eventcb event':'image-process' and used in 'interelement_filter', interelement_transform:
@@ -557,10 +559,10 @@ endcase
 
 	Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-	help = widget_text( Help_Base, scr_xsize=xsize_help-19, ysize=ysize_help, /wrap, uname='help', /tracking, $
+	help = widget_text( Help_Base, scr_xsize=xsize_help-19*sxy, ysize=ysize_help, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', frame=0)
 
-	query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+	query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15*sxy, ysize=20*sxy,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 	state = {  $

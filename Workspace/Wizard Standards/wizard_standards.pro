@@ -1606,6 +1606,7 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
 	no_data = 1
 	p = (*pstate).presults
@@ -1635,7 +1636,7 @@ endcase
 	rows = string(indgen(n>1))
 	headings = ['#', 'Raw','Name','Serial', 'Energy','El', 'Mean','Error','Std.Dev','SD/Error']
 	nc = n_elements(headings)
-	widths = [3, 7,5,9, 7,4, replicate(10,nc-6)] * !d.x_ch_size * ch_scale
+	widths = [3, 7,5,9, 7,4, replicate(10,nc-6)] * !d.x_ch_size * ch_scale *sxy
 	t = strarr(nc,256)
 	
 	if no_data eq 0 then begin
@@ -1708,6 +1709,7 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
 	no_data = 1
 	p = (*pstate).presults
@@ -1737,7 +1739,7 @@ endcase
 	rows = string(indgen(n>1))
 	headings = ['#','On', 'Raw','Name','Serial', 'Detector','Energy', 'Xsize','Ysize', 'IC Gain','El','Conv', 'Pileup','Throttle']
 	nc = n_elements(headings)
-	widths = [3,5, 7,8,7, replicate(7,2), replicate(5,2), 7,4,12, 10,10] * !d.x_ch_size * ch_scale
+	widths = [3,5, 7,8,7, replicate(7,2), replicate(5,2), 7,4,12, 10,10] * !d.x_ch_size * ch_scale *sxy
 	t = strarr(nc,256)
 	
 	if no_data eq 0 then begin
@@ -2020,6 +2022,7 @@ common c_errors_1, catch_errors_on
 if n_elements(debug) lt 1 then debug=0
 catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
+sxy = geopixe_scale()
 
 wversion = '8.9r'							; wizard version
 
@@ -2096,57 +2099,57 @@ case !version.os_family of
 	'MacOS': begin
 		space1 = 1
 		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		left_xsize = 700
-		left_ysize = 600
-		right_xsize = 400
-		right_ysize = left_ysize + 36
-		right_ylines = 28
-		text_xsize = 580
-		button_xsize = 100
-		button_xsize1 = 50
-		button_xsize2 = 170
-		help_xsize = left_xsize + right_xsize + 55
+		space5 = 5*sxy
+		space10 = 10*sxy
+		space15 = 15*sxy
+		left_xsize = 700*sxy
+		left_ysize = 600*sxy
+		right_xsize = 400*sxy
+		right_ysize = left_ysize + 36*sxy
+		right_ylines = 28*sxy
+		text_xsize = 580*sxy
+		button_xsize = 100*sxy
+		button_xsize1 = 50*sxy
+		button_xsize2 = 170*sxy
+		help_xsize = left_xsize + right_xsize + 55*sxy
 		ch_scale = 1.2
 		retain = 2
 		end
 	'unix': begin
 		space1 = 1
 		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		left_xsize = 760
-		left_ysize = 600
-		right_xsize = 400
-		right_ysize = left_ysize + 36
-		right_ylines = 28
-		text_xsize = 580
-		button_xsize = 100
-		button_xsize1 = 50
-		button_xsize2 = 170
-		help_xsize = left_xsize + right_xsize + 55
+		space5 = 5*sxy
+		space10 = 10*sxy
+		space15 = 15*sxy
+		left_xsize = 760*sxy
+		left_ysize = 600*sxy
+		right_xsize = 400*sxy
+		right_ysize = left_ysize + 36*sxy
+		right_ylines = 28*sxy
+		text_xsize = 580*sxy
+		button_xsize = 100*sxy
+		button_xsize1 = 50*sxy
+		button_xsize2 = 170*sxy
+		help_xsize = left_xsize + right_xsize + 55*sxy
 		ch_scale = 1.25
 		retain = 2
 		end
 	else: begin
 		space1 = 1
 		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		left_xsize = 700
-		left_ysize = 600
-		right_xsize = 310
-		right_ysize = left_ysize + 36
-		right_ylines = 28
-		text_xsize = 600
-		button_xsize = 70
-		button_xsize1 = 50
-		button_xsize2 = 170
-		help_xsize = left_xsize + right_xsize + 55
+		space5 = 5*sxy
+		space10 = 10*sxy
+		space15 = 15*sxy
+		left_xsize = 700*sxy
+		left_ysize = 600*sxy
+		right_xsize = 310*sxy
+		right_ysize = left_ysize + 36*sxy
+		right_ylines = 28*sxy
+		text_xsize = 600*sxy
+		button_xsize = 70*sxy
+		button_xsize1 = 50*sxy
+		button_xsize2 = 170*sxy
+		help_xsize = left_xsize + right_xsize + 55*sxy
 		ch_scale = 1.0
 		retain = 1
 		end
@@ -2274,15 +2277,15 @@ table_base1 = widget_base( table_base, /column, xpad=0, ypad=0, space=1, /base_a
 tab2_panel = widget_tab( table_base1, location=0, /align_center, uname='wizard-standards-results-tab-panel')
 
 table1_base = widget_base( tab2_panel, title='  Results Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180*sxy, uvalue={xresize:left_resize,yresize:1})
 
 headings = strarr(12)			; dummy values (see 'wizard_standards_update_table' for actual headings)
 nc = n_elements(headings)
-widths = replicate(6,nc) * !d.x_ch_size * ch_scale
+widths = replicate(6,nc) * !d.x_ch_size * ch_scale *sxy
 t = strarr(nc,256)
 
 results_table = Widget_Table(table1_base, UNAME='results-table', /all_events, /editable, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182, /no_row_headers, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182*sxy, /no_row_headers, $
 				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows the resulting "conv" factors after calibration using the standard foils.'}, $
 				column_labels=headings, column_widths=widths, $
 				NOTIFY_REALIZE='OnRealize_wizard_standards_results_table')
@@ -2317,15 +2320,15 @@ stats_base1 = widget_base( stats_base, /column, xpad=0, ypad=0, space=1, /base_a
 tab2_panel = widget_tab( stats_base1, location=0, /align_center, uname='wizard-standards-stats-tab-panel')
 
 stats2_base = widget_base( tab2_panel, title='  Statistics Table    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center, scr_xsize=left_xsize, scr_ysize=left_ysize-180*sxy, uvalue={xresize:left_resize,yresize:1})
 
 sheadings = strarr(12)			; dummy values (see 'wizard_standards_update_stats' for actual headings)
 ncs = n_elements(sheadings)
-swidths = replicate(6,nc) * !d.x_ch_size
+swidths = replicate(6,nc) * !d.x_ch_size *sxy
 t = strarr(ncs,256)
 
 stats_table = Widget_Table(stats2_base, UNAME='stats-table', /all_events, Y_SCROLL_SIZE=13, $	;, X_SCROLL_SIZE=8, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182, /no_row_headers, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-182*sxy, /no_row_headers, $
 				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows the image statistics for the images on the standard foils.'}, column_labels=sheadings, column_widths=swidths, $
 				NOTIFY_REALIZE='OnRealize_wizard_standards_stats_table')
 			
@@ -2346,15 +2349,15 @@ ptab_panel = widget_tab( plot_base, location=3, /align_center, uname='wizard-sta
 ptab_names = ['run','energy']
 
 prun_base = widget_base( ptab_panel, title='  1.   Run # order    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize-10, scr_ysize=left_ysize-150, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center, scr_xsize=left_xsize-10, scr_ysize=left_ysize-150*sxy, uvalue={xresize:left_resize,yresize:1})
 
-results_draw1 = widget_draw( prun_base, uname='results-draw1', xsize=left_xsize-25, ysize=left_ysize-160, notify_realize='OnRealize_wizard_standards_draw1', $
+results_draw1 = widget_draw( prun_base, uname='results-draw1', xsize=left_xsize-25, ysize=left_ysize-160*sxy, notify_realize='OnRealize_wizard_standards_draw1', $
 			retain=retain, uvalue={xresize:left_resize,yresize:1})
  
 penergy_base = widget_base( ptab_panel, title='  2.   Line Energy    ', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize-10, scr_ysize=left_ysize-150, uvalue={xresize:left_resize,yresize:1})
+					/align_center, /base_align_center, scr_xsize=left_xsize-10, scr_ysize=left_ysize-150*sxy, uvalue={xresize:left_resize,yresize:1})
 
-results_draw2 = widget_draw( penergy_base, uname='results-draw2', xsize=left_xsize-25, ysize=left_ysize-160, notify_realize='OnRealize_wizard_standards_draw2', $
+results_draw2 = widget_draw( penergy_base, uname='results-draw2', xsize=left_xsize-25, ysize=left_ysize-160*sxy, notify_realize='OnRealize_wizard_standards_draw2', $
 			retain=retain, uvalue={xresize:left_resize,yresize:1})
  
 det_base = widget_base( plot_base, /row, /base_align_center, ypad=0, xpad=0, space=5)
@@ -2362,10 +2365,10 @@ lab = widget_label( det_base, value='Detector:  Old:')
 dtitle = [' ',detector_title]
 dlist = ['',detector_list]
 detector_mode = widget_combobox( det_base, value=dtitle, uname='detector-mode', $
-					uvalue='Select the existing detector calibration. ', xsize=0.4*text_xsize-50)
+					uvalue='Select the existing detector calibration. ', xsize=0.4*text_xsize-50*sxy)
 lab = widget_label( det_base, value='      New:')
 detector_new_mode = widget_combobox( det_base, value=dtitle, uname='detector-new-mode', $
-					uvalue='Select a new detector calibration to compare. ', xsize=0.4*text_xsize-50)
+					uvalue='Select a new detector calibration to compare. ', xsize=0.4*text_xsize-50*sxy)
 					
 ;------------------------------------------------------------------------------------------------
 

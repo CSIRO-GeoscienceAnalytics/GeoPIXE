@@ -216,7 +216,8 @@ if catch_errors_on then begin
        return
     endif
 endif else on_error,0
-sxy = geopixe_scale( relative=0 )
+;sxy = geopixe_scale( relative=0 )
+sxy = geopixe_scale()
 
 child = widget_info( id, /child)
 widget_control, child, get_uvalue=pstate
@@ -239,7 +240,7 @@ case !version.os_family of
 	   cthick = (*pstate).cthick
        end
 endcase
-csize = csize*sxy
+;csize = csize*sxy
 
 x1 = 1							; 2
 x2 = (*pstate).xsize - 2
@@ -309,6 +310,7 @@ y = ys/2. - (*pstate).yoff *sxy
 
 c = (*pstate).label_colours[c]
 if (*pstate).shape ge 1 then PLOTS, shapex, shapey, Color=c, /Device
+;print,'State_button: csize=',csize
 if csize gt 0.1 then begin
 	xyouts, x-1,y+1, (*pstate).value, /device, align=0.5, color=c, charsize=csize, charthick=cthick
 endif

@@ -1685,6 +1685,7 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
 	presults = (*pstate).presults
 	if ptr_valid(presults) eq 0 then return
@@ -1693,7 +1694,7 @@ endif
 	rows = string(indgen(n>1))
 	columns = ['#','O file','I file','O Area','O Err','I Area','I Err','Ratio','eRatio','Depth','eDepth']
 	nc = n_elements(columns)
-	widths = [4, replicate(9,nc-1)] * !d.x_ch_size
+	widths = [4, replicate(9,nc-1)] * !d.x_ch_size *sxy
 	t = strarr(nc,15)
 	
 	for i=0,n-1 do begin
@@ -1804,8 +1805,9 @@ ErrorNo = 0
 common c_working_dir, geopixe_root
 common c_errors_1, catch_errors_on
 if n_elements(debug) lt 1 then debug=0
-catch_errors_on = 1                           ; enable error CATCHing
-if debug then catch_errors_on = 0             ; disable error CATCHing
+catch_errors_on = 1							; enable error CATCHing
+if debug then catch_errors_on = 0			; disable error CATCHing
+sxy = geopixe_scale()						; scale all if system font changes
 
 wversion = '8.9r'							; wizard version
 
@@ -1878,53 +1880,53 @@ case !version.os_family of
 	'MacOS': begin
 		space1 = 1
 		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		left_xsize = 380
-		left_ysize = 380
-		right_xsize = 410
-		right_ysize = left_ysize + 36
-		right_ylines = 28
-		text_xsize = 280
-		button_xsize = 70
-		button_xsize1 = 50
-		button_xsize2 = 190
-		help_xsize = left_xsize + right_xsize + 55
+		space5 = 5*sxy
+		space10 = 10*sxy
+		space15 = 15*sxy
+		left_xsize = 380*sxy
+		left_ysize = 380*sxy
+		right_xsize = 410*sxy
+		right_ysize = left_ysize + 36*sxy
+		right_ylines = 28*sxy
+		text_xsize = 280*sxy
+		button_xsize = 70*sxy
+		button_xsize1 = 50*sxy
+		button_xsize2 = 190*sxy
+		help_xsize = left_xsize + right_xsize + 55*sxy
 		end
 	'unix': begin
 		space1 = 1
 		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		left_xsize = 380
-		left_ysize = 400
-		right_xsize = 410
-		right_ysize = left_ysize + 36
-		right_ylines = 28
-		text_xsize = 280
-		button_xsize = 70
-		button_xsize1 = 50
-		button_xsize2 = 190
-		help_xsize = left_xsize + right_xsize + 55
+		space5 = 5*sxy
+		space10 = 10*sxy
+		space15 = 15*sxy
+		left_xsize = 380*sxy
+		left_ysize = 400*sxy
+		right_xsize = 410*sxy
+		right_ysize = left_ysize + 36*sxy
+		right_ylines = 28*sxy
+		text_xsize = 280*sxy
+		button_xsize = 70*sxy
+		button_xsize1 = 50*sxy
+		button_xsize2 = 190*sxy
+		help_xsize = left_xsize + right_xsize + 55*sxy
 		end
 	else: begin
 		space1 = 1
 		space2 = 2
-		space5 = 5
-		space10 = 10
-		space15 = 15
-		left_xsize = 380
-		left_ysize = 380
-		right_xsize = 400
-		right_ysize = left_ysize + 36
-		right_ylines = 28
-		text_xsize = 280
-		button_xsize = 70
-		button_xsize1 = 50
-		button_xsize2 = 170
-		help_xsize = left_xsize + right_xsize + 55
+		space5 = 5*sxy
+		space10 = 10*sxy
+		space15 = 15*sxy
+		left_xsize = 380*sxy
+		left_ysize = 380*sxy
+		right_xsize = 400*sxy
+		right_ysize = left_ysize + 36*sxy
+		right_ylines = 28*sxy
+		text_xsize = 280*sxy
+		button_xsize = 70*sxy
+		button_xsize1 = 50*sxy
+		button_xsize2 = 170*sxy
+		help_xsize = left_xsize + right_xsize + 55*sxy
 		end
 endcase
 
@@ -1948,7 +1950,7 @@ tab_names = ['depth-curve','cal-spec','rgb-map','region-spectra','results']
 ; Depth curve -----------------------------------------
 
 curve_base = widget_base( tab_panel, title='1. Depth Curve', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize)
+					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( curve_base, value='Calculate Curve for "Outer"/"Inner" versus Depth')
 text = widget_text( curve_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
 				value=['Model X-ray yields for all elements to calculate the ratio of the selected "outer" and "inner" detectors versus depth. ' + $
@@ -2020,7 +2022,7 @@ depth_curve_depth_text = widget_text( curve_base2c, uname='depth-curve-depth-tex
 ; Cal Inner, outer spec files  -----------------------------------------
 
 cal_base = widget_base( tab_panel, title='2. Cal Spec', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize)
+					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( cal_base, value='Form "Outer" and "Inner" Spec Cal Files')
 text = widget_text( cal_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='cal-explanation', tracking=tracking, $
 				value=['Take an energy Cal SPEC file and create separate SPEC files for the selected "Outer" and "Inner" detectors to be used in "Sort EVT" ' + $
@@ -2086,7 +2088,7 @@ cal_spec_output_inner_file_text = widget_text( cal_base2d, uname='cal-spec-outpu
 ; RGB maps  -----------------------------------------
 
 rgb_base = widget_base( tab_panel, title='3. RGB', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize)
+					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( rgb_base, value='Construct RGB Images of Depth Contrast')
 text = widget_text( rgb_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgb-explanation', tracking=tracking, $
 				value=['Take separate Cal SPEC files for "Outer" and "Inner" detectors from previous page and use them in "Sort EVT" to makes images from the ' + $
@@ -2134,7 +2136,7 @@ button = widget_button( rgb_base2f, value='Display RGB Depth Images', uname='rgb
 ; Extracted Inner, outer spec files  -----------------------------------------
 
 spec_base = widget_base( tab_panel, title='4. Spectra', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize)
+					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( spec_base, value='Find Depths of Selected Particles')
 text = widget_text( spec_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='spec-explanation', tracking=tracking, $
 				value=['Extract spectra for selected Regions set on particle hot-spots and find the ratio of "Outer" to "Inner" signal, and relate this to particle depth using the "Depth Curve". ' + $
@@ -2203,7 +2205,7 @@ button = widget_button( spec_base2bb, value='Fit Sum Spectra', uname='spectra-fi
 ; Results  -----------------------------------------
 
 results_base = widget_base( tab_panel, title='5. Results', /column, xpad=1, ypad=1, space=5, $
-					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize)
+					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( results_base, value='Results for Depths of Selected Particles')
 text = widget_text( results_base, scr_xsize=left_xsize, ysize=4, /wrap, uname='results-explanation', tracking=tracking, $
 				value=['Particle depth results: Element peak areas and errors determined from "Outer" and "Inner" sum spectra on the previous page.'], $
@@ -2217,7 +2219,7 @@ widths = [3, replicate(7,nc-1)] * !d.x_ch_size
 t = strarr(nc,15)
 
 results_table = Widget_Table(results_base2, UNAME='results-table', /all_events, $	;, X_SCROLL_SIZE=8, Y_SCROLL_SIZE=6, $
-				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-130, /no_row_headers, $
+				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-130*sxy, /no_row_headers, $
 				tracking=tracking, uvalue='The table shows the total peak area for all detectors in "Outer" ' + $
 				'detectors as "O Area" and its simple statistical uncertainty as "O error". Similarly, "Inner" area is "I area". The ratio of "Outer/ ' + $
 				'Inner" and its uncertainty is shown as "Ratio" and "eRatio". The ratio interpolated into the "Depth Curve" gives the estimate of "Depth" ' + $
@@ -2233,7 +2235,7 @@ button = widget_button( results_base3, value='Export Results', uname='results-ex
 				
 ;------------------------------------------------------------------------------------------------
 
-sbase = widget_base( lbase, /row, xpad=0, ypad=0, space=20, /base_align_center, /align_center)
+sbase = widget_base( lbase, /row, xpad=0, ypad=0, space=20*sxy, /base_align_center, /align_center)
 button = widget_button( sbase, value='<<  Back', uname='back-button', tracking=tracking, uvalue='Go back a page in the procedure to the previous page. ' + $
 			' You can also click on the Tab label for a previous page to go directly to it.')
 button = widget_button( sbase, value=' Figure ', uname='figure-button', tracking=tracking, uvalue='Re-display the Figure for this tab.')

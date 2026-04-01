@@ -261,6 +261,7 @@ if n_elements(wGroup) lt 1 then wGroup=0L
 if ptr_good(pimages,/struct) eq 0 then return
 if n_elements(show) lt 1 then show=0
 if n_elements(stats) lt 1 then stats=0
+sxy = geopixe_scale()
 
 	w = 0
 	h = 0
@@ -276,11 +277,11 @@ if n_elements(stats) lt 1 then stats=0
 	screen = get_screen_size()
 	if n_elements(xoffset) lt 1 then begin
 		screen = get_screen_size()
-		xoffset = ((xoff + w) < (screen[0]-34 - 192)) > 0
+		xoffset = ((xoff + w) < (screen[0]-34 - 192*sxy)) > 0
 	endif
 	if n_elements(yoffset) lt 1 then begin
 		screen = get_screen_size()
-		yoffset = ((yoff + h-289) < (screen[1]-28 - 236)) > 0
+		yoffset = ((yoff + h-289) < (screen[1]-28 - 236*sxy)) > 0
 	endif
 
 	Image_history_TLB = Widget_Base( GROUP_LEADER=wGroup, UNAME='Image_history_TLB'  $
@@ -290,7 +291,7 @@ if n_elements(stats) lt 1 then stats=0
 
 	Image_history_List = Widget_List(Image_history_TLB, UNAME='Image_history_List',  $
 			value = List, NOTIFY_REALIZE='OnRealize_Image_history', $
-			scr_xsize=400 ,scr_ysize=550)
+			scr_xsize=400*sxy ,scr_ysize=550*sxy)
 
 	base1 = Widget_Base(Image_history_TLB, UNAME='Button_Base', /row, space=10, /align_center)
 
@@ -298,9 +299,9 @@ if n_elements(stats) lt 1 then stats=0
 
 	GCF_button = Widget_Button( base1, value='C*', uname='GCF-button') 
 
-	space = widget_label(base1, value='',scr_xsize=150)
+	space = widget_label(base1, value='',scr_xsize=150*sxy)
 
-	query_button = Widget_Button(base1, UNAME='query-button', xsize=15, ysize=20,  $
+	query_button = Widget_Button(base1, UNAME='query-button', xsize=15*sxy, ysize=20*sxy,  $
 		/ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 	Widget_Control, /REALIZE, Image_history_TLB

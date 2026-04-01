@@ -530,6 +530,7 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	if n_elements(crop) lt 1 then crop=-1
 	if n_elements(image_pstate) lt 1 then image_pstate=ptr_new()
 	n_els = n_elements(el_names)
+	sxy = geopixe_scale()
 
 	enable = replicate(1,n_els)
 	q = where( ( strmid(el_names,0,4) eq 'Back') or (el_names eq 'Sum'))
@@ -565,11 +566,11 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	char_thicknesses = 0.4 + 0.2*findgen(19)
 	plot_types = ['CGM','METAFILE','PS','PRINTER','CSV','PNG','JPEG']
 
-	xsize = 300
-	ysize = 500
+	xsize = 300*sxy
+	ysize = 500*sxy
 	device, get_screen_size=sz
-	xoffset = max([0, fix( (sz[0]-xsize) / 2.0)-20 ])
-	yoffset = max([0, fix( (sz[1]-ysize) / 2.0)-60 ])
+	xoffset = max([0, fix( (sz[0]-xsize) / 2.0)-20*sxy ])
+	yoffset = max([0, fix( (sz[1]-ysize) / 2.0)-60*sxy ])
 
 	tlb = widget_base( /column, title='Plot Image Select', /TLB_KILL_REQUEST_EVENTS, xoffset=xoffset, yoffset=yoffset, $
 					group_leader=group, uname='plot_image_select_TLB', /base_align_center, $
@@ -581,7 +582,7 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	lab = widget_label( obase, value='Output Format:')
 	output_mode = widget_combobox( obase, value=output_titles, uname='output-mode', /tracking, $
 					notify_realize='OnRealize_output_mode', $
-					uvalue='Select the output format/device for the Image plot.', xsize=200)
+					uvalue='Select the output format/device for the Image plot.', xsize=200*sxy)
 
 	cbase = widget_base( tbase, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	c1base = widget_base( cbase, /column, /base_align_right, xpad=0, ypad=0, space=0)
@@ -591,23 +592,23 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	lab = widget_label( c11base, value='Char Thick:')
 	charthick = widget_combobox( c11base, value=str_tidy(char_thicknesses), uname='char-thick', /tracking, $
 					notify_realize='OnRealize_char_thick', $
-					uvalue='Select the line thickness for Characters in the Image plot. ', xsize=70)
+					uvalue='Select the line thickness for Characters in the Image plot. ', xsize=70*sxy)
 	c12base = widget_base( c1base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( c12base, value='Char Size:')
 	charsize = widget_combobox( c12base, value=str_tidy(char_sizes), uname='char-size', /tracking, $
 					notify_realize='OnRealize_char_size', $
-					uvalue='Select the size for Characters in the Image plot.', xsize=70)
+					uvalue='Select the size for Characters in the Image plot.', xsize=70*sxy)
 
 	c21base = widget_base( c2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( c21base, value='Line Thick:')
 	linethick = widget_combobox( c21base, value=str_tidy(line_thicknesses), uname='line-thick', /tracking, $
 					notify_realize='OnRealize_line_thick', $
-					uvalue='Select the thickness of plot lines in the Image plot.', xsize=70)
+					uvalue='Select the thickness of plot lines in the Image plot.', xsize=70*sxy)
 	c22base = widget_base( c2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( c22base, value='Background:')
 	background = widget_combobox( c22base, value=['Black','White'], uname='background', /tracking, $
 					notify_realize='OnRealize_background', $
-					uvalue='Select the colour of the plot background.', xsize=70)
+					uvalue='Select the colour of the plot background.', xsize=70*sxy)
 
 	invert = 0L
 ;	ctbase = widget_base( tbase, /row, /base_align_center, xpad=0, ypad=0, space=5)
@@ -622,8 +623,8 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	dbase = widget_base( tbase, /row, /base_align_center, xpad=0, ypad=0, space=10)
 	d1base = widget_base( dbase, /column, /base_align_left, xpad=0, ypad=0, space=0)
 	d2base0 = widget_base( dbase, /column, /base_align_left, xpad=0, ypad=0, space=3)
-	d2base = widget_base( d2base0, /column, /base_align_left, xpad=1, ypad=2, space=0, /frame, scr_xsize=150)
-	d3base = widget_base( d2base0, /column, /base_align_left, xpad=1, ypad=2, space=2, /frame, scr_xsize=150)
+	d2base = widget_base( d2base0, /column, /base_align_left, xpad=1, ypad=2, space=0, /frame, scr_xsize=150*sxy)
+	d3base = widget_base( d2base0, /column, /base_align_left, xpad=1, ypad=2, space=2, /frame, scr_xsize=150*sxy)
 
 	options = cw_bgroup2( d1base, ['Label XY Axes','Z Axis Legend','Distance Legend','Show Shape','ppm Only','Crop Images',$
 					'Plot Title','Absolute','Centroids','Show ALL Regions'], /column, $
@@ -652,45 +653,45 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	lab = widget_label( d22base, value='Text:')
 	text = widget_text( d22base, value=select.plot.title.text, uname='title-text', /tracking, /editable, $
 					uvalue='Enter a text string to use as a plot title, if "User Text" is selected above.', $
-					scr_xsize=100)
+					scr_xsize=100*sxy)
 
 	lab = widget_label( d3base, value='Centroid Element',/align_center)
 	d31base = widget_base( d3base, /row, /base_align_center, xpad=0, ypad=0, space=5, /align_right)
 	lab = widget_label( d31base, value='Element:')
 	centroid_element_text = widget_text( d31base, value=select.plot.centroids.element, uname='centroid-element-text', /tracking, /editable, $
 					uvalue='Enter the element name to use for region XY centroids. They will be indicated by circles.', $
-					scr_xsize=80)
+					scr_xsize=80*sxy)
 
 	elements_button = widget_button( d2base0, value='Select Image Element(s)', uname='select-elements', /tracking, $
-					uvalue='Select element(s) from the pop-up window.', scr_xsize=150)
+					uvalue='Select element(s) from the pop-up window.', scr_xsize=150*sxy)
 
 	t2base = widget_base( tbase, /column, /align_center, /base_align_right, xpad=0, ypad=0, space=2)
 	ebase = widget_base( t2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( ebase, value='Distance Legend Position:')
 	dist_legend_pos = widget_combobox( ebase, value=['Bottom','Top','Outside'], uname='distance-legend-position', $
 					/tracking, notify_realize='OnRealize_distance_legend_position', $
-					uvalue='Select the location of the Distance Scale bar.', xsize=100)
+					uvalue='Select the location of the Distance Scale bar.', xsize=100*sxy)
 
 	e2base = widget_base( t2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( e2base, value='Distance Legend Colour:')
 	dist_legend_col = widget_combobox( e2base, value=['Normal','Reversed'], uname='distance-legend-colour', $
 					/tracking, notify_realize='OnRealize_distance_legend_colour', $
-					uvalue='Select the colour of the Distance Scale bar: "Reversed" or "Normal", which is same as axes.', xsize=100)
+					uvalue='Select the colour of the Distance Scale bar: "Reversed" or "Normal", which is same as axes.', xsize=100*sxy)
 
 	fbase = widget_base( t2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( fbase, value='Element Label Position:')
 	element_label_pos = widget_combobox( fbase, value=['Outside','Top Left','Bottom Left','Top Right','Bottom Right'], $
 					uname='element-label-position', $
 					/tracking, notify_realize='OnRealize_element_label_position', $
-					uvalue='Select the location of the element mneumonic label.', xsize=100)
+					uvalue='Select the location of the element mneumonic label.', xsize=100*sxy)
 
 	f2base = widget_base( t2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( f2base, value='Element Label Colour:')
 	element_label_col = widget_combobox( f2base, value=['Normal','Reversed'], uname='element-label-colour', $
 					/tracking, notify_realize='OnRealize_element_label_colour', $
-					uvalue='Select the colour of the Element Label: "Reversed" or "Normal", which is same as axes.', xsize=100)
+					uvalue='Select the colour of the Element Label: "Reversed" or "Normal", which is same as axes.', xsize=100*sxy)
 
-	gbase = widget_base( t2base, /column, /base_align_right, xpad=1, ypad=2, space=1, /frame, scr_xsize=280)
+	gbase = widget_base( t2base, /column, /base_align_right, xpad=1, ypad=2, space=1, /frame, scr_xsize=280*sxy)
 
 	g1base = widget_base( gbase, /row, /base_align_center, xpad=2, ypad=0, space=5)
 	lab = widget_label( g1base, value='Conc Scale Mode:')
@@ -698,25 +699,25 @@ function plot_image_select, group, el_names, path=path, old_select=old_select, $
 	Conc_max_mode = widget_combobox( g1base, value=['Auto + Nice','Auto','Manual'], uname='conc-max-mode', $
 					/tracking, notify_realize='OnRealize_conc_max_mode', uvalue='Select the concentration display range mode. '+ $
 					'"Auto" means automatic display range; "Nice" also uses a 1-2-5 sequence '+ $
-					'when using a 10 step colour table; "Manual" fix maximum at user entered value.', xsize=100)
+					'when using a 10 step colour table; "Manual" fix maximum at user entered value.', xsize=100*sxy)
 	manual_base = widget_base( gbase, /row, /base_align_center, xpad=2, ypad=0, space=5, $
 					map=((select.plot.ConcMaxMode eq conc_mode_manual) ? 1 : 0))
 	lab = widget_label( manual_base, value='Manual Scale Max:')
 	ManualMax = widget_text( manual_base, value=string(select.plot.ManualMax), uname='manual-max', /tracking, /editable, $
 					uvalue='Enter the maximum conc scale, if "Manual" is selected above.', $
-					scr_xsize=100)
+					scr_xsize=100*sxy)
 
 	bbase = widget_base( tbase, /row, /base_align_center, /align_center, ypad=1, space=2)
-	button = widget_button( bbase, xsize=36, value='Load', uname='load',/tracking,uvalue='Load Plot Image parameters from a PLOT file.')
-	button = widget_button( bbase, xsize=36, value='Save', uname='save',/tracking,uvalue='Save Plot Image parameters to a PLOT file.')
+	button = widget_button( bbase, xsize=36*sxy, value='Load', uname='load',/tracking,uvalue='Load Plot Image parameters from a PLOT file.')
+	button = widget_button( bbase, xsize=36*sxy, value='Save', uname='save',/tracking,uvalue='Save Plot Image parameters to a PLOT file.')
 	lab = widget_label( bbase, value=' ')
-	button = widget_button( bbase, xsize=48, value='Defaults', uname='defaults',/tracking,uvalue='Set plot parameters to the defaults.')
-	button = widget_button( bbase, xsize=48, value='Preview', uname='preview',/tracking,uvalue='Preview the export plot on the screen.')
+	button = widget_button( bbase, xsize=48*sxy, value='Defaults', uname='defaults',/tracking,uvalue='Set plot parameters to the defaults.')
+	button = widget_button( bbase, xsize=48*sxy, value='Preview', uname='preview',/tracking,uvalue='Preview the export plot on the screen.')
 	lab = widget_label( bbase, value=' ')
-	button = widget_button( bbase, xsize=43, value='Cancel', uname='cancel',/tracking,uvalue='Cancel plot and return.')
-	button = widget_button( bbase, xsize=27, value='OK', uname='ok',/tracking,uvalue='Proceed with the file requester and export plot.')
+	button = widget_button( bbase, xsize=43*sxy, value='Cancel', uname='cancel',/tracking,uvalue='Cancel plot and return.')
+	button = widget_button( bbase, xsize=27*sxy, value='OK', uname='ok',/tracking,uvalue='Proceed with the file requester and export plot.')
 
-	help = widget_text( tlb, scr_xsize=280, ysize=4, /wrap, uname='help', /tracking, $
+	help = widget_text( tlb, scr_xsize=280*sxy, ysize=4, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
 
 	p = ptr_new( select )			; current selection

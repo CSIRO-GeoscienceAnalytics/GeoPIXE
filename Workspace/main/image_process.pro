@@ -25,6 +25,7 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
   wWidget =  Event.top
   widget_control, hourglass=0
@@ -112,6 +113,7 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
 if n_elements(wGroup) lt 1 then wGroup=0L
 if n_elements(path) lt 1 then path = ptr_new(/allocate_heap)
@@ -328,11 +330,11 @@ endif
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
     screen = get_screen_size()
-    xoffset = ((xoff + w/3) < (screen[0]-34 - 192)) > 0
+    xoffset = ((xoff + w/3) < (screen[0]-34*sxy - 192*sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then begin
     screen = get_screen_size()
-    yoffset = ((yoff + h) < (screen[1]-28 - 306)) > 0
+    yoffset = ((yoff + h) < (screen[1]-28*sxy - 306*sxy)) > 0
 endif
 
   Image_Process_TLB = Widget_Base( GROUP_LEADER=wGroup, UNAME='Image_Process_TLB'  $
@@ -344,8 +346,7 @@ endif
 
   Image_Process_List = Widget_List(base1, UNAME='Image_Process_List',  $
        value = List, uvalue=uval, NOTIFY_REALIZE='OnRealize_Image_Process', $
-       scr_xsize=185 ,scr_ysize=180)
-;     XSIZE=30 ,YSIZE=15)
+       scr_xsize=185*sxy ,scr_ysize=180*sxy)
 
   Button_Base = Widget_Base(base1, UNAME='Button_Base',  $
        /ALIGN_CENTER ,/BASE_ALIGN_CENTER,  $

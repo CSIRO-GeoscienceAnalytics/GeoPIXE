@@ -145,7 +145,7 @@ pro warning_popup, routine, messi, error=error, info=info, cancel=cancel, $
 	nl = n_elements(mess)
 	ns = 1
 	for i=0,nl-1 do ns = ns > strlen(mess[i])
-	w = ns * !d.x_ch_size * ch_scale
+	w = ns * !d.x_ch_size *geopixe_scale() * ch_scale
 	width = 300. > (w + 50.)
 	height = 120 + 50*nl
 	device, get_screen_size=screen

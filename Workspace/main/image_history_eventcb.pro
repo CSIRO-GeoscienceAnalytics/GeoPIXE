@@ -123,6 +123,8 @@ pro OnRealize_Image_history, wWidget
 COMPILE_OPT STRICTARR
 top = tlb_id(wWidget)
 child = widget_info( top, /child)
+sxy = geopixe_scale()
+
 state = {	$
 			p:			ptr_new(), $ ; pointer to image data
 			plist:		ptr_new(), $ ; pointer to list array
@@ -136,7 +138,7 @@ state = {	$
 			yoffset:	0 }			; offset in ysize for resize
 
 ;w = widget_info( wWidget, /row_heights)
-w = 18
+w = 18*sxy
 geom = widget_info( wWidget, /geometry)
 tlb_geom = widget_info( top, /geometry)
 

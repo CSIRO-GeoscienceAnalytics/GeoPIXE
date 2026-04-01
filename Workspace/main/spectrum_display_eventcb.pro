@@ -2164,6 +2164,7 @@ end
 pro Spectrum_Blog_Browser, Event
 
 COMPILE_OPT STRICTARR
+common c_working_dir, geopixe_root
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
 

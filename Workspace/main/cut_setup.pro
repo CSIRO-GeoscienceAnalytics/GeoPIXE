@@ -423,12 +423,12 @@ if all then begin
 	nc = 17
 	columns = ['Name','Type','X0','X1','C0, X2','C1, X3','X4','X5','Units','Area', $
 		'Error','Total','Back','Left','Right','Cal A','Cal B']
-	widths = [6,6,8,8,8,8,8,8,7,8,8,8,8,8,8,8,8]* !d.x_ch_size
+	widths = [6,6,8,8,8,8,8,8,7,8,8,8,8,8,8,8,8]* !d.x_ch_size *geopixe_scale()
 endif else begin
 	nc = 13
 	columns = ['Name','Type','C0','C1','Units','Area', $
 		'Error','Total','Back','Left','Right','Cal A','Cal B']
-	widths = [9,6,8,8,7,8,8,8,8,8,8,8,8]* !d.x_ch_size
+	widths = [9,6,8,8,7,8,8,8,8,8,8,8,8]* !d.x_ch_size *geopixe_scale()
 endelse
 types = ['Cut 0,1','X0-X5','Old']
 

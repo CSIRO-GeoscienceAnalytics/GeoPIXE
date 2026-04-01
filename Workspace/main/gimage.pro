@@ -1645,17 +1645,17 @@ if new_idl eq 0 then warning,'GeoPIXE',['Some features of GeoPIXE not supported'
   space1 = widget_base(Image_Button_Top_Base, xsize=1)
 
   Full_Button = Widget_Button(Image_Button_Top_Base, UNAME='Full_Button'  $
-      ,/ALIGN_CENTER ,VALUE='0', tracking_events=1, font=large_font, $
+      ,/ALIGN_CENTER ,VALUE='0', tracking_events=1, $	;, font=large_font, $
       uvalue='Show original size of image in window.',xsize=20 *sxy, ysize=button_height)
 
 
   Zoom_In_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_In_Button'  $
-      ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, font=large_font, $
+      ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, $	;, font=large_font, $
       uvalue='Magnify image view x2. Zoom into image.',xsize=20 *sxy, ysize=button_height)
 
 
   Zoom_Out_Button = Widget_Button(Image_Button_Top_Base, UNAME='Zoom_Out_Button'  $
-      ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, font=large_font, $
+      ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, $	;, font=large_font, $
       uvalue='Demagnify image view x2. Zoom out.',xsize=20 *sxy, ysize=button_height)
 
 

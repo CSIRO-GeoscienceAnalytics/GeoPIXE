@@ -66,6 +66,7 @@ function export_select, group, el_names, mode_list, path=path, old_select=old_se
 	if n_elements(group) lt 1 then return, 0
 	if n_elements(title) lt 1 then title=['Export Select','Select Elements','Select Output Options']
 	n_els = n_elements(el_names)
+	sxy = geopixe_scale()
 
 	enable = replicate(1,n_els)
 	q = where( (strlowcase(strmid(el_names,0,4)) eq 'back') or (el_names eq 'Sum'))
@@ -103,11 +104,11 @@ case !version.os_family of
 		end
 endcase
 
-	xsize = 300
-	ysize = 500
+	xsize = 300*sxy
+	ysize = 500*sxy
 	device, get_screen_size=sz
-	xoffset = max([0, fix( (sz[0]-xsize) / 2.0)-20 ])
-	yoffset = max([0, fix( (sz[1]-ysize) / 2.0)-60 ])
+	xoffset = max([0, fix( (sz[0]-xsize) / 2.0)-20*sxy ])
+	yoffset = max([0, fix( (sz[1]-ysize) / 2.0)-60*sxy ])
 
 	tlb = widget_base( /column, title=title[0], /TLB_KILL_REQUEST_EVENTS, xoffset=xoffset, yoffset=yoffset, $
 					group_leader=group, uname='export_select_TLB', /base_align_center, $
@@ -126,7 +127,7 @@ endcase
 
 	bbase = widget_base( tbase, /row, /base_align_center, /align_center, ypad=1, space=2)
 	button = widget_button( bbase, value='Cancel', uname='cancel')
-	lab = widget_label( bbase, value='', scr_xsize=30)
+	lab = widget_label( bbase, value='', scr_xsize=30*sxy)
 	button = widget_button( bbase, value='OK', uname='ok')
 
 	state = {	$

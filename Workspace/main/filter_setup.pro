@@ -5,6 +5,7 @@ pro filter_setup_event, event
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
+sxy = geopixe_scale()
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -38,16 +39,16 @@ if size(*p,/tname) ne 'STRUCT' then goto, bad_ptr
 
 case !version.os_family of
 	'MacOS': begin
-		xoff = 414
-		yoff = 22
+		xoff = 414*sxy
+		yoff = 22*sxy
 		end
 	'unix': begin
-		xoff = 425
-		yoff = 15
+		xoff = 425*sxy
+		yoff = 15*sxy
 		end
 	else: begin
-		xoff = 414
-		yoff = 22
+		xoff = 414*sxy
+		yoff = 22*sxy
 		end
 endcase
 drag = 0
@@ -92,8 +93,8 @@ case uname of
 
 	'filter_TLB': begin
 		if tag_names(event,/structure_name) eq 'WIDGET_BASE' then begin
-			w = (event.x - xoff) > 300
-			h = (event.y - yoff) > 338
+			w = (event.x - xoff) > 300*sxy
+			h = (event.y - yoff) > 338*sxy
 			widget_control, (*pstate).draw, draw_xsize=w, draw_ysize=h
 			(*pstate).width = w
 			(*pstate).height = h
@@ -891,6 +892,7 @@ COMPILE_OPT STRICTARR
 common c_geopixe_vm, geopixe_enable_vm
 if n_elements(geopixe_enable_vm) lt 1 then geopixe_enable_vm=1
 startupp
+sxy = geopixe_scale()
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -920,48 +922,48 @@ if n_elements(path) lt 1 then path=''
 		symbol = 'SYMBOL*12'
 		large_font = 'Arial*12'
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
-		mode_xsize = 68
-		spc_filters = 2
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 130
-		col_widths = 110
-		special_xsize = 157
-		formula_xsize = 173
-		draw_ysize = 300
-		help_xsize = 400
+		mode_xsize = 68*sxy
+		spc_filters = 2*sxy
+		xsize_nfilters = 90*sxy
+		xsize_deffilter= 90*sxy
+		xsize_atomic = 130*sxy
+		col_widths = 110*sxy
+		special_xsize = 157*sxy
+		formula_xsize = 173*sxy
+		draw_ysize = 300*sxy
+		help_xsize = 400*sxy
 		retain = 1
 		end
 	'unix': begin
 		symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
-		mode_xsize = 50
-		spc_filters = 5
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 140
-		col_widths = 88
-		special_xsize = 140
-		formula_xsize = 167
-		draw_ysize = 336
-		help_xsize = 400
+		mode_xsize = 50*sxy
+		spc_filters = 5*sxy
+		xsize_nfilters = 90*sxy
+		xsize_deffilter= 90*sxy
+		xsize_atomic = 140*sxy
+		col_widths = 88*sxy
+		special_xsize = 140*sxy
+		formula_xsize = 167*sxy
+		draw_ysize = 336*sxy
+		help_xsize = 400*sxy
 		retain = 2
 		end
 	else: begin
 		symbol = 'SYMBOL*BOLD*14'
 		large_font = 'COURIER*BOLD*10'
 ;		widget_control, default_font='Arial*14'				; set font for all windows
-		mode_xsize = 50
-		spc_filters = 5
-		xsize_nfilters = 90
-		xsize_deffilter= 90
-		xsize_atomic = 120
-		col_widths = 88
-		special_xsize = 152
-		formula_xsize = 191
-		draw_ysize = 352
-		help_xsize = 390
+		mode_xsize = 50*sxy
+		spc_filters = 5*sxy
+		xsize_nfilters = 90*sxy
+		xsize_deffilter= 90*sxy
+		xsize_atomic = 120*sxy
+		col_widths = 88*sxy
+		special_xsize = 152*sxy
+		formula_xsize = 191*sxy
+		draw_ysize = 352*sxy
+		help_xsize = 390*sxy
 		retain = 1
  		end
   endcase
@@ -980,11 +982,11 @@ endif
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
 	screen = get_screen_size()
-	xoffset = ((xoff - 402) < (screen[0]-34 - 402)) > 0
+	xoffset = ((xoff - 402*sxy) < (screen[0]-34*sxy - 402*sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then begin
 	screen = get_screen_size()
-	yoffset = ((yoff - 400+h) < (screen[1]-28 - 400)) > 0
+	yoffset = ((yoff - 400*sxy + h) < (screen[1]-28*sxy - 400*sxy)) > 0
 endif
 
 p = bad_pars_struct( p, make_pars=make_p)
@@ -1018,16 +1020,16 @@ tbase = widget_base( rbase, /column, xpad=0, ypad=0, space=5, /base_align_center
 sbase = widget_base( tbase, /row, /base_align_center, ypad=1, xpad=0, space=5)
 lab = widget_label( sbase, value='File:')
 filter_file = widget_text( sbase, value=(*p).filter_file, uname='filter-file', /tracking, /editable, $
-					uvalue='Enter the name of a filter file to retrieve retrieve and edit.',scr_xsize=235)
+					uvalue='Enter the name of a filter file to retrieve retrieve and edit.',scr_xsize=235*sxy)
 load_setup_button = widget_button( sbase, value='Load', uname='load-filter-button', /tracking, $
-					uvalue='Load filter parameters from a previous filter file.', scr_xsize=38)
+					uvalue='Load filter parameters from a previous filter file.', scr_xsize=38*sxy)
 save_setup_button = widget_button( sbase, value='Save', uname='save-filter-button', /tracking, $
-					uvalue='Save filter parameters to a filter file.', scr_xsize=38)
+					uvalue='Save filter parameters to a filter file.', scr_xsize=38*sxy)
 
 titlebase = widget_base( tbase, /row, /base_align_center, ypad=0, xpad=0, space=5)
 lab = widget_label( titlebase, value='Title:')
 title_text = widget_text( titlebase, value=(*p).title, uname='title-text', /tracking, /editable, $
-					uvalue='Enter a title descriptor for this composite filter. This will appear in filter droplists [keep it brief].',scr_xsize=325)
+					uvalue='Enter a title descriptor for this composite filter. This will appear in filter droplists [keep it brief].',scr_xsize=325*sxy)
 
 ; filter details
 
@@ -1069,19 +1071,19 @@ for i=0L,n_filters_max-1 do begin
 	ll1base = widget_base( filter_base[i], /row, /base_align_center, /align_right, ypad=0, xpad=0, space=3)
 	lab = widget_label( ll1base, value='Thick:')
 	thick_text[i] = widget_text( ll1base, value=str_tidy((*p).filter[i].thick), uname='thick-text', /tracking, /editable, $
-					uvalue=str_tidy(i)+'  Enter the thickness of the selected filter layer (in either mg/cm^2, microns or mm (for a Gas at NPT).', scr_xsize=70)
+					uvalue=str_tidy(i)+'  Enter the thickness of the selected filter layer (in either mg/cm^2, microns or mm (for a Gas at NPT).', scr_xsize=70*sxy)
 	thick_mode[i] = widget_combobox( ll1base, value=['   mg/cm^2','   microns','   Gas (mm NPT)'], uname='thick-mode', /tracking, $
 					notify_realize='OnRealize_Filter_thick_mode', $
 					uvalue=str_tidy(i)+'  Select filter layer thickness in "mg/cm^2", "microns" or "mm" (for a Gas at NPT). ' + $
 					'If microns is selected, a new box appears for entry of density of compound composition filters. ' + $
-					'For a gas NPT conditions (P=1013.25 mbar, T=20C) are assumed; hit <return> on Formula or Thickness to calculate an ideal gas density.', xsize=120)
+					'For a gas NPT conditions (P=1013.25 mbar, T=20C) are assumed; hit <return> on Formula or Thickness to calculate an ideal gas density.', xsize=120*sxy)
 
 	density_base[i] = widget_base( ll1base, /row, map=(*p).filter[i].microns, /base_align_center, ypad=3, xpad=0, space=3)
 	lab = widget_label( density_base[i], value='    Density:')
 	density_text[i] = widget_text( density_base[i], value=str_tidy((*p).filter[i].density), uname='filter-density', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the density of a compound composition filter layer (g/cm^3). '+ $
 					'For pure element filters the density will be obtained from the database automatically .' + $
-					'For a Gas, hit <return> on Formula or Thickness to calculate an ideal gas density; NPT conditions (P=1013.25 mbar, T=20C) are assumed.', scr_xsize=70)
+					'For a Gas, hit <return> on Formula or Thickness to calculate an ideal gas density; NPT conditions (P=1013.25 mbar, T=20C) are assumed.', scr_xsize=70*sxy)
 
 	ll2base = widget_base( filter_base[i], /row, /base_align_center, /align_right, ypad=0, xpad=0, space=2)
 	lab = widget_label( ll2base, value='Formula:')
@@ -1124,14 +1126,14 @@ for i=0L,n_filters_max-1 do begin
 	lab = widget_label( ratio_base[i], value=' Solid-angle ratio:')
 	ratio_text[i] = widget_text( ratio_base[i], value=str_tidy((*p).filter[i].pinratio), uname='filter-pinratio', /tracking, /editable, $
 					uvalue=str_tidy(i)+'  Enter the pin-hole filter solid-angle ratio. '+ $
-					'This is the ratio of the detector solid-angle divided by the hole solid-angle.', scr_xsize=70)
+					'This is the ratio of the detector solid-angle divided by the hole solid-angle.', scr_xsize=70*sxy)
 
 	bragg_base[i] = widget_base( map_base, /row, map=map_bragg, /base_align_center, /align_right, ypad=3, xpad=0, space=3)
 	bragg_button[i] = widget_button( bragg_base[i], value='      Edit Bragg     ', uname='bragg-button', /tracking, uvalue=str_tidy(i)+'  Open Bragg filter editor.')
 	map = 0
 endfor
 
-draw = widget_draw( rbase, uname='draw', xsize=350, ysize=draw_ysize, notify_realize='OnRealize_Filter', $
+draw = widget_draw( rbase, uname='draw', xsize=350*sxy, ysize=draw_ysize, notify_realize='OnRealize_Filter', $
 			retain=retain, /button_events)
 
 ; Buttons
@@ -1149,17 +1151,17 @@ draw = widget_draw( rbase, uname='draw', xsize=350, ysize=draw_ysize, notify_rea
 cursor_base = widget_base( tbase, /row, /base_align_center, /align_right, ypad=3, xpad=0, space=3)
 lab = widget_label( cursor_base, value='Cursor:')
 cursor_text = widget_text( cursor_base, value=' ', uname='cursor-text', /tracking, /editable, $
-				uvalue='Enter the Energy (keV) for the cursor to display corresponding absorption, or drag the energy cursor on the plot, or click line energy in X-ray Identification window.', scr_xsize=65)
+				uvalue='Enter the Energy (keV) for the cursor to display corresponding absorption, or drag the energy cursor on the plot, or click line energy in X-ray Identification window.', scr_xsize=65*sxy)
 lab = widget_label( cursor_base, value=' Transmission (1):')
 absorb1_text = widget_text( cursor_base, value=' ', uname='absorb1-text', /tracking, $
-				uvalue='Shows absorption at the cursor energy (Berger & Hubbell). Enter the Energy (keV) for the cursor in the left widget, or drag the cursor energy, or click line energy in X-ray Identification window.', scr_xsize=75)
+				uvalue='Shows absorption at the cursor energy (Berger & Hubbell). Enter the Energy (keV) for the cursor in the left widget, or drag the cursor energy, or click line energy in X-ray Identification window.', scr_xsize=75*sxy)
 lab = widget_label( cursor_base, value='(2):')
 absorb2_text = widget_text( cursor_base, value=' ', uname='absorb2-text', /tracking, $
-				uvalue='Shows absorption at the cursor energy (Mayer & Rimini). Enter the Energy (keV) for the cursor in the left widget, or drag the cursor energy, or click line energy in X-ray Identification window.', scr_xsize=75)
+				uvalue='Shows absorption at the cursor energy (Mayer & Rimini). Enter the Energy (keV) for the cursor in the left widget, or drag the cursor energy, or click line energy in X-ray Identification window.', scr_xsize=75*sxy)
 
 Help_Base = Widget_Base(tbase, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=help_xsize-22, ysize=4, /wrap, uname='help', /tracking, $
+help = widget_text( Help_Base, scr_xsize=help_xsize-22*sxy, ysize=4, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays context-sensitive information and tips about widgets.', $
 				frame=0)
 

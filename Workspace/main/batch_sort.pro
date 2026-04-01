@@ -1281,7 +1281,7 @@ endfor
 for j=0L,7 do begin
 	max_widths[j] = max( strlen( t[j,0:n-1]) ) < 40
 endfor
-widths = (max_widths > widths) * !d.x_ch_size
+widths = (max_widths > widths) * !d.x_ch_size *geopixe_scale()
 
 if ptr_valid( (*pstate).headings) then ptr_free, (*pstate).headings
 (*pstate).headings = ptr_new(columns)

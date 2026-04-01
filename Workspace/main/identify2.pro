@@ -615,7 +615,7 @@ pro identify2, group_leader=group, TLB=tlb, _extra=extra, xoffset=xoffset, yoffs
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
-sxy = geopixe_scale( relative=0)
+sxy = geopixe_scale()
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on

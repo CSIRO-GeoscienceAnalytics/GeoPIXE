@@ -208,7 +208,7 @@ function periodic_table, parent, tiny=tiny, no_tiny=no_tiny, exclusive=exclusive
 
 common c_working_dir, geopixe_root
 if n_elements(geopixe_root) lt 1 then startupp
-sxy = geopixe_scale( relative=0 )
+sxy = geopixe_scale()
 
 if n_elements(tiny) lt 1 then tiny=0
 if n_elements(no_tiny) lt 1 then no_tiny=0
@@ -384,7 +384,7 @@ for itiny=0,allow do begin
 			el = element_name(z)
 			if itiny eq 0 then begin
 				id[z,itiny] = state_button( base2[itiny], xsize=xs[itiny], ysize=ys[itiny], $
-					value=el[0], uvalue=z, uname='PERIODIC', font=fnt1, $
+					value=el[0], uvalue=z, uname='PERIODIC', font=fnt1, charsize=sxy, $
 					select=zinitial[z], alt=alt[z], n_states=n_states, right=right, $
 					n_alt_states=n_alt_states, colours=colours )
 			endif else begin
@@ -401,7 +401,7 @@ for itiny=0,allow do begin
 				if OK then OK = OK and (lenchr(legend[i-2]) gt 0)
 				if OK and do_legend then begin
 					blank[k] = state_button( base2[itiny], xsize=xs[itiny], ysize=ys[itiny], $
-						value=legend[i-2], uvalue=0, uname='LEGEND', font=fnt1, $
+						value=legend[i-2], uvalue=0, uname='LEGEND', font=fnt1, charsize=sxy, $
 						select=i-2, n_states=n_states, /silent, /right, $
 						n_alt_states=n_alt_states, colours=colours )
 				endif else begin

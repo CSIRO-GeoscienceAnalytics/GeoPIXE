@@ -15,7 +15,7 @@ clear:
 	n = (*pstate).rows_max
 	n_el = 50
 	columns = replicate(' ',n_el)
-	widths = replicate(10,n_el) * !d.x_ch_size
+	widths = replicate(10,n_el) * !d.x_ch_size *geopixe_scale()
 	(*pstate).columns = n_el
 	(*pstate).file = ''
 
@@ -104,6 +104,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+sxy = geopixe_scale()
 
 if image_table_invalid(pstate) then return
 (*pstate).n = n_elements( *(*pstate).p)
@@ -142,7 +143,7 @@ col_index = [-1L, -1L, qe, -1L]
 nc = n_elements(columns)
 t = strarr(nc,n)
 npx = nc-1
-widths = replicate(10,nc) * !d.x_ch_size
+widths = replicate(10,nc) * !d.x_ch_size *sxy
 
 pold = p[0]
 pnew = p[n-1]

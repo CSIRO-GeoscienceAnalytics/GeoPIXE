@@ -760,52 +760,54 @@ end
 
 pro map_corr_help, pstate
 
-if (*pstate).w gt 560 then begin
+COMPILE_OPT STRICTARR
+sxy = geopixe_scale()
+if (*pstate).w gt 560*sxy then begin
 	case !version.os_family of
 		'MacOS': begin
 			(*pstate).scr_xsize_off =	1
-			(*pstate).scr_ysize_off =	106
+			(*pstate).scr_ysize_off =	106*sxy
 			end
 		'unix': begin
-			(*pstate).scr_xsize_off =	32
-			(*pstate).scr_ysize_off =	152
+			(*pstate).scr_xsize_off =	32*sxy
+			(*pstate).scr_ysize_off =	152*sxy
 			end
 		else: begin
-			(*pstate).scr_xsize_off =	30		; 10
-			(*pstate).scr_ysize_off =	126		; 118
+			(*pstate).scr_xsize_off =	30*sxy		; 10
+			(*pstate).scr_ysize_off =	126*sxy		; 118
 			end
 	endcase
 endif else begin
 	case !version.os_family of
 		'MacOS': begin
-			(*pstate).scr_xsize_off =	28		; 1
-			(*pstate).scr_ysize_off =	138
+			(*pstate).scr_xsize_off =	28*sxy		; 1
+			(*pstate).scr_ysize_off =	138*sxy
 			end
 		'unix': begin
-			(*pstate).scr_xsize_off =	26		; 8
-			(*pstate).scr_ysize_off =	212
+			(*pstate).scr_xsize_off =	26*sxy		; 8
+			(*pstate).scr_ysize_off =	212*sxy
 			end
 		else: begin
-			(*pstate).scr_xsize_off =	35		; 8
-			(*pstate).scr_ysize_off =	167		; 
+			(*pstate).scr_xsize_off =	35*sxy		; 8
+			(*pstate).scr_ysize_off =	167*sxy		; 
 			end
 	endcase
 endelse
 
 case !version.os_family of
 	'unix': begin
-		xoff = 324
-       query_scr_xsize = 25
-       query_scr_ysize = 29
+		xoff = 324*sxy
+       query_scr_xsize = 25*sxy
+       query_scr_ysize = 29*sxy
 		end
 	else: begin
-		xoff = 277			; 286
-       query_scr_xsize = 15
-       query_scr_ysize = 20
+		xoff = 277*sxy			; 286
+       query_scr_xsize = 15*sxy
+       query_scr_ysize = 20*sxy
 		end
 endcase
 
-if (*pstate).w gt 560 then begin
+if (*pstate).w gt 560*sxy then begin
 	if (*pstate).help eq (*pstate).help2 then goto, more
 
 	(*pstate).help = (*pstate).help2

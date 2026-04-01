@@ -569,27 +569,27 @@ case (*pstate).mode of
 	0: begin														; conc
 		nc = n_els+2
 		columns = ['File','Label',el_names]
-		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size
+		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	1: begin														; error
 		nc = n_els+2
 		columns = ['File','Label',el_names]
-		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size
+		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	2: begin														; MDL
 		nc = n_els+2
 		columns = ['File','Label',el_names]
-		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size
+		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	3: begin														; rel error
 		nc = n_els+2
 		columns = ['File','Label',el_names]
-		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size
+		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	4: begin														; raw
 		nc = n_els+2
 		columns = ['File','Label',el_names]
-		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size
+		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	5: begin														; spectrum
 		nc = 22
@@ -597,121 +597,121 @@ case (*pstate).mode of
 				'FWHM (Mn)','Units','FWHM w0','error','FWHM w1','error','Tail/Step amp', $
 				'Tail/Step length L','Tail length S','Compton Tail','Compton Length', $
 				'Compton Shift','Compton Spread']
-		widths = replicate(12,nc) * !d.x_ch_size
-		widths[0] = 25 * !d.x_ch_size
-		widths[1] = 10 * !d.x_ch_size
-		widths[8] = 8 * !d.x_ch_size
-		widths[10] = 8 * !d.x_ch_size
+		widths = replicate(12,nc) * !d.x_ch_size *geopixe_scale()
+		widths[0] = 25 * !d.x_ch_size *geopixe_scale()
+		widths[1] = 10 * !d.x_ch_size *geopixe_scale()
+		widths[8] = 8 * !d.x_ch_size *geopixe_scale()
+		widths[10] = 8 * !d.x_ch_size *geopixe_scale()
 		end
 	6: begin														; background
 		nc = 6
 		columns = ['Mode','B-Scale','Correction','Split Mode','E mid','B2-Scale']
-		widths = replicate(10,nc) * !d.x_ch_size
-		widths[2] = 35 * !d.x_ch_size
-		widths[3] = 20 * !d.x_ch_size
+		widths = replicate(10,nc) * !d.x_ch_size *geopixe_scale()
+		widths[2] = 35 * !d.x_ch_size *geopixe_scale()
+		widths[3] = 20 * !d.x_ch_size *geopixe_scale()
 		end
 	7: begin														; fitting
 		nc = 6
 		columns = ['Phases','# its','Chi','RMS','PU ratio','DT Corr']
-		widths = replicate(12,nc) * !d.x_ch_size
-		widths[0] = 45 * !d.x_ch_size
-		widths[1] = 8 * !d.x_ch_size
+		widths = replicate(12,nc) * !d.x_ch_size *geopixe_scale()
+		widths[0] = 45 * !d.x_ch_size *geopixe_scale()
+		widths[1] = 8 * !d.x_ch_size *geopixe_scale()
 		end
 	8: begin														; experimental
 		nc = 9
 		columns = ['Charge','Flux','Conversion','Filter','Detector Name','ADC','Multiplicity','Scale','Cuts']
-		widths = replicate(10,nc) * !d.x_ch_size
-		widths[2] = 12 * !d.x_ch_size
-		widths[3] = 18 * !d.x_ch_size
-		widths[4] = 22 * !d.x_ch_size
-		widths[5] = 8 * !d.x_ch_size
-		widths[6] = 10 * !d.x_ch_size
-		widths[8] = 40 * !d.x_ch_size
+		widths = replicate(10,nc) * !d.x_ch_size *geopixe_scale()
+		widths[2] = 12 * !d.x_ch_size *geopixe_scale()
+		widths[3] = 18 * !d.x_ch_size *geopixe_scale()
+		widths[4] = 22 * !d.x_ch_size *geopixe_scale()
+		widths[5] = 8 * !d.x_ch_size *geopixe_scale()
+		widths[6] = 10 * !d.x_ch_size *geopixe_scale()
+		widths[8] = 40 * !d.x_ch_size *geopixe_scale()
 		end
 	9: begin														; yield setup
 		nc = 16
 		columns = ['Title','File','Z1','A1','E Beam','state','Theta','Phi','Alpha','Beta', $
 				'Unknown','Formula','Weight','Thickness','Units','Density']
-		widths = replicate(12,nc) * !d.x_ch_size
-		widths[0] = 20 * !d.x_ch_size
-		widths[1] = 20 * !d.x_ch_size
-		widths[2] = 6 * !d.x_ch_size
-		widths[3] = 6 * !d.x_ch_size
-		widths[5] = 8 * !d.x_ch_size
-		widths[10] = 9 * !d.x_ch_size
-		widths[11] = 25 * !d.x_ch_size
-		widths[12] = 7 * !d.x_ch_size
-		widths[14] = 10 * !d.x_ch_size
+		widths = replicate(12,nc) * !d.x_ch_size *geopixe_scale()
+		widths[0] = 20 * !d.x_ch_size *geopixe_scale()
+		widths[1] = 20 * !d.x_ch_size *geopixe_scale()
+		widths[2] = 6 * !d.x_ch_size *geopixe_scale()
+		widths[3] = 6 * !d.x_ch_size *geopixe_scale()
+		widths[5] = 8 * !d.x_ch_size *geopixe_scale()
+		widths[10] = 9 * !d.x_ch_size *geopixe_scale()
+		widths[11] = 25 * !d.x_ch_size *geopixe_scale()
+		widths[12] = 7 * !d.x_ch_size *geopixe_scale()
+		widths[14] = 10 * !d.x_ch_size *geopixe_scale()
 		end
 	10: begin														; Major lines
 		nc = n_els
 		columns = el_names
-		widths = replicate(8,n_els) * !d.x_ch_size
+		widths = replicate(8,n_els) * !d.x_ch_size *geopixe_scale()
 		end
 	11: begin														; geometry
 		nc = n_els
 		columns = el_names
-		widths = replicate(8,n_els) * !d.x_ch_size
+		widths = replicate(8,n_els) * !d.x_ch_size *geopixe_scale()
 		end
 	12: begin														; inclusions
 		nc = 14
 		columns = ['Salinity','X','Y','Thickness','Mid-plane','Depth','Beam X','Beam Y','Beam Shape', $
 					'Bubble Option','Fluid Density','Fluid Type','Host','Host Density']
-		widths = replicate(10,nc) * !d.x_ch_size
-		widths[9] = 12 * !d.x_ch_size
-		widths[11] = 12 * !d.x_ch_size
+		widths = replicate(10,nc) * !d.x_ch_size *geopixe_scale()
+		widths[9] = 12 * !d.x_ch_size *geopixe_scale()
+		widths[11] = 12 * !d.x_ch_size *geopixe_scale()
 		end
 	13: begin														; setup
 		nc = 3
 		columns = ['E low','E high','PCM File']
-		widths = replicate(10,nc) * !d.x_ch_size
-		widths[2] = 40 * !d.x_ch_size
+		widths = replicate(10,nc) * !d.x_ch_size *geopixe_scale()
+		widths[2] = 40 * !d.x_ch_size *geopixe_scale()
 		end
 	14: begin														; veto
 		nc = n_els+1
 		columns = ['File',el_names]
-		widths = [16,replicate(6,n_els)] * !d.x_ch_size
+		widths = [16,replicate(6,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	15: begin														; tweeks
 		nc = n_elements( (*p).tweek.lines)
 		q = where( (*p).tweek.lines ne -1)
 		columns = (*p).tweek.id
-		widths = replicate(8,nc) * !d.x_ch_size
+		widths = replicate(8,nc) * !d.x_ch_size *geopixe_scale()
 		end
 	16: begin														; area
 		nc = n_els+2
 		columns = ['File','Label',el_names]
-		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size
+		widths = [14,12,replicate(10,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	17: begin														; counts per ppm.uC
 		nc = n_els+1
 		columns = ['File',el_names]
-		widths = [14,replicate(10,n_els)] * !d.x_ch_size
+		widths = [14,replicate(10,n_els)] * !d.x_ch_size *geopixe_scale()
 		end
 	18: begin														; Non-linear parameters A
 		nc = nc_max
 		columns = 'A' + str_tidy(indgen(nc))
-		widths = replicate(12,nc) * !d.x_ch_size
+		widths = replicate(12,nc) * !d.x_ch_size *geopixe_scale()
 		end
 	19: begin														; Non-linear parameter names
 		nc = nc_max
 		columns = 'A' + str_tidy(indgen(nc)) + ' name'
-		widths = replicate(18,nc) * !d.x_ch_size
+		widths = replicate(18,nc) * !d.x_ch_size *geopixe_scale()
 		end
 	20: begin														; Non-linear parameter notes
 		nc = nc_max
 		columns = 'A' + str_tidy(indgen(nc)) + ' note'
-		widths = replicate(24,nc) * !d.x_ch_size
+		widths = replicate(24,nc) * !d.x_ch_size *geopixe_scale()
 		end
 	21: begin														; STIM
 		nc = 5
 		columns = ['File','OK','E0','Emean','X']
-		widths = [20,8,replicate(14,nc-2)] * !d.x_ch_size
+		widths = [20,8,replicate(14,nc-2)] * !d.x_ch_size *geopixe_scale()
 		end
 	22: begin														; Phase fractions
 		nc = n_minerals+4
 		columns = ['File','Label','Loops',minerals]
-		widths = [14,12,7,replicate(7,n_minerals+1)] * !d.x_ch_size
+		widths = [14,12,7,replicate(7,n_minerals+1)] * !d.x_ch_size *geopixe_scale()
 		end
 
 	else: goto, done

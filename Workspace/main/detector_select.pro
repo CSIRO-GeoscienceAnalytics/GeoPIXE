@@ -24,6 +24,7 @@ if catch_errors_on then begin
 		return						; goto, kill
 	endif
 endif
+sxy = geopixe_scale()
 widget_control, hourglass=0
 
 child = widget_info( event.top, /child)
@@ -42,6 +43,7 @@ n_detectors = (*play).n
 case tag_names( event,/structure) of
 	'WIDGET_TRACKING': begin
 		if (*pstate).tracking eq 0 then goto, finish
+		if widget_info( event.id, /valid) eq 0 then goto, finish
 		widget_control, event.id, get_uvalue=s0
 		if size(s0,/tname) eq 'STRING' then begin
 			s = s0
@@ -468,6 +470,7 @@ pro detector_select_build, pstate, tlb, group_leader=group, xoffset=xoffset, yof
 if n_elements(group) lt 1 then group=0L
 if n_elements(pstate) lt 1 then return
 if ptr_valid(pstate) eq 0 then return
+sxy = geopixe_scale()
 
 p = (*pstate).p
 if ptr_good(p,/struct) eq 0 then return
@@ -512,54 +515,60 @@ case !version.os_family of
        large_font = 'Arial*12'
        def_font = 'Geneva*10'
 		fnt1 = 'HELVETICA*8'       ;'HELVETICA*9'
-		csize = (n_detectors eq 384) ? 1.1 : 1.3
-		help_xsize = 380
+		csize = (n_detectors eq 384) ? 0.9 : 1.2
+		help_xsize = 380*sxy
 		space1 = 1
 		space2 = 1
-		space5 = 5
-		space10 = 10
+		space5 = 5*sxy
+		space10 = 10*sxy
 
-		right_xsize2 = (n_detectors eq 384) ? 705 : 300
-		right_ysize2 = (n_detectors eq 384) ? 690 : 450
-		text_xsize = 120
-		text_xsize3 = 10
-		button_xsize = 50
+;		right_xsize2 = (n_detectors eq 384) ? 705*sxy : 300*sxy
+;		right_ysize2 = (n_detectors eq 384) ? 690*sxy : 450*sxy
+		right_xsize2 = (n_detectors eq 384) ? 805 : 300
+		right_ysize2 = (n_detectors eq 384) ? 790 : 450
+		text_xsize = 120*sxy
+		text_xsize3 = 10*sxy
+		button_xsize = 50*sxy
 		end
 	'unix': begin
        symbol = '-adobe-symbol-medium-r-normal--0-0-100-100-p-0-adobe-fontspecific'
        large_font = '10x20'
        def_font = '6x13'
 		fnt1 = 'timr08'             ;'6x12'
-		csize = (n_detectors eq 384) ? 1.1 : 1.3
-		help_xsize = 380
+		csize = (n_detectors eq 384) ? 0.9 : 1.2
+		help_xsize = 380*sxy
 		space1 = 1
 		space2 = 1
-		space5 = 5
-		space10 = 10
+		space5 = 5*sxy
+		space10 = 10*sxy
 
-		right_xsize2 = (n_detectors eq 384) ? 705 : 300
-		right_ysize2 = (n_detectors eq 384) ? 690 : 450
-		text_xsize = 120
-		text_xsize3 = 10
-		button_xsize = 50
+;		right_xsize2 = (n_detectors eq 384) ? 705*sxy : 300*sxy
+;		right_ysize2 = (n_detectors eq 384) ? 690*sxy : 450*sxy
+		right_xsize2 = (n_detectors eq 384) ? 805 : 300
+		right_ysize2 = (n_detectors eq 384) ? 790 : 450
+		text_xsize = 120*sxy
+		text_xsize3 = 10*sxy
+		button_xsize = 50*sxy
 		end
 	else: begin
        symbol = 'SYMBOL*BOLD*14'
        large_font = 'COURIER*BOLD*10'
        def_font = 'Arial*14'
 		fnt1 = 'Helvetica*8'       ;'ARIAL*12'
-		csize = (n_detectors eq 384) ? 1.1 : 1.3
-		help_xsize = 380
+		csize = (n_detectors eq 384) ? 0.9 : 1.2
+		help_xsize = 380*sxy
 		space1 = 1
 		space2 = 2
-		space5 = 5
-		space10 = 10
+		space5 = 5*sxy
+		space10 = 10*sxy
 
-		right_xsize2 = (n_detectors eq 384) ? 705 : 300
-		right_ysize2 = (n_detectors eq 384) ? 690 : 450
-		text_xsize = 120
-		text_xsize3 = 10
-		button_xsize = 50
+;		right_xsize2 = (n_detectors eq 384) ? 705*sxy : 300*sxy
+;		right_ysize2 = (n_detectors eq 384) ? 690*sxy : 450*sxy
+		right_xsize2 = (n_detectors eq 384) ? 805 : 300
+		right_ysize2 = (n_detectors eq 384) ? 790 : 450
+		text_xsize = 120*sxy
+		text_xsize3 = 10*sxy
+		button_xsize = 50*sxy
 		end
 endcase
 
@@ -569,9 +578,9 @@ tlb = widget_base( /column, title='Array Detector Channel Selection', /TLB_KILL_
 					group_leader=group, uname='detector_select_TLB', xoffset=xoffset, yoffset=yoffset, /base_align_center)
 tbase = widget_base( tlb, /column, xpad=0, ypad=0, space=2, /base_align_center, /align_center)
 
-array_base = widget_base( tbase, /row, /base_align_center, ypad=0, xpad=0, space=5)
+array_base = widget_base( tbase, /row, /base_align_center, ypad=0, xpad=0, space=5*sxy)
 label = widget_label( array_base, value='Select Array detector:')
-array_mode = widget_combobox( array_base, value=detector_title, uname='array-mode', xsize=160, /tracking, $
+array_mode = widget_combobox( array_base, value=detector_title, uname='array-mode', xsize=240*sxy, /tracking, $
 					notify_realize='OnRealize_detector_select_detector_mode', $
 					uvalue='Select an available array detector parameter set. ')
 
@@ -583,7 +592,7 @@ detector = detector_mimic( tbase, data=play, uname='detector', uvalue='Select de
 
 class_base = widget_base( tbase, /row, /base_align_center, ypad=0, xpad=0, space=2)
 label = widget_label( class_base, value='Selection:')
-class_mode = widget_combobox(class_base, uname='select-mode', scr_xsize=120, $
+class_mode = widget_combobox(class_base, uname='select-mode', scr_xsize=120*sxy, $
 			NOTIFY_REALIZE='OnRealize_detector_select_class_mode', $
 			value=['One only','Individual','Radial','Column','Row','Chip','Quadrant','All','Odd','Even'], /tracking, $
 					uvalue='Select the grouping of detector pads selected or deselected on a left mouse button click.')
@@ -650,19 +659,20 @@ endif else on_error,0
 if n_elements(group) lt 1 then group=0L
 if n_elements(path) lt 1 then path=''
 if n_elements(file) lt 1 then file=''
+sxy = geopixe_scale()
 
 case !version.os_family of
 	'MacOS': begin
-		xw = 405
-		yh = 625
+		xw = 405*sxy
+		yh = 625*sxy
 		end
 	'unix': begin
-		xw = 405
-		yh = 625
+		xw = 405*sxy
+		yh = 625*sxy
 		end
 	else: begin
-		xw = 405
-		yh = 625
+		xw = 405*sxy
+		yh = 625*sxy
 		end
 endcase
 

@@ -26,6 +26,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+sxy = geopixe_scale()
 
   wWidget =  Event.top
   widget_control, hourglass=0
@@ -192,6 +193,7 @@ pro ImageRGB, GROUP_LEADER=wGroup, TLB=ImageRGB_TLB, path=path, _EXTRA=_VWBExtra
 COMPILE_OPT STRICTARR
 common c_errors_1, catch_errors_on
 common c_gif, use_gif
+sxy = geopixe_scale()
 
 if n_elements(wGroup) lt 1 then wGroup=0L
 if n_elements(path) lt 1 then path=''
@@ -222,14 +224,14 @@ endif
 		symbol = 'SYMBOL*12'
 		large_font = 'Arial*12'
 ;@2		widget_control, default_font='Geneva*10'		; set font for all windows
-		draw_trim = 15
-		scr_trim = 21
-		help1_xsize = 280
-		button_height = 21
-		element_xsize = 73
-		element_xsize2 = 69
-       query_scr_xsize = 25
-       query_scr_ysize = 29
+		draw_trim = 15*sxy
+		scr_trim = 21*sxy
+		help1_xsize = 280*sxy
+		button_height = 21*sxy
+		element_xsize = 73*sxy
+		element_xsize2 = 69*sxy
+       query_scr_xsize = 25*sxy
+       query_scr_ysize = 29*sxy
 	   query_frame = 0
 		end
 	'unix': begin
@@ -237,13 +239,13 @@ endif
 		large_font = '10x20'
 ;@2		widget_control, default_font='6x13'				; set font for all windows
 		draw_trim = 0
-		scr_trim = 15
-		help1_xsize = 280
-		button_height = 29
-		element_xsize = 73
-		element_xsize2 = 69
-       query_scr_xsize = 25
-       query_scr_ysize = 29
+		scr_trim = 15*sxy
+		help1_xsize = 280*sxy
+		button_height = 29*sxy
+		element_xsize = 73*sxy
+		element_xsize2 = 69*sxy
+       query_scr_xsize = 25*sxy
+       query_scr_ysize = 29*sxy
 	   query_frame = 0
 		end
 	else: begin
@@ -251,13 +253,13 @@ endif
 		large_font = 'COURIER*BOLD*10'
 	;	widget_control, default_font='Arial*14'				; set font for all windows
 		draw_trim = 0
-		scr_trim = 15
-		help1_xsize = 280			; 
-		button_height = 21
-		element_xsize = 63			; 
-		element_xsize2 = 63			; 
-       query_scr_xsize = 15
-       query_scr_ysize = 20
+		scr_trim = 15*sxy
+		help1_xsize = 280*sxy			; 
+		button_height = 21*sxy
+		element_xsize = 63*sxy			; 
+		element_xsize2 = 63*sxy			; 
+       query_scr_xsize = 15*sxy
+       query_scr_ysize = 20*sxy
 	   query_frame = 1
 		end
   endcase
@@ -267,8 +269,8 @@ endif
 ;	warning,'ImageRGB',['There are no images to display.','Load images first.']
 ;	return
   endif
-  xsize = 256
-  ysize = 256
+  xsize = 256*sxy
+  ysize = 256*sxy
   if ptr_valid(pimages) then begin
   	if n_elements( *pimages) gt 0 then begin
 	  xsize = (*pimages).xsize
@@ -292,10 +294,10 @@ endif
       ,XPAD=0 ,YPAD=0 ,ROW=1)
 
   ImageRGB_Draw = Widget_Draw(ImageRGB_Draw_Base, UNAME='ImageRGB_Draw'  $
-      ,SCR_XSIZE=(xsize<600)+scr_trim ,SCR_YSIZE=(ysize<600)+scr_trim  $
+      ,SCR_XSIZE=(xsize<600*sxy)+scr_trim ,SCR_YSIZE=(ysize<600*sxy)+scr_trim  $
       ,NOTIFY_REALIZE='OnRealize_ImageRGB'  $
-      ,KILL_NOTIFY='OnDestroy_ImageRGB' ,/SCROLL ,XSIZE=(xsize<1000)+draw_trim  $
-      ,YSIZE=(ysize<1000)+draw_trim ,RETAIN=retain ,/BUTTON_EVENTS,/VIEWPORT_EVENTS)
+      ,KILL_NOTIFY='OnDestroy_ImageRGB' ,/SCROLL ,XSIZE=(xsize<1000*sxy)+draw_trim  $
+      ,YSIZE=(ysize<1000*sxy)+draw_trim ,RETAIN=retain ,/BUTTON_EVENTS,/VIEWPORT_EVENTS)
 
 
   ImageRGB_Button_Base = Widget_Base(ImageRGB_TLB, UNAME='ImageRGB_Button_Base'  $
@@ -351,18 +353,18 @@ endif
   space1 = widget_base(ImageRGB_Button_Top_Base, xsize=2)
 
   Full_Button = Widget_Button(ImageRGB_Button_Top_Base, UNAME='Full_Button'  $
-      ,/ALIGN_CENTER ,VALUE='o', tracking_events=1, font=large_font, $
-      uvalue='Show original size of ImageRGB in window.',xsize=20,ysize=button_height)
+      ,/ALIGN_CENTER ,VALUE='o', tracking_events=1, $		;, font=large_font, $
+      uvalue='Show original size of ImageRGB in window.',xsize=20*sxy,ysize=button_height)
 
 
   Zoom_In_Button = Widget_Button(ImageRGB_Button_Top_Base, UNAME='Zoom_In_Button'  $
-      ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, font=large_font, $
-      uvalue='Magnify ImageRGB view x2.',xsize=20,ysize=button_height)
+      ,/ALIGN_CENTER ,VALUE='+', tracking_events=1, $		;, font=large_font, $
+      uvalue='Magnify ImageRGB view x2.',xsize=20*sxy,ysize=button_height)
 
 
   Zoom_Out_Button = Widget_Button(ImageRGB_Button_Top_Base, UNAME='Zoom_Out_Button'  $
-      ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, font=large_font, $
-      uvalue='Demagnify ImageRGB view x2.',xsize=20,ysize=button_height)
+      ,/ALIGN_CENTER ,VALUE='-', tracking_events=1, $		;, font=large_font, $
+      uvalue='Demagnify ImageRGB view x2.',xsize=20*sxy,ysize=button_height)
 
 
   Max_Text1 = Widget_Text(ImageRGB_Button_Bot_Base, UNAME='Max_Text1', /edit, $
@@ -379,7 +381,7 @@ endif
 
 
   Help_Text1 = Widget_Text(ImageRGB_Help1_Base, UNAME='Help_Text1', /wrap $
-      ,NOTIFY_REALIZE='OnRealize_ImageRGB_Help1',scr_XSIZE=help1_xsize-19, frame=0 ,YSIZE=3, $
+      ,NOTIFY_REALIZE='OnRealize_ImageRGB_Help1',scr_XSIZE=help1_xsize-19*sxy, frame=0 ,YSIZE=3, $
       tracking_events=1, uvalue='Help window to show help prompts for widgets.')
 
 ; Must use 'widget_text' here as 'widget_button' cannot be sized small enough when mapped off in 'map_help' routine.

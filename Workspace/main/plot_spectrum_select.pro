@@ -386,6 +386,7 @@ function plot_spectrum_select, group, spec_names, path=path, old_select=old_sele
 	if n_elements(png) lt 1 then png=0
 	if n_elements(jpeg) lt 1 then jpeg=0
 	if n_elements(spec_pstate) lt 1 then spec_pstate=ptr_new()
+	sxy = geopixe_scale()
 
 	n_els = n_elements(spec_names)
 	for i=0L,n_els-1 do begin
@@ -440,11 +441,11 @@ function plot_spectrum_select, group, spec_names, path=path, old_select=old_sele
 	char_thicknesses = 0.4 + 0.2*findgen(19)
 	plot_types = ['CGM','METAFILE','PS','PRINTER','PNG','JPEG']
 
-	xsize = 300
-	ysize = 500
+	xsize = 300*sxy
+	ysize = 500*sxy
 	device, get_screen_size=sz
-	xoffset = max([0, fix( (sz[0]-xsize) / 2.0)-20 ])
-	yoffset = max([0, fix( (sz[1]-ysize) / 2.0)-60 ])
+	xoffset = max([0, fix( (sz[0]-xsize) / 2.0)-20*sxy ])
+	yoffset = max([0, fix( (sz[1]-ysize) / 2.0)-60*sxy ])
 
 	tlb = widget_base( /column, title='Plot Spectrum Select', /TLB_KILL_REQUEST_EVENTS, xoffset=xoffset, yoffset=yoffset, $
 					group_leader=group, uname='plot_spectrum_select_TLB', /base_align_center, $
@@ -455,7 +456,7 @@ function plot_spectrum_select, group, spec_names, path=path, old_select=old_sele
 	lab = widget_label( obase, value='Output Format:')
 	output_mode = widget_combobox( obase, value=output_titles, uname='output-mode', /tracking, $
 					notify_realize='OnRealize_output_mode2', $
-					uvalue='Select the output format/device for the Spectrum plot.', xsize=200)
+					uvalue='Select the output format/device for the Spectrum plot.', xsize=200*sxy)
 
 	cbase = widget_base( tbase, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	c1base = widget_base( cbase, /column, /base_align_right, xpad=0, ypad=0, space=0)
@@ -465,18 +466,18 @@ function plot_spectrum_select, group, spec_names, path=path, old_select=old_sele
 	lab = widget_label( c11base, value='Char Thick:')
 	charthick = widget_combobox( c11base, value=str_tidy(char_thicknesses), uname='char-thick', /tracking, $
 					notify_realize='OnRealize_char_thick2', $
-					uvalue='Select the line thickness for Characters in the Spectrum plot. ', xsize=70)
+					uvalue='Select the line thickness for Characters in the Spectrum plot. ', xsize=70*sxy)
 	c12base = widget_base( c1base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( c12base, value='Char Size:')
 	charsize = widget_combobox( c12base, value=str_tidy(char_sizes), uname='char-size', /tracking, $
 					notify_realize='OnRealize_char_size2', $
-					uvalue='Select the size for Characters in the Spectrum plot.', xsize=70)
+					uvalue='Select the size for Characters in the Spectrum plot.', xsize=70*sxy)
 
 	c21base = widget_base( c2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( c21base, value='Line Thick:')
 	linethick = widget_combobox( c21base, value=str_tidy(line_thicknesses), uname='line-thick', /tracking, $
 					notify_realize='OnRealize_line_thick2', $
-					uvalue='Select the thickness of plot lines in the Spectrum plot.', xsize=70)
+					uvalue='Select the thickness of plot lines in the Spectrum plot.', xsize=70*sxy)
 	c22base = widget_base( c2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 	lab = widget_label( c22base, value='Background:')
 	background = widget_combobox( c22base, value=['Black','White'], uname='background', /tracking, $
@@ -497,7 +498,7 @@ function plot_spectrum_select, group, spec_names, path=path, old_select=old_sele
 					uname='options', set_value=[select.plot.landscape,select.plot.title.on], /nonexclusive, $
 					uvalue=['Plot in Landscape format.','Include a title above the plot. The type of title can be selected in the box to the right.'])
 	spectra_button = widget_button( d1base, value='Select Spectra', uname='select-spectra', /tracking, $
-					uvalue='Select spectra from the pop-up window.', scr_xsize=110)
+					uvalue='Select spectra from the pop-up window.', scr_xsize=110*sxy)
 
 	lab = widget_label( d2base, value='TITLE',/align_center)
 	title_options = cw_bgroup2( d2base, ['File Name','Sample and Grain','User Text (below)'], /column, $
@@ -510,33 +511,33 @@ function plot_spectrum_select, group, spec_names, path=path, old_select=old_sele
 	lab = widget_label( d22base, value='Text:')
 	text = widget_text( d22base, value=select.plot.title.text, uname='title-text', /tracking, /editable, $
 					uvalue='Enter a text string to use as a plot title, if "User Text" is selected above.', $
-					scr_xsize=100)
+					scr_xsize=100*sxy)
 
 ;	t2base = widget_base( tbase, /column, /align_center, /base_align_right, xpad=0, ypad=0, space=2)
 ;	ebase = widget_base( t2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 ;	lab = widget_label( ebase, value='Distance Legend Position:')
 ;	dist_legend_pos = widget_combobox( ebase, value=['Bottom','Top'], uname='distance-legend-position', $
 ;					/tracking, notify_realize='OnRealize_distance_legend_position2', $
-;					uvalue='Select the location of the Distance Scale bar.', xsize=100)
+;					uvalue='Select the location of the Distance Scale bar.', xsize=100*sxy)
 ;
 ;	fbase = widget_base( t2base, /row, /base_align_center, xpad=0, ypad=0, space=5)
 ;	lab = widget_label( fbase, value='Element Label Position:')
 ;	element_label_pos = widget_combobox( fbase, value=['Outside','Top Left','Bottom Left','Top Right','Bottom Right'], $
 ;					uname='element-label-position', $
 ;					/tracking, notify_realize='OnRealize_element_label_position2', $
-;					uvalue='Select the location of the element mneumonic label.', xsize=100)
+;					uvalue='Select the location of the element mneumonic label.', xsize=100*sxy)
 
 	bbase = widget_base( tbase, /row, /base_align_center, /align_center, ypad=1, space=2)
-	button = widget_button( bbase, xsize=36, value='Load', uname='load',/tracking,uvalue='Load Plot Spectrum parameters from a PLOT file.')
-	button = widget_button( bbase, xsize=36, value='Save', uname='save',/tracking,uvalue='Save Plot Spectrum parameters to a PLOT file.')
+	button = widget_button( bbase, xsize=36*sxy, value='Load', uname='load',/tracking,uvalue='Load Plot Spectrum parameters from a PLOT file.')
+	button = widget_button( bbase, xsize=36*sxy, value='Save', uname='save',/tracking,uvalue='Save Plot Spectrum parameters to a PLOT file.')
 	lab = widget_label( bbase, value=' ')
-	button = widget_button( bbase, xsize=48, value='Defaults', uname='defaults',/tracking,uvalue='Set plot parameters to the defaults.')
-	button = widget_button( bbase, xsize=48, value='Preview', uname='preview',/tracking,uvalue='Preview the export plot on the screen.')
+	button = widget_button( bbase, xsize=48*sxy, value='Defaults', uname='defaults',/tracking,uvalue='Set plot parameters to the defaults.')
+	button = widget_button( bbase, xsize=48*sxy, value='Preview', uname='preview',/tracking,uvalue='Preview the export plot on the screen.')
 	lab = widget_label( bbase, value=' ')
-	button = widget_button( bbase, xsize=43, value='Cancel', uname='cancel',/tracking,uvalue='Cancel plot and return.')
-	button = widget_button( bbase, xsize=27, value='OK', uname='ok',/tracking,uvalue='Proceed with the file requester and export plot.')
+	button = widget_button( bbase, xsize=43*sxy, value='Cancel', uname='cancel',/tracking,uvalue='Cancel plot and return.')
+	button = widget_button( bbase, xsize=27*sxy, value='OK', uname='ok',/tracking,uvalue='Proceed with the file requester and export plot.')
 
-	help = widget_text( tlb, scr_xsize=280, ysize=3, /wrap, uname='help', /tracking, $
+	help = widget_text( tlb, scr_xsize=280*sxy, ysize=3, /wrap, uname='help', /tracking, $
 				uvalue='Help window. Displays info about widgets.',frame=0)
 
 	p = ptr_new( select )			; current selection

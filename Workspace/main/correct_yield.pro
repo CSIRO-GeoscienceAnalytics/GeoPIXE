@@ -13,6 +13,7 @@
 pro correct_yield_event, event
 
 COMPILE_OPT STRICTARR
+sxy = geopixe_scale()
 
 ErrorNo = 0
 common c_errors_1, catch_errors_on
@@ -984,19 +985,19 @@ top = tlb_id( wWidget)
 child = widget_info( top, /child)
 widget_control, child, get_uvalue=pstate
 
-if ptr_valid( (*pstate).p) then begin
-	p = (*pstate).p
-	q = where( (*pstate).mineral_text eq wWidget)
-	if q[0] ge 0 then begin
-		i = q[0]
-		if (i ge (*(*pstate).p).n_comp) then begin
-			y = 1
-		endif else begin
-			y = (*pstate).row_height
-		endelse
-		widget_control, wWidget, scr_ysize=y[0]
-	endif
-endif
+;if ptr_valid( (*pstate).p) then begin
+;	p = (*pstate).p
+;	q = where( (*pstate).mineral_text eq wWidget)
+;	if q[0] ge 0 then begin
+;		i = q[0]
+;		if (i ge (*(*pstate).p).n_comp) then begin
+;			y = 1
+;		endif else begin
+;			y = (*pstate).row_height
+;		endelse
+;;		widget_control, wWidget, scr_ysize=y[0]
+;	endif
+;endif
 end
 
 ;------------------------------------------------------------------------------------------
@@ -1007,19 +1008,19 @@ top = tlb_id( wWidget)
 child = widget_info( top, /child)
 widget_control, child, get_uvalue=pstate
 
-if ptr_valid( (*pstate).p) then begin
-	p = (*pstate).p
-	q = where( (*pstate).dam_file eq wWidget)
-	if q[0] ge 0 then begin
-		i = q[0]
-		if (i ge (*(*pstate).p).n_comp) then begin
-			y = 1
-		endif else begin
-			y = (*pstate).row_height
-		endelse
-		widget_control, wWidget, scr_ysize=y[0]
-	endif
-endif
+;if ptr_valid( (*pstate).p) then begin
+;	p = (*pstate).p
+;	q = where( (*pstate).dam_file eq wWidget)
+;	if q[0] ge 0 then begin
+;		i = q[0]
+;		if (i ge (*(*pstate).p).n_comp) then begin
+;			y = 1
+;		endif else begin
+;			y = (*pstate).row_height
+;		endelse
+;;		widget_control, wWidget, scr_ysize=y[0]
+;	endif
+;endif
 end
 
 ;------------------------------------------------------------------------------------------
@@ -1052,18 +1053,38 @@ pro OnRealize_Correct_Table, wWidget
 top = tlb_id( wWidget)
 child = widget_info( top, /child)
 widget_control, child, get_uvalue=pstate
+sxy = geopixe_scale()
 
 rows = widget_info( wWidget, /row_heights)
 if !version.os_family ne 'Windows' then begin
 	if (rows[0] gt 3) and (rows[0] lt 40) then begin
-		(*pstate).row_height = rows[0] > 29
+		(*pstate).row_height = rows[0]	; > 20
 	endif else begin
-		(*pstate).row_height = 29
+		(*pstate).row_height = 20*sxy
 	endelse
 	widget_control, wWidget, row_height=(*pstate).row_height
 endif else begin
 	(*pstate).row_height = rows[0]
 endelse
+
+; Set the Y height for the Minerals on the left and files on the right ...
+
+for i=0,n_elements((*pstate).mineral_text)-1 do begin
+	if (i ge (*(*pstate).p).n_comp) then begin
+		y = 1
+	endif else begin
+		y = (*pstate).row_height
+	endelse
+	widget_control, (*pstate).mineral_text[i], scr_ysize=y[0]
+endfor
+for i=0,n_elements((*pstate).dam_file)-1 do begin
+	if (i ge (*(*pstate).p).n_comp) then begin
+		y = 1
+	endif else begin
+		y = (*pstate).row_height
+	endelse
+	widget_control, (*pstate).dam_file[i], scr_ysize=y[0]
+endfor
 end
 
 ;------------------------------------------------------------------------------------------
@@ -1124,6 +1145,7 @@ if catch_errors_on then begin
 		return
 	endif
 endif
+sxy = geopixe_scale()
 
 if n_elements(group) lt 1 then group=0L
 if n_elements(again) lt 1 then again=0
@@ -1162,10 +1184,10 @@ if widget_info( Group, /valid) then begin
 endif
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
-	xoffset = ((xoff+w/2) < (screen[0]-34 - 528)) > 0
+	xoffset = ((xoff+w/2) < (screen[0]-34*sxy - 528*sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then begin
-	yoffset = ((yoff+h) < (screen[1]-28 - 283)) > 0
+	yoffset = ((yoff+h) < (screen[1]-28*sxy - 283*sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then yoffset = yoff
 
@@ -1218,25 +1240,25 @@ max_comp = (*p).max_comp
 
 case !version.os_family of
 	'MacOS': begin
-		wleft = 100
-		wtable = 51
-		wright = 400
-		xlong = 500
+		wleft = 100*sxy
+		wtable = 51*sxy
+		wright = 400*sxy
+		xlong = 500*sxy
 		end
 	'unix': begin
-		wleft = 100
-		wtable = 70
-		wright = 400
-		xlong = 500
+		wleft = 100*sxy
+		wtable = 70*sxy
+		wright = 400*sxy
+		xlong = 500*sxy
 		end
 	else: begin
-		wleft = 100
-		wtable = 51
-		wright = 350
-		xlong = 450
+		wleft = 100*sxy
+		wtable = 51*sxy
+		wright = 350*sxy
+		xlong = 450*sxy
 		end
 endcase
-yheight = 29
+yheight = 20*sxy
 
 width = wleft + wtable*n_comp+yheight + wright + 2
 xhelp = width + 5
@@ -1251,7 +1273,7 @@ cbase = widget_base( base1, /row, /align_left, /base_align_center, ypad=0, space
 lab = widget_label( cbase, value='Components:')
 component_drop = widget_combobox( cbase, value=string(indgen(max_comp)+1), uname='components', /tracking, $
 				notify_realize='OnRealize_Correct_Components', $
-				uvalue='Number of distinct end-member components.', xsize=100)
+				uvalue='Number of distinct end-member components.', xsize=100*sxy)
 
 base2 = widget_base( tlb, /column, xpad=0, ypad=0, space=1, /base_align_left)
 hbase = widget_base( base2, /row, /base_align_center, ypad=0, xpad=0, space=0)
@@ -1296,13 +1318,9 @@ if n_comp eq 1 then begin
 	t = fltarr(2,2)
 	t[0,0] = (*p).R[0,0]
 endif
-;table = widget_table( mbase, value=t, column_widths=wtable, /no_header, uname='table', $
-;			/tracking, uvalue='Edit the concentration (wt%) for each element in each component.', $
-;			/editable, resizeable_columns=0, scroll=0, scr_xsize=(n_comp)*wtable+20, $
-;			x_scroll_size=n_comp, y_scroll_size=n_comp, notify_realize='OnRealize_Correct_Table')
 table = widget_table( mbase, value=t, column_widths=wtable, /no_header, uname='table', $
 			/tracking, uvalue='Edit the concentration (wt%) for each element in each component.', $
-			/editable, resizeable_columns=0, scroll=0, scr_xsize=(n_comp)*wtable+20, $
+			/editable, resizeable_columns=0, scroll=0, scr_xsize=(n_comp)*wtable+20*sxy, $
 			xsize=n_comp, ysize=n_comp, notify_realize='OnRealize_Correct_Table')
 
 dam_base = lonarr(max_comp)
@@ -1323,14 +1341,14 @@ for i=0L,max_comp-1 do begin
 			/tracking, uvalue=dtype+' file for each mineral.')
 endfor
 
-restbase = widget_base( tlb, /row, /align_right, /base_align_center, xpad=0, ypad=0, space=10)
+restbase = widget_base( tlb, /row, /align_right, /base_align_center, xpad=5, ypad=0, space=10*sxy)
 lab = widget_label( restbase, value=damode ? 'Remainder phase DA:' : 'Remainder Phase Yields:')
 rest_button = widget_button( restbase, value=strip_path((*p).rest), scr_xsize=xlong, scr_ysize=yheight, uname='rest', $
 			/tracking, uvalue=dtype+' file to use for remainder end-member component. ' + $
 			'i.e. Missing end-member fractions not accounted for by the specified components.')
 
 if damode then begin
-	obase = widget_base( tlb, /row, /align_right, /base_align_center, xpad=0, ypad=0, space=10)
+	obase = widget_base( tlb, /row, /align_right, /base_align_center, xpad=5, ypad=0, space=10*sxy)
 	lab = widget_label( obase, value='Original Image DA:')
 	original_button = widget_button( obase, value=strip_path((*p).original), scr_xsize=xlong, scr_ysize=yheight, uname='original', $
 				/tracking, uvalue='DA Matrix used to project original images from EVT data.')
@@ -1340,13 +1358,13 @@ bbase = widget_base( tlb, /row, /base_align_center, xpad=0, ypad=0, space=2)
 type = damode ? 'CORRECT' : 'COMAT'
 otype = (1-damode) ? 'CORRECT' : 'COMAT'
 button = widget_button( bbase, value='Load', uname='load', /tracking, $
-			uvalue='Load mineral end-member and yield file settings from a '+type+' file.', xsize=wtable-10)
+			uvalue='Load mineral end-member and yield file settings from a '+type+' file.', xsize=wtable-10*sxy)
 button = widget_button( bbase, value='Import', uname='import', /tracking, $
-			uvalue='Import mineral end-members and matrix from a '+otype+' file.', xsize=wtable-10)
-spc = widget_label( bbase, value='', scr_xsize=10)
+			uvalue='Import mineral end-members and matrix from a '+otype+' file.', xsize=wtable-10*sxy)
+spc = widget_label( bbase, value='', scr_xsize=10*sxy)
 save_button = widget_button( bbase, value='Save', uname='save', /tracking, $
-			uvalue='Save mineral end-member and yield file details to a '+type+' file.', xsize=wtable-10)
-spc = widget_label( bbase, value='', scr_xsize=20)
+			uvalue='Save mineral end-member and yield file details to a '+type+' file.', xsize=wtable-10*sxy)
+spc = widget_label( bbase, value='', scr_xsize=20*sxy)
 
 if damode then begin
 	button = widget_button( bbase, value='Correct', uname='correct', /tracking, $
@@ -1359,16 +1377,16 @@ if damode then begin
 				'At present assumes 45-degree takeoff angle geometry.', xsize=wtable-7)
 endif
 
-spc = widget_label( bbase, value='', scr_xsize=20)
+spc = widget_label( bbase, value='', scr_xsize=20*sxy)
 button = widget_button( bbase, value='Close', uname='close', /tracking, $
-			uvalue='Close the correction/mineral projection window.', xsize=wtable-10)
+			uvalue='Close the correction/mineral projection window.', xsize=wtable-10*sxy)
 
 Help_Base = Widget_Base(tlb, UNAME='Help_Base', SPACE=1, XPAD=0, YPAD=0, /ROW, /base_align_center)
 
-help = widget_text( Help_Base, scr_xsize=xhelp-19, ysize=2, /wrap, uname='HELP', /tracking, $
+help = widget_text( Help_Base, scr_xsize=xhelp-19*sxy, ysize=2, /wrap, uname='HELP', /tracking, $
 				uvalue='Help window. Displays context sensitive information about widgets.',frame=0)
 
-query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15, ysize=20,  $
+query_button = Widget_Button(Help_Base, UNAME='query-button', xsize=15*sxy, ysize=20*sxy,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
 
@@ -1378,7 +1396,8 @@ state = {	component_drop:	component_drop, $		; components droplist ID
 			mineral_base:	mineral_base, $			; mineral bases ID array
 			mineral_text:	mineral_text, $			; mineral text ID array
 			table:			table, $				; table ID
-			row_height:		yheight, $					; row heights
+;			row_height:		yheight, $				; row heights
+			row_height:		0, $					; row heights
 			column_width:	wtable, $				; column widths
 			dam_base:		dam_base, $				; DA matrix label bases ID array
 			dam_file:		dam_file, $				; DA matrix labels ID array

@@ -1434,34 +1434,35 @@ pro OnSize_ImageRGB, Event
 COMPILE_OPT STRICTARR
 child = widget_info( event.top, /child)
 widget_control, child, get_uvalue=pstate
+sxy = geopixe_scale()
 
 case !version.os_family of
 	'MacOS': begin
-		draw_trim = 15
-		scr_trim = 21
+		draw_trim = 15*sxy
+		scr_trim = 21*sxy
 		end
 	'unix': begin
 		draw_trim = 0
-		scr_trim = 15
+		scr_trim = 15*sxy
 		end
 	else: begin
 		draw_trim = 0
-		scr_trim = 15
+		scr_trim = 15*sxy
 		end
 endcase
 
-;w = (event.x - 8)
-;h = (event.y - 64)
-w = ((event.x - (*pstate).scr_xsize_off) > (256 + scr_trim)) < ((*pstate).width + scr_trim)
-h = ((event.y - (*pstate).scr_ysize_off) > (64 + scr_trim)) < ((*pstate).height + scr_trim)
+;w = (event.x - 8*sxy)
+;h = (event.y - 64*sxy)
+w = ((event.x - (*pstate).scr_xsize_off) > (256*sxy + scr_trim)) < ((*pstate).width + scr_trim)
+h = ((event.y - (*pstate).scr_ysize_off) > (64*sxy + scr_trim)) < ((*pstate).height + scr_trim)
 ;print,'size: x,y=',event.x,event.y,'  w,h=',w,h
 
 (*pstate).w = w
 (*pstate).h = h
 map_RGB_help, pstate
 
-w = ((event.x - (*pstate).scr_xsize_off) > (256 + scr_trim)) < ((*pstate).width + scr_trim)
-h = ((event.y - (*pstate).scr_ysize_off) > (64 + scr_trim)) < ((*pstate).height + scr_trim)
+w = ((event.x - (*pstate).scr_xsize_off) > (256*sxy + scr_trim)) < ((*pstate).width + scr_trim)
+h = ((event.y - (*pstate).scr_ysize_off) > (64*sxy + scr_trim)) < ((*pstate).height + scr_trim)
 
 ; Note that setting "draw_xsize=(*pstate).width, draw_ysize=(*pstate).height" is redundant,
 ; but necessary to keep the scrolling window working ...

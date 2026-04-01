@@ -160,6 +160,7 @@ pro multi_image_layout, pstate, Nmax=Nmax, width=width, height=height, resize=re
 ;	height		total height
 ;	/resize		after resize event
 
+sxy = geopixe_scale()
 pimage = (*pstate).pimage
 if ptr_good( pimage) eq 0 then return
 if n_elements(Nmax) lt 1 then Nmax=(*pstate).N
@@ -181,14 +182,14 @@ endif else begin
 endelse
 w = float(width-(*pstate).dw)/nx
 h = float(height-(*pstate).dh)/ny
-w2 = 5 + (h-27) / aspect
+w2 = 5*sxy + (h-27*sxy) / aspect
 if w2 gt w then begin
-	h = 27 + (w2-5) * aspect
+	h = 27*sxy + (w2-5*sxy) * aspect
 endif else w=w2
 if w lt (*pstate).wmin then begin
-;	h = 27 + (h-27) * (((*pstate).wmin-5)/(w-5)) 
+;	h = 27*sxy + (h-27*sxy) * (((*pstate).wmin-5*sxy)/(w-5*sxy)) 
 	w = (*pstate).wmin
-	h = 27 + (w-5) * aspect
+	h = 27*sxy + (w-5*sxy) * aspect
 endif
 if ny * h gt height then begin
 	ny = fix( floor(height/h))
@@ -202,7 +203,7 @@ print,'nx, ny = ',nx,ny
 print,'aspect = ', aspect
 print,'width, height=', width,height
 print,'w, h=', w,h
-print,'(w-5)/(h-27)=',(w-5)/(h-27),' xsize/ysize=',float((*pimage).xsize) / float((*pimage).ysize)
+print,'(w-5)/(h-27)=',(w-5*sxy)/(h-27*sxy),' xsize/ysize=',float((*pimage).xsize) / float((*pimage).ysize)
 
 border = 0
 i = 0
@@ -269,6 +270,7 @@ if catch_errors_on then begin
 	endif
 endif
 
+sxy = geopixe_scale()
 if n_elements(group) lt 1 then group=0L
 if n_elements(width) lt 1 then width=1200
 if n_elements(height) lt 1 then height=900
@@ -308,14 +310,14 @@ endif else begin
 endelse
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
-	xoffset = (xoff + w) < (screen[0]- (600) > 0)
+	xoffset = (xoff + w) < (screen[0]- (600*sxy) > 0)
 	if xoffset lt (xoff + w) then begin
-		t = xoff - (600)
+		t = xoff - (600*sxy)
 		if t ge 0 then xoffset=t
 	endif
 endif
 if n_elements(yoffset) lt 1 then begin
-	yoffset = ((yoff) < (screen[1]-28 - 200)) > 0
+	yoffset = ((yoff) < (screen[1]-28 - 200*sxy)) > 0
 endif
 
 grey = spec_colour('l.grey')
@@ -338,30 +340,30 @@ colours2 = [grey, green, yellow, red]			; for "number buttons"
 case !version.os_family of
 	'MacOS': begin
 		retain=2
-		dw = 40		;16			; needs to grow with number buttons on left ...
-		dh = 18
+		dw = 40*sxy		;16			; needs to grow with number buttons on left ...
+		dh = 18*sxy
 		xoff = 2
 		yoff = 2
-		wmin = 187
-		number_xsize = 22
+		wmin = 187*sxy
+		number_xsize = 22*sxy
 		end
 	'unix': begin
 		retain=2
-		dw = 40		;16			; needs to grow with number buttons on left ...
-		dh = 18
+		dw = 40*sxy		;16			; needs to grow with number buttons on left ...
+		dh = 18*sxy
 		xoff = 2
 		yoff = 2
-		wmin = 187
-		number_xsize = 22
+		wmin = 187*sxy
+		number_xsize = 22*sxy
 		end
 	else: begin
 		retain=1
-		dw = 40		;16			; needs to grow with number buttons on left ...
-		dh = 18
+		dw = 40*sxy		;16			; needs to grow with number buttons on left ...
+		dh = 18*sxy
 		xoff = 2
 		yoff = 2
-		wmin = 187
-		number_xsize = 22
+		wmin = 187*sxy
+		number_xsize = 22*sxy
 		end
 endcase
 
@@ -384,14 +386,14 @@ nn = n_elements(numbers)
 number = lonarr(nn)
 for i=0L, nn-1 do begin
 	number[i] = state_button( cbase, value=str_tidy(numbers[i]), uname='layout-number', $
-					tracking=0, xsize=number_xsize, ysize=22, $
+					tracking=0, xsize=number_xsize, ysize=22*sxy, $
 					/freeze, select=0, colours=colours2, n_states=4, alt=0, $
 					uvalue=numbers[i])
 endfor
 
 space = widget_label( cbase, value='', scr_ysize=100)
 
-query_button = Widget_Button(cbase, UNAME='query-button', xsize=15, ysize=20,  $
+query_button = Widget_Button(cbase, UNAME='query-button', xsize=15*sxy, ysize=20*sxy,  $
       /ALIGN_CENTER ,VALUE='?', /tracking_events, uvalue='Jump to the help on this window in the GeoPIXE Users Guide.')
 
  
@@ -399,8 +401,8 @@ bbase = widget_base( tbase)
 
 ; make layout in window
 
-xsize = 256
-ysize = 256
+xsize = 256*sxy
+ysize = 256*sxy
 if ptr_valid(pimages) then begin
 	if n_elements( *pimages) gt 0 then begin
 		if (*pimages).xsize gt 0 then xsize = (*pimages).xsize
@@ -414,14 +416,14 @@ nx = fix( ceil(sqrt(float(N)/r)))
 ny = fix( ceil(float(N)/float(nx)))
 w = float(width-dw)/nx
 h = float(height-dh)/ny
-wx = float(xsize) > 10.
-hy = float(ysize) > 10.
-w2 = 5 + (h-27) * float(xsize)/float(ysize)
+wx = float(xsize) > 10.*sxy
+hy = float(ysize) > 10.*sxy
+w2 = 5*sxy + (h-27*sxy) * float(xsize)/float(ysize)
 if w2 gt w then begin
-	h = 27 + (w-5) * float(ysize)/float(xsize)
+	h = 27*sxy + (w-5*sxy) * float(ysize)/float(xsize)
 endif else w=w2
 if w lt wmin then begin
-	h = 27 + (h-27) * ((wmin-5)/(w-5)) 
+	h = 27*sxy + (h-27*sxy) * ((wmin-5*sxy)/(w-5*sxy)) 
 	w = wmin
 endif
 if ny * h gt height then begin

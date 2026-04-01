@@ -19,7 +19,8 @@ if catch_errors_on then begin
 	   goto, finish
 	endif
 endif
-catch_errors_on = 0
+;catch_errors_on = 0
+sxy = geopixe_scale()
 
 if widget_info( event.id, /valid) eq 0 then return, 0L
 child = widget_info( event.handler, /child)
@@ -138,6 +139,7 @@ pro simple_image_set, id, vset
 
 child = widget_info( id, /child)
 widget_control, child, get_uvalue=pstate
+sxy = geopixe_scale()
 
 ;p = (*pstate).p
 ;if ptr_good( p, /struct) eq 0 then return
@@ -154,8 +156,8 @@ if size(vset,/tname) eq 'STRUCT' then begin
 					(*pstate).width = vset.width - (*pstate).dw
 					widget_control, (*pstate).draw, scr_xsize=(*pstate).width
 					widget_control, (*pstate).Element_combobox, scr_xsize= (*pstate).el_base + 0.1*((*pstate).width+(*pstate).dw-(*pstate).wmin)
-					widget_control, (*pstate).top_slider, scr_xsize= 47 + 0.37*((*pstate).width+(*pstate).dw-(*pstate).wmin)
-					widget_control, (*pstate).bottom_slider, scr_xsize= 47 + 0.37*((*pstate).width+(*pstate).dw-(*pstate).wmin)
+					widget_control, (*pstate).top_slider, scr_xsize= 47*sxy + 0.37*((*pstate).width+(*pstate).dw-(*pstate).wmin)
+					widget_control, (*pstate).bottom_slider, scr_xsize= 47*sxy + 0.37*((*pstate).width+(*pstate).dw-(*pstate).wmin)
 					widget_control, (*pstate).Zscale_Mode, scr_xsize= (*pstate).mode_base + 0.16*((*pstate).width+(*pstate).dw-(*pstate).wmin)
 					setview = 1
 					redisplay = 1
@@ -361,6 +363,7 @@ if catch_errors_on then begin
 	   return, 0L
 	endif
 endif
+sxy = geopixe_scale()
 
 if n_elements(parent) lt 1 then return,0L
 if n_elements(tracking) lt 1 then tracking=0
@@ -370,8 +373,8 @@ if n_elements(ganged) lt 1 then ganged=0
 if n_elements(uvalue) lt 1 then uvalue=''
 if n_elements(Nimage) lt 1 then Nimage=0
 if n_elements(box_select) lt 1 then box_select=0
-if n_elements(width) lt 1 then width=200
-if n_elements(height) lt 1 then height=200
+if n_elements(width) lt 1 then width=200*sxy
+if n_elements(height) lt 1 then height=200*sxy
 simple_image_routines
 
 pimage = bad_pars_struct( pimage, make_pars=make_pd)
@@ -390,30 +393,30 @@ endelse
 case !version.os_family of
 	'MacOS': begin
 		retain=2
-		dw = 5
-		dh = 27
-		wmin = 187
-		xsize_element = 48
-		xsize_analyze_mode = 38
+		dw = 5*sxy
+		dh = 27*sxy
+		wmin = 187*sxy
+		xsize_element = 48*sxy
+		xsize_analyze_mode = 38*sxy
 		end
 	'unix': begin
 		retain=2
-		dw = 5
-		dh = 27
-		wmin = 187
-		xsize_element = 48
-		xsize_analyze_mode = 38
+		dw = 5*sxy
+		dh = 27*sxy
+		wmin = 187*sxy
+		xsize_element = 48*sxy
+		xsize_analyze_mode = 38*sxy
 		end
 	else: begin
 		retain=1
-		dw = 5
-		dh = 27
-		wmin = 187
-		xsize_element = 45
-		xsize_analyze_mode = 34
+		dw = 5*sxy
+		dh = 27*sxy
+		wmin = 187*sxy
+		xsize_element = 45*sxy
+		xsize_analyze_mode = 34*sxy
 		end
 endcase
-xsize_slide = 47 + 0.37*(width-wmin)				; 2* 0.37 + (0.16 + 0.1 below) = 1.0
+xsize_slide = 47*sxy + 0.37*(width-wmin)			; 2* 0.37 + (0.16 + 0.1 below) = 1.0
 													; these factors in _set routine too.
 
 border = [0.08,0.06,0.97,0.96]

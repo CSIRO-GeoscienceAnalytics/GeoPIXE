@@ -621,52 +621,53 @@ end
 pro map_RGB_help, pstate
 
 COMPILE_OPT STRICTARR
-if (*pstate).w gt 450 then begin
+sxy = geopixe_scale()
+if (*pstate).w gt 450*sxy then begin
 	case !version.os_family of
 		'MacOS': begin
 			(*pstate).scr_xsize_off =	1
-			(*pstate).scr_ysize_off =	64
+			(*pstate).scr_ysize_off =	64*sxy
 			end
 		'unix': begin
-			(*pstate).scr_xsize_off =	20
-			(*pstate).scr_ysize_off =	102
+			(*pstate).scr_xsize_off =	20*sxy
+			(*pstate).scr_ysize_off =	102*sxy
 			end
 		else: begin
-			(*pstate).scr_xsize_off =	8
-			(*pstate).scr_ysize_off =	59		; 65
+			(*pstate).scr_xsize_off =	8*sxy
+			(*pstate).scr_ysize_off =	59*sxy		; 65
 			end
 	endcase
 endif else begin
 	case !version.os_family of
 		'MacOS': begin
 			(*pstate).scr_xsize_off =	1
-			(*pstate).scr_ysize_off =	81
+			(*pstate).scr_ysize_off =	81*sxy
 			end
 		'unix': begin
 			(*pstate).scr_xsize_off =	2
-			(*pstate).scr_ysize_off =	158
+			(*pstate).scr_ysize_off =	158*sxy
 			end
 		else: begin
-			(*pstate).scr_xsize_off =	8
-			(*pstate).scr_ysize_off =	83
+			(*pstate).scr_xsize_off =	8*sxy
+			(*pstate).scr_ysize_off =	83*sxy
 			end
 	endcase
 endelse
 
 case !version.os_family of
 	'unix': begin
-		xoff = 296
-	       query_scr_xsize = 25
-	       query_scr_ysize = 29
+		xoff = 296*sxy
+       query_scr_xsize = 25*sxy
+       query_scr_ysize = 29*sxy
 		end
 	else: begin
-		xoff = 293			; 274
-	       query_scr_xsize = 15
-	       query_scr_ysize = 20
+		xoff = 293*sxy			; 274
+       query_scr_xsize = 15*sxy
+       query_scr_ysize = 20*sxy
 		end
 endcase
 
-if (*pstate).w gt 450 then begin
+if (*pstate).w gt 450*sxy then begin
 	if (*pstate).help eq (*pstate).help2 then goto, more
 
 	(*pstate).help = (*pstate).help2

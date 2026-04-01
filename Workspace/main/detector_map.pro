@@ -437,6 +437,7 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 	if n_elements(group) lt 1 then group=0L
 	if n_elements(path) lt 1 then path=''
 	if ptr_good(p) eq 0 then return
+	sxy = geopixe_scale()
 
 	pars = bad_pars_struct( pars, make_pars=make_pars)
 	
@@ -482,27 +483,29 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 
 	case !version.os_family of
 		'MacOS': begin
-			xw = 810
-			yh = 900
-			draw_trim = 15
-			scr_trim = 21
-			DA_size = 300
+			xw = 710*sxy
+			yh = 800*sxy
+			draw_trim = 15*sxy
+			scr_trim = 21*sxy
+			DA_size = 300*sxy
 			end
 		'unix': begin
-			xw = 810
-			yh = 900
+			xw = 710*sxy
+			yh = 800*sxy
 			draw_trim = 0
-			scr_trim = 15
-			DA_size = 300
+			scr_trim = 15*sxy
+			DA_size = 300*sxy
 			end
 		else: begin
-			xw = 810
-			yh = 900
+			xw = 710*sxy
+			yh = 800*sxy
 			draw_trim = 0
-			scr_trim = 15
-			DA_size = 300
+			scr_trim = 15*sxy
+			DA_size = 300*sxy
 			end
 	endcase
+	dw = 700*sxy
+	dh = 660*sxy
 	
 	w = 0
 	h = 0
@@ -534,24 +537,22 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 
 	base1 = Widget_Base(tlb, UNAME='detector_map_Base', SPACE=1, XPAD=1, YPAD=1, /column)
 
-	dw = 800
-	dh = 760
 	draw = Widget_Draw( base1, UNAME='detector_map_draw',  $
 			NOTIFY_REALIZE='OnRealize_detector_map_draw', $		;KILL_NOTIFY='OnDestroy_detector_map_draw', $
 			XSIZE=dw+draw_trim, YSIZE=dh+draw_trim, RETAIN=retain, /BUTTON_EVENTS)
 			;,/VIEWPORT_EVENTS, /SCROLL)
 
 	array_base = widget_base( base1, /row, /base_align_center, ypad=0, xpad=1, space=4)
-	label = widget_label( array_base, value='Select Array Detector layout:')
-	detector_id = widget_combobox( array_base, value=*(*pars).detector_title, uname='array-mode', xsize=240, /tracking, $
+	label = widget_label( array_base, value='Select Detector layout:')
+	detector_id = widget_combobox( array_base, value=*(*pars).detector_title, uname='array-mode', xsize=240*sxy, /tracking, $
 					notify_realize='OnRealize_detector_map_detector', $
 					uvalue='Select an available Array Detector layout which is appropriate to the collection of individual detector spectra loaded. ')
 
-	lab = widget_label( array_base, value=' ', scr_xsize=20)
-	label = widget_label( array_base, value='Detector array options:')
+	lab = widget_label( array_base, value=' ', scr_xsize=20*sxy)
+	label = widget_label( array_base, value='Detector options:')
 	rgamma = cw_bgroup2( array_base, ['rGamma norm','True masked size'], /row, set_value=[(*pars).rGamma_norm, (*pars).Geom_true], /return_index, uname='rgamma-norm',/ nonexclusive, /tracking, $
 					uvalue=['Enable correction of the detector map for the "rGamma" Relative Efficiency Factors.', $
-							'Show true effective sizes of detector cells after masking.'], xpad=0, ypad=0, space=1)
+							'Show true effective sizes of detector cells after masking.'], xpad=0, ypad=0, space=0)
 
 	row1 = Widget_Base(base1, UNAME='button_row_base', SPACE=4, XPAD=1, YPAD=0, /row, /base_align_center)
 
@@ -561,11 +562,11 @@ pro detector_map, p, group=group, TLB=tlb, path=path, pars=pars
 			uvalue='Select a DA matrix to apply to spectral data. Use "Add" to load new ones.')
 
 	button = widget_button( row1, value='Add', uname='add-button', /tracking, $
-			uvalue='Add a new DA matrix to the list.', scr_xsize=50)
+			uvalue='Add a new DA matrix to the list.', scr_xsize=50*sxy)
 
-	lab = widget_label( row1, value=' ', scr_xsize=20)
+	lab = widget_label( row1, value=' ', scr_xsize=20*sxy)
 	lab = widget_label( row1, value='Element:')
-	element_id = widget_combobox( row1, value=*(*pars).pelement, uname='select-element', xsize=70, /tracking, $
+	element_id = widget_combobox( row1, value=*(*pars).pelement, uname='select-element', xsize=70*sxy, /tracking, $
 			notify_realize='OnRealize_detector_map_element', $
 			uvalue='Select an element from the DA matrix. Use "Add" to load a new DA matrix.')
 
