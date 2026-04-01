@@ -1244,18 +1244,21 @@ case !version.os_family of
 		wtable = 51*sxy
 		wright = 400*sxy
 		xlong = 500*sxy
+		lframe = 0
 		end
 	'unix': begin
 		wleft = 100*sxy
 		wtable = 70*sxy
 		wright = 400*sxy
 		xlong = 500*sxy
+		lframe = 0
 		end
 	else: begin
 		wleft = 100*sxy
 		wtable = 51*sxy
 		wright = 350*sxy
 		xlong = 450*sxy
+		lframe = 1
 		end
 endcase
 yheight = 20*sxy
@@ -1308,7 +1311,7 @@ for i=0L,max_comp-1 do begin
 		val = (*p).minerals[i]
 	endelse
 	mineral_base[i] = widget_base( lbase, /row, /base_align_center, xpad=0, ypad=0, map=on)
-	mineral_text[i] = widget_text( mineral_base[i], value=val, uname='mineral', $
+	mineral_text[i] = widget_text( mineral_base[i], value=val, uname='mineral', frame=lframe, $
 			/edit, notify_realize='OnRealize_Correct_Mineral', scr_ysize=yheight, $
 			/tracking, uvalue='Select mineral for component '+string(i+1), scr_xsize=wleft)
 endfor
