@@ -1058,9 +1058,9 @@ sxy = geopixe_scale()
 rows = widget_info( wWidget, /row_heights)
 if !version.os_family ne 'Windows' then begin
 	if (rows[0] gt 3) and (rows[0] lt 40) then begin
-		(*pstate).row_height = rows[0]	; > 20
+		(*pstate).row_height = rows[0] > 29
 	endif else begin
-		(*pstate).row_height = 20*sxy
+		(*pstate).row_height = 29*sxy
 	endelse
 	widget_control, wWidget, row_height=(*pstate).row_height
 endif else begin
