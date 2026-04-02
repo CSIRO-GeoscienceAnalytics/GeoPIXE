@@ -1893,6 +1893,7 @@ case !version.os_family of
 		button_xsize1 = 50*sxy
 		button_xsize2 = 190*sxy
 		help_xsize = left_xsize + right_xsize + 55*sxy
+		lframe = 0
 		end
 	'unix': begin
 		space1 = 1
@@ -1910,6 +1911,7 @@ case !version.os_family of
 		button_xsize1 = 50*sxy
 		button_xsize2 = 190*sxy
 		help_xsize = left_xsize + right_xsize + 55*sxy
+		lframe = 0
 		end
 	else: begin
 		space1 = 1
@@ -1927,6 +1929,7 @@ case !version.os_family of
 		button_xsize1 = 50*sxy
 		button_xsize2 = 170*sxy
 		help_xsize = left_xsize + right_xsize + 55*sxy
+		lframe = 0
 		end
 endcase
 
@@ -1952,7 +1955,7 @@ tab_names = ['depth-curve','cal-spec','rgb-map','region-spectra','results']
 curve_base = widget_base( tab_panel, title='1. Depth Curve', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( curve_base, value='Calculate Curve for "Outer"/"Inner" versus Depth')
-text = widget_text( curve_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
+text = widget_text( curve_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, frame=lframe, $
 				value=['Model X-ray yields for all elements to calculate the ratio of the selected "outer" and "inner" detectors versus depth. ' + $
 				'Set-up this depth scale using the thickness series 1D mode for layer #1 in the Yield calculation.'], $
 				uvalue='Explanation of the role of the Depth Curve panel.', frame=1)
@@ -1964,7 +1967,7 @@ curve_base1b = widget_base( curve_base1, /column, xpad=0, ypad=0, space=5, /base
 curve_base1c = widget_base( curve_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( curve_base1c, value='Filters:', uname='depth-curve-filter-file-button', tracking=tracking, $
 						uvalue='Click to browse to select the external filter file name. This is important as the absorption of the filter varies with angle to the detector in the array.', scr_xsize=button_xsize )
-depth_curve_filter_text = widget_text( curve_base1c, uname='depth-curve-filter-text', value='', tracking=tracking, $
+depth_curve_filter_text = widget_text( curve_base1c, uname='depth-curve-filter-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter file-name for the external filter, or click on button to browse for the file. This is important as the absorption of the filter varies with angle to the detector in the array.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_depth_curve_filter_text')
 
@@ -1972,7 +1975,7 @@ curve_base1d = widget_base( curve_base1b, /row, xpad=0, ypad=0, space=5, /base_a
 button = widget_button( curve_base1d, value='Yields:', uname='depth-curve-yield-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file-name of the yield calculation performed for a range of depth steps, ' + $
 						'or the "New" button to perform a fresh yield calculation. See instructions in the right panel.', scr_xsize=button_xsize )
-depth_curve_yield_text = widget_text( curve_base1d, uname='depth-curve-yield-text', value='', tracking=tracking, $
+depth_curve_yield_text = widget_text( curve_base1d, uname='depth-curve-yield-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter file-name for the yield calculation performed for a range of depth steps, or click on the left button to browse for the file, ' + $
 						'or the "New" button to perform a fresh yield calculation. See instructions in the right panel.', scr_xsize=text_xsize - button_xsize1 - 5, /edit)
 ;						Notify_Realize='OnRealize_depth_curve_yield_text')
@@ -1984,7 +1987,7 @@ curve_base1e = widget_base( curve_base1b, /row, xpad=0, ypad=0, space=5, /base_a
 button = widget_button( curve_base1e, value='"Outer":', uname='depth-curve-outer-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file name of the ".select.csv" file that selects the "Outer" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=button_xsize )
-depth_curve_outer_text = widget_text( curve_base1e, uname='depth-curve-outer-text', value='', tracking=tracking, $
+depth_curve_outer_text = widget_text( curve_base1e, uname='depth-curve-outer-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of the ".select.csv" file that selects the "Outer" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=text_xsize - button_xsize1 - 5, /edit)
 ;						Notify_Realize='OnRealize_depth_curve_outer_text')
@@ -1995,7 +1998,7 @@ curve_base1f = widget_base( curve_base1b, /row, xpad=0, ypad=0, space=5, /base_a
 button = widget_button( curve_base1f, value='"Inner":', uname='depth-curve-inner-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file name of the ".select.csv" file that selects the "Inner" detectors. Use the inner-most detectors and a couple of radial groups out. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=button_xsize )
-depth_curve_inner_text = widget_text( curve_base1f, uname='depth-curve-inner-text', value='', tracking=tracking, $
+depth_curve_inner_text = widget_text( curve_base1f, uname='depth-curve-inner-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of the ".select.csv" file that selects the "Inner" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=text_xsize - button_xsize1 - 5, /edit)
 ;						Notify_Realize='OnRealize_depth_curve_inner_text')
@@ -2014,7 +2017,7 @@ curve_base2b = widget_base( curve_base2, /column, xpad=0, ypad=0, space=5, /base
 curve_base2c = widget_base( curve_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( curve_base2c, value='Curve:', uname='depth-curve-depth-file-button', tracking=tracking, $
 						uvalue='Click to enter the file name of an existing depth curve ".csv" file, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=button_xsize )
-depth_curve_depth_text = widget_text( curve_base2c, uname='depth-curve-depth-text', value='', tracking=tracking, $
+depth_curve_depth_text = widget_text( curve_base2c, uname='depth-curve-depth-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of an existing depth curve output ".csv" file, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_depth_curve_depth_text')
 
@@ -2024,7 +2027,7 @@ depth_curve_depth_text = widget_text( curve_base2c, uname='depth-curve-depth-tex
 cal_base = widget_base( tab_panel, title='2. Cal Spec', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( cal_base, value='Form "Outer" and "Inner" Spec Cal Files')
-text = widget_text( cal_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='cal-explanation', tracking=tracking, $
+text = widget_text( cal_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='cal-explanation', tracking=tracking, frame=lframe, $
 				value=['Take an energy Cal SPEC file and create separate SPEC files for the selected "Outer" and "Inner" detectors to be used in "Sort EVT" ' + $
 				'in order to project DA images as seen by the "Outer" and "Inner" detectors as a basis to construct RGB images with Depth contrast.'], $
 				uvalue='Explanation of the role of the Cal Spec panel.', frame=1)
@@ -2036,7 +2039,7 @@ cal_base1b = widget_base( cal_base1, /column, xpad=0, ypad=0, space=5, /base_ali
 cal_base1c = widget_base( cal_base1b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( cal_base1c, value='Cal:', uname='cal-spec-cal-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file name of the SPEC file that contains the energy cal for all detectors. ', scr_xsize=button_xsize )
-cal_spec_cal_file_text = widget_text( cal_base1c, uname='cal-spec-cal-file-text', value='', tracking=tracking, $
+cal_spec_cal_file_text = widget_text( cal_base1c, uname='cal-spec-cal-file-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of the SPEC file that contains the energy cal for all detectors.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_cal_spec_cal_file_text')
 
@@ -2044,7 +2047,7 @@ cal_base1e = widget_base( cal_base1b, /row, xpad=0, ypad=0, space=5, /base_align
 button = widget_button( cal_base1e, value='"Outer":', uname='depth-curve-outer-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file name of the ".select.csv" file that selects the "Outer" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=button_xsize )
-cal_spec_outer_text = widget_text( cal_base1e, uname='depth-curve-outer-text', value='', tracking=tracking, $
+cal_spec_outer_text = widget_text( cal_base1e, uname='depth-curve-outer-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of the ".select.csv" file that selects the "Outer" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=text_xsize - button_xsize1 - 5, /edit)
 ;						Notify_Realize='OnRealize_cal_spec_outer_text')
@@ -2055,7 +2058,7 @@ cal_base1f = widget_base( cal_base1b, /row, xpad=0, ypad=0, space=5, /base_align
 button = widget_button( cal_base1f, value='"Inner":', uname='depth-curve-inner-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file name of the ".select.csv" file that selects the "Inner" detectors. Use the inner-most detectors and a couple of radial groups out. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=button_xsize )
-cal_spec_inner_text = widget_text( cal_base1f, uname='depth-curve-inner-text', value='', tracking=tracking, $
+cal_spec_inner_text = widget_text( cal_base1f, uname='depth-curve-inner-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of the ".select.csv" file that selects the "Inner" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=text_xsize - button_xsize1 - 5, /edit)
 ;						Notify_Realize='OnRealize_cal_spec_inner_text')
@@ -2073,14 +2076,14 @@ cal_base2b = widget_base( cal_base2, /column, xpad=0, ypad=0, space=5, /base_ali
 cal_base2c = widget_base( cal_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( cal_base2c, value='"Outer":', uname='cal-spec-output-outer-file-button', tracking=tracking, $
 						uvalue='Click to enter the file name of an existing output Cal Spec file for "Outer" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=button_xsize )
-cal_spec_output_outer_file_text = widget_text( cal_base2c, uname='cal-spec-output-outer-text', value='', tracking=tracking, $
+cal_spec_output_outer_file_text = widget_text( cal_base2c, uname='cal-spec-output-outer-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of an existing output Cal Spec file for "Outer" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_cal_spec_output_outer_file_text')
 		
 cal_base2d = widget_base( cal_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( cal_base2d, value='"Inner":', uname='cal-spec-output-inner-file-button', tracking=tracking, $
 						uvalue='Click to enter the file name of an existing output Cal Spec file for "Inner" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=button_xsize )
-cal_spec_output_inner_file_text = widget_text( cal_base2d, uname='cal-spec-output-inner-text', value='', tracking=tracking, $
+cal_spec_output_inner_file_text = widget_text( cal_base2d, uname='cal-spec-output-inner-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of an existing output Cal Spec file for "Inner" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_cal_spec_output_inner_file_text')
 		
@@ -2090,7 +2093,7 @@ cal_spec_output_inner_file_text = widget_text( cal_base2d, uname='cal-spec-outpu
 rgb_base = widget_base( tab_panel, title='3. RGB', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( rgb_base, value='Construct RGB Images of Depth Contrast')
-text = widget_text( rgb_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgb-explanation', tracking=tracking, $
+text = widget_text( rgb_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgb-explanation', tracking=tracking, frame=lframe, $
 				value=['Take separate Cal SPEC files for "Outer" and "Inner" detectors from previous page and use them in "Sort EVT" to makes images from the ' + $
 				'outer and inner perspectives as a basis for forming RGB depth contrast images.'], $
 				uvalue='Explanation of the role of the RGB map panel.', frame=1)
@@ -2111,20 +2114,20 @@ rgb_base2b = widget_base( rgb_base2, /column, xpad=0, ypad=0, space=5, /base_ali
 rgb_base2c = widget_base( rgb_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( rgb_base2c, value='"Outer":', uname='rgb-map-outer-file-button', tracking=tracking, $
 						uvalue='Click to enter the file name of an existing DAI image file for "Outer" channels, to use as "Green" in the RGB step below, or calculate a new one in the panel above.', scr_xsize=button_xsize )
-rgb_map_outer_file_text = widget_text( rgb_base2c, uname='rgb-map-outer-text', value='', tracking=tracking, $
+rgb_map_outer_file_text = widget_text( rgb_base2c, uname='rgb-map-outer-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of an existing DAI image file for "Outer" channels, to use as "Green" in the RGB step below, or calculate a new one in the panel above.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_rgb_map_outer_file_text')
 		
 rgb_base2d = widget_base( rgb_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( rgb_base2d, value='"Inner":', uname='rgb-map-inner-file-button', tracking=tracking, $
 						uvalue='Click to enter the file name of an existing DAI image file for "Inner" channels, to use as "Red" in the RGB step below, or calculate a new one in the panel above.', scr_xsize=button_xsize )
-rgb_map_inner_file_text = widget_text( rgb_base2d, uname='rgb-map-inner-text', value='', tracking=tracking, $
+rgb_map_inner_file_text = widget_text( rgb_base2d, uname='rgb-map-inner-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of an existing DAI image file for "Inner" channels, to use as "Red" in the RGB step below, or calculate a new one in the panel above.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_rgb_map_inner_file_text')
 
 rgb_base2e = widget_base( rgb_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_left)
 label = widget_label( rgb_base2e, value='Element:', scr_xsize=button_xsize, /align_right)
-rgb_map_element_text = widget_text( rgb_base2e, uname='rgb-map-element-text', value='', tracking=tracking, $
+rgb_map_element_text = widget_text( rgb_base2e, uname='rgb-map-element-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the name of the element to display in the RGB depth maps. Remember the "L" or "M" suffix for elements using L or M X-rays.', scr_xsize=button_xsize, /edit)
 ;						Notify_Realize='OnRealize_rgb_map_element_text')
 
@@ -2138,7 +2141,7 @@ button = widget_button( rgb_base2f, value='Display RGB Depth Images', uname='rgb
 spec_base = widget_base( tab_panel, title='4. Spectra', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( spec_base, value='Find Depths of Selected Particles')
-text = widget_text( spec_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='spec-explanation', tracking=tracking, $
+text = widget_text( spec_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='spec-explanation', tracking=tracking, frame=lframe, $
 				value=['Extract spectra for selected Regions set on particle hot-spots and find the ratio of "Outer" to "Inner" signal, and relate this to particle depth using the "Depth Curve". ' + $
 					'Use these steps repeatedly for each particle. Results appear on the next page.'], $
 				uvalue='Explanation of the role of the Spectra panel.', frame=1)
@@ -2151,7 +2154,7 @@ spec_base1e = widget_base( spec_base1b, /row, xpad=0, ypad=0, space=5, /base_ali
 button = widget_button( spec_base1e, value='"Outer":', uname='depth-curve-outer-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file name of the ".select.csv" file that selects the "Outer" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=button_xsize )
-spectra_outer_text = widget_text( spec_base1e, uname='depth-curve-outer-text', value='', tracking=tracking, $
+spectra_outer_text = widget_text( spec_base1e, uname='depth-curve-outer-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of the ".select.csv" file that selects the "Outer" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=text_xsize - button_xsize1 - 5, /edit)
 ;						Notify_Realize='OnRealize_spectra_outer_text')
@@ -2162,7 +2165,7 @@ spec_base1f = widget_base( spec_base1b, /row, xpad=0, ypad=0, space=5, /base_ali
 button = widget_button( spec_base1f, value='"Inner":', uname='depth-curve-inner-file-button', tracking=tracking, $
 						uvalue='Click to browse for the file name of the ".select.csv" file that selects the "Inner" detectors. Use the inner-most detectors and a couple of radial groups out. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=button_xsize )
-spectra_inner_text = widget_text( spec_base1f, uname='depth-curve-inner-text', value='', tracking=tracking, $
+spectra_inner_text = widget_text( spec_base1f, uname='depth-curve-inner-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of the ".select.csv" file that selects the "Inner" detectors. Use the outer-most detectors and a few radial groups in. ' + $
 						'Use the "radial" class selection on the "Array Detector Channel Selection" window (click "Set") to build these files.', scr_xsize=text_xsize - button_xsize1 - 5, /edit)
 ;						Notify_Realize='OnRealize_spectra_inner_text')
@@ -2180,20 +2183,20 @@ spec_base2b = widget_base( spec_base2, /column, xpad=0, ypad=0, space=5, /base_a
 spec_base2c = widget_base( spec_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( spec_base2c, value='"Outer":', uname='spectra-output-outer-file-button', tracking=tracking, $
 						uvalue='Click to enter the file name of an existing region Sum Spec file for "Outer" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=button_xsize )
-spectra_output_outer_file_text = widget_text( spec_base2c, uname='spectra-output-outer-text', value='', tracking=tracking, $
+spectra_output_outer_file_text = widget_text( spec_base2c, uname='spectra-output-outer-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of an existing region Sum Spec file for "Outer" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_spectra_output_outer_file_text')
 		
 spec_base2d = widget_base( spec_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 button = widget_button( spec_base2d, value='"Inner":', uname='spectra-output-inner-file-button', tracking=tracking, $
 						uvalue='Click to enter the file name of an existing region Sum Spec file for "Inner" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=button_xsize )
-spectra_output_inner_file_text = widget_text( spec_base2d, uname='spectra-output-inner-text', value='', tracking=tracking, $
+spectra_output_inner_file_text = widget_text( spec_base2d, uname='spectra-output-inner-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the file-name of an existing region Sum Spec file for "Inner" channels, to use in subsequent wizard steps, or calculate a new one in the panel above.', scr_xsize=text_xsize, /edit)
 ;						Notify_Realize='OnRealize_spectra_output_inner_file_text')
 		
 spec_base2e = widget_base( spec_base2b, /row, xpad=0, ypad=0, space=5, /base_align_center, /align_left)
 label = widget_label( spec_base2e, value='Element:', scr_xsize=button_xsize, /align_right)
-spectra_element_text = widget_text( spec_base2e, uname='rgb-map-element-text', value='', tracking=tracking, $
+spectra_element_text = widget_text( spec_base2e, uname='rgb-map-element-text', value='', tracking=tracking, frame=lframe, $
 						uvalue='Enter the name of the element to extract signal for in fit to form "Outer"/"Inner" ratio and depth estimate.', scr_xsize=button_xsize, /edit)
 ;						Notify_Realize='OnRealize_spectra_element_text')
 
@@ -2207,7 +2210,7 @@ button = widget_button( spec_base2bb, value='Fit Sum Spectra', uname='spectra-fi
 results_base = widget_base( tab_panel, title='5. Results', /column, xpad=1, ypad=1, space=5, $
 					/align_center, /base_align_center, scr_xsize=left_xsize+20*sxy, scr_ysize=left_ysize)
 label = widget_label( results_base, value='Results for Depths of Selected Particles')
-text = widget_text( results_base, scr_xsize=left_xsize, ysize=4, /wrap, uname='results-explanation', tracking=tracking, $
+text = widget_text( results_base, scr_xsize=left_xsize, ysize=4, /wrap, uname='results-explanation', tracking=tracking, frame=lframe, $
 				value=['Particle depth results: Element peak areas and errors determined from "Outer" and "Inner" sum spectra on the previous page.'], $
 				uvalue='Explanation of the role of the Results panel.', frame=1)
 
