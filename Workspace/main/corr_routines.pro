@@ -796,7 +796,7 @@ endelse
 
 case !version.os_family of
 	'unix': begin
-		xoff = 334*sxy
+		xoff = 314*sxy
        query_scr_xsize = 25*sxy
        query_scr_ysize = 29*sxy
 		end
