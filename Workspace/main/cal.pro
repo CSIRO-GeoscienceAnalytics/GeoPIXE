@@ -133,7 +133,6 @@ end
 pro Cal, GROUP_LEADER=wGroup, TLB=Cal_TLB, xlow=xlow, xhigh=xhigh, path=path, xoffset=xoffset, yoffset=yoffset, _EXTRA=_VWBExtra_
 
 COMPILE_OPT STRICTARR
-
 ErrorNo = 0
 common c_errors_1, catch_errors_on
 if catch_errors_on then begin
@@ -152,6 +151,7 @@ if catch_errors_on then begin
        return
     endif
 endif
+sxy = geopixe_scale()
 
   if n_elements(wGroup) lt 1 then wGroup=0L
   if n_elements(xlow) lt 1 then xlow=0
@@ -160,13 +160,19 @@ endif
 
 case !version.os_family of
     'MacOS': begin
-       yw = 170
+       yw = 170*sxy
+	   help_xsize = 68
+	   lframe = 0
        end
     'unix': begin
-       yw = 216
+       yw = 216*sxy
+	   help_xsize = 68
+	   lframe = 0
        end
     else: begin
-       yw = 167
+       yw = 167*sxy
+	   help_xsize = 61
+	   lframe = 1
        end
 endcase
 
@@ -184,11 +190,11 @@ endif
 screen = get_screen_size()
 if n_elements(xoffset) lt 1 then begin
     screen = get_screen_size()
-    xoffset = ((xoff + w - 410) < (screen[0]-34 - 410)) > 0
+    xoffset = ((xoff + w - 410*sxy) < (screen[0]-34*sxy - 410*sxy)) > 0
 endif
 if n_elements(yoffset) lt 1 then begin
     screen = get_screen_size()
-    yoffset = ((yoff - yw) < (screen[1]-28 - 159)) > 0
+    yoffset = ((yoff - yw) < (screen[1]-28*sxy - 159*sxy)) > 0
 endif
 
  Resolve_Routine, 'cal_eventcb'     ; Load event callback routines
@@ -221,7 +227,7 @@ endif
 
   Element_1_text = Widget_Text(Line_1_base, UNAME='Element_1_text'  $
       ,NOTIFY_REALIZE='OnRealize_Element_1_text' ,/EDITABLE  $
-      ,VALUE=' ' ,XSIZE=5 ,YSIZE=1, /tracking, /all_events, $
+      ,VALUE=' ' ,XSIZE=5 ,YSIZE=1, /tracking, frame=lframe, /all_events, $
       uvalue='Element name for low energy Cal marker. (Enter name and hit <return>.)')
 
 
@@ -233,7 +239,7 @@ endif
 
   E_Low_text = Widget_Text(Low_E_base, UNAME='E_Low_text' $
       ,NOTIFY_REALIZE='OnRealize_Low_E_text' ,/EDITABLE  $
-      ,VALUE=' ' ,XSIZE=10 ,YSIZE=1, /tracking, /all_events, $
+      ,VALUE=' ' ,XSIZE=10 ,YSIZE=1, /tracking, frame=lframe, /all_events, $
       uvalue='X-ray energy for low energy Cal marker.')
 
 
@@ -247,7 +253,7 @@ endif
 
   Element_2_text = Widget_Text(Line_2_base, UNAME='Element_2_text'  $
       ,NOTIFY_REALIZE='OnRealize_Element_2_text' ,/EDITABLE  $
-      ,VALUE=' ' ,XSIZE=5 ,YSIZE=1, /tracking, /all_events, $
+      ,VALUE=' ' ,XSIZE=5 ,YSIZE=1, /tracking, frame=lframe, /all_events, $
       uvalue='Element name for high energy Cal marker. (Enter name and hit <return>.)')
 
 
@@ -260,7 +266,7 @@ endif
   E_High_text = Widget_Text(High_E_base, UNAME='E_High_text'  $
       ,NOTIFY_REALIZE='OnRealize_High_E_text'  $
       ,/EDITABLE ,VALUE=' ' ,XSIZE=10  $
-      ,YSIZE=1, /tracking, /all_events, $
+      ,YSIZE=1, /tracking, frame=lframe, /all_events, $
       uvalue='X-ray energy for high energy Cal marker.')
 
 
@@ -274,7 +280,7 @@ endif
 
   A_Text = Widget_Text(Cal_A_base, UNAME='A_Text'   $
       ,NOTIFY_REALIZE='OnRealize_Cal_A_text' ,/EDITABLE  $
-      ,VALUE='1.0000000' ,XSIZE=15 ,YSIZE=1, /tracking, /all_events, $
+      ,VALUE='1.0000000' ,XSIZE=15 ,YSIZE=1, /tracking, frame=lframe, /all_events, $
       uvalue='A (gain) calibration constant.')
 
 
@@ -286,7 +292,7 @@ endif
 
   B_text = Widget_Text(Cal_B_base, UNAME='B_text' $
       ,NOTIFY_REALIZE='OnRealize_Cal_B_text' ,/EDITABLE  $
-      ,VALUE='0.0000000',XSIZE=15 ,YSIZE=1, /tracking, /all_events, $
+      ,VALUE='0.0000000',XSIZE=15 ,YSIZE=1, /tracking, frame=lframe, /all_events, $
       uvalue='B (offset) calibration constant.')
 
 
@@ -299,7 +305,7 @@ endif
 
   Units_text = Widget_Text(Button_base, UNAME='Units_text'  $
       ,NOTIFY_REALIZE='OnRealize_Cal_Units_text' ,/EDITABLE  $
-      ,VALUE='channels' ,XSIZE=7 ,YSIZE=1, /tracking, $
+      ,VALUE='channels' ,XSIZE=7 ,YSIZE=1, frame=lframe, /tracking, $
       uvalue='Energy units for calibration (eg. "keV"). (Enter name and hit <return>.)')
 
   keV_button = Widget_Button(Button_base, UNAME='keV_button'  $
@@ -350,7 +356,7 @@ endif
   help_base = Widget_Base(Cal_TLB, UNAME='Button_base'  $
       ,/ALIGN_CENTER ,/BASE_ALIGN_CENTER ,SPACE=1 ,ROW=1, xpad=0, ypad=0 )
 
-  help = widget_text( help_base, xsize=65, ysize=1, /wrap, uname='HELP', /tracking, $
+  help = widget_text( help_base, xsize=help_xsize, ysize=1, /wrap, uname='HELP', /tracking, $
           uvalue='Help window. Displays info about widgets.',frame=0, $
           notify_realize='OnRealize_Cal_Help')
 
