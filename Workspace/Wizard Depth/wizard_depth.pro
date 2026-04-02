@@ -1958,7 +1958,7 @@ label = widget_label( curve_base, value='Calculate Curve for "Outer"/"Inner" ver
 text = widget_text( curve_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, frame=lframe, $
 				value=['Model X-ray yields for all elements to calculate the ratio of the selected "outer" and "inner" detectors versus depth. ' + $
 				'Set-up this depth scale using the thickness series 1D mode for layer #1 in the Yield calculation.'], $
-				uvalue='Explanation of the role of the Depth Curve panel.', frame=1)
+				uvalue='Explanation of the role of the Depth Curve panel.')
 
 curve_base1 = widget_base( curve_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize)
 label = widget_label( curve_base1, value='Yield Calculation')
@@ -2030,7 +2030,7 @@ label = widget_label( cal_base, value='Form "Outer" and "Inner" Spec Cal Files')
 text = widget_text( cal_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='cal-explanation', tracking=tracking, frame=lframe, $
 				value=['Take an energy Cal SPEC file and create separate SPEC files for the selected "Outer" and "Inner" detectors to be used in "Sort EVT" ' + $
 				'in order to project DA images as seen by the "Outer" and "Inner" detectors as a basis to construct RGB images with Depth contrast.'], $
-				uvalue='Explanation of the role of the Cal Spec panel.', frame=1)
+				uvalue='Explanation of the role of the Cal Spec panel.')
 
 cal_base1 = widget_base( cal_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize)
 label = widget_label( cal_base1, value='Cal SPEC and Select files')
@@ -2096,7 +2096,7 @@ label = widget_label( rgb_base, value='Construct RGB Images of Depth Contrast')
 text = widget_text( rgb_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgb-explanation', tracking=tracking, frame=lframe, $
 				value=['Take separate Cal SPEC files for "Outer" and "Inner" detectors from previous page and use them in "Sort EVT" to makes images from the ' + $
 				'outer and inner perspectives as a basis for forming RGB depth contrast images.'], $
-				uvalue='Explanation of the role of the RGB map panel.', frame=1)
+				uvalue='Explanation of the role of the RGB map panel.')
 
 rgb_base1 = widget_base( rgb_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize)
 label = widget_label( rgb_base1, value='"Outer", "Inner" Perspective Images')
@@ -2144,7 +2144,7 @@ label = widget_label( spec_base, value='Find Depths of Selected Particles')
 text = widget_text( spec_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='spec-explanation', tracking=tracking, frame=lframe, $
 				value=['Extract spectra for selected Regions set on particle hot-spots and find the ratio of "Outer" to "Inner" signal, and relate this to particle depth using the "Depth Curve". ' + $
 					'Use these steps repeatedly for each particle. Results appear on the next page.'], $
-				uvalue='Explanation of the role of the Spectra panel.', frame=1)
+				uvalue='Explanation of the role of the Spectra panel.')
 
 spec_base1 = widget_base( spec_base, /column, xpad=1, ypad=1, space=1, /frame, /align_center, /base_align_center, scr_xsize=left_xsize)
 label = widget_label( spec_base1, value='Extract Sum Spectra from Selected Region')
@@ -2212,7 +2212,7 @@ results_base = widget_base( tab_panel, title='5. Results', /column, xpad=1, ypad
 label = widget_label( results_base, value='Results for Depths of Selected Particles')
 text = widget_text( results_base, scr_xsize=left_xsize, ysize=4, /wrap, uname='results-explanation', tracking=tracking, frame=lframe, $
 				value=['Particle depth results: Element peak areas and errors determined from "Outer" and "Inner" sum spectra on the previous page.'], $
-				uvalue='Explanation of the role of the Results panel.', frame=1)
+				uvalue='Explanation of the role of the Results panel.')
 
 results_base2 = widget_base( results_base, /column, xpad=0, ypad=0, space=5, /base_align_center, /align_center)
 
