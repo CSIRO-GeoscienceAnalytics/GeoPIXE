@@ -181,6 +181,8 @@ if n_elements(path) eq 0 then path=''
 			sum[*] = sum[*] + img[*,j] / (*yield)[i,j]
 		endfor
 
+		if (*yield)[i,n_comp] lt 1.0e-20 then continue
+
 		temp = sum + rest / (*yield)[i,n_comp]			; 1/Y averaging
 		scale = temp * (*yield_last)[*,i]
 		(*yield_last)[*,i] = 1. / temp
