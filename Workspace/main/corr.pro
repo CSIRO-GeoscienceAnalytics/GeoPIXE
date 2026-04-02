@@ -254,7 +254,7 @@ endif
 		def_font = 'Geneva*10'
 		draw_trim = 15*sxy
 		scr_trim = 21*sxy
-		help1_xsize = 56
+		help1_xsize = 380*sxy
 		mode_xsize = 68*sxy
 		slide_xsize = 112*sxy
 		button_height = 20*sxy
@@ -271,7 +271,7 @@ endif
 		def_font = '6x13'
 		draw_trim = 0
 		scr_trim = 15*sxy
-		help1_xsize = 56
+		help1_xsize = 380*sxy
 		mode_xsize = 70*sxy
 		slide_xsize = 112*sxy
 		button_height = 29*sxy
