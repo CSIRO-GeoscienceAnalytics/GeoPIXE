@@ -161,12 +161,12 @@ sxy = geopixe_scale()
 case !version.os_family of
     'MacOS': begin
        yw = 170*sxy
-	   help_xsize = 68
+	   help_xsize = 73
 	   lframe = 0
        end
     'unix': begin
        yw = 216*sxy
-	   help_xsize = 68
+	   help_xsize = 73
 	   lframe = 0
        end
     else: begin
