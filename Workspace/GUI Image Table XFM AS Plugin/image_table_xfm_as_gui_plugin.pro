@@ -90,8 +90,8 @@ COMPILE_OPT STRICTARR
 
 ;	Originally used 'custom' mechanism. Now just an Image Table GUI plugin.
 
-;	if default.custom.enable eq 0 then return
-;	if default.custom.lab ne 'XFM' then return
+	shared = 0
+	if (default.custom.enable eq 1) and (default.custom.lab eq 'XFM') then shared=1
 
 	path = fix_path( default.custom.path)
 ;	file = strip_file_ext(default.custom.file) + '.csv'
@@ -100,19 +100,18 @@ COMPILE_OPT STRICTARR
 	region_file = (*p[0]).region_file
 	file2 = strip_file_ext( region_file) + '.csv'
 	file1 = strip_path(file2)
-
-		child2 = widget_info( (*pstate).group, /child)
-		widget_control, child2, get_uvalue=pstate_image
-		pimg = (*pstate_image).p
-
-		r = image_absolute( pimg, absolute=0, error=err)
-		cx = r.absolute.size.x / r.uncompressed.size.x
-		cy = r.absolute.size.y / r.uncompressed.size.y
-
-	close_file, 1
-	on_ioerror, bad_open
 	F = fix_path(path) + file1
-	openw,1, F
+
+	child2 = widget_info( (*pstate).group, /child)
+	widget_control, child2, get_uvalue=pstate_image
+	pimg = (*pstate_image).p
+
+	r = image_absolute( pimg, absolute=0, error=err)
+	cx = r.absolute.size.x / r.uncompressed.size.x
+	cy = r.absolute.size.y / r.uncompressed.size.y
+
+	on_ioerror, bad_open2
+	openw, lun2, file2, /get_lun
 	on_ioerror, bad_write
 
 ;	absx, absy are pixel coords in full scan
@@ -131,24 +130,32 @@ COMPILE_OPT STRICTARR
 			sx = r.absolute.size.x
 			sy = r.absolute.size.y
 
-			printf,1, (*pj).note, sx,ox, sy,oy, format='(A,",,",F7.3,",",F7.3,",,,",F7.3,",",F7.3)'
+			printf, lun2, (*pj).note, sx,ox, sy,oy, format='(A,",,",F7.3,",",F7.3,",,,",F7.3,",",F7.3)'
 		endif
 	endfor
 
 done:
 	on_ioerror, null
-	close_file, 1
+	close_file, lun2
 
-	file_copy, F, file2, /overwrite
-
-	warning,'OnButton_Image_Table_Export_XFM_AS',['Coordinates written to files:', F[0],file2], /info
+	s1 = file2
+	s2 = ''
+	if shared then begin
+		file_copy, file2, F, /overwrite
+		s2 = ['','and to config path: ',F[0]]
+	endif
+	s = [s1,s2]
+	warning,'OnButton_Image_Table_Export_XFM_AS',['Coordinates written to file:', s,' '], /info
 	return
 	
-bad_open:
+bad_open2:
+	warning,'OnButton_Image_Table_Export_XFM_AS',['Failed to open file: '+file2[0],'Check that file is not open in Excell.']
+	goto, done
+bad_open1:
 	warning,'OnButton_Image_Table_Export_XFM_AS',['Failed to open file: '+F[0],'Check that file is not open in Excell.']
 	goto, done
 bad_write:
-	warning,'OnButton_Image_Table_Export_XFM_AS',['Bad write to file: '+F[0],'Check that file is not open in Excell.']
+	warning,'OnButton_Image_Table_Export_XFM_AS',['Bad write to CSV file.','Check that file is not open in Excell.']
 	goto, done
 bad_region:
 	warning,'OnButton_Image_Table_Export_XFM_AS',['Bad region pointer.']
@@ -167,7 +174,7 @@ function image_table_xfm_as_gui_plugin, tab_panel, pstate_parent
 
 	geo = widget_info( tab_panel, /geometry)
 
-	xfm_base = widget_base( tab_panel, title=' XFM ', /column, xpad=0, ypad=1, space=3, $
+	xfm_base = widget_base( tab_panel, title=' XFM(AS) ', /column, xpad=0, ypad=1, space=3, $
 								/align_center, /base_align_center, scr_xsize=geo.scr_xsize)
 
 	h0base = widget_base( xfm_base, /row, /base_align_center, ypad=0, xpad=0, space=10)
