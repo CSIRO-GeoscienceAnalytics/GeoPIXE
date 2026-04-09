@@ -6,13 +6,16 @@
 ; The client routines, called from the GUI code on the master node
 ; are found elsewhere in "parallel_client.pro".
 
-pro worker_init, n, p
+pro worker_init, n, p, log=log
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_worker_1, c_worker_olun, c_worker_psh
+common c_worker_2, c_worker_log
+if n_elements(log) eq 0 then log=0
 
 	c_worker_olun = n							; debug output logical unit
+	c_worker_log = log							; enable loggin
 	c_worker_psh = p							; pointer to shared memory struct
 	return
 end
@@ -44,8 +47,9 @@ pro worker_debug, s
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_worker_1, c_worker_olun, c_worker_psh
+common c_worker_2, c_worker_log
 
-	printf, c_worker_olun, s
+	if c_worker_log then printf, c_worker_olun, s
 	return
 end
 
@@ -56,8 +60,9 @@ pro worker_error, s
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
 common c_worker_1, c_worker_olun, c_worker_psh
+common c_worker_2, c_worker_log
 
-	printf, c_worker_olun, s
+	if c_worker_log then printf, c_worker_olun, s
 	return
 end
 

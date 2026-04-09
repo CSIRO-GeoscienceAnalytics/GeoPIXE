@@ -81,27 +81,31 @@ endif
 	gversion = geopixe_version()
 
 	if n_elements(sargs) eq 0 then begin
-		args = {workerIndex:0, totalWorkers:1, prefix:'prefix'}
+		args = {workerIndex:0, totalWorkers:1, prefix:'prefix', log:0}
 	endif else begin
 		args = unstringify( sargs)
 	endelse
 	workerIndex = args.workerIndex
 	totalWorkers = args.totalWorkers
 	prefix = args.prefix
+	log = args.log										; enable logging to ~/.geopixe/
 
-	gprint, active=1									; Enable gprint diagnostics with level at least this
-														; set to active=2 normally, =1 for most diagnostics.
 	debug = 1											; Print debug lines to log file.
 	timeout_processes = 100.							; Timeout for args load at start.
 
 	if lmgr(/vm) then goto, bad_idl_vm					; VM mode no good with "execute"
+	gprint, active=(log ? 1 : 0)						; enable gprint diagnostics with level at least this
+														; set to active=2 normally, =1 for most diagnostics.
+														; active=0 disables all gprints
 
-	ofilename = home + prefix + '_log.txt'
-	olun = 50 + workerIndex								; theory get_lun in Bridge was issue
-
-	on_ioerror, bad_debugfile
-;	openw, olun, ofilename, /get_lun
-	openw, olun, ofilename
+	if log eq 1 then begin
+		ofilename = home + prefix + '_log.txt'
+		olun = 50 + workerIndex							; theory get_lun in Bridge was issue
+	
+		on_ioerror, bad_debugfile
+;		openw, olun, ofilename, /get_lun
+		openw, olun, ofilename
+	endif else olun=0
 	tic
 	
 	gprint,level=2, output=olun,'Process ',workerIndex,', Shared memory prefix=',prefix
@@ -129,11 +133,11 @@ endif
 ;	                                                 done running          buffer_size
 ;	                   0           1         2    3    4    5    6    7  ...   13
 
-	psh = shared_memory_buffers( prefix=prefix, error=error, n_buffers=n_buffers, /byted, output=olun )
+	psh = shared_memory_buffers( prefix=prefix, error=error, n_buffers=n_buffers, /byted, output=olun, log=log )
 	if error then goto, bad_shrmem
 	buffer_size = (*psh).buffer_size
 
-	worker_init, olun, psh									; init worker routines
+	worker_init, olun, psh, log=log							; init worker routines
 
 	ppar = (*psh).ppar
 	pf = (*psh).pfloat[0]									; progress fraction return
@@ -142,7 +146,7 @@ endif
 	(*ppar)[5] = 1											; up and running
 
 ;	stat = fstat(olun)
-;	help, stat, output=s
+;	if log then help, stat, output=s
 ;	warning,'geopixe_parallel: '+str_tidy(workerIndex),['Test warning before waiting for args to be loaded.', '', $
 ;			'Using "olun"='+str_tidy(olun), s]
 
@@ -177,7 +181,7 @@ endif
 ;	the string describing the work to be done (in 'workerParam')
 
 	geopixe_execute, workerParam, olun=olun, workerIndex=workerIndex, totalWorkers=totalWorkers, $
-					Result=strResult, error=error
+					Result=strResult, error=error, log=log
 	if error then goto, cleanup
 
 	b = byte( strResult)
@@ -191,10 +195,10 @@ cleanup:
 		(*ppar)[4] = 1											; flag finished
 		(*ppar)[5] = 0											; up and running
 	endif
-	toc, lun=olun
-	flush, olun
+	if log then toc, lun=olun else toc
+	if log then flush, olun
 	wait, 1.0
-	close_file, olun
+	if log then close_file, olun
 	return
 
 bad_idl_vm:

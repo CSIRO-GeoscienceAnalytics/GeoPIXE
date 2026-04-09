@@ -27,7 +27,8 @@ if n_elements(source) lt 1 then source='?'
 				default: { 	device:	'MAIA_DEVICE', $	; default device object name
 							memory:	20.e+9 }, $	; default memory limit
 				cluster: { 	type:	'cores', $	; cluster mode ('CWS' or 'cores')
-						nodes:		4}, $		; cluster number of nodes
+						nodes:		4, $		; cluster number of nodes
+						log:		0}, $		; enable log files per process in ~/.geopixe
 				CWS: {	ServiceURL: '', $		; CWS service URL (CWS deprecated)
 						Name:		'', $		; CWS cluster name
 						User:		'', $		; CWS username
@@ -143,6 +144,9 @@ cont:
 									end
 								'nodes': begin
 									geopixe.cluster.nodes = fix2(s[2])
+									end
+								'log': begin
+									geopixe.cluster.log = fix2(s[2])
 									end
 								else:
 							endcase

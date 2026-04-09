@@ -135,7 +135,7 @@ end
 
 ;-------------------------------------------------------------------------------
 
-pro parallel_init, progress=do_progress
+pro parallel_init, progress=do_progress, log=log
 
 COMPILE_OPT STRICTARR
 common c_working_dir, geopixe_root
@@ -144,6 +144,7 @@ common c_parallel_2, c_parallel_pshr, c_parallel_lun
 common c_parallel_5, c_parallel_segment
 common c_parallel_6, c_parallel_obj
 if n_elements(do_progress) eq 0 then do_progress=0
+if n_elements(log) eq 0 then log=0
 
 	ErrorNo = 0
 	common c_errors_1, catch_errors_on
@@ -182,7 +183,7 @@ if n_elements(do_progress) eq 0 then do_progress=0
 			
 			for i=0,c_parallel_nodes-1 do begin
 				print,'     Process ',i,' ...'
-				args = {workerIndex:i, totalWorkers:c_parallel_nodes, prefix:c_parallel_segment[i]}
+				args = {workerIndex:i, totalWorkers:c_parallel_nodes, prefix:c_parallel_segment[i], log:log}
 
 				c_parallel_obj[i] = spawn_bridge_object( geopixe_root, 'geopixe_parallel', args=args)
 

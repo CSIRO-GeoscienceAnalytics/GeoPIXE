@@ -76,10 +76,10 @@ if n_elements(do_progress) lt 1 then do_progress=0
 if n_elements(suppress) lt 1 then suppress=0
 if n_elements(cluster_total) lt 1 then cluster_total=0
 if n_elements(cluster_index) lt 1 then cluster_index=0
-if n_elements(cluster_debug) lt 1 then cluster_debug=-1		; stdout
+if n_elements(cluster_debug) lt 1 then cluster_debug=-1		; stdout (set to -2 to disable prints)
 
-gprint, active=2								; enable gprint diagnostics with level at least this
-												; set to active=2 normally, =1 for most diagnostics
+gprint, active=(cluster_debug ge -1 ? 2: 0)		; enable gprint diagnostics with level at least this
+												; set to active=2 normally, =1 for most diagnostics, =0 disable
 cluster_result = 'null'
 if cluster_total gt 0 then begin
 	startupp, /error							; , /database

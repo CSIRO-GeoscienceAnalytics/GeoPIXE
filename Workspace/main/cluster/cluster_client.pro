@@ -284,7 +284,7 @@ pro cluster_client, group_leader=group, args=args, presult=presult, title=title,
 				warning,'cluster_client','"parallel_config" failed, return.'
 				return
 		endif
-		parallel_Init, /progress
+		parallel_Init, /progress, log=prefs.log
 	endif
 	
 	width = 480

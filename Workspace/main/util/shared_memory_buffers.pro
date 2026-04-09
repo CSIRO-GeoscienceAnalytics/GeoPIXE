@@ -1,4 +1,4 @@
-function shared_memory_buffers, prefix=prefixi, error=error, output=olun, $
+function shared_memory_buffers, prefix=prefixi, error=error, output=olun, log=log, $
 			n_buffers=n_buffers, buffer_size=buffer_size, floatd=floatd, byted=byted, $
 			n_long=n_long, n_float=n_float, n_byte=n_byte, destroy=destroy, init=init
 
@@ -60,9 +60,10 @@ if n_elements(n_byte) lt 1 then n_byte=256
 if n_elements(destroy) lt 1 then destroy=0
 if n_elements(init) lt 1 then init=0
 if n_elements(olun) lt 1 then olun=0
+if n_elements(log) lt 1 then log=0
 
 	prefix = prefixi[0]
-	gprint,level=2, output=olun,'shared_memory_buffers: map buffers for prefix = "'+prefix+'" (#chars='+strtrim(string(n_elements(byte(prefix))),2)+') ...'
+	if log then gprint,level=2, output=olun,'shared_memory_buffers: map buffers for prefix = "'+prefix+'" (#chars='+strtrim(string(n_elements(byte(prefix))),2)+') ...'
 	n_pars = 16
 	par_name = prefix + 'pars'
 
@@ -70,7 +71,7 @@ if n_elements(olun) lt 1 then olun=0
 	if (ErrorNo ne 0) then begin
 		Catch, /cancel
 		if !Error_state.name eq 'IDL_M_SHM_REDEFSEG' then begin
-			gprint,level=2, output=olun,'shared_memory_buffers: "shmmap" IDL_M_SHM_REDEFSEG error on "'+par_name+'" - assume it is already established.'
+			if log then gprint,level=2, output=olun,'shared_memory_buffers: "shmmap" IDL_M_SHM_REDEFSEG error on "'+par_name+'" - assume it is already established.'
 			goto, skip1
 		endif
 		
@@ -98,7 +99,7 @@ skip1:
 	;		                      free						free free free free free free free dimensions
 
 	if new or init then begin
-		gprint,level=1, output=olun, '	set-up new shared memory? Test ...'
+		if log then gprint,level=1, output=olun, '	set-up new shared memory? Test ...'
 		n = n_elements(buffer_size) > 1
 		bufsiz = (n ge 3) ? buffer_size[0:2] : [buffer_size,lonarr(3-n)]
 
@@ -107,20 +108,20 @@ skip1:
 		if (*ppar)[0] ne n_buffers then init_par=1
 		
 		if init_par then begin
-			gprint,level=2, output=olun,'shared_memory_buffers: Memory not set-up, so clear/set ppar ...'
+			if log then gprint,level=2, output=olun,'shared_memory_buffers: Memory not set-up, so clear/set ppar ...'
 			(*ppar)[0:15] = [n_buffers,     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  bufsiz ]
 		endif
 	endif else begin
-		gprint,level=1, output=olun, '	Look for existing shared memory ...'
+		if log then gprint,level=1, output=olun, '	Look for existing shared memory ...'
 		n_buffers = (*ppar)[0]
 		buffer_size = (*ppar)[13]
 		if (*ppar)[14] ne 0 then buffer_size = [buffer_size, (*ppar)[14]]
 		if (*ppar)[15] ne 0 then buffer_size = [buffer_size, (*ppar)[15]]
 	endelse
-	gprint,level=2, output=olun,n_buffers, ' buffers, each = ',buffer_size
+	if log then gprint,level=2, output=olun,n_buffers, ' buffers, each = ',buffer_size
 
 	if n_buffers eq 0 then begin
-		gprint,level=2, output=olun,'Zero n_buffers. Ignore DAT.'
+		if log then gprint,level=2, output=olun,'Zero n_buffers. Ignore DAT.'
 		error = 1
 		pdat = 0
 		plong = 0
@@ -142,7 +143,7 @@ skip1:
 	if (ErrorNo ne 0) then begin
 		Catch, /cancel
 		if !Error_state.name eq 'IDL_M_SHM_REDEFSEG' then begin
-			gprint,level=2, output=olun,'shared_memory_buffers: "shmmap" IDL_M_SHM_REDEFSEG error on "'+name+'" - assume it is already established.'
+			if log then gprint,level=2, output=olun,'shared_memory_buffers: "shmmap" IDL_M_SHM_REDEFSEG error on "'+name+'" - assume it is already established.'
 			goto, skip
 		endif
 		
