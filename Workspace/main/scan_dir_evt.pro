@@ -6,11 +6,11 @@ function scan_dir_evt, F, obj, image=image, dai_dir=dai_dir, ppath=ppath, proot=
 ; Returns a pointer array to structs.
 ; 
 ;	obj		device obj
-;	ppath	pointer to path (defaults to F)
+;	ppath	pointer to path (defaults to F) (usually 'data' path)
 ;	proot	pointer to path root
 ;	error	returns error (1) or sucess(0)
 ;	/image	also scan for derived image DAI files.
-;	dai_dir  path to DAI files (defaults to same as raw files 'F')
+;	dai_dir  path to DAI files (usually 'analysis' path) (defaults to same as raw files 'F')
 ;	mode	normal image mode (0) or cuts mode (1)
 ;	rmin	minimum event file run number
 ;	rmax	maximum event file run number
@@ -41,6 +41,9 @@ endif
 		evt = '*' + ext
 	endelse
 	dai = '*' + '.dai'												; original dai files
+
+;	Input raw files ...
+
 	s = file_search( F, evt)										; all evt files in tree
 
 	; Reject '', temp files like "1234.dai.0" and any files in a .zarr directory.
@@ -100,6 +103,8 @@ endif
 	endif else fs0 = fs
 	s0 = strip_file_ext(s)
 	
+;	Output files ...
+
 	s2 = file_search( dai_dir, dai)										; all original dai files
 	ok = file_test( s2, /read) and (file_test( s2, /zero_length) ne 1)
 	q = where( ok eq 1, nd)

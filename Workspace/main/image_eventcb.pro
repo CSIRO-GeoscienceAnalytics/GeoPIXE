@@ -1063,6 +1063,7 @@ register_notify, event.top, $
 		['images', $					; new images loaded
 		'path', $						; new path
 		'dpath', $						; new raw data path
+		'root', $						; input/output path root details struct
 		'spectra', $					; pass on notify of new spectra loaded
 		'batch-operations-open', $		; open Image operations window
 		'batch-rgb-open', $				; open RGB Image window

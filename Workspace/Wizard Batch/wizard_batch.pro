@@ -113,7 +113,33 @@ case tag_names( event,/structure) of
 ;			'path': begin
 ;				if ptr_valid( event.pointer) then begin
 ;					*(*pstate).path = (*event.pointer)
+;					s = build_output_path( *(*pstate).dpath, *(*pstate).path, (*pstate).root, /set)
+;					if lenchr(s) gt 0 then *(*pstate).path = s
 ;				endif
+;				goto, finish
+;				end
+;			'dpath': begin
+;				if ptr_valid( event.pointer) then begin
+;					*(*pstate).dpath = (*event.pointer)
+;					s = build_output_path( *(*pstate).dpath, *(*pstate).path, (*pstate).root, /set)
+;					if lenchr(s) gt 0 then *(*pstate).path = s
+;				endif
+;				goto, finish
+;				end
+;			'root': begin
+;				if ptr_valid( event.pointer) then begin
+;					*(*pstate).root = (*event.pointer)
+;				endif
+;
+;				r = dialog_message( ['Use new path assignment to correct all output paths in Batch Sort?', $
+;							'', 'Only enabled runs will be corrected.', '', $
+;							'Make sure in/out paths in Sort EVT window make sense.', $
+;							'All runs will inherit the same path remapping rules.'], /question, $
+;							title='Correct Batch output paths')
+;				if r eq 'Yes' then begin
+;					wizard_batch_correct_output, pstate, error=error
+;				endif
+;				wizard_batch_update_table, pstate
 ;				goto, finish
 ;				end
 			'new-detectors': begin
@@ -259,6 +285,7 @@ case uname of
 			*(*pstate).dpath = F[0]
 			set_widget_text, (*pstate).blog_dir_text, (*pstate).blog_dir
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
+			print,'Batch Wizard: new output path: '+s
 			if lenchr(s) gt 0 then begin
 				(*pstate).output_dir = s
 				set_widget_text, (*pstate).output_dir_text, s
@@ -276,15 +303,18 @@ case uname of
 		(*pstate).blog_dir = s
 		if lenchr(s) gt 0 then begin
 			*(*pstate).dpath = s
-			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
-			(*pstate).output_dir = s
-			set_widget_text, (*pstate).output_dir_text, s
 			notify, 'dpath', (*pstate).dpath, from=event.top
-			*p = 0												; clear processing table
-			wizard_batch_update_table, pstate
-			(*pstate).sel.top = -1
-			(*pstate).sel.bottom = -1
+			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
+			print,'Batch Wizard: new output path: '+s
+			if lenchr(s) gt 0 then begin
+				(*pstate).output_dir = s
+				set_widget_text, (*pstate).output_dir_text, s
+			endif
 		endif
+		*p = 0												; clear processing table
+		wizard_batch_update_table, pstate
+		(*pstate).sel.top = -1
+		(*pstate).sel.bottom = -1
 		end
 					
 	'energy-cal-file-button': begin
@@ -308,6 +338,7 @@ case uname of
 			(*pstate).output_dir = F[0]
 			set_widget_text, (*pstate).output_dir_text, (*pstate).output_dir 
 			s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
+			print,'Batch Wizard: new output path: '+s
 			*(*pstate).path = (*pstate).output_dir 
 			notify, 'path', (*pstate).path, from=event.top
 			*p = 0												; clear processing table
@@ -323,11 +354,11 @@ case uname of
 		if lenchr(s) gt 0 then begin
 			*(*pstate).path = (*pstate).output_dir 
 			notify, 'path', (*pstate).path, from=event.top
-			*p = 0												; clear processing table
-			wizard_batch_update_table, pstate
-			(*pstate).sel.top = -1
-			(*pstate).sel.bottom = -1
 		endif
+		*p = 0												; clear processing table
+		wizard_batch_update_table, pstate
+		(*pstate).sel.top = -1
+		(*pstate).sel.bottom = -1
 		end
 				
 	'same-dir-button': begin
@@ -335,6 +366,11 @@ case uname of
 		set_widget_text, (*pstate).output_dir_text, (*pstate).output_dir 
 		s = build_output_path( (*pstate).blog_dir, (*pstate).output_dir, (*pstate).root, /set)
 		*(*pstate).path = (*pstate).output_dir 
+		notify, 'path', (*pstate).path, from=event.top
+		*p = 0													; clear processing table
+		wizard_batch_update_table, pstate
+		(*pstate).sel.top = -1
+		(*pstate).sel.bottom = -1
 		end
 
 	'template-sort-button': begin
@@ -1353,6 +1389,48 @@ end
 
 ;--------------------------------------------------------------------------
 
+pro wizard_batch_correct_output, pstate, error=error
+
+	COMPILE_OPT STRICTARR
+	if ptr_good(pstate) eq 0 then return
+	error = 1
+
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		message, /RESET
+		return
+	endif
+
+	p = (*pstate).presults
+
+	for j=0,n_elements(*p)-1 do begin
+		if (*(*p)[j]).on eq 1 then begin
+			s = build_output_path( (*(*p)[j]).file, (*(*p)[j]).output, (*pstate).root)
+			T = strip_file_ext( strip_path((*(*p)[j]).file))
+			if (*pstate).DevObj->multi_files() and ((*pstate).DevObj->multi_char() ne '.') then begin
+				T = strip_file_m( T, ending=(*pstate).DevObj->multi_char() + ((adc_offset_device((*pstate).DevObj) eq -1) ? '0' : '1'))
+			endif
+			if (*pstate).DevObj->embed_detector() then begin
+				k = locate_last( "_", T)								; det # is before the multifile char
+				q = where( k ge 0, nq)
+				if nq ge 1 then T[q] = strmid2( T[q], 0,k[q])
+			endif
+			if ((*pstate).mode eq 1) then T = strip_file_m( T, ending='-cuts') + '-cuts'
+			if ((*pstate).mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
+			f = s + T + '.dai'
+			print, ' Corrected output path = '+ f
+			if lenchr(s) gt 0 then (*(*p)[j]).output = f
+		endif
+	endfor
+
+	error = 0
+	return
+end
+
+;-----------------------------------------------------------------
+
 function wizard_batch_output_file, pstate, blog, error=err
 	
 ; Determine the matching output file or path appropriate for 'blog'.
@@ -1500,6 +1578,10 @@ endif
 if n_elements(silent) eq 0 then silent=0
 
 	error = 1
+	widget_control, (*pstate).blog_dir_text, get_value=s
+	(*pstate).blog_dir = s
+	widget_control, (*pstate).output_dir_text, get_value=s
+	(*pstate).output_dir = s
 
 	drop = ['Use all event/ run files','Filter numeric event file (run) names']
 	help_drop = 'For numeric event file names, using run numbers, you can choose a range within min/max run numbers.'
@@ -3350,7 +3432,7 @@ catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 sxy = geopixe_scale()						; scale all if system font changes
 
-wversion = '8.9r'							; wizard version
+wversion = '8.9t'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
@@ -3413,6 +3495,11 @@ version = geopixe_version()				; GeoPIXE Version text
 default = geopixe_defaults(source='wizard_batch')
 config = default.path.config
 detector_update, list=detector_list, title=detector_title
+
+dpath = default.path.data
+path = default.path.analysis
+proot = ptr_new({strip:0, path:''})
+path = build_output_path( dpath, path, proot, /set)
 
 ; List the names of the windows needed, in the format of their 'wizard-action' Notify
 ; window name. The "open-test" Notify message will be sent to these windows periodically
@@ -3851,6 +3938,7 @@ endif else help=0L
 state = { $
 		path:					ptr_new(path), $				; pointer to current path
 		dpath:					ptr_new(dpath), $				; pointer to current dpath
+		root:					ptr_new(*proot), $				; storage for 'build_output_path' root path
 		tracking:				tracking, $						; tracking mode
 		tab:					0, $							; current Tab selected
 		tab_names:				tab_names, $					; tab names
@@ -3894,7 +3982,6 @@ state = { $
 		template_sort_dai:		'', $							; template DAI for sorting
 		template_corrections_dai:	'', $						; template DAI for corrections
 		template_rgb_export:		'', $						; template RGB.csv for RGB export
-		root:					ptr_new(/allocate_heap), $		; storage foor 'build_output_path' root path
 
 ;		pconfig:				ptr_new(/allocate_heap), $		; room for standards.csv config table
 		first:					0, $							; first run to process
@@ -3994,6 +4081,8 @@ geom = widget_info( tlb, /geometry)
 
 register_notify, tlb, ['wizard-return', $				; returns from GeoPIXE windows
 				'path', $								; new paths
+				'root', $								; input/output path root details struct
+				'dpath', $								; new data path
 				'new-detectors']						; detectors changed
 xmanager, 'wizard_batch', tlb, /no_block
 

@@ -101,13 +101,13 @@ COMPILE_OPT STRICTARR
 	file2 = strip_file_ext( region_file) + '.csv'
 	file1 = strip_path(file2)
 
-		child2 = widget_info( (*pstate).group, /child)
-		widget_control, child2, get_uvalue=pstate_image
-		pimg = (*pstate_image).p
+	child2 = widget_info( (*pstate).group, /child)
+	widget_control, child2, get_uvalue=pstate_image
+	pimg = (*pstate_image).p
 
-		r = image_absolute( pimg, absolute=0, error=err)
-		cx = r.absolute.size.x / r.uncompressed.size.x
-		cy = r.absolute.size.y / r.uncompressed.size.y
+	r = image_absolute( pimg, absolute=0, error=err)
+	cx = r.absolute.size.x / r.uncompressed.size.x
+	cy = r.absolute.size.y / r.uncompressed.size.y
 
 	close_file, 1
 	on_ioerror, bad_open
@@ -167,7 +167,7 @@ function image_table_xfm_nsls_gui_plugin, tab_panel, pstate_parent
 
 	geo = widget_info( tab_panel, /geometry)
 
-	xfm_base = widget_base( tab_panel, title=' XFM ', /column, xpad=0, ypad=1, space=3, $
+	xfm_base = widget_base( tab_panel, title='XFM(NSLS)', /column, xpad=0, ypad=1, space=3, $
 								/align_center, /base_align_center, scr_xsize=geo.scr_xsize)
 
 	h0base = widget_base( xfm_base, /row, /base_align_center, ypad=0, xpad=0, space=10)
