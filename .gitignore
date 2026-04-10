@@ -34,3 +34,6 @@ Workspace/*/.settings
 Workspace/Test/
 Workspace/geopixe/GPUCache/
 *.errs
+image_table_hotspots_gui_plugin.sav
+GUI?Image?Table?Hotspots?plugin/
+

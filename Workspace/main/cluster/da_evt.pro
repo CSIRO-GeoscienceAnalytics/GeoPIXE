@@ -88,7 +88,8 @@ if n_elements(cluster_total) lt 1 then cluster_total=0
 if n_elements(cluster_index) lt 1 then cluster_index=0
 if n_elements(cluster_debug) lt 1 then cluster_debug=-1		; stdout (set to -2 to disable prints)
 
-gprint, active=(cluster_debug ge -1 ? 2: 0)		; enable gprint diagnostics with level at least this
+log = (cluster_debug ge -1)
+gprint, active=(log ? 2: 0)						; enable gprint diagnostics with level at least this
 												; set to active=2 normally, =1 for most diagnostics, =0 disable
 cluster_result = 'null'
 if cluster_total gt 0 then begin
@@ -209,7 +210,7 @@ if cluster then begin
 endif
 gprint,level=2, output=cluster_debug, 'Output="',output,'"'
 
-toc, lun=cluster_debug					; assume that a "tic" has been done previously (will use unit declared with tic)
+if log then toc, lun=cluster_debug					; assume that a "tic" has been done previously (will use unit declared with tic)
 
 channel = channeli			
 
@@ -231,7 +232,7 @@ matrix = read_da( da_string, phases=phase_dai, pcorr=pcorr, mpda=mpda, eDA=eDA, 
 if err then goto, bad_matrix
 
 if mpda then begin
-	help, output=s, matrix
+	if log then help, output=s, matrix
 	gprint,level=2, output=cluster_debug, 'Matrix: '+s
 	da_matrix = matrix.matrix
 	n_comp = n_elements( da_matrix[0,0,*])
