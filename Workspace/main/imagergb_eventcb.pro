@@ -563,7 +563,7 @@ do_it:
 		map_check = [0,1]
 		help_check = 'Select the display zoom (negative = factors of 2 compressed) for the image output file. The default is full resolution (zoom = 0).'
 		Help_default = 'Select the display zoom (negative = factors of 2 compressed) for the image output file. The default is full resolution (zoom = 0).'
-		r = options_popup( title='Select display zoom for output', check=check, /exclusive, initial_check=initial_check, help_check=help_check, map_check=map_check, $
+		r = options_popup( event.top, title='Select display zoom for output', check=check, /exclusive, initial_check=initial_check, help_check=help_check, map_check=map_check, $
 					help_default=help_default, drop=drop, help_drop=help_drop, error=error)				; , min_xsize=200
 		if error then return
 		

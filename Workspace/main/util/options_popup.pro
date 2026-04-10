@@ -347,7 +347,7 @@ COMPILE_OPT STRICTARR
 	if n_elements(min_xsize) lt 1 then min_xsize=100
 	if n_elements(columns_check) lt 1 then columns_check=2
 	if widget_info(group,/valid) eq 0 then begin
-		group = widget_base( scr_xsize=1, scr_ysize=1)
+		group = widget_base( scr_xsize=3, scr_ysize=3)
 		local = 1
 	endif else local=0
 	if debug then begin

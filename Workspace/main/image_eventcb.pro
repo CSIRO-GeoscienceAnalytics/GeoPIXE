@@ -3436,7 +3436,7 @@ help_text = 'Select the axis along which the normalization will take place ("X",
 check = ['none', 'median 3', 'median 5', 'median 10', 'median 20', 'median 30', 'median 50']
 help_check = 'Apply "'+ ['no filter', 'median 3 filter', 'median 5 filter', 'median 10 filter', 'median 20 filter', 'median 30 filter', 'median 50 filter']+'" to correction vector.'
 
-r = options_popup( title='Correction of flux along axis', explanation=explanation, $
+r = options_popup( event.top, title='Correction of flux along axis', explanation=explanation, $
 			text=text, initial_text=initial_text, help_text=help_text, $
 			check=check, help_check=help_check, /exclusive, columns_check=4, $
 			help_default=help_default, drop=drop, help_drop=help_drop, min_xsize=400, error=error)

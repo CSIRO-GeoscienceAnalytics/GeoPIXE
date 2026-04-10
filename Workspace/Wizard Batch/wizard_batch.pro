@@ -1590,7 +1590,7 @@ if n_elements(silent) eq 0 then silent=0
 	initial_text = ['','']
 	help_text = ['Low event run number to include.','High event run number to include.']
 	Help_default = 'For numeric event file names, using run numbers, you can choose a range within min/max run numbers.'
-	r = options_popup( title='Event run number range option', text=text, initial_text=initial_text, help_text=help_text, map_text=map_text, $
+	r = options_popup( (*pstate).tlb, title='Event run number range option', text=text, initial_text=initial_text, help_text=help_text, map_text=map_text, $
 				help_default=help_default, drop=drop, help_drop=help_drop, error=err)		; , min_xsize=200
 	if err then return, 0
 	

@@ -1294,7 +1294,7 @@ case uname of
 		initial_text = strtrim(string((*p).E_scatter_merge),2)
 		help_text = 'Energy below which Compton and elastic are treated as one called "scatter". Maximum XANES series energy is used for this test.'
 		
-		r = options_popup( title='Generate DA Matrix', drop=drop, help_drop=help_drop, path=*(*pstate).path, $
+		r = options_popup( event.top, title='Generate DA Matrix', drop=drop, help_drop=help_drop, path=*(*pstate).path, $
 								map_file=map_file, file=file, initial_file=initial_file, help_file=help_file, filter=['*.csv'], $
 								map_text=map_text, text=text, initial_text=initial_text, help_text=help_text, $
 								min_xsize=500, explanation=explanation, error=error)
