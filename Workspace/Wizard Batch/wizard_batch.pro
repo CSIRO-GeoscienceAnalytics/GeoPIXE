@@ -1600,7 +1600,9 @@ if n_elements(silent) eq 0 then silent=0
 	if rmax eq 0 then rmax = 10000000L
 
 cont:
+	widget_control, /hourglass
 	p = scan_dir_evt( /image, (*pstate).blog_dir, dai_dir=(*pstate).output_dir, *(*pstate).pDevObj, ppath=(*pstate).path, proot=(*pstate).root, rmin=rmin, rmax=rmax, error=err)
+	widget_control, hourglass=0
 	if err then return, 0
 
 	nb = n_elements(p)
@@ -2252,21 +2254,23 @@ pro wizard_batch_process_blog, pstate, error=error
 		endif
 	endif
 
-	over = (*pstate).options_file[0]			; overwrite original DAI option
+	over = (*pstate).options_file[0]				; overwrite original DAI option
 
 	if do_ops then begin
-		wz = define(/wizard_notify)
-		wz.wizard = 'batch'
-		wz.window = 'Image'						; do image corrections
-		wz.command = 'image-corrections'
-		wz.pdata = ptr_new( {	$
-			ops:		ops, $					; corrections list
-			overwrite:	over }, /no_copy)		; overwrite original DAI
-		wz.local = 1
-		wz.callback = 'wizard_batch_callback_corrections_done'
-		pw = ptr_new(wz, /no_copy)
-		(*pl).pnext = pw						; link current one to this 'next' one
-		pl = pw									; current one
+		if typevar(ops) eq 'STRUCT' then begin
+			wz = define(/wizard_notify)
+			wz.wizard = 'batch'
+			wz.window = 'Image'						; do image corrections
+			wz.command = 'image-corrections'
+			wz.pdata = ptr_new( {	$
+				ops:		ops, $					; corrections list
+				overwrite:	over }, /no_copy)		; overwrite original DAI
+			wz.local = 1
+			wz.callback = 'wizard_batch_callback_corrections_done'
+			pw = ptr_new(wz, /no_copy)
+			(*pl).pnext = pw						; link current one to this 'next' one
+			pl = pw									; current one
+		endif
 
 		if n_elements(display) ne 0 then begin
 			wz = define(/wizard_notify)
@@ -3432,7 +3436,7 @@ catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 sxy = geopixe_scale()						; scale all if system font changes
 
-wversion = '8.9t'							; wizard version
+wversion = '8.9u'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.
@@ -3615,7 +3619,7 @@ file_base = widget_base( tab_panel, title=' 1. User Input  ', /column, xpad=1, y
 label = widget_label( file_base, value='Select raw data directory')
 text = widget_text( file_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='curve-explanation', tracking=tracking, $
 				value=['Select the data directory to scan for all raw data. Select an output path, and select a template DAI image file to set initial sort parameters. ' + $
-					'You can edit some sort parameters in the Table on tab 5.'], $
+					'You can edit some sort parameters in the Table on tab 5 or directly in the "Sort EVT" window after loading a template DAI.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the User Input panel.'}, frame=1)
 
 
@@ -3685,9 +3689,10 @@ ctable_base = widget_base( tab_panel, title=' 2. Corrections Table  ', /column, 
 					/align_center, /base_align_center, scr_xsize=left_xsize+20, scr_ysize=left_ysize, uvalue={xresize:left_resize,yresize:1})
 label = widget_label( ctable_base, value='Table of image corrections and display parameters')
 text = widget_text( ctable_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='ctable-explanation', tracking=tracking, $
-				value=['Table showing all image operations from a template DAI file, which can be selected here. ' + $
+				value=['Table showing all image operations and display ranges from a template DAI file, which can be selected here. ' + $
 				'Operations that effect ALL planes (shown with a "*") are only shown againt ' + $
-				'the element selected to guide that operation. Corrections can be deleted or more added. The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'], $
+				'the element selected to guide that operation. Corrections can be deleted or more added. Display ranges and modes can also be set. ' + $
+				'The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the Corretions panel.'}, frame=1)
 
 ctable_base0 = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
@@ -3710,9 +3715,9 @@ t = strarr(ncc,256)
 ;print,'table Y size = ', left_ysize-yoff_table-45*sxy
 ctable = Widget_Table(ctable1_base, UNAME='corrections-table', /all_events, /editable, /scroll, $ Y_SCROLL_SIZE=12, $	;, X_SCROLL_SIZE=8, $
 				value=t, /RESIZEABLE_COLUMNS, alignment=2, scr_xsize=left_xsize, scr_ysize=left_ysize-yoff_table-45*sxy, /no_row_headers, $
-				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows all element image corrections from the template DAI file. ' + $
+				tracking=tracking, uvalue={xresize:left_resize,yresize:1, help:'The table shows all element image corrections and display ranges from the template DAI file. ' + $
 				'Operations that effect ALL planes (shown with a "*") are only shown againt the element selected to guide that operation. ' + $
-				'Corrections can be deleted or more added. The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'}, $
+				'Corrections can be deleted or more added.  Display ranges and modes can also be set. The "Log" column shows display mode: Linear (0), LOG (1), SQRT (2).'}, $
 				column_labels=headings, column_widths=widths, NOTIFY_REALIZE='OnRealize_wizard_batch_ctable')
 			
 ctable_base2a = widget_base( ctable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
@@ -3753,7 +3758,7 @@ rgbtable_base = widget_base( tab_panel, title=' 3. RGB Exports  ', /column, xpad
 label = widget_label( rgbtable_base, value='Table of RGB export options')
 text = widget_text( rgbtable_base, scr_xsize=left_xsize, ysize=5, /wrap, uname='rgbtable-explanation', tracking=tracking, $
 				value=['Table showing selected RGB images/plots to export. The table can be set from a "Learn" RGB.csv file created in the RGB Image window ' + $
-				'(see the "Learn" menu) or edited here. Hit <return> to load the file.'], $
+				'(see the "Learn" menu) or edited here. Hit <return> to load the file. Add new rows using "Edit Export" and "Add". Use "Save" to save to a new .RGB.csv file.'], $
 				uvalue={xresize:left_resize, help:'Explanation of the role of the RGB Export panel.'}, frame=1)
 
 rgbtable_base0 = widget_base( rgbtable_base, /row, xpad=1, ypad=0, space=2, /align_center, /base_align_center)
@@ -3834,7 +3839,7 @@ options_process = [0,0,0]
 options_process_id = cw_bgroup2( options_base3b, ['Apply corrections to images','Apply a CorrectX scaling file','Mirror X (odd images only)'], $
 			/column, xpad=0, ypad=0, space=0, /return_index, tracking=tracking, $
 			uname='options-process', set_value=options_process, /nonexclusive, $
-			uvalue=['Enable the application of digital filters and corrections to the resulting images, as defined on tab 2 (Corrections). ', $
+			uvalue=['Enable the application of digital filters and corrections, and/or display ranges, to the resulting images, as defined on tab 2 (Corrections). ', $
 					'Select an existing file of CorrectX corrections to scale image for variations in X current, flux, etc.', $
 					'A nasty hack to flip an image in X [to fix the Epics negative width error at XFM that produces negative X and flips every second image]. Set "First" on the first image to flip in X.'])
 

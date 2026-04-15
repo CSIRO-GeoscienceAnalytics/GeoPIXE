@@ -17,7 +17,8 @@ keep the original images.
 Processing and Corrections Options
 
 The first option "Apply corrections to image" will be
-enabled if corrections have been defined on tab 2.
+enabled if corrections have been defined on tab 2. You can 
+also enable this to change Display ranges and modes.
 
 Export and Save Options
 

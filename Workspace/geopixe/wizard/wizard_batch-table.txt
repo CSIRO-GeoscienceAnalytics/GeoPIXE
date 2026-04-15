@@ -21,11 +21,8 @@ to edit it, or use "Fill" to duplicate it down the
 selected column.
 
 Enable: Toggle the enable state of selected rows.
-
-Fill: Duplicate down selected columns. 
-
+Fill: Duplicate down selected columns from a selected cell. 
 Delete: Delete selected row(s).
-
 Clear: Clears entire table.
 
      Selection of cells
@@ -34,6 +31,10 @@ Click in a cell to select it. Click and drag to select
 multiple rows and/or columns. Selecting a file cell
 will bring up the file requester. All other cells using 
 the same file-name will be updated too.
+
+     Editing cells
+
+Click in a cell and hit <return> to start editing a cell.
 
      Processing
 
