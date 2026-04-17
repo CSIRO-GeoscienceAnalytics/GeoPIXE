@@ -3073,7 +3073,7 @@ endcase
 	headings = ['#','On', 'Raw', 'Xpixels','Ypixels','Xsize','Ysize', 'Charge', 'Output', 'Pileup','Throttle','Linear']
 	widths = [3,5, 12, replicate(7,2),replicate(7,2), 8, 41, replicate(20,3)] * !d.x_ch_size * ch_scale *sxy
 	nc = n_elements(headings)
-	t = strarr(nc,256)
+	t = strarr(nc, 256 > n)
 	toggle_modes = ['Off', 'On', 'Done', 'Error']
 
 	c = intarr(3,nc,256)
