@@ -109,6 +109,7 @@ case tag_names( event,/structure) of
 				end
 			'spectrum-view': begin
 				if ptr_valid( event.pointer) then begin
+					if ptr_good( (*pstate).pspec) eq 0 then goto, finish
 					cal_ab, (*(*pstate).pspec).cal, a,b,u, error=error
 					if error eq 0 then begin
 						(*p).view[0] = ((*event.pointer).low*a + b) > 0.32
