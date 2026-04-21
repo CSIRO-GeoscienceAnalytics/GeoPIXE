@@ -3076,7 +3076,7 @@ endcase
 	t = strarr(nc, 256 > n)
 	toggle_modes = ['Off', 'On', 'Done', 'Error']
 
-	c = intarr(3,nc,256)
+	c = intarr(3,nc, 256 > n)
 	c[0,*,*] = (spec_colour('white',/rgb))[0]						; table colours
 	c[1,*,*] = (spec_colour('white',/rgb))[1]
 	c[2,*,*] = (spec_colour('white',/rgb))[2]
