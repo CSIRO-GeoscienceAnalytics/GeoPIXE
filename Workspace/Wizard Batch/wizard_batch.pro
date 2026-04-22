@@ -2216,6 +2216,10 @@ pro wizard_batch_process_blog, pstate, error=error
 		pileup:			(*p)[j].pileup, $				; pileup file
 		throttle:		(*p)[j].throttle, $				; throttle file
 		linear:			(*p)[j].linear, $				; linearize file
+		xrange:			(*p)[j].xpixels, $				; X pixels
+		yrange:			(*p)[j].ypixels, $				; Y pixels
+		xsize:			(*p)[j].xsize, $				; X size (um)
+		ysize:			(*p)[j].ysize, $				; Y size (um)
 		output:			output, $						; output file
 		load:			load, $							; load (1) image file if exists
 		skip:			(*pstate).options_file[1], $	; skip (1) sort if exists already
@@ -3436,7 +3440,7 @@ catch_errors_on = 1							; enable error CATCHing
 if debug then catch_errors_on = 0			; disable error CATCHing
 sxy = geopixe_scale()						; scale all if system font changes
 
-wversion = '8.9u'							; wizard version
+wversion = '9.0'							; wizard version
 
 ; Each wizard sav loads routines from GeoPIXE.sav, if GeoPIXE is not running.
 ; The GeoPIXE routines are NOT to be compiled into each wizard sav file.

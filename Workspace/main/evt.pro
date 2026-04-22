@@ -288,6 +288,12 @@ snap_done:
 								if tag_present('PILEUP', *pd) then evt_set_pileup_file, pstate, (*pd).pileup
 								if tag_present('THROTTLE', *pd) then evt_set_throttle_file, pstate, (*pd).throttle
 								if tag_present('LINEAR', *pd) then evt_set_linear_file, pstate, (*pd).linear
+
+								if tag_present('XRANGE', *pd) then evt_set_xrange, pstate, (*pd).xrange
+								if tag_present('YRANGE', *pd) then evt_set_yrange, pstate, (*pd).yrange
+								if tag_present('XSIZE', *pd) then evt_set_xsize, pstate, (*pd).xsize
+								if tag_present('YSIZE', *pd) then evt_set_ysize, pstate, (*pd).ysize
+
 								if tag_present('CONV', *pd) then evt_set_charge_conversion, pstate, (*pd).conv
 								if tag_present('CHARGE_MODE', *pd) then evt_set_charge_mode, pstate, (*pd).charge_mode, event.top
 								if tag_present('FLUX_SCALER', *pd) then evt_set_preamp_pv, pstate, (*pd).flux_scaler
@@ -2824,6 +2830,162 @@ endif
 	set_widget_text, (*pstate).evt2_file, F[0]
 	(*p).evt2_file = F[0]
 	(*p).flux = 0.0
+	return
+end
+
+;------------------------------------------------------------------------------------------
+
+pro evt_set_xrange, pstate, x
+
+;	Set the X range (pixels)
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'evt_set_xrange',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+	if n_elements(pstate) eq 0 then return
+	if ptr_valid(pstate) eq 0 then return
+	if size(*pstate,/tname) ne 'STRUCT' then return
+	if n_elements(x) lt 1 then return
+	p = (*pstate).p
+	if ptr_valid(p) eq 0 then return
+	DevObj = (*(*p).pDevObjList)[(*p).device]			; current device object
+
+	set_widget_text, (*pstate).xrange, str_tidy(x)
+	(*p).xrange = x
+	return
+end
+
+;------------------------------------------------------------------------------------------
+
+pro evt_set_yrange, pstate, x
+
+;	Set the Y range (pixels)
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'evt_set_yrange',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+	if n_elements(pstate) eq 0 then return
+	if ptr_valid(pstate) eq 0 then return
+	if size(*pstate,/tname) ne 'STRUCT' then return
+	if n_elements(x) lt 1 then return
+	p = (*pstate).p
+	if ptr_valid(p) eq 0 then return
+	DevObj = (*(*p).pDevObjList)[(*p).device]			; current device object
+
+	set_widget_text, (*pstate).yrange, str_tidy(x)
+	(*p).yrange = x
+	return
+end
+
+;------------------------------------------------------------------------------------------
+
+pro evt_set_xsize, pstate, x
+
+;	Set the X size (um)
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'evt_set_xsize',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+	if n_elements(pstate) eq 0 then return
+	if ptr_valid(pstate) eq 0 then return
+	if size(*pstate,/tname) ne 'STRUCT' then return
+	if n_elements(x) lt 1 then return
+	p = (*pstate).p
+	if ptr_valid(p) eq 0 then return
+	DevObj = (*(*p).pDevObjList)[(*p).device]			; current device object
+
+	set_widget_text, (*pstate).xsize, str_tidy(x)
+	(*p).xsize = x
+	return
+end
+
+;------------------------------------------------------------------------------------------
+
+pro evt_set_ysize, pstate, x
+
+;	Set the Y size (um)
+
+COMPILE_OPT STRICTARR
+ErrorNo = 0
+common c_errors_1, catch_errors_on
+if catch_errors_on then begin
+	Catch, ErrorNo
+	if (ErrorNo ne 0) then begin
+		Catch, /cancel
+		on_error, 1
+		help, calls = s
+		n = n_elements(s)
+		c = 'Call stack: '
+		if n gt 2 then c = [c, s[1:n-2]]
+		warning,'evt_set_ysize',['IDL run-time error caught.', '', $
+				'Error:  '+strtrim(!error_state.name,2), $
+				!error_state.msg,'',c], /error
+		MESSAGE, /RESET
+		return
+	endif
+endif
+
+	if n_elements(pstate) eq 0 then return
+	if ptr_valid(pstate) eq 0 then return
+	if size(*pstate,/tname) ne 'STRUCT' then return
+	if n_elements(x) lt 1 then return
+	p = (*pstate).p
+	if ptr_valid(p) eq 0 then return
+	DevObj = (*(*p).pDevObjList)[(*p).device]			; current device object
+
+	set_widget_text, (*pstate).ysize, str_tidy(x)
+	(*p).ysize = x
 	return
 end
 
