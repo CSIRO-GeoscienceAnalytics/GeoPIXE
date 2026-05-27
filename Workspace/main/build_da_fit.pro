@@ -49,7 +49,7 @@ endif
 pel = (*pregion).el
 pconc = (*pregion).conc
 pphase = (*pregion).phase
-payield = (*pregion).ayield
+payield = (*pregion).ayield						; not captured in 'analyze_image' anymore in new MPDA
 if ptr_valid(p) eq 0 then return,0
 if ptr_valid(pmatrix) eq 0 then return,0
 if ptr_valid(pconc) eq 0 then return,0
@@ -135,7 +135,7 @@ if ptr_good( (*pregion).poverlay) eq 0 then goto, old							;@3-16
 	goto, done
 
 ;----------------------------------------------------------------------------------------------
-;	If no poverlay exists from Region (analyze_image)
+;	Test for MPDA: If no poverlay exists from Region (analyze_image)
 
 old:
 	n_comp = n_elements( matrix.matrix[0,0,*])
@@ -150,7 +150,7 @@ old:
 	if n_comp gt 1 then goto, old_mpda
 	
 ;----------------------------------------------------------------------------------------------
-;	Single phase, normal overlays from Region (analyze_image)
+;	Single phase, normal (not MPDA) overlays from Region (analyze_image)
 
 	if suppress eq 0 then print,'Use single phase spectrum overlay approach ...'
 	
@@ -181,7 +181,8 @@ old:
 
 ;----------------------------------------------------------------------------------------------
 ;	Multi-phase, old MPDA overlays from Region (analyze_image)
-
+;	NOTE: Superceded by poverlays approach (above).
+;
 ; The type of yield average to use depends on whether it's a compound mixture, or
 ; a spatially dispersed mixture. For a compound, we use the 1/Y average approach, reflecting
 ; the dominance of the more absorbing elements in a compound. For a spatially dispersed

@@ -1551,7 +1551,7 @@ pro Image_Load_DA_spectrum_refit, Event
 		dfile = file_requester( /read, /must_exist, filter='*.'+ext, group=(*pstate).tlb, $
 			title='Select original '+ext+' file to find spec', file=(*p).matrix.file, fix_filter=0, $
 			path=*(*pstate).path, /translate, updir=3, /skip_if_exists)
-		da = read_DA( dfile, error=err)
+		da = read_DA( dfile, back_only=((*p).mode eq 6), error=err)
 		if err eq 0 then begin
 			(*p).matrix.file = dfile
 			(*p).pda = ptr_new( da, /no_copy)

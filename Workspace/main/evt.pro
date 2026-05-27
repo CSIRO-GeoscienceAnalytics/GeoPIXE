@@ -486,6 +486,9 @@ endcase
 ;					1	CUTs
 ;					2	mean energy STIM CUTs
 ;					3	MPDA method
+;					4	XYE (compressed E) datacube
+;					5	All counts
+;					6	MultiBack DA (MBDA)
 ;
 ;	Actually, step_mode=1 and step_mode=2 are really the same thing, but the default
 ;	station number is 0 for step_mode=1, and 2 for step_mode=2.
@@ -743,8 +746,8 @@ case uname of
 				endelse
 
 				mode = (*img).mode
-				if strlowcase(extract_extension((*img).matrix.file)) eq 'mpdam' then mode=3
-				if (mode eq 3) or (mode eq 4) then widget_control, (*pstate).da_xanes_base1b, map=0
+				if (mode eq 0) and (strlowcase(extract_extension((*img).matrix.file)) eq 'mpdam') then mode=3
+				if (mode eq 3) or (mode eq 4) or (mode eq 6) then widget_control, (*pstate).da_xanes_base1b, map=0
 
 				(*p).energy_cal_file = (*img).energy_cal_file
 
@@ -773,7 +776,7 @@ case uname of
 					widget_control, (*pstate).type, set_combobox_select=(*p).type[(*p).station]
 					widget_control, (*pstate).mode, set_combobox_select=(*p).mode[(*p).station]
 					widget_control, (*pstate).file, set_value=(*p).file[(*p).station]
-					widget_control, (*pstate).base_new_MPDA, map=(mode eq 3)
+					widget_control, (*pstate).base_new_MPDA, map=(mode eq 3) or (mode eq 6)
 					widget_control, (*pstate).base_export, map=(mode ne 3)
 					set_widget_text, (*pstate).file, (*p).file[(*p).station]
 				endif else begin
@@ -795,7 +798,7 @@ case uname of
 					widget_control, (*pstate).type, set_combobox_select=(*p).type[i]
 					widget_control, (*pstate).mode, set_combobox_select=(*p).mode[i]
 					widget_control, (*pstate).file, set_value=(*p).file[i]
-					widget_control, (*pstate).base_new_MPDA, map=(mode eq 3)
+					widget_control, (*pstate).base_new_MPDA, map=(mode eq 3) or (mode eq 6)
 					widget_control, (*pstate).base_export, map=(mode ne 3)
 					set_widget_text, (*pstate).file, (*p).file[i]
 				endelse
@@ -832,9 +835,7 @@ case uname of
 
 				active = get_active( p, enable, type, mode, cal_a, cal_b, ecompress, file)
 
-				T = strip_file_ext((*img).file)
-				if (mode eq 1) then T = strip_file_m( T, ending='-cuts') + '-cuts'
-				if (mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
+				T = evt_fix_output( p, (*img).file, mode)
 				(*p).output_file = T + '.'+ (*pstate).outputs[(*p).sort_mode]
 				set_widget_text, (*pstate).output_file, (*p).output_file
 
@@ -1195,9 +1196,7 @@ case uname of
 
 				active = get_active( p, enable, type, mode, cal_a, cal_b, ecompress, file)
 				
-				T = strip_file_ext((*img).file)
-				if (mode eq 1) then T = strip_file_m( T, ending='-cuts') + '-cuts'
-				if (mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
+				T = evt_fix_output( p, (*img).file, mode)
 				(*p).output_file = T + '.'+ (*pstate).outputs[(*p).sort_mode]
 				set_widget_text, (*pstate).output_file, (*p).output_file
 
@@ -1753,9 +1752,8 @@ case uname of
 	;				notify, 'path', (*pstate).path, from=event.top
 	
 					active = get_active( p, enable, type, mode, cal_a, cal_b, ecompress, file)
-					T = strip_file_ext((*p).evt_file)
-					if (mode eq 1) then T = strip_file_m( T, ending='-cuts') + '-cuts'
-					if (mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
+
+					T = evt_fix_output( p, (*p).evt_file, mode)
 					(*p).output_file = *(*pstate).path + strip_path(T,/keep) + '.'+ (*pstate).outputs[(*p).sort_mode]
 					set_widget_text, (*pstate).output_file, (*p).output_file
 				endif
@@ -1860,7 +1858,7 @@ case uname of
 		endif
 		end
 	'mode': begin
-		modes = ['DA','CUTS','STIM','MPDA','CUBE','ALL']
+		modes = ['DA','CUTS','STIM','MPDA','CUBE','ALL','MBDA']
 		evt_set_proj_mode, pstate, modes[event.index], event.top
 		if event.index eq 4 then begin
 			warning,'evt_event',['Take care using XYE datacubes, which can result in', $
@@ -1960,19 +1958,19 @@ finish:
 	widget_control, (*pstate).enable, set_value=(*p).enable[(*p).station]
 
 	if (strlen((*p).output_file) gt 0) and (strlen((*p).evt_file) gt 0) then begin
-		if strlowcase(strip_path(strip_file_ext(strip_file_m((*p).output_file, ending='-cuts'), double=((*p).sort_mode eq 1)))) ne  $
-							strlowcase(strip_path(strip_file_ext((*p).evt_file),/keep)) or  $
-							((mode eq 1) and (locate('-cuts',(*p).output_file) eq -1)) or  $
-							((mode eq 0) and (locate('-cuts',(*p).output_file) ne -1)) then begin
-			T = strip_file_ext(strip_file_m((*p).output_file, ending='-cuts'), double=((*p).sort_mode eq 1))
-			if ((mode eq 1) and (locate('-cuts',T) eq -1)) then T = T + '-cuts'
-			if (mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
+;		if strlowcase(strip_path(strip_file_ext(strip_file_m((*p).output_file, ending='-cuts'), double=((*p).sort_mode eq 1)))) ne  $
+;							strlowcase(strip_path(strip_file_ext((*p).evt_file),/keep)) or  $
+;							((mode eq 1) and (locate('-cuts',(*p).output_file) eq -1)) or  $
+;							((mode eq 0) and (locate('-cuts',(*p).output_file) ne -1)) then begin
+			T = evt_fix_output( p, (*p).output_file, mode)
+
 			pt = extract_path((*p).output_file)
 			if lenchr(pt) lt 1 then pt = *(*pstate).path
 			(*p).output_file = pt + strip_path(T) + '.'+ (*pstate).outputs[(*p).sort_mode]
 			set_widget_text, (*pstate).output_file, (*p).output_file
-		endif
+;		endif
 	endif
+
 
 	close_file, lun
 	widget_control, hourglass=0
@@ -2303,6 +2301,23 @@ function get_active, p, enable, type, mode, cal_a, cal_b, ecompress, file, alert
 
 	return, active
 	end
+
+;------------------------------------------------------------------------------------------
+
+function evt_fix_output, p, file, mode
+
+;	return a 'fixed' (manage endings), extension stripped file name
+
+COMPILE_OPT STRICTARR
+	if ptr_valid(p) eq 0 then return, ''
+
+	T0 = strip_file_ext( file, double=((*p).sort_mode eq 1))
+	T = strip_file_m( T0, ending=['-cuts','-MPDA','-MBDA'])
+	if (mode eq 1) then T = T + '-cuts'
+	if (mode eq 3) then T = T + '-MPDA'
+	if (mode eq 6) then T = T + '-MBDA'
+	return, T
+end
 
 ;------------------------------------------------------------------------------------------
 
@@ -2775,9 +2790,8 @@ endif
 		*(*pstate).path = build_output_path( (*p).evt_file, (*p).output_file, (*p).root)
 
 		active = get_active( p, enable, type, mode, cal_a, cal_b, ecompress, file)
-		T = strip_file_ext((*p).evt_file)
-		if (mode eq 1) then T = strip_file_m( T, ending='-cuts') + '-cuts'
-		if (mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
+
+		T = evt_fix_output( p, (*p).evt_file, mode)
 		if DevObj->multi_files() and (DevObj->multi_char() ne '.') then begin
 			T = strip_file_m( T, ending=DevObj->multi_char() + ((adc_offset_device(DevObj) eq -1) ? '0' : '1'))
 		endif
@@ -3263,9 +3277,7 @@ endif
 
 	active = get_active( p, enable, type, mode, cal_a, cal_b, ecompress, file)
 
-	T = strip_file_ext(F, double=((*p).sort_mode eq 1))
-	if (mode eq 1) then T = strip_file_m( T, ending='-cuts') + '-cuts'
-	if (mode eq 3) then T = strip_file_m( T, ending='-MPDA') + '-MPDA'
+	T = evt_fix_output( p, F, mode)
 	F2 = T + '.'+ (*pstate).outputs[(*p).sort_mode]
 	set_widget_text, (*pstate).output_file, F2
 
@@ -3283,7 +3295,7 @@ end
 
 pro evt_set_proj_mode, pstate, mode, tlb
 
-;	Set the projection mode = (DA, CUTS, STIM, MPDA) 
+;	Set the projection mode = (DA, CUTS, STIM, MPDA, CUBE, All, MBDA) 
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -3313,7 +3325,7 @@ endif
 	if ptr_valid(p) eq 0 then return
 	DevObj = (*(*p).pDevObjList)[(*p).device]			; current device object
 
-	q = where( mode eq ['DA','CUTS','STIM','MPDA','CUBE','ALL'])
+	q = where( mode eq ['DA','CUTS','STIM','MPDA','CUBE','ALL','MBDA'])
 	if (*p).array eq 1 then begin
 		i1 = 0
 		i2 = (*pstate).max_adcs-1
@@ -3329,10 +3341,10 @@ endif
 ;	endif else begin
 		widget_control, (*pstate).file, sensitive=(q[0] ne 4)
 ;	endelse
-	widget_control, (*pstate).da_xanes_base1b, map=((*p).mode[(*p).station] ne 3) and ((*p).mode[(*p).station] ne 4) and ((*p).mode[(*p).station] ne 5)
-	widget_control, (*pstate).da_xanes_base2, map=(((*p).xy_mode eq 4) or (((*p).xy_mode eq 0) and ((*p).mode[(*p).station] ne 3) and ((*p).energy_proxy_axis gt 0)))
-	widget_control, (*pstate).base_new_MPDA, map=((*p).mode[(*p).station] eq 3)
-	widget_control, (*pstate).base_export, map=((*p).mode[(*p).station] ne 3)
+	widget_control, (*pstate).da_xanes_base1b, map=((*p).mode[(*p).station] ne 3) and ((*p).mode[(*p).station] ne 4) and ((*p).mode[(*p).station] ne 5) and ((*p).mode[(*p).station] ne 6)
+	widget_control, (*pstate).da_xanes_base2, map=(((*p).xy_mode eq 4) or (((*p).xy_mode eq 0) and ((*p).mode[(*p).station] ne 3) and ((*p).mode[(*p).station] ne 6) and ((*p).energy_proxy_axis gt 0)))
+	widget_control, (*pstate).base_new_MPDA, map=((*p).mode[(*p).station] eq 3) or ((*p).mode[(*p).station] eq 6)
+	widget_control, (*pstate).base_export, map=((*p).mode[(*p).station] ne 3) or ((*p).mode[(*p).station] eq 6)
 	widget_control, (*pstate).mode, set_combobox_select=(*p).mode[(*p).station]
 	widget_control, (*pstate).base_proj_file, map=((*p).mode[(*p).station] ne 4) and ((*p).mode[(*p).station] ne 5)
 
@@ -4607,9 +4619,9 @@ xy_modes = [' Scan in X and Y ',' Stage stepping in X ',' Linear stage Traverse 
 image_modes = ['Image full area','Image select sub-region (no XY compress)']
 step_modes = ['Advance by Toggle Bit','Advance by ADC Count','Advance by Event Count']
 data_types = ' ' + detector_types()
-projection_modes = [	['Dynamic Analysis (DA)','Spectrum CUTs (ROIs)','CUT mean energy (STIM)','Multiphase DA (MPDA)','XYE (compressed E) datacube','All Counts'], $	; image
-			['Dynamic Analysis (DA)','Spectrum CUTs (ROIs)','CUT mean energy (STIM)',' ',' ',' '], $				; EXAFS
-			['Dynamic Analysis (DA)','Spectrum CUTs (ROIs)','CUT mean energy (STIM)',' ',' ',' ']]					; 3D stack
+projection_modes = [	['Dynamic Analysis (DA)','Spectrum CUTs (ROIs)','CUT mean energy (STIM)','Multiphase DA (MPDA)','XYE (compressed E) datacube','All Counts','MultiBack DA (MBDA)'], $	; image
+			['Dynamic Analysis (DA)','Spectrum CUTs (ROIs)','CUT mean energy (STIM)',' ',' ',' ',' '], $				; EXAFS
+			['Dynamic Analysis (DA)','Spectrum CUTs (ROIs)','CUT mean energy (STIM)',' ',' ',' ',' ']]					; 3D stack
 proxy_modes = ['None','X axis','Y axis']
 ; compressions must be just integers starting at 1
 compressions = ' '+str_tidy(indgen(100)+1)
@@ -5101,7 +5113,8 @@ button = widget_button( detector_layout_base, value='?', uname='detector-layout'
 	mode = widget_combobox( base1e, value=projection_modes[*,(*p).sort_mode], uname='mode', /tracking, $
 						notify_realize='OnRealize_mode', $
 						uvalue='Select the projection method for this ADC, or all enabled ADCs in "Detector Array" mode. ' + $
-						'Choose between "Dynamic Analysis", spectrum energy "Cuts", "STIM mean energy", "Multiphase DA", "XYE data cube" or "All Counts".',xsize=mode_xsize)
+							'Choose between "Dynamic Analysis", spectrum energy "Cuts", "STIM mean energy", "Multiphase DA", ' + $
+							'"XYE data cube", "All Counts" or "MultiBack DA".',xsize=mode_xsize)
 
 	base_proj_file = widget_base( base1, /row, /base_align_center, ypad=0, map=((*p).mode[(*p).station] ne 4) and ((*p).mode[(*p).station] ne 5))
 	button = widget_button( base_proj_file, value='File:', uname='file_button', /tracking, $

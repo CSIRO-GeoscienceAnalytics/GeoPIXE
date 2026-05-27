@@ -160,7 +160,7 @@ end
 ;----------------------------------------------------------------------------
 
 function read_da, file, error=error, version=version, title=title, e_beam=eb, eDA=e, phases=phase_dai, $
-		pcorr=pcorr, mpda=mpda, cluster_debug=cluster_debug
+		pcorr=pcorr, mpda=mpda, back_only=back_only, cluster_debug=cluster_debug
 
 ;	Read the DA matrix file 'file'
 ;
@@ -177,8 +177,10 @@ function read_da, file, error=error, version=version, title=title, e_beam=eb, eD
 ;	eDA		also returns E vector here.		
 ;
 ;	For file extension .mpdam only:
-;	phases	returns file-name of phase maps.
-;	pcorr	returns the correct setup struct.
+;	phases		returns file-name of phase maps.
+;	pcorr		returns the correct setup struct.
+;	back_only	returns if this is a back_only .mpdam
+;				only a return for stringified 'file', else must be supplied on input
 
 COMPILE_OPT STRICTARR
 ErrorNo = 0
@@ -215,11 +217,13 @@ if strmid( file,0,1) eq '{' then begin
 	mpdam = unstringify( file, error=error, context='read_DA')
 	if error then goto, bad_io
 	filename = mpdam.file
+	back_only = mpdam.back_only
 	mpda = 1
 endif else if extract_extension( file) eq 'mpdam' then begin
-	mpdam = read_mpdam( file, error=error)
+	mpdam = read_mpdam( file, back_only=back_only, error=error)
 	if error then goto, bad_io
 	filename = file
+	back_only = mpdam.back_only
 	mpda = 1
 endif
 
@@ -238,6 +242,7 @@ if mpda then begin
 			version = version[0]
 			mp_matrix = fltarr( da.size, da.n_el, n_comp)
 			mp_yield = fltarr( da.n_el, n_comp)
+			original_yield = fltarr( da.n_el)
 			mp_charge = fltarr( n_comp)
 			if da.n_pure gt 0 then pure = fltarr( da.size, da.n_el, n_comp)
 			sz1 = da.size
@@ -316,6 +321,35 @@ if mpda then begin
 		endif
 	endfor
 	mp_charge[n_comp-1] = da.charge
+
+;	/back_only mode is for MPBA (MultiBack DA), which just wants to track changes in Background for
+;	better background shape tracking, with no yield variation used.
+
+	if back_only then begin
+		da = read_da( (*mpdam.pcorr).original, title='read_da: multi-phase DA read of Original', error=error)
+		if error then goto, bad_mpdam
+		sz2 = da.size
+		cal2 = {order:1, poly:[da.cal.b,da.cal.a], units:'keV'}
+		gprint,level=2, output=cluster_debug,'	Original: ca,cb=',da.cal.a,da.cal.b,' size=',sz2
+		for j=0,da.n_el-1 do begin
+			q = where( da.el[j] eq els1, nq)
+			if (nq ge 2) and (j ge 1) then begin
+				q2 = where( da.el[j] eq da.el[0:j-1], nq2)						; prior duplicates (e.g. "Compton")?
+				if nq2 eq 0 then begin
+					k = q[0]
+				endif else begin
+					k = q[nq-1]
+				endelse					
+			endif else k=q[0]
+			if nq ne 0 then begin
+				original_yield[k] = da.yield[j]
+			endif
+		endfor
+
+		for i=0,n_elements( mp_yield[*,0])-1 do begin
+			mp_yield[i,*] = original_yield[i]
+		endfor
+	endif
 
 ;	Need to normalize the Back rows of the DA matrix, as well as the 'pure' spectra.
 ;	Do this in complementary directions.

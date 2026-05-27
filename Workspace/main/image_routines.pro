@@ -69,14 +69,13 @@ pro Analyze_Image, pstate, i_update, throttle=throttle, refine=refine, error=aer
 	if ptr_good( (*p).image ) eq 0 then return
 	use_yield = 0
 	if xanes eq 0 then begin
-		if ((*p).mode eq 0) or ((*p).mode eq 3) then begin						; DA or MPDA mode
-;		if ((*p).mode eq 0)  then begin											; DA mode
+		if ((*p).mode eq 0) or ((*p).mode eq 3) or ((*p).mode eq 6) then begin		; DA, MPDA or MBDA mode
 			if (ptr_good( (*p).pda) eq 0) and ((*p).matrix.file ne '') then begin
 				ext = extract_extension((*p).matrix.file)
 				file = file_requester( /read, /must_exist, filter='*.'+ext, group=(*pstate).tlb, $
-					title='Select original '+ext+' file to append fit', file=(*p).matrix.file, fix_filter=0, $
-					path=*(*pstate).path, /translate, updir=3, /skip_if_exists)
-				da = read_DA( file, error=err)
+						title='Select original '+ext+' file to append fit', file=(*p).matrix.file, fix_filter=0, $
+						path=*(*pstate).path, /translate, updir=3, /skip_if_exists)
+				da = read_DA( file, back_only=((*p).mode eq 6), error=err)
 				if err eq 0 then begin
 					(*p).matrix.file = file
 					(*p).pda = ptr_new( da, /no_copy)

@@ -58,10 +58,12 @@ end
 
 ;------------------------------------------------------------------------------------------------
 
-function read_mpdam, F, silent=silent, error=error
+function read_mpdam, F, back_only=back_only, silent=silent, error=error
 
-	;	Read multi-phase DA file, which points to phase DAI file
-	;	and a correct file. Also read and return 'correct' data.
+;	Read multi-phase DA file, which points to phase DAI file
+;	and a correct file. Also read and return 'correct' data.
+;
+;	/back_only	do MPBA (Multi Background variant of MPDA, with no yield variation ratios)
 
 	COMPILE_OPT STRICTARR
 	ErrorNo = 0
@@ -85,6 +87,7 @@ function read_mpdam, F, silent=silent, error=error
 	if n_params() lt 1 then return, 0L
 	if lenchr(F) lt 1 then return, 0L
 	if n_elements(silent) eq 0 then silent=0
+	if n_elements( back_only) eq 0 then back_only=0
 
 	error = 1
 	valid = [-1]						; valid versions
@@ -132,7 +135,7 @@ cont:
 	if error then return, 0L
 
 	error = 0
-	return, { file:F[0], phases:phases, correct:correct, pcorr:pcorr}
+	return, { file:F[0], phases:phases, correct:correct, pcorr:pcorr, back_only:back_only}
 
 	bad_io:
 	gprint,'read_mpdam: bad MPDAM I/O'

@@ -231,7 +231,8 @@ if extract_extension( matrix_file) eq 'mpdam' then begin
 	endif
 endif
 
-matrix = read_da( da_string, phases=phase_dai, pcorr=pcorr, mpda=mpda, eDA=eDA, cluster_debug=cluster_debug, error=err)
+matrix = read_da( da_string, phases=phase_dai, pcorr=pcorr, mpda=mpda, back_only=back_only, $
+					eDA=eDA, cluster_debug=cluster_debug, error=err)
 if err then goto, bad_matrix
 
 if mpda then begin
@@ -1035,7 +1036,7 @@ img.toggle_station = step_station
 img.events = events                  ; events up to 'terminate', NOT necessarily total events
 
 img.type = type
-img.mode = mpda ? 3 : 0				; DA or MPDA mode
+img.mode = mpda ? (back_only ? 6 : 3) : 0				; DA or MPDA/ MBDA mode
 img.channel = channel[0]
 img.detector = detector
 if n_elements(hist) gt 0 then img.hist = ptr_new(hist, /no_copy)

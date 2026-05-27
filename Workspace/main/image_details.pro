@@ -101,7 +101,7 @@ index = [0,0,0]
 ionbeam = obj->ionbeam()
 charge_gain_unit_lists, ic_vals, ic_units, ic_vunits, ionbeam=ionbeam
 on_off = ['Off','On']
-modes = ['DA matrix:', 'Cuts (ROI):', 'STIM Cuts (mean energy):', 'Multiphase DA (MPDA):', 'XYE (compressed E) data cube:']
+modes = ['DA matrix', 'Cuts (ROI)', 'STIM Cuts (mean energy)', 'Multiphase DA (MPDA)', 'XYE (compressed E) data cube', 'All counts', 'MultiBack DA (MBDA)']
 
 image_axes_units, p, xunits=xunits, yunits=yunits
 

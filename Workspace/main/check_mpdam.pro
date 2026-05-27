@@ -1,5 +1,5 @@
 function check_mpdam, file, DevObj, raw=raw, stringed=mpdam_string, phase_good=good, original=original, $
-				verify=verify, error=err
+				verify=verify, back_only=back_only, error=err
 
 ;	In order to test all files in mpdam (and its referenced .correct file and all referenced DA matrix files),
 ;	these are done here for 'evt_start' and put in an updated mpdam struct, stringified into string 'stringed'.
@@ -12,6 +12,7 @@ function check_mpdam, file, DevObj, raw=raw, stringed=mpdam_string, phase_good=g
 ;		file	MPDAM file name
 ;		DevObj	device object
 ;		raw		raw data file name
+;		/back_only	do MPBA (Multi Background variant of MPDA, with no yield variation ratios)
 ;
 ;	Return:
 ;		mpda	1 (OK), 0 (not an mpdam file, or insufficient valid info to do MPDA)
@@ -49,9 +50,10 @@ endif
 	if n_elements( raw) eq 0 then goto, finish
 	if obj_valid( DevObj) eq 0 then goto, finish
 	if n_elements( verify) eq 0 then verify=1
+	if n_elements( back_only) eq 0 then back_only=0
 
 	if extract_extension( file) eq 'mpdam' then begin
-		mpdam = read_mpdam( file, silent=(verify eq 0), error=err)
+		mpdam = read_mpdam( file, silent=(verify eq 0), back_only=back_only, error=err)
 		if err then begin
 			warning,'check_mpdam',['Bad read from MPDAM file: ', file]
 			goto, finish

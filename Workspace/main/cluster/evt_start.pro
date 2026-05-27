@@ -34,18 +34,18 @@ endif
 common c_debug_dummy, dummy_write
 if n_elements(dummy_write) lt 1 then dummy_write=0
 
-file_ext = [[['*.dam','*.cuts','*.cuts','*.mpdam','',''],['*.dam','*.region','','','',''],['*.dam','*.cuts','*.cuts','','','']], $
-		[['*.damg','*.cuts','*.cuts','','',''],['*.damg','*.cuts','*.cuts','','',''],['*.damg','*.cuts','*.cuts','','','']], $
-		[['*.damr','*.cuts','*.cuts','','',''],['*.damr','*.cuts','*.cuts','','',''],['*.damr','*.cuts','*.cuts','','','']], $
-		[['*.dame','*.cuts','*.cuts','','',''],['*.dame','*.cuts','*.cuts','','',''],['*.dame','*.cuts','*.cuts','','','']], $
-		[['*.dams','*.cuts','*.cuts','','',''],['*.dams','*.cuts','*.cuts','','',''],['*.dams','*.cuts','*.cuts','','','']], $
-		[['*.damc','*.cuts','*.cuts','','',''],['*.damc','*.cuts','*.cuts','','',''],['*.damc','*.cuts','*.cuts','','','']], $
-		[['*.damd','*.cuts','*.cuts','','',''],['*.damd','*.cuts','*.cuts','','',''],['*.damd','*.cuts','*.cuts','','','']], $
-		[['*.damx','*.cuts','*.cuts','*.mpdam','',''],['*.damx','*.cuts','*.cuts','','',''],['*.damx','*.cuts','*.cuts','','','']]]
+file_ext = [[['*.dam','*.cuts','*.cuts','*.mpdam','','','*.mpdam'],['*.dam','*.region','','','','','*.mpdam'],['*.dam','*.cuts','*.cuts','','','','*.mpdam']], $
+		[['*.damg','*.cuts','*.cuts','','','',''],['*.damg','*.cuts','*.cuts','','','',''],['*.damg','*.cuts','*.cuts','','','','']], $
+		[['*.damr','*.cuts','*.cuts','','','',''],['*.damr','*.cuts','*.cuts','','','',''],['*.damr','*.cuts','*.cuts','','','','']], $
+		[['*.dame','*.cuts','*.cuts','','','',''],['*.dame','*.cuts','*.cuts','','','',''],['*.dame','*.cuts','*.cuts','','','','']], $
+		[['*.dams','*.cuts','*.cuts','','','',''],['*.dams','*.cuts','*.cuts','','','',''],['*.dams','*.cuts','*.cuts','','','','']], $
+		[['*.damc','*.cuts','*.cuts','','','',''],['*.damc','*.cuts','*.cuts','','','',''],['*.damc','*.cuts','*.cuts','','','','']], $
+		[['*.damd','*.cuts','*.cuts','','','',''],['*.damd','*.cuts','*.cuts','','','',''],['*.damd','*.cuts','*.cuts','','','','']], $
+		[['*.damx','*.cuts','*.cuts','*.mpdam','','','*.mpdam'],['*.damx','*.cuts','*.cuts','','','','*.mpdam'],['*.damx','*.cuts','*.cuts','','','','*.mpdam']]]
 
-file_title = [['Select DA Matrix file','Select CUTS specification file','Select STIM energy CUTS file','Select MPDA MPDAM file','',''], $
-		['Select DA Matrix file','Select CUTS specification file','Select STIM energy CUTS file','Select ?','',''], $
-		['Select DA Matrix file','Select CUTS specification file','Select STIM energy CUTS file','Select ?','','']]
+file_title = [['Select DA Matrix file','Select CUTS specification file','Select STIM energy CUTS file','Select MPDA MPDAM file','','','Select MBDA MPDAM file'], $
+		['Select DA Matrix file','Select CUTS specification file','Select STIM energy CUTS file','Select ?','','',''], $
+		['Select DA Matrix file','Select CUTS specification file','Select STIM energy CUTS file','Select ?','','','']]
 
 	evt_error = 1
 	p = (*pstate).p
@@ -192,14 +192,14 @@ cont:
 ;	This way all file-names passed to 'da_evt' are good, but passed in 'mpdam_string' argument to 'da_evt',
 ;	which will work in a cluster mode sub-process where files must be found.
 
+	active = get_active( p, enable, type, mode, cal_a, cal_b, ecompress, file1, /alert)
+
 	mpda = check_mpdam( file, DevObj, raw=raw, stringed=mpdam_string, phase_good=phase_good, original=original, $
-								verify=verify, error=err)
+								verify=verify, back_only=(mode eq 6), error=err)
 	if err then goto, finish
 	
-		active = get_active( p, enable, type, mode, cal_a, cal_b, ecompress, file, /alert)
-
-		if (mode eq 3) and (mpda eq 0) then goto, bad_sort_mode
-		if (mode eq 3) then mode=0											; make MPDA mode (mode=3) use DA routines.
+		if ((mode eq 3) or (mode eq 6)) and (mpda eq 0) then goto, bad_sort_mode
+		if (mode eq 3) or (mode eq 6) then mode=0							; make MPDA mode (mode=3), MBDA mode (mode=6) use DA routines.
 
 		if strlen((*p).output_file) lt 1 then (*p).output_file='default'		
 		print,'EVT start: test file write = ',(*p).output_file
