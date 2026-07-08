@@ -101,3 +101,5 @@ make use of features not available in the VM. For these, a runtime licensed vers
 If you desire to edit and test IDL pro files, and to build SAV files, then a full license is required
 to run IDLDE, the IDL Eclipse development environment.
 
+
+
