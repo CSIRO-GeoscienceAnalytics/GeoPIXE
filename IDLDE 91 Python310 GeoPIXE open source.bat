@@ -10,11 +10,10 @@ path
 rem call C:\Users\chris\miniforge3\condabin\conda.bat deactivate
 
 rem For some extensions, assumes there is a python enviromnment "py310" for python 3.10
+rem Remember to VPN to UMelb for license before continuing ...
 
 call C:\Users\chris\miniforge3\condabin\conda.bat activate py310
 
-rem
-rem "Remember to VPN to UMelb for license before continuing ..."
 pause
 
 PATH=C:\Program Files\NV5\IDL91\bin\bin.x86_64;%PATH%
